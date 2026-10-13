@@ -30,8 +30,13 @@ type styles struct {
 	title, footerKey, footer   func(string) string
 	icon                       func(role icons.Role, glyph string, dim bool) string
 	popupBorder, popupTitle    func(string) string
+	// tile frames an icon or the gear on a raised background (strong: the brighter one); iconTile does it for a colored icon.
+	tile     func(text string, strong bool) string
+	iconTile func(role icons.Role, glyph string, dim bool) string
 	// bg is painted behind the whole screen (nil: the terminal's own background)
 	bg color.Color
+	// text is the color of text that has none of its own, painted with bg so a light theme is readable on a dark terminal
+	text color.Color
 }
 
 func newStyles(l look) styles {
@@ -44,6 +49,7 @@ func newStyles(l look) styles {
 		return g
 	}
 	mono := l.NoColor
+	plainTile := func(t string, _ bool) string { return t }
 	if mono {
 		return styles{
 			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
@@ -52,6 +58,7 @@ func newStyles(l look) styles {
 			borderActive: plain, titleActive: r(lipgloss.NewStyle().Bold(true)), title: r(lipgloss.NewStyle().Faint(true)),
 			footerKey: r(lipgloss.NewStyle().Bold(true)), footer: r(lipgloss.NewStyle().Faint(true)),
 			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)), icon: noIconColor,
+			tile: plainTile, iconTile: func(role icons.Role, g string, dim bool) string { return " " + noIconColor(role, g, dim) + " " },
 		}
 	}
 	p, ok := theme.Lookup(l.Theme)
@@ -66,6 +73,7 @@ func newStyles(l look) styles {
 			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Bold(true)),
 			footer: r(lipgloss.NewStyle().Faint(true)), popupBorder: r(lipgloss.NewStyle().Foreground(blue)),
 			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), icon: noIconColor,
+			tile: plainTile, iconTile: func(role icons.Role, g string, dim bool) string { return " " + noIconColor(role, g, dim) + " " },
 		}
 	}
 	// Every text color is lifted when the palette leaves it under minReadable on the background it is drawn on.
@@ -91,8 +99,22 @@ func newStyles(l look) styles {
 		}
 		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Render(glyph)
 	}
+	s.iconTile = func(role icons.Role, glyph string, dim bool) string {
+		c := p.Overlay0
+		if !dim {
+			c = roles[role]
+		}
+		return lipgloss.NewStyle().Background(p.Surface0).Foreground(theme.Readable(c, p.Surface0, minReadable)).Render(" " + glyph + " ")
+	}
+	s.tile = func(text string, strong bool) string {
+		bg := p.Surface0
+		if strong {
+			bg = p.Surface1
+		}
+		return lipgloss.NewStyle().Background(bg).Foreground(theme.Readable(p.Peach, bg, minReadable)).Bold(strong).Render(text)
+	}
 	if l.ScreenBackground == "theme" {
-		s.bg = p.Base
+		s.bg, s.text = p.Base, p.Text
 	}
 	return s
 }
