@@ -97,9 +97,13 @@ defaults and shows what is wrong. See [docs/configuration.md](docs/configuration
 
 ## Project sidebar
 
+![The narrow project tree](docs/screenshots/follow.png)
+
 `lazyfinder --follow <dir>` shows one project as a narrow tree that updates by itself, like the VS Code explorer: new files and folders appear marked with `+`, with their git state.
 
 ## Search
+
+![Search with filter chips](docs/screenshots/search.png)
 
 Press `/` to search the folder or its subfolders by name, kind, size and date, with clickable filter chips. See [search](docs/search.md).
 
