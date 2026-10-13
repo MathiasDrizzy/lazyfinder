@@ -3,14 +3,14 @@
 │  Recents      ││    Name ▲                              │
 │  Home         ││▸ >  alpha                             │
 │  Projects     ││  >  beta                              │
-│                ││     data.xlsx                         │
-╰────────────────╯│     main.go                           │
-╭─ Locations ────╮│     notes.txt                         │
-│  Disk         ││                                        │
+╰────────────────╯│     data.xlsx                         │
+╭─ Locations ────╮│     main.go                           │
+│  Disk         ││     notes.txt                         │
 │                ││                                        │
-│                ││                                        │
-│                ││                                        │
-│                ││                                        │
-╰────────────────╯╰─────────────────────────────── 1 of 5 ─╯
+╰────────────────╯│                                        │
+                  │                                        │
+                  │                                        │
+                  │                                        │
+                  ╰─────────────────────────────── 1 of 5 ─╯
 <breadcrumb>
  Open: ⏎ | Preview: Space | Open with: O | Quit: q

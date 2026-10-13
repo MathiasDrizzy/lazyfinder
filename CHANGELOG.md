@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Search: the filters moved to their own row above the prompt as labelled buttons (`Look in`, `What`, `By`, with
+  their keys); quick filters that do not fit are dropped whole, never cut; the operators (`kind:`, `ext:`, `size:`,
+  `modified:`, `created:`, `in:`) are explained in the help, and a click on the field gives it the keyboard back.
+- The Favorites and Locations boxes fit their content and leave the rest of the column free; drag the border between
+  them, or press `ctrl+up` / `ctrl+down`, to resize Favorites (saved as `favorites_height`); a double click fits it
+  again. This replaces the fixed 50/50 split.
 - Dates use one format for the whole column. The default is the absolute date with its time (`13 Oct 2026, 09:05`), never
   "Yesterday" mixed with dates; `relative` (`5 h ago`) is a choice and then applies to every row. The old `finder`
   value reads as `absolute`.

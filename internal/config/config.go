@@ -66,14 +66,17 @@ type Config struct {
 	Layout           string `json:"layout"`          // list (detail columns) or columns (parent, folder, preview)
 	// SidebarWidth and PreviewWidth are cells (0 is automatic); ColumnWidths maps a column to its width in cells.
 	// Dragging a border with the mouse, or < > and ctrl+left ctrl+right, saves them.
-	SidebarWidth int            `json:"sidebar_width"`
-	PreviewWidth int            `json:"preview_width"`
-	ColumnWidths map[string]int `json:"column_widths"`
-	Theme        string         `json:"theme"`
-	Watch        Watch          `json:"watch"`
-	Git          Git            `json:"git"`
-	Search       Search         `json:"search"`
-	Ops          Ops            `json:"ops"`
+	SidebarWidth int `json:"sidebar_width"`
+	// FavoritesHeight is the lines of the Favorites box; 0 fits the box to its folders. Dragging the border between
+	// Favorites and Locations, or ctrl+up and ctrl+down, saves it.
+	FavoritesHeight int            `json:"favorites_height"`
+	PreviewWidth    int            `json:"preview_width"`
+	ColumnWidths    map[string]int `json:"column_widths"`
+	Theme           string         `json:"theme"`
+	Watch           Watch          `json:"watch"`
+	Git             Git            `json:"git"`
+	Search          Search         `json:"search"`
+	Ops             Ops            `json:"ops"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
 	Language         string `json:"language"`

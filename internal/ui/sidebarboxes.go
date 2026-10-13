@@ -38,9 +38,20 @@ func (m *Model) sidebarSections() (favs, locs []int) {
 // minLocationsH is the least Locations keeps while Favorites grows: its borders and two lines.
 const minLocationsH = 4
 
-// sidebarBoxLayout stacks the two boxes in the panel height. Each starts at half; Favorites stretches by itself when
-// it has more folders than fit in its half, and Locations gives the space up down to a visible minimum. What still
-// does not fit scrolls inside its box. When the window is too short for both, Favorites alone fills the column.
+// favoritesLines is how many item lines Favorites asks for: the height the user set, or one per folder.
+func (m *Model) favoritesLines(n int) int {
+	if h := m.deps.Cfg.FavoritesHeight; h > 0 {
+		return min(h, maxFavoritesLines)
+	}
+	return max(1, n)
+}
+
+// maxFavoritesLines caps a saved height so a stale config cannot ask for more than any window has.
+const maxFavoritesLines = 200
+
+// sidebarBoxLayout stacks the two boxes at the top of the panel. Each is as tall as its content (Favorites as tall as
+// the user dragged it), Locations keeps a visible minimum, and what is left stays free below. What does not fit
+// scrolls inside its box. When the window is too short for both, Favorites alone fills the column.
 func (m *Model) sidebarBoxLayout() []sbBox {
 	favs, locs := m.sidebarSections()
 	total := m.panelH()
@@ -50,10 +61,12 @@ func (m *Model) sidebarBoxLayout() []sbBox {
 		fav.off = m.boxOffset(fav)
 		return []sbBox{fav}
 	}
-	hFav := max(total/2, min(len(favs)+2, total-minLocationsH))
-	hFav = min(hFav, total-minBoxH)
+	hFav := min(m.favoritesLines(len(favs))+2, total-minLocationsH)
+	hFav = max(minBoxH, min(hFav, total-minBoxH))
 	fav.h = hFav
-	loc := sbBox{title: i18n.T("Ubicaciones", "Locations"), items: locs, y: hFav, h: total - hFav}
+	hLoc := max(minLocationsH, min(len(locs)+2, total-hFav))
+	hLoc = min(hLoc, total-hFav)
+	loc := sbBox{title: i18n.T("Ubicaciones", "Locations"), items: locs, y: hFav, h: hLoc}
 	fav.off, loc.off = m.boxOffset(fav), m.boxOffset(loc)
 	return []sbBox{fav, loc}
 }
@@ -110,6 +123,9 @@ func (m *Model) sidebarBoxes() []string {
 			active = active || (pi == selected && m.focus == focusSidebar)
 		}
 		out = append(out, m.panel(b.title, "", lines, m.sidebarW(), b.h, active)...)
+	}
+	for len(out) < m.panelH() { // the room the boxes do not need stays free
+		out = append(out, spaces(m.sidebarW()))
 	}
 	return out
 }

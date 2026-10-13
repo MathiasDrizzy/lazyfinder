@@ -56,9 +56,9 @@
       ]
     },
     {
-      "desc": "back to two favorites: half and half again",
+      "desc": "back to the default favorites: Locations moves up again",
       "wait": {
-        "regex": "\\A(?:[^\\n]*\\n){11}╭─ Locations",
+        "regex": "\\A(?:[^\\n]*\\n){6}╭─ Locations",
         "timeout_ms": 5000
       }
     },

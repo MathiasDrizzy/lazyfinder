@@ -1,6 +1,6 @@
 {
   "name": "lazyfinder-sidebar-boxes-half",
-  "criterio": "order 2026-10-13-06 point 1, Mathias's precision: with few favorites the two sidebar boxes are half and half",
+  "criterio": "order 2026-10-13-07 point J.2, replaces the 50/50 split: the boxes fit their content and the rest stays free",
   "cmd": [
     "${LAZYFINDER_BIN}",
     "${TUIQA_HOME}/proj"
@@ -17,9 +17,9 @@
       }
     },
     {
-      "desc": "24 rows leave 21 in the sidebar: Favorites takes 10 and Locations opens on the 11th line below the toolbar",
+      "desc": "Favorites fits its 3 entries (5 lines with borders) and Locations opens right below, on the 7th line under the toolbar; the rest of the column stays free",
       "assert": {
-        "contains": "\\A(?:[^\\n]*\\n){11}╭─ Locations"
+        "contains": "\\A(?:[^\\n]*\\n){6}╭─ Locations"
       }
     },
     {

@@ -3,22 +3,22 @@
 │  Recents      ││    Name ▲                 │ Date Modified      │ Size      │
 │  Home         ││▸ >  alpha                  1 Sep 2026, 12:00    --        │
 │  Projects     ││  >  beta                   1 Sep 2026, 12:00    --        │
-│                ││     data.xlsx              1 Sep 2026, 12:00    4 bytes   │
-│                ││     main.go                1 Sep 2026, 12:00    45 bytes  │
-│                ││     notes.txt              1 Sep 2026, 12:00    38 bytes  │
-│                ││                                                            │
+╰────────────────╯│     data.xlsx              1 Sep 2026, 12:00    4 bytes   │
+╭─ Locations ────╮│     main.go                1 Sep 2026, 12:00    45 bytes  │
+│  Disk         ││     notes.txt              1 Sep 2026, 12:00    38 bytes  │
 │                ││                                                            │
 ╰────────────────╯│                                                            │
-╭─ Locations ────╮│                                                            │
-│  Disk         ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-│                ││                                                            │
-╰────────────────╯╰─────────────────────────────────────────────────── 1 of 5 ─╯
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  │                                                            │
+                  ╰─────────────────────────────────────────────────── 1 of 5 ─╯
 <breadcrumb>
  Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Quit: q

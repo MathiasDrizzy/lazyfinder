@@ -19,6 +19,7 @@ const (
 	dragSidebar
 	dragColumn
 	dragPreview
+	dragBoxes
 )
 
 // dragState is a border being dragged with the mouse: the size is relative to where the drag began, so the border
@@ -27,12 +28,14 @@ type dragState struct {
 	kind   dragKind
 	col    fsmodel.Column
 	startX int
+	startY int
 	invert bool // the border of Name: dragging left widens the column on its right
 	start  int  // the width of what is resized when the drag began
 }
 
 func isResizeAction(a keymap.Action) bool {
-	return a == keymap.SidebarNarrow || a == keymap.SidebarWiden || a == keymap.ColumnNarrow || a == keymap.ColumnWiden
+	return a == keymap.SidebarNarrow || a == keymap.SidebarWiden || a == keymap.ColumnNarrow || a == keymap.ColumnWiden ||
+		a == keymap.FavoritesShorter || a == keymap.FavoritesTaller
 }
 
 // setSidebarWidth keeps the sidebar between its minimum and half the window.
@@ -74,6 +77,14 @@ func (m *Model) nudgeColumn(c fsmodel.Column, delta int) {
 	m.setColumnWidth(last, m.colWidth(last)-delta)
 }
 
+// favoritesShown is the item lines the Favorites box has on screen now.
+func (m *Model) favoritesShown() int { return m.sidebarBoxLayout()[0].h - 2 }
+
+// setFavoritesLines keeps the height of Favorites between one line and what leaves Locations its minimum.
+func (m *Model) setFavoritesLines(n int) {
+	m.deps.Cfg.FavoritesHeight = max(1, min(n, m.panelH()-minLocationsH-2, maxFavoritesLines))
+}
+
 func (m *Model) previewWidth() int {
 	g := m.millerGeom()
 	return g.rightW
@@ -92,6 +103,12 @@ func (m *Model) resizeKey(act keymap.Action) tea.Cmd {
 	case keymap.SidebarWiden:
 		m.setSidebarWidth(m.sidebarW() + resizeStep)
 		m.saveSize("sidebar_width", m.deps.Cfg.SidebarWidth)
+	case keymap.FavoritesShorter:
+		m.setFavoritesLines(m.favoritesShown() - 1)
+		m.saveSize("favorites_height", m.deps.Cfg.FavoritesHeight)
+	case keymap.FavoritesTaller:
+		m.setFavoritesLines(m.favoritesShown() + 1)
+		m.saveSize("favorites_height", m.deps.Cfg.FavoritesHeight)
 	case keymap.ColumnNarrow:
 		m.nudgeColumn(m.sort.By, -resizeStep)
 		m.saveColumns()
@@ -126,6 +143,8 @@ func (m *Model) beginDrag(z zone, x int) {
 		m.drag = dragState{kind: dragSidebar, startX: x, start: m.sidebarW()}
 	case zonePreviewBorder:
 		m.drag = dragState{kind: dragPreview, startX: x, start: m.previewWidth()}
+	case zoneBoxBorder:
+		m.drag = dragState{kind: dragBoxes, startY: m.pointerY, start: m.favoritesShown()}
 	case zoneColBorder:
 		c := z.col
 		if c == fsmodel.ColName {
@@ -143,6 +162,8 @@ func (m *Model) onMotion(msg tea.MouseMotionMsg) tea.Cmd {
 	}
 	x := msg.Mouse().X
 	switch m.drag.kind {
+	case dragBoxes:
+		m.setFavoritesLines(m.drag.start + msg.Mouse().Y - m.drag.startY)
 	case dragSidebar:
 		m.setSidebarWidth(m.drag.start + x - m.drag.startX)
 	case dragPreview:
@@ -167,6 +188,8 @@ func (m *Model) onRelease(tea.MouseReleaseMsg) tea.Cmd {
 		m.saveSize("sidebar_width", m.deps.Cfg.SidebarWidth)
 	case dragPreview:
 		m.saveSize("preview_width", m.deps.Cfg.PreviewWidth)
+	case dragBoxes:
+		m.saveSize("favorites_height", m.deps.Cfg.FavoritesHeight)
 	case dragColumn:
 		m.saveSize("column_widths."+string(d.col), m.colWidth(d.col))
 	}
@@ -184,6 +207,9 @@ func (m *Model) fitBorder(z zone) tea.Cmd {
 		}
 		m.setSidebarWidth(longest + 6)
 		m.saveSize("sidebar_width", m.deps.Cfg.SidebarWidth)
+	case zoneBoxBorder:
+		m.deps.Cfg.FavoritesHeight = 0
+		m.saveSize("favorites_height", 0)
 	case zonePreviewBorder:
 		m.deps.Cfg.PreviewWidth = 0
 		m.saveSize("preview_width", 0)

@@ -226,22 +226,61 @@ func (e *env) withFavorites(n int) {
 	e.m.setFavorites(favs)
 }
 
-func TestTheBoxesStartAtHalfAndFavoritesGrowsWithItsFolders(t *testing.T) {
+func TestTheBoxesFitTheirContentAndLeaveTheRestFree(t *testing.T) {
 	e := newEnv(t)
-	e.send(tea.WindowSizeMsg{Width: 120, Height: 24})
+	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
 	total := e.m.panelH()
 	e.withFavorites(2)
 	fav, loc := e.boxHeights()
-	if fav != total/2 || fav+loc != total {
-		t.Fatalf("2 favorites: boxes %d and %d of %d, want half and half", fav, loc, total)
+	l := e.m.sidebarBoxLayout()
+	if fav != len(l[0].items)+2 || loc != max(minLocationsH, len(l[1].items)+2) || fav+loc >= total {
+		t.Fatalf("2 favorites: boxes %d and %d of %d, want content plus borders and free space left", fav, loc, total)
 	}
 	e.withFavorites(10)
-	if fav2, loc2 := e.boxHeights(); fav2 <= loc2 || fav2 <= fav || fav2+loc2 != total {
-		t.Fatalf("10 favorites: Favorites %d must be taller than Locations %d and than before (%d)", fav2, loc2, fav)
+	if fav2, _ := e.boxHeights(); fav2 != len(e.m.sidebarBoxLayout()[0].items)+2 || fav2 <= fav {
+		t.Fatalf("10 favorites: Favorites is %d high, want it to follow its content", fav2)
 	}
 	e.withFavorites(2)
 	if back, _ := e.boxHeights(); back != fav {
 		t.Fatalf("removing favorites must give the space back: %d, want %d", back, fav)
+	}
+}
+
+func TestDraggingTheBorderBetweenTheBoxesResizesFavoritesAndIsRemembered(t *testing.T) {
+	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
+	e.withFavorites(3)
+	fav, _ := e.boxHeights()
+	border := 1 + fav - 1 // screen row of the bottom border of Favorites
+	e.send(tea.MouseClickMsg{X: 5, Y: border, Button: tea.MouseLeft})
+	e.send(tea.MouseMotionMsg{X: 5, Y: border + 4, Button: tea.MouseLeft})
+	e.send(tea.MouseReleaseMsg{X: 5, Y: border + 4, Button: tea.MouseLeft})
+	if got, _ := e.boxHeights(); got != fav+4 {
+		t.Fatalf("Favorites is %d high after the drag, want %d", got, fav+4)
+	}
+	if want := fav - 2 + 4; e.m.deps.Cfg.FavoritesHeight != want {
+		t.Fatalf("favorites_height = %d, want %d", e.m.deps.Cfg.FavoritesHeight, want)
+	}
+	e.send(tea.MouseClickMsg{X: 5, Y: border + 4, Button: tea.MouseLeft})
+	e.send(tea.MouseClickMsg{X: 5, Y: border + 4, Button: tea.MouseLeft})
+	if got, _ := e.boxHeights(); got != fav {
+		t.Fatalf("a double click on the border fits Favorites to its content: %d, want %d", got, fav)
+	}
+}
+
+func TestTheBoxesCanBeResizedFromTheKeyboard(t *testing.T) {
+	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
+	e.withFavorites(3)
+	fav, _ := e.boxHeights()
+	e.key("ctrl+down")
+	if got, _ := e.boxHeights(); got != fav+1 {
+		t.Fatalf("ctrl+down: Favorites is %d high, want %d", got, fav+1)
+	}
+	e.key("ctrl+up")
+	e.key("ctrl+up")
+	if got, _ := e.boxHeights(); got != fav-1 {
+		t.Fatalf("ctrl+up twice: Favorites is %d high, want %d", got, fav-1)
 	}
 }
 

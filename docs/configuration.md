@@ -30,6 +30,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `icon_size` | Ignored since 0.12 (there is no icon size, [ADR 0015](adr/0015-no-icon-size.md)); old files still load. | |
 | `column_separators` | `true` draws a `│` between the column names in the header (not down the rows), and the mouse can drag it to resize | `true` |
 | `density` | `compact` (one line per row) or `comfortable` (two lines, like Finder's roomy rows) | `compact` |
+| `favorites_height` | lines of the Favorites box; `0` fits it to its folders. Dragging the border between Favorites and Locations, or `ctrl+up` / `ctrl+down`, saves it | `0` |
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |
 | `preview_width` | cells of the preview in the column view, 12 to 200; `0` is automatic | `0` |
 | `column_widths` | cells of an optional column, 6 to 60, e.g. `{"kind": 24}` | `{}` |

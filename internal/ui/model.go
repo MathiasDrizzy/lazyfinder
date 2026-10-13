@@ -113,6 +113,7 @@ type Model struct {
 	ctx      ctxState
 	help     helpState
 	pointerX int // column of the last click, for dragging a border
+	pointerY int // row of the last click, for dragging the border between the sidebar boxes
 	icons    icons.Set
 	mil      millerState
 	filter   string // quick filter on the names of this folder; empty means none

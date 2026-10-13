@@ -52,6 +52,7 @@ func (m *Model) helpRows() []helpRow {
 		{"", i18n.T("Tamaños", "Sizes")},
 		{"< >", i18n.T("Barra lateral más estrecha / más ancha", "Narrower / wider sidebar")},
 		{k(keymap.ColumnNarrow) + " " + k(keymap.ColumnWiden), i18n.T("Columna ordenada más estrecha / más ancha", "Narrower / wider sorted column")},
+		{k(keymap.FavoritesShorter) + " " + k(keymap.FavoritesTaller), i18n.T("Cuadro de Favoritos más bajo / más alto (también arrastrando su borde)", "Shorter / taller Favorites box (or drag its border)")},
 		{i18n.T("arrastrar", "drag"), i18n.T("Los bordes; doble clic los ajusta al contenido", "The borders; a double click fits the content")},
 		{"", i18n.T("Archivos", "Files")},
 		{k(keymap.Copy) + " " + k(keymap.Cut) + " " + k(keymap.Paste), i18n.T("Copiar, cortar, pegar", "Copy, cut, paste")},

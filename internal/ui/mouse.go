@@ -25,6 +25,7 @@ const (
 	zoneSideBorder    // the border between the sidebar and the list: drag to resize
 	zoneColBorder     // the gap right of a column header
 	zonePreviewBorder // the border in front of the preview in the column view
+	zoneBoxBorder     // the border between Favorites and Locations: drag to resize
 )
 
 // zone is what lies under a screen cell.
@@ -43,6 +44,9 @@ func (m *Model) hit(x, y int) zone {
 	}
 	if m.columnsOn() && y >= headerRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
 		return m.millerHit(x, y)
+	}
+	if l := m.sidebarBoxLayout(); len(l) == 2 && x >= 1 && x < m.sidebarW()-1 && (y == l[0].h || y == l[0].h+1) {
+		return zone{kind: zoneBoxBorder}
 	}
 	if y >= 1 && y <= lastRow && m.sidebarW() > 0 && (x == m.sidebarW()-1 || x == m.sidebarW()) {
 		return zone{kind: zoneSideBorder}
@@ -153,7 +157,7 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 		}
 		return nil
 	}
-	m.pointerX = mouse.X
+	m.pointerX, m.pointerY = mouse.X, mouse.Y
 	z := m.hit(mouse.X, mouse.Y)
 	if mouse.Button == tea.MouseRight && m.openContext(z, mouse.X, mouse.Y) {
 		return nil
@@ -178,7 +182,7 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 	prev := m.lastClick
 	m.lastClick = click{zone: z, at: m.deps.Now()}
 	switch z.kind {
-	case zoneSideBorder, zoneColBorder, zonePreviewBorder:
+	case zoneSideBorder, zoneColBorder, zonePreviewBorder, zoneBoxBorder:
 		if prev.zone == z && m.deps.Now().Sub(prev.at) <= doubleClickWindow {
 			m.lastClick = click{}
 			m.drag = dragState{}
