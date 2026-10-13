@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-13
+
 ### Added
 
 - Finder-like file list with the columns Name, Date Modified, Date Created, Size and Kind, sortable from the
