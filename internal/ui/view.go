@@ -321,6 +321,9 @@ func (m *Model) toolbar() string {
 		fwd = m.styles.dim(fwd)
 	}
 	left := back + fwd + "  " + m.styles.bold(m.folderTitle())
+	if m.filter != "" {
+		left += "  " + m.styles.accent(i18n.T("filtro: ", "filter: ")+m.filter)
+	}
 	if l := m.tabLabel(); l != "" {
 		left += "  " + m.styles.accent(l)
 	}

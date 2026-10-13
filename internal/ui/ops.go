@@ -17,6 +17,7 @@ const (
 	promptRename
 	promptNewFolder
 	promptTrash
+	promptFilter
 )
 
 // promptState is the one-line question on the bottom row: a name to type, or a yes/no.
@@ -251,6 +252,9 @@ func (m *Model) promptKey(k tea.KeyPressMsg) tea.Cmd {
 		}
 		return nil
 	}
+	if m.prompt.kind == promptFilter {
+		return m.filterKey(k)
+	}
 	switch key {
 	case "esc":
 		m.prompt = promptState{}
@@ -299,6 +303,8 @@ func (m *Model) promptBar() string {
 		return fit(m.styles.accent(" "+i18n.T("Renombrar: ", "Rename: "))+m.prompt.input+"▏", m.w)
 	case promptNewFolder:
 		return fit(m.styles.accent(" "+i18n.T("Carpeta nueva: ", "New folder: "))+m.prompt.input+"▏", m.w)
+	case promptFilter:
+		return fit(m.styles.accent(" "+i18n.T("Filtro: ", "Filter: "))+m.prompt.input+"▏", m.w)
 	}
 	return fit(m.styles.accent(" "+fmt.Sprintf(i18n.T("¿Enviar %s a la Papelera? (s/n)", "Move %s to the Trash? (y/n)"), subject(m.prompt.paths))), m.w)
 }

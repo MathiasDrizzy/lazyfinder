@@ -47,6 +47,9 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		clear(m.marked)
 		return nil
 	}
+	if key == "esc" && m.filter != "" {
+		return m.setFilter("")
+	}
 	return m.listKey(act)
 }
 
@@ -98,6 +101,8 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return m.expandSelected()
 	case keymap.Collapse:
 		return m.collapseSelected()
+	case keymap.Filter:
+		return m.startFilter()
 	case keymap.Commands:
 		return m.showCommands()
 	case keymap.Recents:

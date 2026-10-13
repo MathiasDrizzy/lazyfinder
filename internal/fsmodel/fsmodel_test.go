@@ -203,3 +203,23 @@ func TestNaturalLess(t *testing.T) {
 		t.Fatal("case-insensitive order broken")
 	}
 }
+
+func TestMatchNameSubstringGlobAndCase(t *testing.T) {
+	for _, tc := range []struct {
+		pat, name string
+		want      bool
+	}{
+		{"not", "Notes.TXT", true},
+		{"NOTES", "notes.txt", true},
+		{"xyz", "notes.txt", false},
+		{"*.go", "Main.GO", true},
+		{"*.go", "main.gox", false},
+		{"n?tes*", "notes.txt", true},
+		{"[", "a[b", true}, // a broken pattern is a plain substring
+		{"", "anything", true},
+	} {
+		if got := MatchName(tc.pat, tc.name); got != tc.want {
+			t.Errorf("MatchName(%q, %q) = %v, want %v", tc.pat, tc.name, got, tc.want)
+		}
+	}
+}

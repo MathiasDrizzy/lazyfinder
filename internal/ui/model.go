@@ -99,6 +99,7 @@ type Model struct {
 	search      searchState
 	goto_       gotoState
 
+	filter  string // quick filter on the names of this folder; empty means none
 	picker  pickerState
 	recents []string // visited folders, newest first
 
@@ -185,7 +186,9 @@ func (m *Model) load(dir, name string) error {
 	}
 	if dir != m.listing.Dir {
 		clear(m.marked)
+		m.filter = ""
 	}
+	l = m.filtered(l)
 	m.scanGit(dir)
 	m.listing = m.withChildren(l)
 	if name == "" {

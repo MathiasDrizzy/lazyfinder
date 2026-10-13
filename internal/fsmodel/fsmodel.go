@@ -5,6 +5,7 @@ package fsmodel
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -232,4 +233,19 @@ func FormatDate(t, now time.Time) string {
 		return i18n.T("Ayer a las ", "Yesterday at ") + t.Format("15:04")
 	}
 	return t.Format(i18n.T("02/01/2006", "2 Jan 2006")) // the pair is a Go time layout
+}
+
+// MatchName says whether name passes a quick filter: a glob when the pattern has *, ? or [, else a substring;
+// either way without regard to case. An empty pattern matches everything and a broken glob is a substring.
+func MatchName(pattern, name string) bool {
+	if pattern == "" {
+		return true
+	}
+	p, n := strings.ToLower(pattern), strings.ToLower(name)
+	if strings.ContainsAny(p, "*?[") {
+		if ok, err := path.Match(p, n); err == nil {
+			return ok
+		}
+	}
+	return strings.Contains(n, p)
 }
