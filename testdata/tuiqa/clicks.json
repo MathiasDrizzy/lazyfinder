@@ -1,0 +1,28 @@
+{
+  "name": "lazyfinder-clicks",
+  "criterio": "R-02 R-03 R-04 R-09",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "double click enters alpha", "click": {"at": "alpha", "double": true}},
+    {"wait": {"regex": "inner\\.txt"}},
+    {"desc": "double click enters deep: nested folder reached with clicks only", "click": {"at": "deep", "double": true}},
+    {"wait": {"regex": "x\\.txt"}},
+    {"desc": "breadcrumb segment goes back up to the project", "click": {"at": "proj", "in": {"x": 0, "y": 38, "w": 120, "h": 1}}},
+    {"wait": {"regex": "notes\\.txt"}},
+    {"desc": "back button returns to deep", "click": {"at": "‹", "in": {"x": 0, "y": 0, "w": 10, "h": 1}}},
+    {"wait": {"regex": "x\\.txt"}},
+    {"desc": "forward button returns to the project", "click": {"at": "›", "in": {"x": 0, "y": 0, "w": 10, "h": 1}}},
+    {"wait": {"regex": "notes\\.txt"}},
+    {"desc": "sidebar: Home shows the project folder", "click": {"at": "Home", "in": {"x": 0, "y": 1, "w": 21, "h": 12}}},
+    {"wait": {"regex": "proj", "region": {"x": 22, "y": 2, "w": 98, "h": 6}}},
+    {"desc": "wheel scrolls without crashing", "scroll": {"x": 60, "y": 10, "dir": "down", "count": 3}},
+    {"assert": {"contains": "Name"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

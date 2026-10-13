@@ -1,0 +1,26 @@
+{
+  "name": "lazyfinder-resize",
+  "criterio": "R-19",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"resize": {"cols": 80, "rows": 24}},
+    {"desc": "80x24 keeps the list readable", "wait": {"regex": "notes\\.txt"}},
+    {"assert": {"contains": "Name"}},
+    {"snapshot": {"name": "80x24"}},
+    {"resize": {"cols": 60, "rows": 16}},
+    {"desc": "60x16 is the minimum and still works", "wait": {"regex": "notes\\.txt"}},
+    {"snapshot": {"name": "60x16"}},
+    {"resize": {"cols": 50, "rows": 10}},
+    {"desc": "below the minimum a message replaces the list", "wait": {"regex": "Terminal too small"}},
+    {"resize": {"cols": 120, "rows": 40}},
+    {"desc": "growing back restores the list", "wait": {"regex": "Date Modified"}},
+    {"assert": {"not_contains": "too small"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "openers": {
+    "term-edit": { "argv": ["sh", "-c", "exec \"$HOME/bin/fake-editor.sh\" \"$1\"", "fake", "{file}"], "mode": "terminal" }
+  },
+  "open_with": { "txt": "term-edit" },
+  "sidebar": {
+    "favorites": [ { "name": "Home", "path": "~" }, { "name": "Project", "path": "~/proj" } ],
+    "locations": [ { "name": "Disk", "path": "/" } ]
+  }
+}

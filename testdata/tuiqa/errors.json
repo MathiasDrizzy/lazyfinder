@@ -1,0 +1,18 @@
+{
+  "name": "lazyfinder-errors",
+  "criterio": "R-22 R-25 (an invalid config and an unreadable folder never crash the app)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "env": {"LAZYFINDER_CONFIG": "${TUIQA_SCENARIO_DIR}/fixtures-bad/config.json"},
+  "steps": [
+    {"desc": "an invalid config starts with defaults and says why", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"assert": {"contains": "Error:.*colums"}},
+    {"desc": "the list still works", "keys": ["down"]},
+    {"assert": {"contains": "Name"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

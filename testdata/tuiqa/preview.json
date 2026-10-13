@@ -1,0 +1,30 @@
+{
+  "name": "lazyfinder-preview",
+  "criterio": "R-14 R-15 R-16 R-17 R-18",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "space on a folder lists its entries", "keys": ["space"]},
+    {"wait": {"regex": "inner\\.txt", "region": {"box_with": "─ alpha ─"}}},
+    {"assert_box": {"box_with": "─ alpha ─", "center_in": {"x": 40, "y": 10, "w": 60, "h": 20}, "within": {"x": 0, "y": 0, "w": 120, "h": 40}, "min_w": 50}},
+    {"snapshot": {"name": "folder"}},
+    {"desc": "down moves the selection and the preview follows", "keys": ["down", "down", "down"]},
+    {"wait": {"regex": "package main", "region": {"box_with": "─ main\\.go ─"}}},
+    {"desc": "the popup shows the file text", "assert": {"contains": "func main", "region": {"box_with": "─ main\\.go ─"}}},
+    {"snapshot": {"name": "text"}},
+    {"desc": "Esc closes it", "keys": ["esc"]},
+    {"wait": {"regex": "package main", "absent": true}},
+    {"desc": "space again, then space closes", "keys": ["space", "space"]},
+    {"wait": {"regex": "package main", "absent": true}},
+    {"desc": "an image without terminal graphics offers Quick Look", "keys": ["down", "down", "space"]},
+    {"wait": {"regex": "Quick Look", "region": {"box_with": "─ photo\\.png ─"}}},
+    {"assert": {"contains": "64 x 32"}},
+    {"snapshot": {"name": "image-fallback"}},
+    {"keys": ["esc", "q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

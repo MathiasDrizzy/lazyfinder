@@ -1,0 +1,28 @@
+{
+  "name": "lazyfinder-key-combinations",
+  "criterio": "R-01 R-14 R-19 R-20 R-25 (no combination of keys crashes or corrupts the screen)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 100,
+  "rows": 30,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "preview open, navigate, sort and hide while it is open", "keys": ["space", "down", "down", "up", "s", "S", ".", "pgdown", "pgup", "esc"]},
+    {"assert": {"contains": "Name"}},
+    {"desc": "menu then preview then menu", "keys": ["down", "down", "O", "esc", "space", "O", "esc", "space"]},
+    {"assert": {"not_contains": "panic|runtime error|goroutine"}},
+    {"desc": "navigation storm", "keys": ["enter", "backspace", "enter", "enter", "backspace", "backspace", "alt+left", "alt+left", "alt+right", "left", "left", "left", "right", "right"]},
+    {"assert": {"contains": "Name"}},
+    {"desc": "page keys at both ends", "keys": ["end", "pgdown", "pgdown", "home", "pgup", "g", "G", "k", "j"]},
+    {"desc": "resize in between", "resize": {"cols": 60, "rows": 16}},
+    {"keys": ["space", "down", "esc", "tab", "down", "up", "enter", "tab"]},
+    {"resize": {"cols": 100, "rows": 30}},
+    {"desc": "unknown keys are ignored", "keys": ["z", "x", "ctrl+x", "f5", "1", "9"]},
+    {"assert": {"not_contains": "panic|runtime error|goroutine"}},
+    {"assert": {"contains": "Name"}},
+    {"snapshot": {"name": "after-storm"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}
