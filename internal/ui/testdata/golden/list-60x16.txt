@@ -1,12 +1,12 @@
- ‹  ›   proj                                  5 items  ⌕  ⚙
+ ‹  ›   proj                                5 items  ⌕   
 ╭─ Places ───────╮╭─ proj ─────────────────────────────────╮
-│ Favorites      ││    Name ▲            Date Modified     │
-│  Recents       ││▸ >  alpha           1 Sep 2026        │
-│  Home          ││  >  beta            1 Sep 2026        │
-│  Projects      ││     data.xlsx       1 Sep 2026        │
-│                ││     main.go         1 Sep 2026        │
-│ Locations      ││     notes.txt       1 Sep 2026        │
-│  Disk          ││                                        │
+│ Favorites      ││    Name ▲                              │
+│  Recents      ││▸ >   alpha                            │
+│  Home         ││  >   beta                             │
+│  Projects     ││      data.xlsx                        │
+│ ────────────── ││      main.go                          │
+│ Locations      ││      notes.txt                        │
+│  Disk         ││                                        │
 │                ││                                        │
 │                ││                                        │
 │                ││                                        │

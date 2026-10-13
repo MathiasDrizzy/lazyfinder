@@ -104,7 +104,7 @@ func TestSettingsPopupOpensWithKeyAndGearAndCloses(t *testing.T) {
 	e.mustHave("Theme")
 	e.key("esc")
 	e.mustNotHave("Screen background")
-	e.clickText("⚙")
+	e.clickText(e.m.gearText())
 	e.mustHave("Screen background")
 	e.click(0, 20) // outside the popup: like lazymark, only Esc closes it (order 2026-10-13-05, block H)
 	e.mustHave("Screen background")

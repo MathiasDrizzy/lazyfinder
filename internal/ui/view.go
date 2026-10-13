@@ -20,7 +20,7 @@ import (
 const (
 	sidebarWide   = 22
 	sidebarNarrow = 18
-	colGap        = 2
+	colGap        = 2 // cells between two columns; 3 with the │ separator
 	prefixW       = 4 // pointer, space, folder marker, space
 	gitGutterW    = 2 // git state and a space, only inside a repository
 	minNameW      = 16
@@ -45,6 +45,10 @@ func columnLabel(c fsmodel.Column) string {
 		return i18n.T("Permisos", "Permissions")
 	case fsmodel.ColTags:
 		return i18n.T("Etiquetas", "Tags")
+	case fsmodel.ColOwner:
+		return i18n.T("Propietario", "Owner")
+	case fsmodel.ColPath:
+		return i18n.T("Ruta", "Path")
 	}
 	return i18n.T("Nombre", "Name")
 }
@@ -94,7 +98,7 @@ func (m *Model) prefix() int {
 func (m *Model) panelH() int { return m.h - 3 }
 
 // dropOrder says which optional columns go first when the window is narrow.
-var dropOrder = []fsmodel.Column{fsmodel.ColTags, fsmodel.ColPerms, fsmodel.ColOpened, fsmodel.ColCreated, fsmodel.ColExt, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
+var dropOrder = []fsmodel.Column{fsmodel.ColPath, fsmodel.ColTags, fsmodel.ColOwner, fsmodel.ColPerms, fsmodel.ColOpened, fsmodel.ColCreated, fsmodel.ColExt, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
 
 // columns lays out the visible columns; optional ones are dropped by dropOrder until the name fits.
 func (m *Model) columns() []colSpec {
@@ -107,7 +111,7 @@ func (m *Model) columns() []colSpec {
 	nameW := func() int {
 		w := m.listW() - m.prefix()
 		for _, c := range extra {
-			w -= m.colWidth(c) + colGap
+			w -= m.colWidth(c) + m.gap()
 		}
 		return w
 	}
@@ -118,10 +122,10 @@ func (m *Model) columns() []colSpec {
 		extra = slices.DeleteFunc(extra, func(c fsmodel.Column) bool { return c == drop })
 	}
 	specs := []colSpec{{col: fsmodel.ColName, x: m.prefix(), w: max(1, nameW())}}
-	x := m.prefix() + specs[0].w + colGap
+	x := m.prefix() + specs[0].w + m.gap()
 	for _, c := range extra {
 		specs = append(specs, colSpec{col: c, x: x, w: m.colWidth(c)})
-		x += m.colWidth(c) + colGap
+		x += m.colWidth(c) + m.gap()
 	}
 	return specs
 }
@@ -147,6 +151,10 @@ func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
 		return fsmodel.PermsOf(e)
 	case fsmodel.ColTags:
 		return strings.Join(e.Tags, ", ")
+	case fsmodel.ColOwner:
+		return e.Owner
+	case fsmodel.ColPath:
+		return m.homeShort(filepath.Dir(e.Path))
 	}
 	if m.searchOn() && m.search.deep() {
 		if w := m.where(e); w != "" {
@@ -164,6 +172,7 @@ type place struct {
 	missing bool
 	fav     int  // 1 + the index in sidebar.favorites for a favorite, else 0
 	recents bool // the Recents entry: opens the list of recent folders instead of a folder
+	divider bool // a line between two sections
 }
 
 func (m *Model) places() []place {
@@ -184,7 +193,7 @@ func (m *Model) places() []place {
 	section(i18n.T("Favoritos", "Favorites"), m.deps.Cfg.Sidebar.Favorites)
 	isFav = false
 	out = slices.Insert(out, 1, place{name: i18n.T("Recientes", "Recents"), recents: true})
-	out = append(out, place{})
+	out = append(out, place{divider: true})
 	section(i18n.T("Ubicaciones", "Locations"), m.deps.Cfg.Sidebar.Locations)
 	return out
 }
@@ -249,6 +258,14 @@ func (m *Model) crumbs() []crumb {
 	return parts
 }
 
+// paint puts the theme's background, and its text color for plain text, behind everything on the screen.
+func (m *Model) paint(s string) string {
+	if m.styles.text != nil {
+		return theme.PaintBackground(s, m.styles.bg, m.styles.text)
+	}
+	return theme.PaintBackground(s, m.styles.bg)
+}
+
 // View renders the screen.
 func (m *Model) View() tea.View {
 	var content string
@@ -257,7 +274,7 @@ func (m *Model) View() tea.View {
 	} else {
 		content = strings.Join(m.screen(), "\n")
 		if m.styles.bg != nil && !m.popupsKeepTerminalBackground() {
-			content = theme.PaintBackground(content, m.styles.bg)
+			content = m.paint(content)
 		}
 	}
 	v := tea.NewView(content)
@@ -336,7 +353,7 @@ func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []str
 	lines[m.h-2] = m.breadcrumb()
 	lines[m.h-1] = m.footerBar()
 	if m.popupsKeepTerminalBackground() {
-		lines = strings.Split(theme.PaintBackground(strings.Join(lines, "\n"), m.styles.bg), "\n")
+		lines = strings.Split(m.paint(strings.Join(lines, "\n")), "\n")
 		after := theme.BackgroundSeq(m.styles.bg)
 		return lines, func(base, box []string, x, y int) []string { return overlayAfter(base, box, x, y, after) }
 	}
@@ -383,13 +400,13 @@ func (m *Model) toolbar() string {
 	if l := m.tabLabel(); l != "" {
 		left += "  " + m.styles.accent(l)
 	}
-	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.searchField() + "  " + m.styles.accent(gear) + " "
+	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.searchField() + "  " + m.gearButton() + " "
 	if b := m.branchLabel(); b != "" {
 		right = m.styles.accent(b) + "  " + right
 	}
 	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
 	if pad < 1 {
-		return fit(left, m.w-4) + " " + m.styles.accent(gear) + " "
+		return fit(left, m.w-m.gearW()) + "  " + m.gearButton() + " "
 	}
 	return left + strings.Repeat(" ", pad) + right
 }
@@ -439,15 +456,25 @@ func (m *Model) sidebarLines() []string {
 		switch {
 		case p.title != "":
 			out[i] = m.styles.dim(fit(" "+p.title, w))
+		case p.divider:
+			out[i] = " " + m.styles.border(strings.Repeat("─", max(0, w-2))) + " "
 		case p.name == "":
 		default:
-			label := fit("  "+p.name, w)
+			glyph, lead := m.placeIcon(p)
+			label := fit(lead+" "+p.name, w)
+			if glyph != "" {
+				label = fit(lead+glyph+" "+p.name, w)
+			}
 			focused := m.focus == focusSidebar && len(dests) > 0 && dests[min(m.sideSel, len(dests)-1)] == i
 			switch {
 			case focused:
-				label = m.styles.selected(ansi.Strip(fit("▸ "+p.name, w)))
+				plain := "▸ " + p.name
+				if glyph != "" {
+					plain = "▸ " + ansi.Strip(glyph) + " " + p.name
+				}
+				label = m.styles.selected(ansi.Strip(fit(plain, w)))
 			case p.missing:
-				label = m.styles.dim(label)
+				label = m.styles.dim(ansi.Strip(label))
 			case p.path == m.dir():
 				label = m.styles.bold(label)
 			}
@@ -465,6 +492,7 @@ func (m *Model) listLines() []string {
 	out := make([]string, rows)
 	specs := m.columns()
 	hdr := strings.Repeat(" ", m.prefix())
+	var parts []string
 	for i, s := range specs {
 		label := columnLabel(s.col)
 		if s.col == m.sort.By {
@@ -475,15 +503,16 @@ func (m *Model) listLines() []string {
 			}
 		}
 		if i > 0 {
-			hdr += strings.Repeat(" ", colGap)
+			parts = append(parts, m.gapText())
 		}
-		hdr += fit(label, s.w)
+		parts = append(parts, m.styles.title(fit(label, s.w)))
 	}
-	out[0] = m.styles.title(fit(hdr, m.listW()))
+	out[0] = m.styles.title(hdr) + strings.Join(parts, "")
+	out[0] += strings.Repeat(" ", max(0, m.listW()-ansi.StringWidth(out[0])))
 	for r := 1; r < rows; r++ {
 		idx := m.top + (r-1)/m.rowH()
 		if (r-1)%m.rowH() != 0 || idx >= len(m.entries()) {
-			out[r] = strings.Repeat(" ", m.listW())
+			out[r] = m.blankRow(specs)
 			continue
 		}
 		out[r] = m.row(idx, specs)
@@ -492,6 +521,35 @@ func (m *Model) listLines() []string {
 		out[2] = m.styles.dim(fit("   "+i18n.T("Esta carpeta está vacía", "This folder is empty"), m.listW()))
 	}
 	return out
+}
+
+// gap is the cells between two columns: the │ separator takes one more than plain air.
+func (m *Model) gap() int {
+	if m.deps.Cfg.ColumnSeparators {
+		return colGap + 1
+	}
+	return colGap
+}
+
+// gapText is what is drawn between two columns.
+func (m *Model) gapText() string {
+	if m.deps.Cfg.ColumnSeparators {
+		return " " + m.styles.border("│") + " "
+	}
+	return strings.Repeat(" ", colGap)
+}
+
+// blankRow is a line of the list with no entry: only the separators go through it, so the columns read as columns
+// down to the bottom of the panel.
+func (m *Model) blankRow(specs []colSpec) string {
+	if !m.deps.Cfg.ColumnSeparators {
+		return strings.Repeat(" ", m.listW())
+	}
+	line := strings.Repeat(" ", m.prefix()+specs[0].w)
+	for _, s := range specs[1:] {
+		line += m.gapText() + strings.Repeat(" ", s.w)
+	}
+	return line + strings.Repeat(" ", max(0, m.listW()-ansi.StringWidth(line)))
 }
 
 func (m *Model) row(idx int, specs []colSpec) string { return m.rowW(idx, specs, m.listW()) }
@@ -527,15 +585,15 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 	}
 	for i, s := range specs {
 		if i > 0 {
-			b.WriteString(strings.Repeat(" ", colGap))
+			b.WriteString(m.gapText())
 		}
 		text, lead := m.cell(e, s.col), ""
-		if s.col == fsmodel.ColName && m.icons.Width() > 0 { // indent, then the icon, then the name
-			indent := min(2*e.Depth, max(0, s.w-m.icons.Width()-1))
+		if s.col == fsmodel.ColName && m.iconW() > 0 { // indent, then the icon, then the name
+			indent := min(2*e.Depth, max(0, s.w-m.iconW()-1))
 			ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
-			lead = strings.Repeat(" ", indent) + m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " "
+			lead = strings.Repeat(" ", indent) + m.iconCell(ic)
 			text = strings.TrimPrefix(text, strings.Repeat("  ", e.Depth))
-			text = fit(text, s.w-indent-m.icons.Width())
+			text = fit(text, s.w-indent-m.iconW())
 		} else {
 			text = fit(text, s.w)
 		}

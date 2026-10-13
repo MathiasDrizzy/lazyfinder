@@ -1,12 +1,12 @@
- ‹  ›   proj                                                                         5 items   ⌕ Search               ⚙
+ ‹  ›   proj                                                                       5 items   ⌕ Search                
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
-│  Recents           ││  >  alpha                                   1 Sep 2026          --          Folder            │
-│  Home              ││  >  beta                                    1 Sep 2026          --          Folder            │
-│  Projects    ╭─ main.go ──────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │
-│              │ package main                                                                           │ource         │
+│ Favorites          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
+│  Recents          ││  >   alpha                              │ 1 Sep 2026         │ --         │ Folder            │
+│  Home             ││  >   beta                               │ 1 Sep 2026         │ --         │ Folder            │
+│  Projects   ╭─ main.go ──────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │
+│ ─────────────│ package main                                                                           │ource         │
 │ Locations    │                                                                                        │n Text        │
-│  Disk        │ func main() {                                                                          │              │
+│  Disk       │ func main() {                                                                          │              │
 │              │     println("hi")                                                                      │              │
 │              │ }                                                                                      │              │
 │              │                                                                                        │              │
@@ -33,8 +33,8 @@
 │              │ Kind: Go Source  ·  Size: 45 bytes  ·  Modified: 1 Sep 2026                            │              │
 │              │ Space/Esc close · ↑↓ other file · ⏎ open · Q Quick Look                                │              │
 │              ╰────────────────────────────────────────────────────────────────────────────────────────╯              │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
 ╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 4 of 5 ─╯
 <breadcrumb>
  Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q

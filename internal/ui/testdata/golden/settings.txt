@@ -1,40 +1,40 @@
- ‹  ›   proj                                                                         5 items   ⌕ Search               ⚙
+ ‹  ›   proj                                                                       5 items   ⌕ Search                
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
-│  Recents           ││▸ >  alpha                                   1 Sep 2026          --          Folder            │
-│  Home              ││  >  beta                                    1 Sep 2026          --          Folder            │
-│  Projects          ││     data.xlsx                               1 Sep 2026          4 bytes     Excel Spreadsheet │
-│                    ││     main.go                                 1 Sep 2026          45 bytes    Go Source         │
-│ Locations          ││     notes.txt                               1 Sep 2026          38 bytes    Plain Text        │
-│  Disk              ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││        ╭─ Settings ─────────────────────────────────────────────╮                              │
-│                    ││        │   Theme                           ‹ catppuccin-mocha › │                              │
-│                    ││        │   Language                                    ‹ auto › │                              │
-│                    ││        │   Images (Kitty)                              ‹ auto › │                              │
-│                    ││        │   Hidden files                                  ‹ no › │                              │
-│                    ││        │   Folders first                                ‹ yes › │                              │
-│                    ││        │   Screen background                          ‹ theme › │                              │
-│                    ││        │   Popup background                           ‹ theme › │                              │
-│                    ││        │   Icons                                       ‹ nerd › │                              │
-│                    ││        │   Keybindings                    ‹ Lazy + Vim (hjkl) › │                              │
-│                    ││        │   Date format                             ‹ relative › │                              │
-│                    ││        │   Row density                              ‹ compact › │                              │
-│                    ││        │   Search in                            ‹ This folder › │                              │
-│                    ││        │   Search for                     ‹ Files and folders › │                              │
-│                    ││        │   Search by                                   ‹ Name › │                              │
-│                    ││        │   Confirm deletion                             ‹ yes › │                              │
-│                    ││        │   Mouse                                        ‹ yes › │                              │
-│                    ││        │                                                        │                              │
-│                    ││        │ ←/→ change · click: select, 2nd click: change          │                              │
-│                    ││        ╰────────────────────────────────────────────────────────╯                              │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
+│ Favorites          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
+│  Recents          ││▸ >   alpha                              │ 1 Sep 2026         │ --         │ Folder            │
+│  Home             ││  >   beta                               │ 1 Sep 2026         │ --         │ Folder            │
+│  Projects         ││      data.xlsx                          │ 1 Sep 2026         │ 4 bytes    │ Excel Spreadsheet │
+│ ────────────────── ││      main.go                            │ 1 Sep 2026         │ 45 bytes   │ Go Source         │
+│ Locations          ││      notes.txt                          │ 1 Sep 2026         │ 38 bytes   │ Plain Text        │
+│  Disk             ││        ╭─ Settings ─────────────────────────────────────────────╮          │                   │
+│                    ││        │   Theme                           ‹ catppuccin-mocha › │          │                   │
+│                    ││        │   Language                                    ‹ auto › │          │                   │
+│                    ││        │   Images (Kitty)                              ‹ auto › │          │                   │
+│                    ││        │   Hidden files                                  ‹ no › │          │                   │
+│                    ││        │   Folders first                                ‹ yes › │          │                   │
+│                    ││        │   Screen background                          ‹ theme › │          │                   │
+│                    ││        │   Popup background                           ‹ theme › │          │                   │
+│                    ││        │   Icons                                       ‹ nerd › │          │                   │
+│                    ││        │   Icon size                                 ‹ medium › │          │                   │
+│                    ││        │   Keybindings                    ‹ Lazy + Vim (hjkl) › │          │                   │
+│                    ││        │   Date format                             ‹ relative › │          │                   │
+│                    ││        │   Row density                              ‹ compact › │          │                   │
+│                    ││        │   Columns                                    ‹ basic › │          │                   │
+│                    ││        │   Column separators                            ‹ yes › │          │                   │
+│                    ││        │   Search in                            ‹ This folder › │          │                   │
+│                    ││        │   Search for                     ‹ Files and folders › │          │                   │
+│                    ││        │   Search by                                   ‹ Name › │          │                   │
+│                    ││        │   Confirm deletion                             ‹ yes › │          │                   │
+│                    ││        │   Mouse                                        ‹ yes › │          │                   │
+│                    ││        │                                                        │          │                   │
+│                    ││        │ ←/→ change · click: select, 2nd click: change          │          │                   │
+│                    ││        ╰────────────────────────────────────────────────────────╯          │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
 ╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 1 of 5 ─╯
 <breadcrumb>
  Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q

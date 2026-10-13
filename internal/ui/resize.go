@@ -211,7 +211,7 @@ func (m *Model) fitName() {
 	}
 	need := ansi.StringWidth(columnLabel(fsmodel.ColName))
 	for _, e := range m.entries() {
-		need = max(need, ansi.StringWidth(m.cell(e, fsmodel.ColName))+m.icons.Width())
+		need = max(need, ansi.StringWidth(m.cell(e, fsmodel.ColName))+m.iconW())
 	}
 	last := specs[len(specs)-1].col
 	m.nudgeColumn(fsmodel.ColName, need-specs[0].w)

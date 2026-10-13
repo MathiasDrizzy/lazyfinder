@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
@@ -13,6 +14,14 @@ import (
 func (m *Model) columnMenu(under fsmodel.Column) []ctxItem {
 	shown := m.deps.Cfg.Columns
 	var items []ctxItem
+	current := config.ColumnPreset(shown)
+	for _, p := range []struct{ key, label string }{{"basic", i18n.T("Básico", "Basic")}, {"full", i18n.T("Completo", "Full")}} {
+		mark := "  "
+		if current == p.key {
+			mark = "• "
+		}
+		items = append(items, ctxItem{mark + p.label, func() tea.Cmd { m.applyColumnPreset(p.key); return nil }})
+	}
 	for _, c := range fsmodel.AllColumns {
 		if c == fsmodel.ColName {
 			continue
@@ -29,6 +38,16 @@ func (m *Model) columnMenu(under fsmodel.Column) []ctxItem {
 			ctxItem{i18n.T("Mover a la derecha", "Move right"), func() tea.Cmd { m.moveColumn(under, 1); return nil }})
 	}
 	return items
+}
+
+// applyColumnPreset shows the columns of a preset ("basic" or "full") and saves them.
+func (m *Model) applyColumnPreset(name string) {
+	m.setColumns(slices.Clone(config.ColumnPresets[name]))
+	if !slices.Contains(m.deps.Cfg.Columns, string(m.sort.By)) {
+		s := m.sort
+		s.By, s.Descending = fsmodel.ColName, false
+		m.resort(s)
+	}
 }
 
 func (m *Model) setColumns(cols []string) {

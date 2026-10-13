@@ -49,7 +49,7 @@ func (m *Model) hit(x, y int) zone {
 	}
 	if !m.columnsOn() && y == headerRow {
 		for _, s := range m.columns() {
-			if rel := x - m.listX(); rel >= s.x+s.w && rel < s.x+s.w+colGap {
+			if rel := x - m.listX(); rel >= s.x+s.w && rel < s.x+s.w+m.gap() {
 				return zone{kind: zoneColBorder, col: s.col}
 			}
 		}
@@ -61,9 +61,9 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneBack}
 		case x < 6:
 			return zone{kind: zoneForward}
-		case x >= m.w-4:
+		case x >= m.w-m.gearW():
 			return zone{kind: zoneSettings}
-		case x >= m.w-4-m.fieldW() && x < m.w-4:
+		case x >= m.w-m.gearW()-m.fieldW() && x < m.w-m.gearW():
 			return zone{kind: zoneSearch}
 		}
 	case y == m.h-1 && m.footerShowsHints():

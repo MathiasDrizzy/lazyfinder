@@ -97,6 +97,7 @@ func TestDraggingTheSidebarBorderResizesItAndSavesOnRelease(t *testing.T) {
 func TestDraggingAColumnBorderResizesThatColumn(t *testing.T) {
 	e := newEnv(t)
 	path := e.withConfigFile()
+	e.send(tea.WindowSizeMsg{Width: 150, Height: 40}) // room for the columns to grow
 	size := e.colSpec(fsmodel.ColSize)
 	bx := e.m.listX() + size.x + size.w // the gap right of Size
 	e.drag(bx, headerRow, bx-3, headerRow)
@@ -121,8 +122,9 @@ func TestDraggingAColumnBorderResizesThatColumn(t *testing.T) {
 
 func TestDoubleClickOnAColumnBorderFitsItToItsContent(t *testing.T) {
 	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 150, Height: 40}) // room for the columns to grow
 	e.m.deps.Cfg.ColumnWidths = map[string]int{"kind": 40}
-	e.send(sizeMsg())
+	e.send(tea.WindowSizeMsg{Width: 150, Height: 40})
 	kind := e.colSpec(fsmodel.ColKind)
 	bx := e.m.listX() + kind.x + kind.w
 	e.click(bx, headerRow)
@@ -135,7 +137,8 @@ func TestDoubleClickOnAColumnBorderFitsItToItsContent(t *testing.T) {
 
 func TestKeysResizeTheSortedColumn(t *testing.T) {
 	e := newEnv(t)
-	e.key("s") // sort by the next column: Date Modified
+	e.send(tea.WindowSizeMsg{Width: 150, Height: 40}) // room for the columns to grow
+	e.key("s")                                        // sort by the next column: Date Modified
 	col := e.m.sort.By
 	before := e.colSpec(col).w
 	e.key("ctrl+right")

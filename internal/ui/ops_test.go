@@ -113,6 +113,7 @@ func TestCutThenPasteMovesAndEmptiesTheClipboard(t *testing.T) {
 
 func TestPasteInTheSameFolderAfterCopyMakesACopy(t *testing.T) {
 	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 140, Height: 40}) // the name column must hold the whole new name
 	e.pick("notes.txt")
 	e.key("c")
 	e.key("p")

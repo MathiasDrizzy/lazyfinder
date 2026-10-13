@@ -1,40 +1,40 @@
- ‹  ›   proj                                                                         5 items   ⌕ Search               ⚙
+ ‹  ›   proj                                                                       5 items   ⌕ Search                
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
-│  Recents           ││  >  alpha                                   1 Sep 2026          --          Folder            │
-│  Home              ││  >  beta                                    1 Sep 2026          --          Folder            │
-│  Projects          ││     data.xlsx                               1 Sep 2026          4 bytes     Excel Spreadsheet │
-│                    ││     main.go                                 1 Sep 2026          45 bytes    Go Source         │
-│ Locations          ││▸    notes.txt                               1 Sep 2026          38 bytes    Plain Text        │
-│  Disk              ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                     ╭─ Open With ──────────────────╮                                           │
-│                    ││                     │ ▸ edit          myeditor     │                                           │
-│                    ││                     │   vim           vim          │                                           │
-│                    ││                     │   default       open         │                                           │
-│                    ││                     ╰──────────────────────────────╯                                           │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││                                                                                                │
+│ Favorites          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
+│  Recents          ││  >   alpha                              │ 1 Sep 2026         │ --         │ Folder            │
+│  Home             ││  >   beta                               │ 1 Sep 2026         │ --         │ Folder            │
+│  Projects         ││      data.xlsx                          │ 1 Sep 2026         │ 4 bytes    │ Excel Spreadsheet │
+│ ────────────────── ││      main.go                            │ 1 Sep 2026         │ 45 bytes   │ Go Source         │
+│ Locations          ││▸     notes.txt                          │ 1 Sep 2026         │ 38 bytes   │ Plain Text        │
+│  Disk             ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                     ╭─ Open With ──────────────────╮          │            │                   │
+│                    ││                     │ ▸ edit          myeditor     │          │            │                   │
+│                    ││                     │   vim           vim          │          │            │                   │
+│                    ││                     │   default       open         │          │            │                   │
+│                    ││                     ╰──────────────────────────────╯          │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
+│                    ││                                          │                    │            │                   │
 ╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 5 of 5 ─╯
 <breadcrumb>
  Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q
