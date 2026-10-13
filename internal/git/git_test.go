@@ -101,7 +101,8 @@ func TestAConflictWinsOverEverythingElse(t *testing.T) {
 	run(t, dir, "checkout", "-q", "main")
 	put(t, filepath.Join(dir, "edited.txt"), "main\n")
 	run(t, dir, "commit", "-q", "-am", "main")
-	cmd := exec.Command("git", "merge", "other")
+	// The identity comes from flags: a CI runner has none, and without one the merge stops before it conflicts.
+	cmd := exec.Command("git", "-c", "user.name=t", "-c", "user.email=t@example.com", "merge", "other")
 	cmd.Dir = dir
 	cmd.Env = append(os.Environ(), "GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null")
 	_ = cmd.Run() // fails on purpose: it leaves the conflict
