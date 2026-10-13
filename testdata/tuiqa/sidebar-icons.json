@@ -1,0 +1,112 @@
+{
+  "name": "lazyfinder-sidebar-icons",
+  "criterio": "order 2026-10-13-06 point 1, Mathias's precision (Finder): every Favorites and Locations entry has its own Nerd Font glyph and the accent color, not the generic grey folder",
+  "cmd": [
+    "sh",
+    "-c",
+    "mkdir -p \"${TUIQA_HOME}/.config/lazyfinder\" \"${TUIQA_HOME}/Desktop\" \"${TUIQA_HOME}/Documents\" \"${TUIQA_HOME}/Downloads\" \"${TUIQA_HOME}/Music\" \"${TUIQA_HOME}/.Trash\" && printf '%s' '{\"version\":1,\"sidebar\":{\"favorites\":[{\"name\":\"Home\",\"path\":\"~\"},{\"name\":\"Desktop\",\"path\":\"~/Desktop\"},{\"name\":\"Documents\",\"path\":\"~/Documents\"},{\"name\":\"Downloads\",\"path\":\"~/Downloads\"},{\"name\":\"Applications\",\"path\":\"/Applications\"},{\"name\":\"Music\",\"path\":\"~/Music\"}],\"locations\":[{\"name\":\"Macintosh HD\",\"path\":\"/\"},{\"name\":\"Volumes\",\"path\":\"/Volumes\"},{\"name\":\"Trash\",\"path\":\"~/.Trash\"}]}}' > \"${TUIQA_HOME}/.config/lazyfinder/config.json\" && exec \"${LAZYFINDER_BIN}\" \"${TUIQA_HOME}/proj\""
+  ],
+  "cols": 120,
+  "rows": 30,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "Recents has the clock",
+      "assert": {
+        "contains": "\\s+Recents"
+      }
+    },
+    {
+      "desc": "Home has its own glyph U+F015",
+      "assert": {
+        "contains": "\\s+Home"
+      }
+    },
+    {
+      "desc": "Desktop has its own glyph U+F108",
+      "assert": {
+        "contains": "\\s+Desktop"
+      }
+    },
+    {
+      "desc": "Documents has its own glyph U+F0F6",
+      "assert": {
+        "contains": "\\s+Documents"
+      }
+    },
+    {
+      "desc": "Downloads has its own glyph U+F019",
+      "assert": {
+        "contains": "\\s+Downloads"
+      }
+    },
+    {
+      "desc": "Applications has its own glyph U+F135",
+      "assert": {
+        "contains": "\\s+Applications"
+      }
+    },
+    {
+      "desc": "Music has its own glyph U+F001",
+      "assert": {
+        "contains": "\\s+Music"
+      }
+    },
+    {
+      "desc": "Macintosh HD has its own glyph U+F0A0",
+      "assert": {
+        "contains": "\\s+Macintosh HD"
+      }
+    },
+    {
+      "desc": "Volumes has its own glyph U+F0A0",
+      "assert": {
+        "contains": "\\s+Volumes"
+      }
+    },
+    {
+      "desc": "Trash has its own glyph U+F1F8",
+      "assert": {
+        "contains": "\\s+Trash"
+      }
+    },
+    {
+      "desc": "no entry is left with the generic folder glyph",
+      "assert": {
+        "not_contains": "\\s+(Home|Desktop|Documents|Downloads|Applications|Music|Macintosh HD|Volumes|Trash|Recents)"
+      }
+    },
+    {
+      "desc": "the glyphs take the accent color of the theme",
+      "assert_color": {
+        "region": {
+          "line_with": "Downloads",
+          "x": 3,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "fg": "#89b4fa",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

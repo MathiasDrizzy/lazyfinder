@@ -204,19 +204,6 @@ func TestLargeIconsGetTwoLineRowsAndSmallOnesDoNot(t *testing.T) {
 	}
 }
 
-func TestIconsOfTheSidebarFollowTheSize(t *testing.T) {
-	e := newEnv(t)
-	e.m.deps.Cfg.IconSize = "small"
-	if _, y := e.find("Home"); strings.Contains(e.sidebarRow(y), "\uf07b") || strings.Contains(e.sidebarRow(y), "\uf015") {
-		t.Fatal("small keeps the plain sidebar")
-	}
-	e.m.deps.Cfg.IconSize = "medium"
-	_, y := e.find("Home")
-	if !strings.ContainsAny(e.sidebarRow(y), "\uf015\uf07b") {
-		t.Fatalf("medium shows an icon before the place: %q", e.sidebarRow(y))
-	}
-}
-
 // Point 5: fewer or more data per file.
 func TestColumnsSettingCyclesBasicFullAndCustom(t *testing.T) {
 	e := newEnv(t)

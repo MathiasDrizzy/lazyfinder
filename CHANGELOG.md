@@ -12,6 +12,9 @@ All notable changes to this project are documented here. The format follows
   selection takes the focus color), like Folders, Tasks and Tags in lazymark. Each starts at half the sidebar;
   Favorites stretches by itself as folders are added (Locations keeps four rows) and shrinks back when they are
   removed; what does not fit scrolls inside its box.
+- Every Favorites and Locations entry has its own Nerd Font icon in the accent color, like Finder: clock for Recents,
+  house, Desktop, Documents, Downloads, Applications, Music, Pictures, Movies, Trash and disks. They are chosen by
+  where the entry points (a translated name keeps its icon) and show at every `icon_size`.
 - A `│` between the column names in the header, like Finder (not down the rows); `column_separators` and a Settings row
   switch it off, and dragging it still resizes the column.
 - `icon_size` (`small`, `medium`, `large`) in Settings and `config.json`: more air around the icons and icons in the

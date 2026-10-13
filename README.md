@@ -163,6 +163,10 @@ file, with a *Basic* and a *Full* preset.
 
 ![The column menu](docs/screenshots/columns-menu.png)
 
+The sidebar is two boxes, Favorites and Locations, and every entry has its own icon like in Finder:
+
+![Sidebar with an icon per entry](docs/screenshots/sidebar-icons.png)
+
 <img src="docs/screenshots/look-dark-small.png" alt="Small icons, dark theme" width="100%">
 
 <img src="docs/screenshots/look-dark-large.png" alt="Large icons, dark theme" width="100%">

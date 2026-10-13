@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 )
 
@@ -38,24 +41,46 @@ func (m *Model) iconCell(ic icons.Icon) string {
 	return m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + "  "
 }
 
-// placeIcon is the icon of a sidebar line and the indent that goes before it. Small icons leave the sidebar plain.
+// placeIcon is the icon of a sidebar line and the indent that goes before it. Like Finder, every entry has its own
+// glyph at every size; the size only changes the room around it.
 func (m *Model) placeIcon(p place) (glyph, lead string) {
 	lead = " "
-	if m.iconW() == 0 || m.deps.Cfg.IconSize == iconSmall {
+	if m.iconW() == 0 {
 		return "", " "
 	}
 	ic := m.icons.Pick(icons.Item{Name: p.name, IsDir: true})
 	if m.icons.Style == icons.Nerd {
-		switch {
-		case p.recents:
-			ic.Glyph = ""
-		case p.path == m.deps.Home:
-			ic.Glyph = ""
-		case p.path == "/":
-			ic.Glyph = ""
+		if g, ok := m.placeGlyph(p); ok {
+			ic.Glyph, ic.Role = g, icons.Blue
 		}
 	}
 	return m.styles.icon(ic.Role, ic.Glyph, p.missing), lead
+}
+
+// userFolderGlyphs are the glyphs of the standard folders of a home, found by their place on disk and not by the name
+// the favorite shows, which may be translated or renamed.
+var userFolderGlyphs = map[string]string{
+	"Desktop": "\uf108", "Documents": "\uf0f6", "Downloads": "\uf019", "Pictures": "\uf03e",
+	"Music": "\uf001", "Movies": "\uf008", "Library": "\uf02d", ".Trash": "\uf1f8",
+}
+
+// placeGlyph picks the Nerd Font glyph of a sidebar entry by what it points to.
+func (m *Model) placeGlyph(p place) (string, bool) {
+	home := m.deps.Home
+	switch {
+	case p.recents:
+		return "\uf017", true // clock
+	case p.path == home:
+		return "\uf015", true // house
+	case p.path == "/" || p.path == "/Volumes" || strings.HasPrefix(p.path, "/Volumes/"):
+		return "\uf0a0", true // disk
+	case p.path == "/Applications":
+		return "\uf135", true // rocket
+	case home != "" && filepath.Dir(p.path) == home:
+		g, ok := userFolderGlyphs[filepath.Base(p.path)]
+		return g, ok
+	}
+	return "", false
 }
 
 // gearText is the glyph of the Settings button: the Nerd Font gear when the icons are Nerd Font, else the symbol.
