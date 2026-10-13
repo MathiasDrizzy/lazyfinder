@@ -18,6 +18,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
+	"github.com/MathiasDrizzy/lazyfinder/internal/search"
 	"github.com/MathiasDrizzy/lazyfinder/internal/termimg"
 	"github.com/MathiasDrizzy/lazyfinder/internal/watch"
 	uv "github.com/charmbracelet/ultraviolet"
@@ -43,6 +44,9 @@ type Deps struct {
 	Watcher watch.Watcher // nil: nothing is followed
 
 	// Probe and Raster are the external tools previews may use for media facts and PDF pages (nil: none).
+	// ContentFind lists files containing a text for the in: search filter (ripgrep); nil uses the native scan.
+	ContentFind search.Finder
+
 	Probe  preview.Probe
 	Raster preview.Raster
 

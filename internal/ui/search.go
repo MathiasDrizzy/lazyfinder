@@ -147,8 +147,9 @@ func (m *Model) runSearch() tea.Cmd {
 	}
 	if !m.search.recursive {
 		var out []fsmodel.Entry
+		want := []byte(strings.ToLower(q.Content()))
 		for _, e := range m.search.base.Entries {
-			if q.Match(e) {
+			if q.Match(e) && (q.Content() == "" || (!e.IsDir && search.FileContains(e.Path, want))) {
 				out = append(out, e)
 			}
 		}
@@ -173,7 +174,19 @@ func (m *Model) startWalk(q search.Query) tea.Cmd {
 	gen, root, max := m.search.gen, m.search.base.Dir, m.deps.Cfg.Search.MaxResults
 	tags := maps.Clone(m.tags) // the walk runs in its own goroutine
 	opts := search.Options{Recursive: true, ShowHidden: m.hidden, Max: max, Tags: func(p string) []string { return tags[p] }}
+	find, hidden, text := m.deps.ContentFind, m.hidden, q.Content()
 	go func() {
+		if text != "" {
+			set, err := search.ContentPaths(ctx, root, text, search.ContentOptions{Hidden: hidden, Find: find})
+			if err != nil {
+				select {
+				case ch <- searchEvent{gen: gen, done: true, err: err}:
+				case <-ctx.Done():
+				}
+				return
+			}
+			opts.Allowed = func(p string) bool { return set[p] }
+		}
 		err := search.Walk(ctx, root, q, opts, func(batch []fsmodel.Entry) {
 			select {
 			case ch <- searchEvent{gen: gen, entries: batch}:

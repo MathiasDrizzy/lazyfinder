@@ -15,6 +15,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
+	"github.com/MathiasDrizzy/lazyfinder/internal/search"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/MathiasDrizzy/lazyfinder/internal/ui"
 	"github.com/MathiasDrizzy/lazyfinder/internal/watch"
@@ -200,6 +201,7 @@ func launch(o Options) error {
 	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
+		d.ContentFind = search.SystemRg
 	}
 	m := ui.New(d)
 	_, err := tea.NewProgram(m).Run()
