@@ -15,6 +15,14 @@ import (
 // arguments of each i18n.T call. An argument that is not a fixed text is returned in dynamic, so nobody adds a text
 // that escapes the coverage test.
 func sourceKeys(t *testing.T) (keys map[string]string, dynamic []string) {
+	keys, dynamic, _ = sourceTexts(t)
+	return keys, dynamic
+}
+
+// sourceTexts is sourceKeys plus every string literal of the code: the texts that i18n.E and i18n.Errorf translate
+// (error messages, the kinds of file) are looked up by their English literal, so a catalog entry for one of them is
+// not stale.
+func sourceTexts(t *testing.T) (keys map[string]string, dynamic []string, literals map[string]bool) {
 	t.Helper()
 	root := filepath.Join("..", "..")
 	fset := token.NewFileSet()
@@ -44,11 +52,15 @@ func sourceKeys(t *testing.T) (keys map[string]string, dynamic []string) {
 		return s, err == nil
 	}
 	keys = map[string]string{}
+	literals = map[string]bool{}
 	for _, f := range files {
 		if f.Name.Name == "i18n" {
 			continue
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
+			if s, ok := lit0(n); ok {
+				literals[s] = true
+			}
 			call, ok := n.(*ast.CallExpr)
 			if !ok || len(call.Args) != 2 {
 				return true
@@ -73,7 +85,16 @@ func sourceKeys(t *testing.T) (keys map[string]string, dynamic []string) {
 			return true
 		})
 	}
-	return keys, dynamic
+	return keys, dynamic, literals
+}
+
+func lit0(n ast.Node) (string, bool) {
+	bl, ok := n.(*ast.BasicLit)
+	if !ok || bl.Kind != token.STRING {
+		return "", false
+	}
+	s, err := strconv.Unquote(bl.Value)
+	return s, err == nil
 }
 
 func TestEveryTextIsAFixedPair(t *testing.T) {
@@ -107,7 +128,7 @@ func verbs(s string) string {
 }
 
 func TestCatalogsCoverEveryTextAndNothingElse(t *testing.T) {
-	keys, _ := sourceKeys(t)
+	keys, _, literals := sourceTexts(t)
 	for _, lang := range Languages {
 		if lang == LangEN || lang == LangES {
 			continue
@@ -124,7 +145,7 @@ func TestCatalogsCoverEveryTextAndNothingElse(t *testing.T) {
 			}
 		}
 		for en := range cat {
-			if _, ok := keys[en]; !ok {
+			if _, ok := keys[en]; !ok && !literals[en] {
 				t.Errorf("%s: %q is in the catalog but not in the code (stale)", lang, en)
 			}
 		}

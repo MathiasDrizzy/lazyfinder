@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
 
 func TestHumanSize(t *testing.T) {
@@ -220,6 +222,21 @@ func TestMatchNameSubstringGlobAndCase(t *testing.T) {
 	} {
 		if got := MatchName(tc.pat, tc.name); got != tc.want {
 			t.Errorf("MatchName(%q, %q) = %v, want %v", tc.pat, tc.name, got, tc.want)
+		}
+	}
+}
+
+func TestKindsAreTranslatedInEveryLanguage(t *testing.T) {
+	t.Cleanup(func() { i18n.SetLanguage("en") })
+	for _, lang := range i18n.Languages {
+		if lang == i18n.LangEN {
+			continue
+		}
+		i18n.SetLanguage(string(lang))
+		for ext, names := range kinds {
+			if got := KindOf("f."+ext, false, false); got == names[1] && names[1] != "JavaScript" && names[1] != "Application" { // the same word in some languages
+				t.Errorf("%s: the kind of .%s is still %q", lang, ext, got)
+			}
 		}
 	}
 }

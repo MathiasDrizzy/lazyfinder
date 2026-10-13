@@ -3,9 +3,9 @@
 │ Favoritos          ││    Nombre ▲                                  Fecha de modifica…  Tamaño      Clase             │
 │  Home              ││▸ > alpha                                     01/09/2026          --          Carpeta           │
 │  Projects          ││  > beta                                      01/09/2026          --          Carpeta           │
-│                    ││    data.xlsx                                 01/09/2026          4 bytes     Excel Spreadsheet │
-│ Ubicaciones        ││    main.go                                   01/09/2026          45 bytes    Go Source         │
-│  Disk              ││    notes.txt                                 01/09/2026          38 bytes    Plain Text        │
+│                    ││    data.xlsx                                 01/09/2026          4 bytes     Hoja de cálculo d…│
+│ Ubicaciones        ││    main.go                                   01/09/2026          45 bytes    Código fuente de …│
+│  Disk              ││    notes.txt                                 01/09/2026          38 bytes    Texto sin formato │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

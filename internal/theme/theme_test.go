@@ -1,8 +1,8 @@
 package theme
 
 import (
-	"image/color"
 	"fmt"
+	"image/color"
 	"os"
 	"path/filepath"
 	"strings"

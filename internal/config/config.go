@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 )
@@ -191,7 +192,7 @@ func Load(path, home string) (Config, error) {
 		return withThemes(Defaults(home), path), nil
 	}
 	if err != nil {
-		return Config{}, fmt.Errorf("cannot read config %s: %w", path, err)
+		return Config{}, i18n.Errorf(`no se puede leer la configuración %s: %w`, `cannot read config %s: %w`, path, err)
 	}
 	// The user's themes load before validation: the config may name one of them.
 	var warnings []string
@@ -200,7 +201,7 @@ func Load(path, home string) (Config, error) {
 	}
 	cfg, err := Parse(data, home)
 	if err != nil {
-		return Config{}, fmt.Errorf("invalid config: %w (file %s)", err, path)
+		return Config{}, i18n.Errorf(`configuración no válida: %w (archivo %s)`, `invalid config: %w (file %s)`, err, path)
 	}
 	cfg.Warnings = append(warnings, cfg.Warnings...)
 	return cfg, nil
@@ -216,7 +217,7 @@ func Parse(data []byte, home string) (Config, error) {
 		return Config{}, describeJSON(err, data)
 	}
 	if cfg.Version != currentVersion {
-		return Config{}, fmt.Errorf(`"version" must be %d (got %d)`, currentVersion, cfg.Version)
+		return Config{}, i18n.Errorf(`"version" debe ser %d (hay %d)`, `"version" must be %d (got %d)`, currentVersion, cfg.Version)
 	}
 	return cfg, validate(&cfg, home)
 }
@@ -225,74 +226,74 @@ func describeJSON(err error, data []byte) error {
 	var se *json.SyntaxError
 	if errors.As(err, &se) {
 		line := 1 + bytes.Count(data[:min(int(se.Offset), len(data))], []byte("\n"))
-		return fmt.Errorf("invalid JSON at line %d: %v", line, err)
+		return i18n.Errorf(`JSON no válido en la línea %d: %v`, `invalid JSON at line %d: %v`, line, err)
 	}
 	var ute *json.UnmarshalTypeError
 	if errors.As(err, &ute) {
-		return fmt.Errorf("field %q has the wrong type (want %s)", ute.Field, ute.Type)
+		return i18n.Errorf(`el campo %q tiene un tipo incorrecto (se espera %s)`, `field %q has the wrong type (want %s)`, ute.Field, ute.Type)
 	}
 	if errors.Is(err, errors.ErrUnsupported) || strings.Contains(err.Error(), "unexpected EOF") {
-		return fmt.Errorf("invalid JSON at line %d: %v", 1+bytes.Count(data, []byte("\n")), err)
+		return i18n.Errorf(`JSON no válido en la línea %d: %v`, `invalid JSON at line %d: %v`, 1+bytes.Count(data, []byte("\n")), err)
 	}
 	return err
 }
 
 func validate(cfg *Config, home string) error {
 	if len(cfg.Columns) == 0 {
-		return errors.New(`"columns" must not be empty`)
+		return i18n.NewError(`"columns" no puede estar vacío`, `"columns" must not be empty`)
 	}
 	for _, c := range cfg.Columns {
 		if !validColumns[c] {
-			return fmt.Errorf(`unknown column %q in "columns"`, c)
+			return i18n.Errorf(`columna desconocida %q en "columns"`, `unknown column %q in "columns"`, c)
 		}
 	}
 	if !validColumns[cfg.Sort.By] {
-		return fmt.Errorf(`unknown "sort.by" column %q`, cfg.Sort.By)
+		return i18n.Errorf(`columna desconocida %q en "sort.by"`, `unknown "sort.by" column %q`, cfg.Sort.By)
 	}
 	if !theme.Valid(cfg.Theme) {
-		return fmt.Errorf(`"theme" %q is not a theme (use %s, or put %s.json in the themes folder)`, cfg.Theme,
+		return i18n.Errorf(`"theme" %q no es un tema (usa %s, o pon %s.json en la carpeta de temas)`, `"theme" %q is not a theme (use %s, or put %s.json in the themes folder)`, cfg.Theme,
 			strings.Join(theme.Names(), ", "), cfg.Theme)
 	}
 	if cfg.Language != "auto" && !validLanguage(cfg.Language) {
-		return fmt.Errorf(`"language" must be auto, en, es, pt, fr, de, it, ja or zh (got %q)`, cfg.Language)
+		return i18n.Errorf(`"language" debe ser auto, en, es, pt, fr, de, it, ja o zh (hay %q)`, `"language" must be auto, en, es, pt, fr, de, it, ja or zh (got %q)`, cfg.Language)
 	}
 	switch cfg.ScreenBackground {
 	case ScreenBackgroundTheme, ScreenBackgroundTerminal:
 	default:
-		return fmt.Errorf(`"screen_background" must be theme or terminal (got %q)`, cfg.ScreenBackground)
+		return i18n.Errorf(`"screen_background" debe ser theme o terminal (hay %q)`, `"screen_background" must be theme or terminal (got %q)`, cfg.ScreenBackground)
 	}
 	_, cfg.Warnings = keymap.New(cfg.Keys)
 	switch cfg.Preview.Images {
 	case "auto", "kitty", "off":
 	default:
-		return fmt.Errorf(`"preview.images" must be auto, kitty or off (got %q)`, cfg.Preview.Images)
+		return i18n.Errorf(`"preview.images" debe ser auto, kitty u off (hay %q)`, `"preview.images" must be auto, kitty or off (got %q)`, cfg.Preview.Images)
 	}
 	if cfg.Preview.Markdown != "render" && cfg.Preview.Markdown != "raw" {
-		return fmt.Errorf(`"preview.markdown" must be render or raw (got %q)`, cfg.Preview.Markdown)
+		return i18n.Errorf(`"preview.markdown" debe ser render o raw (hay %q)`, `"preview.markdown" must be render or raw (got %q)`, cfg.Preview.Markdown)
 	}
 	if cfg.Preview.HexBytes <= 0 {
-		return errors.New(`"preview.hex_bytes" must be positive`)
+		return i18n.NewError(`"preview.hex_bytes" debe ser positivo`, `"preview.hex_bytes" must be positive`)
 	}
 	if cfg.Preview.ExternalTools != "auto" && cfg.Preview.ExternalTools != "off" {
-		return fmt.Errorf(`"preview.external_tools" must be auto or off (got %q)`, cfg.Preview.ExternalTools)
+		return i18n.Errorf(`"preview.external_tools" debe ser auto u off (hay %q)`, `"preview.external_tools" must be auto or off (got %q)`, cfg.Preview.ExternalTools)
 	}
 	if cfg.Layout != "list" && cfg.Layout != "columns" {
-		return fmt.Errorf(`"layout" must be list or columns (got %q)`, cfg.Layout)
+		return i18n.Errorf(`"layout" debe ser list o columns (hay %q)`, `"layout" must be list or columns (got %q)`, cfg.Layout)
 	}
 	if cfg.Search.ContentTool != "auto" && cfg.Search.ContentTool != "native" {
-		return fmt.Errorf(`"search.content_tool" must be auto or native (got %q)`, cfg.Search.ContentTool)
+		return i18n.Errorf(`"search.content_tool" debe ser auto o native (hay %q)`, `"search.content_tool" must be auto or native (got %q)`, cfg.Search.ContentTool)
 	}
 	if cfg.Search.MaxResults <= 0 {
-		return errors.New(`"search.max_results" must be positive`)
+		return i18n.NewError(`"search.max_results" debe ser positivo`, `"search.max_results" must be positive`)
 	}
 	if cfg.Ops.ConfirmTrashAbove < 0 {
-		return errors.New(`"ops.confirm_trash_above" must not be negative`)
+		return i18n.NewError(`"ops.confirm_trash_above" no puede ser negativo`, `"ops.confirm_trash_above" must not be negative`)
 	}
 	if !strings.HasPrefix(cfg.Ops.TrashDir, "~") && !strings.HasPrefix(cfg.Ops.TrashDir, "$HOME") && !filepath.IsAbs(cfg.Ops.TrashDir) {
-		return errors.New(`"ops.trash_dir" must be an absolute path or start with ~`)
+		return i18n.NewError(`"ops.trash_dir" debe ser una ruta absoluta o empezar por ~`, `"ops.trash_dir" must be an absolute path or start with ~`)
 	}
 	if cfg.Preview.MaxTextBytes <= 0 {
-		return errors.New(`"preview.max_text_bytes" must be positive`)
+		return i18n.NewError(`"preview.max_text_bytes" debe ser positivo`, `"preview.max_text_bytes" must be positive`)
 	}
 	for name, op := range cfg.Openers {
 		if err := validateOpener(name, op); err != nil {
@@ -307,7 +308,7 @@ func validate(cfg *Config, home string) error {
 	norm := make(map[string]string, len(cfg.OpenWith))
 	for ext, name := range cfg.OpenWith {
 		if _, ok := cfg.Opener(name); !ok {
-			return fmt.Errorf(`"open_with.%s" refers to opener %q, which is not defined in "openers"`, ext, name)
+			return i18n.Errorf(`"open_with.%s" usa el programa %q, que no está definido en "openers"`, `"open_with.%s" refers to opener %q, which is not defined in "openers"`, ext, name)
 		}
 		norm[strings.ToLower(strings.TrimPrefix(ext, "."))] = name
 	}
@@ -320,24 +321,24 @@ func validate(cfg *Config, home string) error {
 
 func validateOpener(name string, op Opener) error {
 	if len(op.Argv) == 0 || op.Argv[0] == "" {
-		return fmt.Errorf(`opener %q: "argv" must have at least the program name`, name)
+		return i18n.Errorf(`programa %q: "argv" debe tener al menos el nombre del programa`, `opener %q: "argv" must have at least the program name`, name)
 	}
 	if op.Mode != ModeGUI && op.Mode != ModeTerminal {
-		return fmt.Errorf(`opener %q: "mode" must be %q or %q (got %q)`, name, ModeGUI, ModeTerminal, op.Mode)
+		return i18n.Errorf(`programa %q: "mode" debe ser %q o %q (hay %q)`, `opener %q: "mode" must be %q or %q (got %q)`, name, ModeGUI, ModeTerminal, op.Mode)
 	}
 	count := 0
 	for i, a := range op.Argv {
 		if a == FilePlaceholder {
 			if i == 0 {
-				return fmt.Errorf(`opener %q: %s cannot be the program name`, name, FilePlaceholder)
+				return i18n.Errorf(`programa %q: %s no puede ser el nombre del programa`, `opener %q: %s cannot be the program name`, name, FilePlaceholder)
 			}
 			count++
 		} else if strings.Contains(a, FilePlaceholder) {
-			return fmt.Errorf(`opener %q: %s must be a whole argv element, not part of %q`, name, FilePlaceholder, a)
+			return i18n.Errorf(`programa %q: %s debe ser un elemento completo de argv, no parte de %q`, `opener %q: %s must be a whole argv element, not part of %q`, name, FilePlaceholder, a)
 		}
 	}
 	if count != 1 {
-		return fmt.Errorf(`opener %q: "argv" must contain %s exactly once`, name, FilePlaceholder)
+		return i18n.Errorf(`programa %q: "argv" debe contener %s exactamente una vez`, `opener %q: "argv" must contain %s exactly once`, name, FilePlaceholder)
 	}
 	return nil
 }
@@ -346,25 +347,25 @@ func validateOpener(name string, op Opener) error {
 // whole elements, never the program).
 func validateCommand(name string, c Opener) error {
 	if len(c.Argv) == 0 || c.Argv[0] == "" {
-		return fmt.Errorf(`command %q: "argv" must have at least the program name`, name)
+		return i18n.Errorf(`comando %q: "argv" debe tener al menos el nombre del programa`, `command %q: "argv" must have at least the program name`, name)
 	}
 	if c.Mode != ModeGUI && c.Mode != ModeTerminal {
-		return fmt.Errorf(`command %q: "mode" must be %q or %q (got %q)`, name, ModeGUI, ModeTerminal, c.Mode)
+		return i18n.Errorf(`comando %q: "mode" debe ser %q o %q (hay %q)`, `command %q: "mode" must be %q or %q (got %q)`, name, ModeGUI, ModeTerminal, c.Mode)
 	}
 	for _, ph := range []string{FilePlaceholder, DirPlaceholder} {
 		count := 0
 		for i, a := range c.Argv {
 			switch {
 			case a == ph && i == 0:
-				return fmt.Errorf(`command %q: %s cannot be the program name`, name, ph)
+				return i18n.Errorf(`comando %q: %s no puede ser el nombre del programa`, `command %q: %s cannot be the program name`, name, ph)
 			case a == ph:
 				count++
 			case strings.Contains(a, ph):
-				return fmt.Errorf(`command %q: %s must be a whole argv element, not part of %q`, name, ph, a)
+				return i18n.Errorf(`comando %q: %s debe ser un elemento completo de argv, no parte de %q`, `command %q: %s must be a whole argv element, not part of %q`, name, ph, a)
 			}
 		}
 		if count > 1 {
-			return fmt.Errorf(`command %q: %s may appear only once`, name, ph)
+			return i18n.Errorf(`comando %q: %s solo puede aparecer una vez`, `command %q: %s may appear only once`, name, ph)
 		}
 	}
 	return nil
@@ -431,10 +432,10 @@ func Update(path string, set map[string]any) error {
 	switch {
 	case err == nil:
 		if err := json.Unmarshal(data, &doc); err != nil || doc == nil {
-			return fmt.Errorf("not saving: %s is not valid JSON, fix it first", path)
+			return i18n.Errorf(`no se guarda: %s no es un JSON válido, corrígelo primero`, `not saving: %s is not valid JSON, fix it first`, path)
 		}
 	case !errors.Is(err, fs.ErrNotExist):
-		return fmt.Errorf("cannot read config %s: %w", path, err)
+		return i18n.Errorf(`no se puede leer la configuración %s: %w`, `cannot read config %s: %w`, path, err)
 	}
 	if _, ok := doc["version"]; !ok {
 		doc["version"] = currentVersion
@@ -462,19 +463,19 @@ func Update(path string, set map[string]any) error {
 func writeAtomic(path string, data []byte) error {
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return fmt.Errorf("cannot create %s: %w", dir, err)
+		return i18n.Errorf(`no se puede crear %s: %w`, `cannot create %s: %w`, dir, err)
 	}
 	tmp, err := os.CreateTemp(dir, ".config-*.tmp")
 	if err != nil {
-		return fmt.Errorf("cannot write config: %w", err)
+		return i18n.Errorf(`no se puede escribir la configuración: %w`, `cannot write config: %w`, err)
 	}
 	defer func() { _ = os.Remove(tmp.Name()) }() // a no-op after the rename
 	if _, err := tmp.Write(data); err != nil {
 		_ = tmp.Close()
-		return fmt.Errorf("cannot write config: %w", err)
+		return i18n.Errorf(`no se puede escribir la configuración: %w`, `cannot write config: %w`, err)
 	}
 	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("cannot write config: %w", err)
+		return i18n.Errorf(`no se puede escribir la configuración: %w`, `cannot write config: %w`, err)
 	}
 	if err := os.Chmod(tmp.Name(), 0o644); err != nil {
 		return err

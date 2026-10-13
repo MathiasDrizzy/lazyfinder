@@ -10,6 +10,11 @@ All notable changes to this project are documented here. The format follows
 
 - Releases get an SPDX SBOM per archive and a keyless cosign signature of `checksums.txt`.
 
+### Changed
+
+- The kind of each file (Folder, Excel Spreadsheet, Go Source, ...) and the settings errors are translated into the
+  eight interface languages. In narrow columns a long translated kind is cut with an ellipsis; Get Info shows it whole.
+
 ### Fixed
 
 - Text that was hard to read in the light themes, nord, one-dark and catppuccin-frappe (dim text, titles, the

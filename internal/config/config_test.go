@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"os"
 	"path/filepath"
 	"strings"
@@ -199,5 +200,18 @@ func TestLayoutDefaultAndValidation(t *testing.T) {
 	}
 	if _, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"grid"}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "layout") {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestValidationErrorsSpeakTheInterfaceLanguage(t *testing.T) {
+	t.Cleanup(func() { i18n.SetLanguage("en") })
+	want := map[string]string{"es": "debe ser list o columns", "en": "must be list or columns", "pt": "deve ser list ou columns", "fr": "doit être list ou columns",
+		"de": "muss list oder columns sein", "it": "deve essere list o columns", "ja": "list か columns です", "zh": "必须是 list 或 columns"}
+	for lang, text := range want {
+		i18n.SetLanguage(lang)
+		_, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"grid"}`), "/home/u")
+		if err == nil || !strings.Contains(err.Error(), text) {
+			t.Errorf("%s: err = %v, want it to contain %q", lang, err, text)
+		}
 	}
 }
