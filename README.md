@@ -10,7 +10,7 @@ Columns, a sidebar, a Space preview popup and open-with, with keyboard and mouse
 [![Go version](https://img.shields.io/github/go-mod/go-version/MathiasDrizzy/lazyfinder)](go.mod)
 [![License: MIT](https://img.shields.io/github/license/MathiasDrizzy/lazyfinder)](LICENSE)
 
-<img src="docs/screenshots/list.png" alt="lazyfinder showing a folder with a sidebar and the columns Name, Date Modified, Date Created, Size and Kind" width="100%">
+<img src="docs/screenshots/list.png" alt="lazyfinder with rounded panels, a sidebar, the columns Name, Date Modified, Date Created, Size and Kind, and a key bar" width="100%">
 
 [Install](#install) · [Quick start](#quick-start) · [Keys](#keys) · [Configuration](#configuration) · [Roadmap](docs/ROADMAP.md)
 
@@ -103,6 +103,12 @@ themes (`catppuccin-mocha` by default), takes your own from `<config dir>/themes
 Portuguese, French, German, Italian, Japanese and Chinese. Press `,` (or click the gear) to change the theme,
 language, image protocol and more; changes apply at once and are saved. For one run only:
 `lazyfinder --theme nord --lang es --no-mouse`.
+
+<img src="docs/screenshots/settings.png" alt="The settings popup over the list" width="100%">
+
+<img src="docs/screenshots/theme-latte.png" alt="The catppuccin-latte theme with a preview popup" width="100%">
+
+<img src="docs/screenshots/spanish.png" alt="The interface in Spanish" width="100%">
 
 ## Build and test
 
