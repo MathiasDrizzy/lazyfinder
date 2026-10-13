@@ -1,11 +1,11 @@
  ‹  ›   proj                                                                                              5 items  ⌕  ⚙
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name                                      Date Modified       Size ▼      Kind              │
-│  Home              ││▸ > alpha                                     1 Sep 2026          --          Folder            │
-│  Projects          ││  > beta                                      1 Sep 2026          --          Folder            │
-│                    ││    main.go                                   1 Sep 2026          45 bytes    Go Source         │
-│ Locations          ││    notes.txt                                 1 Sep 2026          38 bytes    Plain Text        │
-│  Disk              ││    data.xlsx                                 1 Sep 2026          4 bytes     Excel Spreadsheet │
+│ Favorites          ││      Name                                    Date Modified       Size ▼      Kind              │
+│  Home              ││▸ >  alpha                                   1 Sep 2026          --          Folder            │
+│  Projects          ││  >  beta                                    1 Sep 2026          --          Folder            │
+│                    ││     main.go                                 1 Sep 2026          45 bytes    Go Source         │
+│ Locations          ││     notes.txt                               1 Sep 2026          38 bytes    Plain Text        │
+│  Disk              ││     data.xlsx                               1 Sep 2026          4 bytes     Excel Spreadsheet │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

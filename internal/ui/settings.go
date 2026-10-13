@@ -7,6 +7,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/charmbracelet/x/ansi"
@@ -25,6 +26,7 @@ const (
 	setHidden
 	setFoldersFirst
 	setScreenBackground
+	setIcons
 	setMouse
 	settingCount
 )
@@ -45,6 +47,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Carpetas primero", "Folders first")
 	case setScreenBackground:
 		return i18n.T("Fondo de pantalla", "Screen background")
+	case setIcons:
+		return i18n.T("Iconos", "Icons")
 	}
 	return i18n.T("Ratón", "Mouse")
 }
@@ -78,6 +82,8 @@ func (m *Model) settingValue(i int) string {
 			return i18n.T("terminal", "terminal")
 		}
 		return i18n.T("tema", "theme")
+	case setIcons:
+		return c.Icons
 	}
 	return onOff(m.mouse)
 }
@@ -132,6 +138,10 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.ScreenBackground = cycle([]string{config.ScreenBackgroundTheme, config.ScreenBackgroundTerminal}, m.deps.Cfg.ScreenBackground, dir)
 		key, val = "screen_background", m.deps.Cfg.ScreenBackground
 		m.restyle()
+	case setIcons:
+		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
+		key, val = "icons", m.deps.Cfg.Icons
+		m.icons.Style = icons.Style(m.deps.Cfg.Icons)
 	case setMouse:
 		m.mouse = !m.mouse
 		m.deps.Cfg.Mouse = m.mouse

@@ -1,0 +1,22 @@
+{
+  "name": "lazyfinder-icons",
+  "criterio": "order 2026-10-13-05 block B (Nerd Font icons per kind; icons setting nerd|ascii|off)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "a closed folder shows the folder glyph", "assert": {"contains": " +alpha"}},
+    {"desc": "a text file shows the text glyph", "assert": {"contains": " +notes\\.txt"}},
+    {"desc": "a Go file shows its own glyph", "assert": {"contains": " +main\\.go"}},
+    {"keys": ["+"]},
+    {"desc": "an expanded folder shows the open glyph", "assert": {"contains": " +alpha"}},
+    {"keys": [","]},
+    {"keys": ["j", "j", "j", "j", "j", "j", "right"]},
+    {"desc": "Settings shows the Icons row and switched to ascii", "assert": {"contains": "‹ ascii ›"}},
+    {"keys": ["esc"]},
+    {"desc": "no Nerd Font glyph is left", "assert": {"not_contains": "\uf07b"}}
+  ]
+}

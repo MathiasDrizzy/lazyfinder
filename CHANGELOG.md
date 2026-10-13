@@ -8,10 +8,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Nerd Font icons per kind with a colour each (`icons`: nerd, ascii, off; `icon_map` overrides an extension) and an
+  Icons row in Settings.
+- `docs/PARITY-lazymark.md`, the audit of what lazymark has that lazyfinder should share.
 - Releases get an SPDX SBOM per archive and a keyless cosign signature of `checksums.txt`.
 
 ### Changed
 
+- Settings and messages are worded like lazymark (`terminal`, `tema`, `auto`), and the sidebar, the title and the
+  breadcrumb show the standard places in the interface language.
 - The kind of each file (Folder, Excel Spreadsheet, Go Source, ...) and the settings errors are translated into the
   eight interface languages. In narrow columns a long translated kind is cut with an ellipsis; Get Info shows it whole.
 

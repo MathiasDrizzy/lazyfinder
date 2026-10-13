@@ -45,7 +45,9 @@ type Config struct {
 	Commands   map[string]Opener `json:"commands"`
 	OpenWith   map[string]string `json:"open_with"`
 	Preview    Preview           `json:"preview"`
-	Layout     string            `json:"layout"` // list (detail columns) or columns (parent, folder, preview)
+	Icons      string            `json:"icons"`    // nerd (Nerd Font glyphs), ascii or off
+	IconMap    map[string]string `json:"icon_map"` // extension -> glyph, overrides the built-in ones
+	Layout     string            `json:"layout"`   // list (detail columns) or columns (parent, folder, preview)
 	Theme      string            `json:"theme"`
 	Watch      Watch             `json:"watch"`
 	Git        Git               `json:"git"`
@@ -153,6 +155,8 @@ func Defaults(home string) Config {
 		Commands: map[string]Opener{},
 		OpenWith: map[string]string{},
 		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
+		Icons:    "nerd",
+		IconMap:  map[string]string{},
 		Layout:   "list",
 		Theme:    theme.Default,
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
@@ -276,6 +280,9 @@ func validate(cfg *Config, home string) error {
 	}
 	if cfg.Preview.ExternalTools != "auto" && cfg.Preview.ExternalTools != "off" {
 		return i18n.Errorf(`"preview.external_tools" debe ser auto u off (hay %q)`, `"preview.external_tools" must be auto or off (got %q)`, cfg.Preview.ExternalTools)
+	}
+	if cfg.Icons != "nerd" && cfg.Icons != "ascii" && cfg.Icons != "off" {
+		return i18n.Errorf(`"icons" debe ser nerd, ascii u off (hay %q)`, `"icons" must be nerd, ascii or off (got %q)`, cfg.Icons)
 	}
 	if cfg.Layout != "list" && cfg.Layout != "columns" {
 		return i18n.Errorf(`"layout" debe ser list o columns (hay %q)`, `"layout" must be list or columns (got %q)`, cfg.Layout)

@@ -11,6 +11,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/charmbracelet/x/ansi"
@@ -72,9 +73,9 @@ const (
 // prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
 func (m *Model) prefix() int {
 	if m.git.ok {
-		return prefixW + gitGutterW
+		return prefixW + gitGutterW + m.icons.Width()
 	}
-	return prefixW
+	return prefixW + m.icons.Width()
 }
 
 func (m *Model) panelH() int { return m.h - 3 }
@@ -437,6 +438,10 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 			code = " "
 		}
 		b.WriteString(code + " ")
+	}
+	if m.icons.Width() > 0 {
+		ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
+		b.WriteString(m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " ")
 	}
 	for i, s := range specs {
 		if i > 0 {

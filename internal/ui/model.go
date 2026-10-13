@@ -15,6 +15,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/history"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
@@ -104,6 +105,7 @@ type Model struct {
 	goto_       gotoState
 
 	layout  string // list or columns
+	icons   icons.Set
 	mil     millerState
 	filter  string // quick filter on the names of this folder; empty means none
 	picker  pickerState
@@ -154,6 +156,7 @@ func New(d Deps) *Model {
 		m.tags = map[string][]string{}
 	}
 	m.layout = d.Cfg.Layout
+	m.icons = icons.Set{Style: icons.Style(d.Cfg.Icons), Map: d.Cfg.IconMap}
 	m.restyle()
 	if d.Warning == "" && len(d.Cfg.Warnings) > 0 {
 		d.Warning = d.Cfg.Warnings[0]

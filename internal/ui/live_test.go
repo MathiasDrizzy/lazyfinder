@@ -91,10 +91,10 @@ func TestTheCurrentFolderIsWatchedAndFollowsNavigation(t *testing.T) {
 
 func TestAChangeEventShowsTheNewFileWithoutRefreshing(t *testing.T) {
 	e, _ := liveEnv(t, "")
-	e.mustNotHave("created-by-agent.go")
-	e.touch("created-by-agent.go", "package x\n")
+	e.mustNotHave("agent.go")
+	e.touch("agent.go", "package x\n")
 	e.send(dirChangedMsg{dir: e.root})
-	e.mustHave("created-by-agent.go")
+	e.mustHave("agent.go")
 }
 
 func TestAChangeEventKeepsTheSelectionByName(t *testing.T) {

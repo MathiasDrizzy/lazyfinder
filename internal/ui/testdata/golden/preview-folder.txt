@@ -1,8 +1,8 @@
  ‹  ›   proj                                                                                              5 items  ⌕  ⚙
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
-│  Home              ││▸ > alpha                                     1 Sep 2026          --          Folder            │
-│  Projects          ││  > beta                                      1 Sep 2026          --          Folder            │
+│ Favorites          ││      Name ▲                                  Date Modified       Size        Kind              │
+│  Home              ││▸ >  alpha                                   1 Sep 2026          --          Folder            │
+│  Projects          ││  >  beta                                    1 Sep 2026          --          Folder            │
 │              ╭─ alpha ────────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │
 │ Locations    │ deep/                                                                                  │ource         │
 │  Disk        │ inner.txt                                                                              │n Text        │

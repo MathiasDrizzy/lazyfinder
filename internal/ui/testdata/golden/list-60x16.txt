@@ -1,11 +1,11 @@
  ‹  ›   proj                                  5 items  ⌕  ⚙
 ╭─ Places ───────╮╭─ proj ─────────────────────────────────╮
-│ Favorites      ││    Name ▲            Date Modified     │
-│  Home          ││▸ > alpha             1 Sep 2026        │
-│  Projects      ││  > beta              1 Sep 2026        │
-│                ││    data.xlsx         1 Sep 2026        │
-│ Locations      ││    main.go           1 Sep 2026        │
-│  Disk          ││    notes.txt         1 Sep 2026        │
+│ Favorites      ││      Name ▲                            │
+│  Home          ││▸ >  alpha                             │
+│  Projects      ││  >  beta                              │
+│                ││     data.xlsx                         │
+│ Locations      ││     main.go                           │
+│  Disk          ││     notes.txt                         │
 │                ││                                        │
 │                ││                                        │
 │                ││                                        │

@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	"charm.land/lipgloss/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 )
 
@@ -27,6 +28,7 @@ type styles struct {
 	errText, border            func(string) string
 	borderActive, titleActive  func(string) string
 	title, footerKey, footer   func(string) string
+	icon                       func(role icons.Role, glyph string, dim bool) string
 	popupBorder, popupTitle    func(string) string
 	// bg is painted behind the whole screen (nil: the terminal's own background)
 	bg color.Color
@@ -35,6 +37,12 @@ type styles struct {
 func newStyles(l look) styles {
 	r := func(s lipgloss.Style) func(string) string { return func(t string) string { return s.Render(t) } }
 	plain := func(s string) string { return s }
+	noIconColor := func(_ icons.Role, g string, dim bool) string {
+		if dim {
+			return lipgloss.NewStyle().Faint(true).Render(g)
+		}
+		return g
+	}
 	mono := l.NoColor
 	if mono {
 		return styles{
@@ -43,7 +51,7 @@ func newStyles(l look) styles {
 			accent: plain, fresh: r(lipgloss.NewStyle().Bold(true)), errText: r(lipgloss.NewStyle().Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
 			borderActive: plain, titleActive: r(lipgloss.NewStyle().Bold(true)), title: r(lipgloss.NewStyle().Faint(true)),
 			footerKey: r(lipgloss.NewStyle().Bold(true)), footer: r(lipgloss.NewStyle().Faint(true)),
-			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)),
+			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)), icon: noIconColor,
 		}
 	}
 	p, ok := theme.Lookup(l.Theme)
@@ -57,7 +65,7 @@ func newStyles(l look) styles {
 			borderActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2"))), titleActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
 			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Bold(true)),
 			footer: r(lipgloss.NewStyle().Faint(true)), popupBorder: r(lipgloss.NewStyle().Foreground(blue)),
-			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)),
+			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), icon: noIconColor,
 		}
 	}
 	// Every text color is lifted when the palette leaves it under minReadable on the background it is drawn on.
@@ -72,6 +80,15 @@ func newStyles(l look) styles {
 		borderActive: fg(p.Green, false), titleActive: fg(p.Green, true), title: fg(p.Subtext0, false),
 		footerKey: fg(p.Mauve, true), footer: fg(p.Blue, false),
 		popupBorder: fg(p.Peach, false), popupTitle: fg(p.Peach, true),
+	}
+	roles := map[icons.Role]color.Color{icons.Folder: p.Blue, icons.Green: p.Green, icons.Peach: p.Peach, icons.Red: p.Red,
+		icons.Yellow: p.Yellow, icons.Mauve: p.Mauve, icons.Teal: p.Teal, icons.Blue: p.Blue, icons.Plain: p.Subtext0}
+	s.icon = func(role icons.Role, glyph string, dim bool) string {
+		c := p.Overlay0
+		if !dim {
+			c = roles[role]
+		}
+		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Render(glyph)
 	}
 	if l.ScreenBackground == "theme" {
 		s.bg = p.Base

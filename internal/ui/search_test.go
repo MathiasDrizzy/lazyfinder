@@ -64,7 +64,7 @@ func TestRecursiveSearchFindsDeepFiles(t *testing.T) {
 	e.key("tab")
 	e.typeText("x.txt")
 	e.mustHave("x.txt")
-	e.mustHave("deep")
+	e.mustHave("alpha")
 }
 
 func TestEnterKeepsTheResultsAndLetsYouUseTheList(t *testing.T) {
