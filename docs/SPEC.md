@@ -27,6 +27,7 @@ follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener 
 | Q5 | "un modo de seguimiento en vivo tambien para poder utilizarlo como el sidebar de vscode, donde pueda ir siguiendo un proyecto y cuando un agente empiece un proyecto seguir en vivo lo que vaya creando y no tener que hacer refresh todo el tiempo para ver los archivos nuevos, que sea consistente con git y salgan las cosas nuevas" |
 | Q6 | "una app tui, con la misma naturaleza de lazymark, dejar de utilizar el finder pero tener todo lo que necesito en una app tui" |
 | Q7 | "y muchas cosas mas" |
+| Q8 | "recuerda la estetica tiene que ser parecido a finder de mac, pero con la estetica lazy como la tenemos en lazymark, ademas tiene qeu ser todo configurable, con clicks, con los temas, idiomas, configuracion, protocolo kitty etc.. ya la rueda la inventamos con lazymark" (relayed by cerebro, 2026-10-13) |
 
 ## Milestone 1 requirements
 
@@ -118,6 +119,38 @@ follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener 
   can act on in the status line; the app does not crash. AC: fixtures with mode `000` and a dangling symlink.
 - **R-26 Logging (M1, ED-28).** Optional JSON log to a file (`--log <path>`), no file names unless `--log-paths`,
   off by default.
+
+### Look, themes, languages and settings (Q8, M1)
+
+The look is Finder's content (columns, sidebar, breadcrumb) in lazymark's style: rounded bordered panels with a
+title and a counter, a bar of keys at the bottom and Catppuccin-family palettes. The systems are reused from
+lazymark (read-only reference, same author and MIT license): palettes and user themes, `i18n.T` pairs with JSON
+catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-languages-settings.md`.
+
+- **R-40 Lazy look (M1).** The sidebar and the list are two rounded panels (focused panel: accent border), the
+  list panel has the title `<folder>` and a counter `n of m` in its bottom border, and a bar of keys closes the
+  screen (`Label: key | ...`, keys in the accent color). The selected row is a solid bar. AC: goldens at 120x40,
+  80x24 and 60x16; real Ghostty capture.
+- **R-41 Themes (M1).** `theme` names one of the 14 built-in palettes (default `catppuccin-mocha`), a user theme
+  (`<config dir>/themes/<name>.json`, 14 `#rrggbb` colors) or `terminal` (the terminal's own colors). The whole
+  screen is painted with the theme unless `screen_background` is `terminal`. An invalid user theme is skipped with
+  a warning. `--theme <name>` overrides for one run. AC: unit tests on the loader; scenario with `assert_color`
+  checking the selection bar color for two themes.
+- **R-42 Languages (M1).** The interface language is `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`) or one of
+  en, es, pt, fr, de, it, ja, zh (`language` in the config, `--lang`). Every interface text goes through
+  `i18n.T`. A missing translation falls back to English. AC: coverage test failing when a text lacks a
+  translation in any language (as in lazymark); scenario starting in Spanish.
+- **R-43 Settings popup (M1).** `,` (or the gear in the toolbar) opens a popup that changes theme, language,
+  image protocol (`auto`/`kitty`/`off`), hidden files, folders first, screen background and mouse with keys or
+  clicks; each change applies at once and is saved to `config.json` (atomic write; nothing else in the file is
+  lost). AC: unit test of the save; scenario changes the theme and the language and sees the screen change.
+- **R-44 Configurable keys (M1).** `keys` in the config maps an action to a list of keys; the defaults of
+  `docs/keybindings.md` apply to the rest; a key bound twice or an unknown action is a warning and the default
+  stays. The bar of keys and the help show the real keys. AC: unit test; scenario with a rebound key.
+- **R-45 Mouse is optional (M1).** `mouse` (default true) and `--no-mouse` turn mouse reporting off (the terminal
+  keeps its own selection). AC: the view requests no mouse mode; scenario.
+- **R-46 Kitty protocol configuration (M1).** Already R-17: `preview.images` is `auto`, `kitty` or `off`, with
+  Quick Look as the fallback; the setting is part of the Settings popup (R-43).
 
 ## Requirements for later milestones (summarized, detail in ROADMAP)
 

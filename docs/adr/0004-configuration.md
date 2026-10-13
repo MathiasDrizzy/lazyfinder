@@ -39,7 +39,11 @@ evolve (ED-9: the format is public API).
     "txt": "vscode", "md": "vscode", "xlsx": "excel", "png": "preview", "jpg": "preview"
   },
   "preview": { "max_text_bytes": 524288, "images": "auto" },
-  "theme": "auto",
+  "theme": "catppuccin-mocha",
+  "language": "auto",
+  "screen_background": "theme",
+  "mouse": true,
+  "keys": {},
   "watch": { "max_dirs": 64, "poll_interval_ms": 2000 }
 }
 ```
@@ -49,7 +53,10 @@ evolve (ED-9: the format is public API).
   a validation error. Anything not listed opens with the system default (`open`).
 * `{file}` is the only placeholder; it must appear as a whole argv element (validated).
 * `preview.images`: `auto` (probe), `kitty`, `off`.
-* `theme`: `auto`, `light`, `dark`; `NO_COLOR` overrides to monochrome.
+* `theme`: a built-in palette name, a user theme name or `terminal` (see ADR 0008); `NO_COLOR` overrides to
+  monochrome. *(Amended 2026-10-13: it was `auto`, `light`, `dark`.)*
+* `language`: `auto` or `en`, `es`, `pt`, `fr`, `de`, `it`, `ja`, `zh`. `screen_background`: `theme` or
+  `terminal`. `mouse`: boolean. `keys`: action to key list. *(Added 2026-10-13, ADR 0008.)*
 * `~` and `$HOME` expand in `path` fields only.
 
 ### Consequences
