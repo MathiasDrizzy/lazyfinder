@@ -21,11 +21,10 @@ func followEnv(t *testing.T, w, h int) (*env, *fakeWatcher) {
 	return e, fw
 }
 
-func TestFollowModeHasNoSidebarAndStartsWithFoldersOpen(t *testing.T) {
+func TestFollowModeHasNoSidebarAndStartsCollapsed(t *testing.T) {
 	e, _ := followEnv(t, 40, 20)
 	e.mustNotHave("Favorites")
-	e.mustNotHave("Favorites")
-	e.mustHave("inner.txt")
+	e.mustNotHave("inner.txt") // point M3: nothing opens by itself
 	e.mustHave("alpha")
 }
 
@@ -39,12 +38,12 @@ func TestEnterOnAFolderTogglesItInsteadOfLeavingTheProject(t *testing.T) {
 	e, _ := followEnv(t, 40, 20)
 	e.clickText("alpha")
 	e.key("enter")
-	e.mustNotHave("inner.txt")
+	e.mustHave("inner.txt")
 	if e.m.dir() != e.root {
 		t.Fatalf("dir = %s, the project root must stay", e.m.dir())
 	}
 	e.key("enter")
-	e.mustHave("inner.txt")
+	e.mustNotHave("inner.txt")
 }
 
 func TestBackspaceNeverLeavesTheProjectRoot(t *testing.T) {

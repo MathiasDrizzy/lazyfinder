@@ -170,8 +170,8 @@ func TestCtrlBTurnsTheProjectSidebarOnAndOff(t *testing.T) {
 	if !e.m.deps.Follow || e.m.sidebarW() != 0 {
 		t.Fatalf("ctrl+b must enter the project mode (no places, a tree):\n%s", e.text())
 	}
-	if !e.m.expanded[filepath.Join(e.root, "alpha")] {
-		t.Fatal("the first level of folders opens when the mode starts")
+	if len(e.m.expanded) != 0 {
+		t.Fatal("no folder opens when the mode starts")
 	}
 	if got := e.m.columns(); len(got) != 1 {
 		t.Fatalf("the tree shows only names, got %v", got)
@@ -194,7 +194,7 @@ func TestProjectModeDoesNotOpenIgnoredFoldersByItself(t *testing.T) {
 	if e.m.expanded[filepath.Join(e.root, "node_modules")] {
 		t.Fatal("node_modules is ignored: opening it would read thousands of files")
 	}
-	if !e.m.expanded[filepath.Join(e.root, "alpha")] {
-		t.Fatal("a normal folder still opens")
+	if len(e.m.expanded) != 0 {
+		t.Fatal("no folder opens by itself")
 	}
 }

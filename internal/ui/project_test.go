@@ -92,3 +92,15 @@ func TestProjectModeFitsThirtyColumns(t *testing.T) {
 	}
 	e.mustHave("Git")
 }
+
+func TestSidebarModeStartsCollapsedAndKeepsWhatTheUserOpened(t *testing.T) {
+	e := projectEnv(t, 36)
+	if e.m.expanded[filepath.Join(e.root, "alpha")] {
+		t.Fatal("entering the sidebar mode must not expand every folder (order 07, point M3)")
+	}
+	e.m.deps.Follow = false
+	e.m.toggleProject()
+	if len(e.m.expanded) != 0 {
+		t.Fatalf("nothing opens when the mode changes: %v", e.m.expanded)
+	}
+}

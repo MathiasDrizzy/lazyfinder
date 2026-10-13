@@ -178,9 +178,6 @@ func New(d Deps) *Model {
 	if err := m.load(d.Start, ""); err != nil {
 		m.setError(err)
 	}
-	if d.Follow {
-		m.openFirstLevel()
-	}
 	m.follow()
 	m.syncMiller()
 	return m

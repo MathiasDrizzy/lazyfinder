@@ -215,16 +215,6 @@ func (m *Model) collapseSelected() tea.Cmd {
 	return m.toggle(parent)
 }
 
-// openFirstLevel opens every folder of the project root; follow mode starts like that.
-func (m *Model) openFirstLevel() {
-	for _, e := range m.entries() {
-		if e.IsDir && !e.IsLink && m.gitCode(e) != git.Ignored { // an ignored folder (node_modules) can hold thousands of files
-			m.expanded[e.Path] = true
-		}
-	}
-	_ = m.load(m.dir(), "")
-}
-
 // gitDir is the .git folder of the repository being shown, empty outside one (a worktree's .git file is not watched).
 func (m *Model) gitDir() string {
 	if !m.git.ok {
@@ -252,5 +242,5 @@ func (m *Model) toggleProject() {
 	m.projTab = tabFiles
 	m.savedColumns = m.deps.Cfg.Columns
 	m.deps.Cfg.Columns = []string{"name"}
-	m.openFirstLevel()
+	_ = m.load(m.dir(), "") // the tree starts collapsed: nothing opens when the mode changes
 }
