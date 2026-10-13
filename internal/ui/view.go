@@ -10,6 +10,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/MathiasDrizzy/lazyfinder/internal/git"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
@@ -612,6 +613,8 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		case s.col != fsmodel.ColName || selected:
 		case m.isFresh(e.Path):
 			text = m.styles.fresh(text)
+		case m.git.ok && m.gitCode(e) != git.None:
+			text = m.styles.gitPaint(string(m.gitCode(e)), text) // the name wears the color of its git state
 		case e.IsDir:
 			text = m.styles.folder(text)
 		}
@@ -623,7 +626,11 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		if code == "" {
 			code = " "
 		}
-		line += " " + m.styles.gitLetter(code)
+		if e.IsDir && code != " " && code != string(git.Ignored) { // a folder with changes inside gets a dot, like herdr
+			line += " " + m.styles.gitPaint(code, "●")
+		} else {
+			line += " " + m.styles.gitLetter(code)
+		}
 	}
 	switch {
 	case selected:

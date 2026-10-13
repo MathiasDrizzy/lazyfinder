@@ -156,3 +156,14 @@ func TestPathsThroughASymlinkedFolderStillMatch(t *testing.T) {
 		t.Fatalf("edited.txt through the link = %q, want Modified", got)
 	}
 }
+
+func TestChangedCountsFilesThatAreNotIgnored(t *testing.T) {
+	dir := fixture(t)
+	s, _, err := Read(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := s.Changed(); got != 5 { // edited, deep, staged, loose and fresh/; the ignored ones do not count
+		t.Fatalf("Changed() = %d, want 5", got)
+	}
+}

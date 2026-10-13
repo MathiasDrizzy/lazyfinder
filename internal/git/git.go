@@ -42,6 +42,17 @@ type Status struct {
 	viaDir, realDir string
 }
 
+// Changed is how many paths differ from the last commit; ignored ones do not count.
+func (s Status) Changed() int {
+	n := 0
+	for _, c := range s.files {
+		if c != Ignored && c != None {
+			n++
+		}
+	}
+	return n
+}
+
 // Read returns the status of the repository that contains dir. ok is false, with no error, outside a repository.
 func Read(dir string) (Status, bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

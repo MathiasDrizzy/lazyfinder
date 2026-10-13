@@ -8,6 +8,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // projectEnv is the project sidebar mode on a git repository with one modified and one new file, 36 columns wide.
@@ -102,5 +103,26 @@ func TestSidebarModeStartsCollapsedAndKeepsWhatTheUserOpened(t *testing.T) {
 	e.m.toggleProject()
 	if len(e.m.expanded) != 0 {
 		t.Fatalf("nothing opens when the mode changes: %v", e.m.expanded)
+	}
+}
+
+// order 07, point M4: git is visible in the sidebar, with the color of the state on the name, a dot on the folders
+// that hold changes and a counter next to the branch.
+func TestGitColorsTheNamesAndMarksFoldersWithADotAndACounter(t *testing.T) {
+	e := projectEnv(t, 36)
+	e.key("down") // the selected row is drawn in the selection color, so the checks look at the other rows
+	e.key("down")
+	yellow := "38;2;249;226;175" // catppuccin-mocha yellow: modified
+	green := "38;2;166;227;161"  // catppuccin-mocha green: new
+	l := rawAt(e, lineOf(t, e, "notes.txt"))
+	if i := strings.Index(l, "notes.txt"); !strings.Contains(l[:i], yellow) || !strings.Contains(l[i:], yellow) {
+		t.Fatalf("a modified file has the name and the letter in yellow: %q", l)
+	}
+	l = rawAt(e, lineOf(t, e, "alpha"))
+	if !strings.Contains(ansi.Strip(l), "●") || !strings.Contains(l, green) {
+		t.Fatalf("a folder with a new file has a green dot: %q", l)
+	}
+	if foot := e.screen()[len(e.screen())-2]; !strings.Contains(foot, "2") || !strings.Contains(foot, "●") {
+		t.Fatalf("the footer counts the changes: %q", foot)
 	}
 }

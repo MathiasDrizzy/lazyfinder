@@ -38,6 +38,8 @@ type styles struct {
 	popupBorder, popupTitle   func(string) string
 	// gitLetter colors the git state next to a name
 	gitLetter func(code string) string
+	// gitPaint colors any text with the color of a git state (names, the dot of a folder)
+	gitPaint func(code, text string) string
 	// bg is painted behind the whole screen (nil: the terminal's own background)
 	bg color.Color
 	// text is the color of text that has none of its own, painted with bg so a light theme is readable on a dark terminal
@@ -63,7 +65,7 @@ func newStyles(l look) styles {
 			borderActive: plain, titleActive: r(lipgloss.NewStyle().Bold(true)), title: r(lipgloss.NewStyle().Faint(true)),
 			footerKey: r(lipgloss.NewStyle().Bold(true)), footer: r(lipgloss.NewStyle().Faint(true)),
 			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)), icon: noIconColor,
-			gitLetter: plain,
+			gitLetter: plain, gitPaint: func(_, text string) string { return text },
 		}
 	}
 	p, ok := theme.Lookup(l.Theme)
@@ -79,7 +81,7 @@ func newStyles(l look) styles {
 			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Bold(true)),
 			footer: r(lipgloss.NewStyle().Faint(true)), popupBorder: r(lipgloss.NewStyle().Foreground(blue)),
 			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), icon: noIconColor,
-			gitLetter: plain,
+			gitLetter: plain, gitPaint: func(_, text string) string { return text },
 		}
 	}
 	// Every text color is lifted when the palette leaves it under minReadable on the background it is drawn on.
@@ -126,13 +128,14 @@ func newStyles(l look) styles {
 		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Render(ic.Glyph)
 	}
 	gitColors := map[string]color.Color{"M": p.Yellow, "U": p.Green, "A": p.Green, "D": p.Red, "R": p.Blue, "!": p.Red, "I": p.Overlay0}
-	s.gitLetter = func(code string) string {
+	s.gitPaint = func(code, text string) string {
 		c, ok := gitColors[code]
 		if !ok {
-			return code
+			return text
 		}
-		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Bold(code == "!").Render(code)
+		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Bold(code == "!").Render(text)
 	}
+	s.gitLetter = func(code string) string { return s.gitPaint(code, code) }
 	if l.ScreenBackground == "theme" {
 		s.bg, s.text = p.Base, p.Text
 	}
