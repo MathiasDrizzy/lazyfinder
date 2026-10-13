@@ -19,6 +19,10 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 	m.setStatus("")
 	act, _ := m.keys.Lookup(key)
 	switch {
+	case m.ctx.open:
+		return m.ctxKey(key, act)
+	case m.help.open:
+		return m.helpKey(key, act)
 	case m.set.open:
 		return m.settingsKey(key, act)
 	case m.picker.open:
@@ -67,6 +71,9 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return cmd
 	}
 	switch act {
+	case keymap.Help:
+		m.help = helpState{open: true}
+		return nil
 	case keymap.Quit:
 		return tea.Quit
 	case keymap.Up:
@@ -168,6 +175,9 @@ func (m *Model) cycleSort(reverse bool) tea.Cmd {
 
 func (m *Model) sidebarKey(key string, act keymap.Action) tea.Cmd {
 	dests := destinations(m.places())
+	if cmd, ok := m.favoriteKey(key, act); ok {
+		return cmd
+	}
 	switch {
 	case act == keymap.Quit:
 		return tea.Quit

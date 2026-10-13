@@ -30,6 +30,8 @@ func localName(name string) string {
 		return i18n.T("Público", "Public")
 	case "Library":
 		return i18n.T("Biblioteca", "Library")
+	case "Trash":
+		return i18n.T("Papelera", "Trash")
 	case "Volumes":
 		return i18n.T("Volúmenes", "Volumes")
 	}

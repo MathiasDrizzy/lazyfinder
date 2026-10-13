@@ -19,6 +19,7 @@ const (
 	promptTrash
 	promptFilter
 	promptTag
+	promptPlace // renaming a favorite of the sidebar
 )
 
 // promptState is the one-line question on the bottom row: a name to type, or a yes/no.
@@ -287,6 +288,9 @@ func (m *Model) promptSubmit() tea.Cmd {
 	case promptTag:
 		m.prompt = promptState{}
 		return m.toggleTag(p.input)
+	case promptPlace:
+		m.prompt = promptState{}
+		return m.renameFavorite(p.target, p.input)
 	}
 	if err != nil {
 		m.setError(err) // the prompt stays open, so the name can be fixed
@@ -310,6 +314,8 @@ func (m *Model) promptBar() string {
 		return fit(m.styles.accent(" "+i18n.T("Carpeta nueva: ", "New folder: "))+m.prompt.input+"▏", m.w)
 	case promptTag:
 		return fit(m.styles.accent(" "+i18n.T("Etiqueta: ", "Tag: "))+m.prompt.input+"▏", m.w)
+	case promptPlace:
+		return fit(m.styles.accent(" "+i18n.T("Nombre del favorito: ", "Favorite name: "))+m.prompt.input+"▏", m.w)
 	case promptFilter:
 		return fit(m.styles.accent(" "+i18n.T("Filtro: ", "Filter: "))+m.prompt.input+"▏", m.w)
 	}

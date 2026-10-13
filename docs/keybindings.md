@@ -8,6 +8,9 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | Key | Action | Name |
 | --- | --- | --- |
 | `↑` `↓`, `k` `j` | Move the selection | `up` `down` |
+| `?` `F1` | Help with every key and gesture | `help` |
+| `b` | Add the folder to Favorites, or remove it (also from the sidebar) | `bookmark` |
+| sidebar: `d`, `F2`, `K` `J` | Remove, rename, move up, move down the favorite | |
 | `<` `>` | Narrow / widen the sidebar | `sidebar_narrow` `sidebar_widen` |
 | `ctrl+left` `ctrl+right` | Narrow / widen the column the list is sorted by | `column_narrow` `column_widen` |
 | `PgUp` `ctrl+u`, `PgDn` `ctrl+d` | Move a page | `page_up` `page_down` |

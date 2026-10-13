@@ -253,3 +253,16 @@ func TestLayoutSizesDefaultAndValidation(t *testing.T) {
 		}
 	}
 }
+
+func TestKeybindingModeValidation(t *testing.T) {
+	if d := Defaults("/home/u"); d.KeybindingMode != "dual" {
+		t.Fatalf("default %q", d.KeybindingMode)
+	}
+	cfg, err := Parse([]byte(`{"version":1,"keybinding_mode":"lazy"}`), "/home/u")
+	if err != nil || cfg.KeybindingMode != "lazy" {
+		t.Fatalf("%v %q", err, cfg.KeybindingMode)
+	}
+	if _, err := Parse([]byte(`{"version":1,"keybinding_mode":"emacs"}`), "/home/u"); err == nil {
+		t.Fatal("emacs should be refused")
+	}
+}

@@ -116,6 +116,13 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 		return nil
 	}
 	m.setStatus("")
+	if m.ctx.open {
+		return m.ctxClick(mouse.X, mouse.Y)
+	}
+	if m.help.open {
+		m.help = helpState{}
+		return nil
+	}
 	if m.set.open {
 		return m.settingsClick(mouse.X, mouse.Y)
 	}
@@ -137,6 +144,9 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	}
 	m.pointerX = mouse.X
 	z := m.hit(mouse.X, mouse.Y)
+	if mouse.Button == tea.MouseRight && m.openContext(z, mouse.X, mouse.Y) {
+		return nil
+	}
 	if mouse.Button == tea.MouseRight && z.kind == zoneRow {
 		m.focus = focusList
 		m.sel = z.idx

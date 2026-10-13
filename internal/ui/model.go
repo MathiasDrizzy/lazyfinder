@@ -109,6 +109,8 @@ type Model struct {
 
 	layout   string // list or columns
 	drag     dragState
+	ctx      ctxState
+	help     helpState
 	pointerX int // column of the last click, for dragging a border
 	icons    icons.Set
 	mil      millerState
@@ -145,7 +147,7 @@ func New(d Deps) *Model {
 		d.Runner = opener.ExecRunner{}
 	}
 	s := fsmodel.Sort{By: fsmodel.Column(d.Cfg.Sort.By), Descending: d.Cfg.Sort.Descending, FoldersFirst: d.Cfg.Sort.FoldersFirst}
-	km, _ := keymap.New(d.Cfg.Keys) // the problems were already reported as config warnings
+	km, _ := keymap.New(keymap.WithMode(d.Cfg.Keys, d.Cfg.KeybindingMode)) // the problems were already reported as config warnings
 	m := &Model{
 		deps: d, resolve: opener.New(d.Cfg), keys: km, mouse: d.Cfg.Mouse,
 		hist: history.New(d.Start), sort: s, hidden: d.Cfg.ShowHidden,

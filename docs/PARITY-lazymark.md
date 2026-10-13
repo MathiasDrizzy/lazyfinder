@@ -12,10 +12,10 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | lazymark | lazyfinder | Status |
 |---|---|---|
 | `q` `Ctrl+C` Quit | `q`, `ctrl+c` | done |
-| `?` Keybindings popup, generated from the keymap | no popup; `docs/keybindings.md` is generated | missing (block F) |
+| `?` Keybindings popup, generated from the keymap | no popup; `docs/keybindings.md` is generated | done (block F: `?` or `F1` opens Help, built from the keymap) |
 | `Ctrl+V` Paste image | `ctrl+v` pastes the copied files | n/a: a file manager pastes files, not images into a note |
 | `,` Settings | `,` | done |
-| `x` Trash popup | `x` is Cut (Finder-like); Trash popup with restore/empty | missing (block F, Trash place) |
+| `x` Trash popup | `x` is Cut (Finder-like); Trash popup with restore/empty | n/a: the Trash is a Locations place (`~/.Trash`) opened like any folder; `u` undoes a trash |
 | `/` Search | `/`, `ctrl+f` | done |
 | `T` Daily note | - | n/a: no notes |
 | `1` `2` `3` `4` panel jump | `tab` moves sidebar ↔ list | n/a: two panels |
@@ -33,7 +33,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | `←` `h`, `→` `l` | same (parent / open) | done |
 | `Home` `g`, `End` `G` | same | done |
 | `PgUp` `Ctrl+U`, `PgDn` `Ctrl+D` | same (ctrl+u / ctrl+d added in this audit, `TestVimPagingKeysArePartOfTheDefaults`) | done |
-| Vim keys can be turned off in Settings ("Atajos": Lazy / Lazy + Vim) | keys are remapped from `keys` in config.json; no Settings row | missing (block F: Keybindings row with the same two values) |
+| Vim keys can be turned off in Settings ("Atajos": Lazy / Lazy + Vim) | keys are remapped from `keys` in config.json; no Settings row | done (block F: Keybindings row, Lazy / Lazy + Vim (hjkl)) |
 
 ## Keys: panels that exist only in lazymark
 
@@ -51,7 +51,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | lazymark | lazyfinder | Status |
 |---|---|---|
 | Lists inside popups: `Enter` accept | `enter` in every popup | done |
-| Trash popup: `r` restore, `d` delete forever, `D` empty trash | `u` undoes a trash; no popup | missing (block F) |
+| Trash popup: `r` restore, `d` delete forever, `D` empty trash | `u` undoes a trash; no popup | n/a: the Trash is a place you open like a folder; `u` undoes a trash and files can be moved out (Finder has no popup either) |
 | Confirmation popups: `y` `Enter` confirm | `y` `enter` | done |
 | Popups close only with `Esc`; a click outside does nothing | a click outside closes the popup | missing (block H: same as lazymark) |
 | Move popup / folder picker (`..`, `s`) | `ctrl+g` goto with path completion; `O` Open With | done (different tool, same job) |
@@ -77,7 +77,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | Tema / Theme | Tema | done |
 | Idioma / Language ("auto · Name") | Idioma (values `auto` and the language name) | done |
 | Editor | `commands` and Open With programs in config.json | n/a: a file manager opens files with Open With |
-| Atajos / Keybindings | - | missing (block F) |
+| Atajos / Keybindings | - | done (block F) |
 | Alcance de tareas / Task scope | - | n/a: no tasks |
 | Confirmar al borrar / Confirm deletion | `ops.confirm_trash_above` in config.json (the Trash is undoable) | missing (block H: Settings row "Confirmar al borrar") |
 | Fondo de pantalla / Screen background (`terminal` / `tema`) | same row and values | done |
@@ -97,7 +97,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | `theme`, `language`, `screen_background`, `mouse_click` | `theme`, `language`, `screen_background`, `mouse` | done (`mouse_click` is named `mouse`) |
 | `popup_background` | - | missing (block H) |
 | `confirm_delete` | `ops.confirm_trash_above` | missing (block H: a boolean row, same name semantics) |
-| `keybinding_mode` (`dual`, `lazy`) | - | missing (block F) |
+| `keybinding_mode` (`dual`, `lazy`) | - | done (block F: `keybinding_mode`) |
 | `keybindings` (one key per action) | `keys` (a list of keys per action, conflicts reported) | done |
 | `sidebar_ratio` 0.15 to 0.75 | fixed 22 columns | done (block E: `sidebar_width`, `preview_width`, `column_widths`, saved on drag) |
 | `nerd_font` | `icons` nerd / ascii / off, `icon_map` | done |
@@ -136,7 +136,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | lazymark | lazyfinder | Status |
 |---|---|---|
 | Search `/` over the notes with `lazymark search` | search bar at the bottom, `/`; visible Search field at the top right; scope (folder, subfolders, system via Spotlight), files/folders, name/content, saved in config.json and in Settings | done (block C) |
-| - | Favorites: `b` bookmarks the current folder | done; right-click menu, remove, reorder, rename: block F |
+| - | Favorites: `b` bookmarks the current folder | done (block F: right-click menu, remove `d`, rename `F2`, reorder `K` `J`, Trash location) |
 | - | Columns: fixed list, sort by click | missing (block G: choose, order, width, date format, header menu) |
 | - | Places named in the interface language | done |
 | - | Recents place in the sidebar | done (block C) |

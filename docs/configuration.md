@@ -25,6 +25,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `preview.external_tools` | `auto` lets previews run `mdls`, `pdftoppm` or `sips` (media facts, PDF first page); `off` never runs them | `auto` |
 | `theme` | A built-in theme, a user theme (see below) or `terminal` | `catppuccin-mocha` |
 | `icons` | `nerd` draws a Nerd Font glyph per kind (folders open and closed, files by extension, apps, links), `ascii` a plain character, `off` nothing | `nerd` |
+| `keybinding_mode` | `dual` (arrows and Vim letters) or `lazy` (arrows only) | `dual` |
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |
 | `preview_width` | cells of the preview in the column view, 12 to 200; `0` is automatic | `0` |
 | `column_widths` | cells of an optional column, 6 to 60, e.g. `{"kind": 24}` | `{}` |

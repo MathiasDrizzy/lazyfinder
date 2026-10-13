@@ -15,6 +15,10 @@ All notable changes to this project are documented here. The format follows
 - Resize with the mouse: drag the sidebar border, the preview border of the column view or the right edge of a
   column header; a double click fits the content. `<` `>` and `Ctrl+←` `Ctrl+→` do the same from the keyboard, and
   `sidebar_width`, `preview_width` and `column_widths` remember the sizes.
+- Favorites: right click a folder to add it or a favorite to open, rename, move or remove it; in the sidebar `d`
+  removes, `F2` renames and `K` `J` reorder; the Trash is a place in Locations.
+- `?` or `F1` opens a Help popup with the keys and gestures; Settings has a Keybindings row (Lazy / Lazy + Vim) and
+  `keybinding_mode` saves it.
 - **Recents** in the sidebar lists the last folders; `Ctrl+U` and `Ctrl+D` page like in lazymark.
 
 ### Changed

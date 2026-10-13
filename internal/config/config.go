@@ -43,18 +43,19 @@ const (
 
 // Config is the validated configuration. Treat it as read-only.
 type Config struct {
-	Version    int               `json:"version"`
-	Columns    []string          `json:"columns"`
-	Sort       SortConfig        `json:"sort"`
-	ShowHidden bool              `json:"show_hidden"`
-	Sidebar    Sidebar           `json:"sidebar"`
-	Openers    map[string]Opener `json:"openers"`
-	Commands   map[string]Opener `json:"commands"`
-	OpenWith   map[string]string `json:"open_with"`
-	Preview    Preview           `json:"preview"`
-	Icons      string            `json:"icons"`    // nerd (Nerd Font glyphs), ascii or off
-	IconMap    map[string]string `json:"icon_map"` // extension -> glyph, overrides the built-in ones
-	Layout     string            `json:"layout"`   // list (detail columns) or columns (parent, folder, preview)
+	Version        int               `json:"version"`
+	Columns        []string          `json:"columns"`
+	Sort           SortConfig        `json:"sort"`
+	ShowHidden     bool              `json:"show_hidden"`
+	Sidebar        Sidebar           `json:"sidebar"`
+	Openers        map[string]Opener `json:"openers"`
+	Commands       map[string]Opener `json:"commands"`
+	OpenWith       map[string]string `json:"open_with"`
+	Preview        Preview           `json:"preview"`
+	Icons          string            `json:"icons"`           // nerd (Nerd Font glyphs), ascii or off
+	IconMap        map[string]string `json:"icon_map"`        // extension -> glyph, overrides the built-in ones
+	KeybindingMode string            `json:"keybinding_mode"` // dual (arrows and Vim letters) or lazy (arrows only)
+	Layout         string            `json:"layout"`          // list (detail columns) or columns (parent, folder, preview)
 	// SidebarWidth and PreviewWidth are cells (0 is automatic); ColumnWidths maps a column to its width in cells.
 	// Dragging a border with the mouse, or < > and ctrl+left ctrl+right, saves them.
 	SidebarWidth int            `json:"sidebar_width"`
@@ -162,22 +163,23 @@ func ResolvePath(getenv func(string) string, home string) string {
 // Defaults returns the configuration used when there is no file.
 func Defaults(home string) Config {
 	return Config{
-		Version:  currentVersion,
-		Columns:  []string{"name", "modified", "created", "size", "kind"},
-		Sort:     SortConfig{By: "name", FoldersFirst: true},
-		Sidebar:  defaultSidebar(home),
-		Openers:  map[string]Opener{},
-		Commands: map[string]Opener{},
-		OpenWith: map[string]string{},
-		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
-		Icons:    "nerd",
-		IconMap:  map[string]string{},
-		Layout:   "list",
-		Theme:    theme.Default,
-		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
-		Git:      Git{Enabled: true},
-		Search:   Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
-		Ops:      Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
+		Version:        currentVersion,
+		Columns:        []string{"name", "modified", "created", "size", "kind"},
+		Sort:           SortConfig{By: "name", FoldersFirst: true},
+		Sidebar:        defaultSidebar(home),
+		Openers:        map[string]Opener{},
+		Commands:       map[string]Opener{},
+		OpenWith:       map[string]string{},
+		Preview:        Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
+		Icons:          "nerd",
+		IconMap:        map[string]string{},
+		KeybindingMode: "dual",
+		Layout:         "list",
+		Theme:          theme.Default,
+		Watch:          Watch{MaxDirs: 64, PollIntervalMS: 2000},
+		Git:            Git{Enabled: true},
+		Search:         Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
+		Ops:            Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -193,7 +195,7 @@ func defaultSidebar(home string) Sidebar {
 			{"Home", home}, {"Desktop", j("Desktop")}, {"Documents", j("Documents")},
 			{"Downloads", j("Downloads")}, {"Applications", "/Applications"},
 		},
-		Locations: []Place{{"Macintosh HD", "/"}, {"Volumes", "/Volumes"}},
+		Locations: []Place{{"Macintosh HD", "/"}, {"Volumes", "/Volumes"}, {"Trash", j(".Trash")}},
 	}
 }
 
@@ -281,7 +283,7 @@ func validate(cfg *Config, home string) error {
 	default:
 		return i18n.Errorf(`"screen_background" debe ser theme o terminal (hay %q)`, `"screen_background" must be theme or terminal (got %q)`, cfg.ScreenBackground)
 	}
-	_, cfg.Warnings = keymap.New(cfg.Keys)
+	_, cfg.Warnings = keymap.New(keymap.WithMode(cfg.Keys, cfg.KeybindingMode))
 	switch cfg.Preview.Images {
 	case "auto", "kitty", "off":
 	default:
@@ -312,6 +314,9 @@ func validate(cfg *Config, home string) error {
 		if w < MinColumn || w > MaxColumn {
 			return i18n.Errorf(`"column_widths.%s" debe ser de %d a %d (hay %d)`, `"column_widths.%s" must be from %d to %d (got %d)`, c, MinColumn, MaxColumn, w)
 		}
+	}
+	if cfg.KeybindingMode != keymap.ModeDual && cfg.KeybindingMode != keymap.ModeLazy {
+		return i18n.Errorf(`"keybinding_mode" %q no es válido (usa dual o lazy)`, `"keybinding_mode" %q is not valid (use dual or lazy)`, cfg.KeybindingMode)
 	}
 	if cfg.Layout != "list" && cfg.Layout != "columns" {
 		return i18n.Errorf(`"layout" debe ser list o columns (hay %q)`, `"layout" must be list or columns (got %q)`, cfg.Layout)

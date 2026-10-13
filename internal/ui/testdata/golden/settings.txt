@@ -19,12 +19,12 @@
 │                    ││            │   Folders first                        ‹ yes › │                                  │
 │                    ││            │   Screen background                  ‹ theme › │                                  │
 │                    ││            │   Icons                               ‹ nerd › │                                  │
+│                    ││            │   Keybindings            ‹ Lazy + Vim (hjkl) › │                                  │
 │                    ││            │   Search in                    ‹ This folder › │                                  │
 │                    ││            │   Search for             ‹ Files and folders › │                                  │
 │                    ││            │   Search by                           ‹ Name › │                                  │
 │                    ││            │   Mouse                                ‹ yes › │                                  │
 │                    ││            ╰────────────────────────────────────────────────╯                                  │
-│                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

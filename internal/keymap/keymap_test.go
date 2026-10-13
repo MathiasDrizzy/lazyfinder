@@ -119,3 +119,30 @@ func TestVimPagingKeysArePartOfTheDefaults(t *testing.T) {
 		}
 	}
 }
+
+func TestLazyModeDropsTheVimLettersButKeepsTheArrows(t *testing.T) {
+	m, warns := New(WithMode(nil, ModeLazy))
+	if len(warns) != 0 {
+		t.Fatal(warns)
+	}
+	for _, k := range []string{"h", "j", "k", "l", "g", "G"} {
+		if a, ok := m.Lookup(k); ok {
+			t.Errorf("%q is still bound to %s", k, a)
+		}
+	}
+	for k, want := range map[string]Action{"up": Up, "down": Down, "enter": Open, "home": First, "end": Last, "left": Parent} {
+		if a, _ := m.Lookup(k); a != want {
+			t.Errorf("%q = %q, want %q", k, a, want)
+		}
+	}
+	// the user's own keys win over the mode
+	m, _ = New(WithMode(map[string][]string{"up": {"k"}}, ModeLazy))
+	if a, _ := m.Lookup("k"); a != Up {
+		t.Errorf("an explicit k must stay: %q", a)
+	}
+	// dual keeps everything
+	m, _ = New(WithMode(nil, ModeDual))
+	if a, _ := m.Lookup("j"); a != Down {
+		t.Errorf("dual: j = %q", a)
+	}
+}

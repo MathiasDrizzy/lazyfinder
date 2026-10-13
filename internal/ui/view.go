@@ -144,19 +144,27 @@ type place struct {
 	name    string
 	path    string
 	missing bool
+	fav     int  // 1 + the index in sidebar.favorites for a favorite, else 0
 	recents bool // the Recents entry: opens the list of recent folders instead of a folder
 }
 
 func (m *Model) places() []place {
 	var out []place
+	isFav := false
 	section := func(title string, ps []config.Place) {
 		out = append(out, place{title: title})
-		for _, p := range ps {
+		for i, p := range ps {
 			_, err := os.Stat(p.Path)
-			out = append(out, place{name: localName(p.Name), path: p.Path, missing: err != nil})
+			pl := place{name: localName(p.Name), path: p.Path, missing: err != nil}
+			if isFav {
+				pl.fav = i + 1
+			}
+			out = append(out, pl)
 		}
 	}
+	isFav = true
 	section(i18n.T("Favoritos", "Favorites"), m.deps.Cfg.Sidebar.Favorites)
+	isFav = false
 	out = slices.Insert(out, 1, place{name: i18n.T("Recientes", "Recents"), recents: true})
 	out = append(out, place{})
 	section(i18n.T("Ubicaciones", "Locations"), m.deps.Cfg.Sidebar.Locations)
@@ -287,6 +295,14 @@ func (m *Model) screen() []string {
 	}
 	if m.info.open {
 		x, y, bx := m.infoBox()
+		lines = overlay(lines, bx, x, y)
+	}
+	if m.help.open {
+		x, y, bx := m.helpBox()
+		lines = overlay(lines, bx, x, y)
+	}
+	if m.ctx.open {
+		x, y, bx := m.ctxBox()
 		lines = overlay(lines, bx, x, y)
 	}
 	return lines
@@ -553,6 +569,16 @@ func keyLabel(k string) string {
 		return "Space"
 	case "tab":
 		return "Tab"
+	case "up":
+		return "↑"
+	case "down":
+		return "↓"
+	case "left":
+		return "←"
+	case "right":
+		return "→"
+	case "backspace":
+		return "⌫"
 	case "pgup":
 		return "PgUp"
 	case "pgdown":

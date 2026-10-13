@@ -62,6 +62,7 @@ const (
 	SidebarWiden  Action = "sidebar_widen"
 	ColumnNarrow  Action = "column_narrow"
 	ColumnWiden   Action = "column_widen"
+	Help          Action = "help"
 	Focus         Action = "focus"
 	Settings      Action = "settings"
 	Quit          Action = "quit"
@@ -70,7 +71,7 @@ const (
 // Actions lists every action.
 var Actions = []Action{
 	Up, Down, PageUp, PageDown, First, Last, Open, Parent, Back, Forward, Preview, OpenWith, QuickLook,
-	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, Focus, Settings, Quit,
+	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, Help, Focus, Settings, Quit,
 }
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
@@ -81,7 +82,32 @@ var Defaults = map[Action][]string{
 	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"},
 	Mark: {"v"}, MarkAll: {"ctrl+a"}, Copy: {"c"}, Cut: {"x"}, Paste: {"p", "ctrl+v"}, Duplicate: {"D"},
 	Rename: {"f2", "R"}, NewFolder: {"N", "ctrl+n"}, Trash: {"d", "delete"}, Undo: {"u", "ctrl+z"}, Info: {"i"},
-	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, SidebarNarrow: {"<"}, SidebarWiden: {">"}, ColumnNarrow: {"ctrl+left"}, ColumnWiden: {"ctrl+right"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
+	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, SidebarNarrow: {"<"}, SidebarWiden: {">"}, ColumnNarrow: {"ctrl+left"}, ColumnWiden: {"ctrl+right"}, Help: {"?", "f1"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
+}
+
+// The two keybinding modes: dual keeps the Vim letters next to the arrows, lazy leaves only the arrows and the
+// other keys.
+const (
+	ModeDual = "dual"
+	ModeLazy = "lazy"
+)
+
+var vimLetters = map[Action][]string{Up: {"k"}, Down: {"j"}, Open: {"l"}, Parent: {"h"}, First: {"g"}, Last: {"G"}}
+
+// WithMode returns the user's overrides plus, in lazy mode, the default keys of the Vim actions without their
+// letters. An action the user already rebound keeps the user's keys.
+func WithMode(overrides map[string][]string, mode string) map[string][]string {
+	if mode != ModeLazy {
+		return overrides
+	}
+	out := make(map[string][]string, len(overrides)+len(vimLetters))
+	for a, letters := range vimLetters {
+		out[string(a)] = slices.DeleteFunc(slices.Clone(Defaults[a]), func(k string) bool { return slices.Contains(letters, k) })
+	}
+	for a, ks := range overrides {
+		out[a] = ks
+	}
+	return out
 }
 
 // Map is the effective binding. Build it with New; it is read-only afterwards.

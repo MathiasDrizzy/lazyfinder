@@ -1,0 +1,22 @@
+{
+  "name": "lazyfinder-favorites",
+  "criterio": "order 2026-10-13-05 block F (add the folder to Favorites, right click menu, Trash location, ? help)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "? opens a help that explains Favorites", "keys": ["?"]},
+    {"assert": {"contains": "Add the folder to Favorites"}},
+    {"keys": ["esc"]},
+    {"desc": "b adds the selected folder to Favorites", "keys": ["b"]},
+    {"assert": {"contains": "Bookmarked"}},
+    {"desc": "right click on the new favorite offers to remove it", "click": {"at": "alpha", "in": {"x": 0, "y": 3, "w": 22, "h": 20}, "button": "right"}},
+    {"assert": {"contains": "Remove from Favorites"}},
+    {"keys": ["esc"]},
+    {"desc": "right click on a folder offers to add it", "click": {"at": "beta", "in": {"x": 23, "y": 3, "w": 90, "h": 10}, "button": "right"}},
+    {"assert": {"contains": "Add to Favorites"}}
+  ]
+}

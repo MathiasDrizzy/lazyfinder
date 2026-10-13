@@ -27,6 +27,7 @@ const (
 	setFoldersFirst
 	setScreenBackground
 	setIcons
+	setKeys
 	setSearchScope
 	setSearchKinds
 	setSearchBy
@@ -52,6 +53,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Fondo de pantalla", "Screen background")
 	case setIcons:
 		return i18n.T("Iconos", "Icons")
+	case setKeys:
+		return i18n.T("Atajos", "Keybindings")
 	case setSearchScope:
 		return i18n.T("Buscar en", "Search in")
 	case setSearchKinds:
@@ -93,6 +96,11 @@ func (m *Model) settingValue(i int) string {
 		return i18n.T("tema", "theme")
 	case setIcons:
 		return c.Icons
+	case setKeys:
+		if c.KeybindingMode == keymap.ModeLazy {
+			return "Lazy"
+		}
+		return "Lazy + Vim (hjkl)"
 	case setSearchScope:
 		return scopeName(orDefault(c.Search.Scope, searchScopes))
 	case setSearchKinds:
@@ -157,6 +165,10 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons
 		m.icons.Style = icons.Style(m.deps.Cfg.Icons)
+	case setKeys:
+		m.deps.Cfg.KeybindingMode = cycle([]string{keymap.ModeDual, keymap.ModeLazy}, m.deps.Cfg.KeybindingMode, dir)
+		key, val = "keybinding_mode", m.deps.Cfg.KeybindingMode
+		m.keys, _ = keymap.New(keymap.WithMode(m.deps.Cfg.Keys, m.deps.Cfg.KeybindingMode))
 	case setSearchScope, setSearchKinds, setSearchBy:
 		what := map[int]string{setSearchScope: "scope", setSearchKinds: "kinds", setSearchBy: "by"}[i]
 		m.deps.Cfg.Search.Scope = orDefault(m.deps.Cfg.Search.Scope, searchScopes)
