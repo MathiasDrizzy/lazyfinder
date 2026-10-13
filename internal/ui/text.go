@@ -22,6 +22,11 @@ func fit(s string, w int) string {
 
 // overlay draws box (lines of equal width bw) over base lines at column x, row y.
 func overlay(base []string, box []string, x, y int) []string {
+	return overlayAfter(base, box, x, y, "")
+}
+
+// overlayAfter is overlay; after is written right behind the box, to give the rest of the line back its background.
+func overlayAfter(base []string, box []string, x, y int, after string) []string {
 	out := make([]string, len(base))
 	copy(out, base)
 	for i, b := range box {
@@ -33,7 +38,7 @@ func overlay(base []string, box []string, x, y int) []string {
 		left := ansi.Truncate(out[row], x, "")
 		left += strings.Repeat(" ", max(0, x-ansi.StringWidth(left)))
 		right := ansi.TruncateLeft(out[row], x+bw, "")
-		out[row] = left + "\x1b[0m" + b + "\x1b[0m" + right
+		out[row] = left + "\x1b[0m" + b + "\x1b[0m" + after + right
 	}
 	return out
 }

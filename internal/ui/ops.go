@@ -208,7 +208,7 @@ func (m *Model) startTrash() tea.Cmd {
 	if len(ps) == 0 || !m.canWrite() {
 		return nil
 	}
-	if len(ps) > m.deps.Cfg.Ops.ConfirmTrashAbove {
+	if m.deps.Cfg.ConfirmDelete && len(ps) > m.deps.Cfg.Ops.ConfirmTrashAbove {
 		m.prompt = promptState{kind: promptTrash, paths: ps}
 		return nil
 	}

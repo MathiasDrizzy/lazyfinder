@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"github.com/charmbracelet/x/ansi"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/charmbracelet/x/ansi"
 )
 
 const (
@@ -229,5 +229,62 @@ func TestClicksLandOnPanelContentNotBorders(t *testing.T) {
 	hx, hy := e.find("Date Modified")
 	if z := e.m.hit(hx, hy); z.kind != zoneHeader {
 		t.Fatalf("header hit = %+v", z)
+	}
+}
+
+// bgActiveAt says whether the theme background is on at the first cell of word on its screen line.
+func bgActiveAt(line, word string) bool {
+	prefix := line[:strings.Index(line, word)]
+	reset := max(strings.LastIndex(prefix, "\x1b[0m"), strings.LastIndex(prefix, "\x1b[m"))
+	return strings.LastIndex(prefix, mochaBase) > reset
+}
+
+func TestPopupBackgroundSettingLeavesThePopupTransparent(t *testing.T) {
+	e := newEnv(t)
+	e.m.set = settingsState{open: true}
+	line := rawLine(e, "Hidden files")
+	if !bgActiveAt(line, "Hidden files") {
+		t.Fatalf("with popup_background theme the popup is painted: %q", line)
+	}
+	e.m.deps.Cfg.PopupBackground = config.ScreenBackgroundTerminal
+	line = rawLine(e, "Hidden files")
+	if bgActiveAt(line, "Hidden files") {
+		t.Fatalf("with popup_background terminal the popup keeps the terminal's background: %q", line)
+	}
+	if !strings.Contains(rawLine(e, "Hidden files"), mochaBase) || !bgActiveAt(rawLine(e, "alpha")+"alpha", "alpha") {
+		t.Fatalf("the rest of the screen stays painted")
+	}
+}
+
+func TestSettingsPopupBackgroundAndConfirmDeleteRowsAreSaved(t *testing.T) {
+	e := newEnv(t)
+	path := withConfigFile(t, e)
+	e.m.set = settingsState{open: true, sel: setPopupBackground}
+	e.mustHave("Popup background")
+	e.key("right")
+	if e.m.deps.Cfg.PopupBackground != config.ScreenBackgroundTerminal {
+		t.Fatalf("popup background = %q", e.m.deps.Cfg.PopupBackground)
+	}
+	e.m.set.sel = setConfirmDelete
+	e.mustHave("Confirm deletion")
+	e.key("right")
+	if got := e.savedConfig(path); got.PopupBackground != "terminal" || got.ConfirmDelete {
+		t.Fatalf("saved = %+v", got)
+	}
+}
+
+func TestConfirmDeleteOffTrashesWithoutAsking(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.Cfg.Ops.ConfirmTrashAbove = 0 // asks always, unless confirm_delete is off
+	e.pick("data.xlsx")
+	e.key("delete")
+	if e.m.prompt.kind != promptTrash || e.inTrash("data.xlsx") {
+		t.Fatal("with confirm_delete on the Trash asks first")
+	}
+	e.key("esc")
+	e.m.deps.Cfg.ConfirmDelete = false
+	e.key("delete")
+	if !e.inTrash("data.xlsx") {
+		t.Fatal("with confirm_delete off the Trash is immediate")
 	}
 }

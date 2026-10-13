@@ -71,10 +71,14 @@ type Config struct {
 	Ops          Ops            `json:"ops"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
-	Language         string              `json:"language"`
-	ScreenBackground string              `json:"screen_background"`
-	Mouse            bool                `json:"mouse"`
-	Keys             map[string][]string `json:"keys"`
+	Language         string `json:"language"`
+	ScreenBackground string `json:"screen_background"`
+	// PopupBackground is "theme" or "terminal" like ScreenBackground: terminal leaves the terminal's own background behind popups.
+	PopupBackground string `json:"popup_background"`
+	// ConfirmDelete asks before moving files to the Trash (ops.confirm_trash_above says from how many); false never asks.
+	ConfirmDelete bool                `json:"confirm_delete"`
+	Mouse         bool                `json:"mouse"`
+	Keys          map[string][]string `json:"keys"`
 
 	// Warnings are problems that do not stop the app (a broken user theme, a clashing key). Not part of the file.
 	Warnings []string `json:"-"`
@@ -192,6 +196,8 @@ func Defaults(home string) Config {
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
+		PopupBackground:  ScreenBackgroundTheme,
+		ConfirmDelete:    true,
 		Mouse:            true,
 		Keys:             map[string][]string{},
 	}
@@ -341,6 +347,9 @@ func validate(cfg *Config, home string) error {
 	case ScreenBackgroundTheme, ScreenBackgroundTerminal:
 	default:
 		return i18n.Errorf(`"screen_background" debe ser theme o terminal (hay %q)`, `"screen_background" must be theme or terminal (got %q)`, cfg.ScreenBackground)
+	}
+	if cfg.PopupBackground != ScreenBackgroundTheme && cfg.PopupBackground != ScreenBackgroundTerminal {
+		return i18n.Errorf(`"popup_background" debe ser theme o terminal (hay %q)`, `"popup_background" must be theme or terminal (got %q)`, cfg.PopupBackground)
 	}
 	_, cfg.Warnings = keymap.New(keymap.WithMode(cfg.Keys, cfg.KeybindingMode))
 	switch cfg.Preview.Images {

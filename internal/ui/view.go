@@ -256,7 +256,7 @@ func (m *Model) View() tea.View {
 		content = m.tooSmall()
 	} else {
 		content = strings.Join(m.screen(), "\n")
-		if m.styles.bg != nil {
+		if m.styles.bg != nil && !m.popupsKeepTerminalBackground() {
 			content = theme.PaintBackground(content, m.styles.bg)
 		}
 	}
@@ -280,6 +280,46 @@ func (m *Model) tooSmall() string {
 }
 
 func (m *Model) screen() []string {
+	lines, put := m.baseScreen()
+	for _, p := range m.popupBoxes() {
+		lines = put(lines, p.box, p.x, p.y)
+	}
+	return lines
+}
+
+// popupsKeepTerminalBackground says whether the screen is painted with the theme while popups are not
+// (popup_background "terminal"): screen() then paints the base itself and View must not paint again.
+func (m *Model) popupsKeepTerminalBackground() bool {
+	return m.styles.bg != nil && m.deps.Cfg.PopupBackground == config.ScreenBackgroundTerminal
+}
+
+type popupBox struct {
+	x, y int
+	box  []string
+}
+
+// popupBoxes are the open popups, bottom first.
+func (m *Model) popupBoxes() []popupBox {
+	var out []popupBox
+	add := func(open bool, f func() (int, int, []string)) {
+		if open {
+			x, y, bx := f()
+			out = append(out, popupBox{x, y, bx})
+		}
+	}
+	add(m.picker.open, m.pickerBox)
+	add(m.menu.open, m.menuBox)
+	add(m.pv.open, m.previewBox)
+	add(m.set.open, m.settingsBox)
+	add(m.info.open, m.infoBox)
+	add(m.help.open, m.helpBox)
+	add(m.ctx.open, m.ctxBox)
+	return out
+}
+
+// baseScreen draws the panels and bars, and says how popups go on top of it: when the popups keep the terminal's
+// background the base is painted here and each popup restores the theme background behind itself.
+func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []string) {
 	lines := make([]string, m.h)
 	lines[0] = m.toolbar()
 	list := m.panel(m.folderTitle(), m.counter(), m.listLines(), m.w-m.sidebarW(), m.panelH(), m.focus == focusList)
@@ -295,35 +335,12 @@ func (m *Model) screen() []string {
 	}
 	lines[m.h-2] = m.breadcrumb()
 	lines[m.h-1] = m.footerBar()
-	if m.picker.open {
-		x, y, bx := m.pickerBox()
-		lines = overlay(lines, bx, x, y)
+	if m.popupsKeepTerminalBackground() {
+		lines = strings.Split(theme.PaintBackground(strings.Join(lines, "\n"), m.styles.bg), "\n")
+		after := theme.BackgroundSeq(m.styles.bg)
+		return lines, func(base, box []string, x, y int) []string { return overlayAfter(base, box, x, y, after) }
 	}
-	if m.menu.open {
-		x, y, bx := m.menuBox()
-		lines = overlay(lines, bx, x, y)
-	}
-	if m.pv.open {
-		x, y, bx := m.previewBox()
-		lines = overlay(lines, bx, x, y)
-	}
-	if m.set.open {
-		x, y, bx := m.settingsBox()
-		lines = overlay(lines, bx, x, y)
-	}
-	if m.info.open {
-		x, y, bx := m.infoBox()
-		lines = overlay(lines, bx, x, y)
-	}
-	if m.help.open {
-		x, y, bx := m.helpBox()
-		lines = overlay(lines, bx, x, y)
-	}
-	if m.ctx.open {
-		x, y, bx := m.ctxBox()
-		lines = overlay(lines, bx, x, y)
-	}
-	return lines
+	return lines, overlay
 }
 
 func (m *Model) folderTitle() string {

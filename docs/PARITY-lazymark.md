@@ -53,7 +53,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | Lists inside popups: `Enter` accept | `enter` in every popup | done |
 | Trash popup: `r` restore, `d` delete forever, `D` empty trash | `u` undoes a trash; no popup | n/a: the Trash is a place you open like a folder; `u` undoes a trash and files can be moved out (Finder has no popup either) |
 | Confirmation popups: `y` `Enter` confirm | `y` `enter` | done |
-| Popups close only with `Esc`; a click outside does nothing | a click outside closes the popup | missing (block H: same as lazymark) |
+| Popups close only with `Esc`; a click outside does nothing | a click outside closes the popup | **done** (`TestPopupsCloseOnlyWithEscNotWithAClickOutside`, `popups.json`) |
 | Move popup / folder picker (`..`, `s`) | `ctrl+g` goto with path completion; `O` Open With | done (different tool, same job) |
 | Dates popup | - | n/a: no tasks |
 
@@ -61,11 +61,11 @@ Settings popup, the popups and `internal/app/mouse.go`.
 
 | lazymark | lazyfinder | Status |
 |---|---|---|
-| Click a row, tag, popup row or footer hint selects or runs it | rows, sidebar, crumbs, header, chips; footer hints are text | missing (block H: clickable key hints) |
+| Click a row, tag, popup row or footer hint selects or runs it | rows, sidebar, crumbs, header, chips; footer hints are text | **done** (`TestFooterKeyHintsAreClickable`) |
 | Drag the divider between the two columns | not draggable | done (block E: sidebar border, preview border of the column view, each column header) |
 | Double click the divider | - | done (block E: fit to content, an addition over lazymark) |
 | Scroll wheel scrolls the panel under the pointer | wheel scrolls the list or the preview | done |
-| Settings: first click selects, second click changes | one click changes | missing (block H) |
+| Settings: first click selects, second click changes | one click changes | **done** |
 | Click on the mascot | - | n/a: no mascot |
 | Right click | right click opens the Open With menu on a row | done (lazymark has no context menu); header and sidebar menus in blocks F and G |
 | `--no-mouse` / `mouse_click` | `--no-mouse` / `mouse` | done |
@@ -79,15 +79,15 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | Editor | `commands` and Open With programs in config.json | n/a: a file manager opens files with Open With |
 | Atajos / Keybindings | - | done (block F) |
 | Alcance de tareas / Task scope | - | n/a: no tasks |
-| Confirmar al borrar / Confirm deletion | `ops.confirm_trash_above` in config.json (the Trash is undoable) | missing (block H: Settings row "Confirmar al borrar") |
+| Confirmar al borrar / Confirm deletion | `ops.confirm_trash_above` in config.json (the Trash is undoable) | **done** (Settings row, `confirm_delete`) |
 | Fondo de pantalla / Screen background (`terminal` / `tema`) | same row and values | done |
-| Fondo de popups / Popup background | popups follow the theme | missing (block H) |
+| Fondo de popups / Popup background | popups follow the theme | **done** |
 | Mascota, Tarjetas, fechas, colores de fechas, avisos, glifos, carpeta diaria, plantillas, etiqueta del tablero | - | n/a: notes and tasks only |
 | Carpeta de notas / Notes folder | start folder is the argument or the last one | n/a: a file manager has no notes folder |
 | Días en la papelera / Days in trash | Trash is the macOS Trash | n/a: the system decides |
 | Orden de las notas / Orden de las tareas | Sort by any column (`s`, header click) | done |
 | yes / no values ("sí" / "no") | "sí"/"yes" and "no" (fixed in this audit; they said on/off) | done |
-| `←` `→` change, `Enter` change, `Esc` close; hint line "←/→ cambiar · clic: seleccionar, 2.º clic: cambiar" | `←` `→` `enter` `esc`; no hint line | missing (block H) |
+| `←` `→` change, `Enter` change, `Esc` close; hint line "←/→ cambiar · clic: seleccionar, 2.º clic: cambiar" | `←` `→` `enter` `esc`; no hint line | **done** |
 | - | Icons, Images (Kitty), Hidden files, Folders first, Mouse rows | done (file-manager settings) |
 
 ## config.json keys
@@ -95,13 +95,13 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | lazymark | lazyfinder | Status |
 |---|---|---|
 | `theme`, `language`, `screen_background`, `mouse_click` | `theme`, `language`, `screen_background`, `mouse` | done (`mouse_click` is named `mouse`) |
-| `popup_background` | - | missing (block H) |
-| `confirm_delete` | `ops.confirm_trash_above` | missing (block H: a boolean row, same name semantics) |
+| `popup_background` | - | **done** |
+| `confirm_delete` | `ops.confirm_trash_above` | **done** (`confirm_delete`, `TestConfirmDeleteOffTrashesWithoutAsking`) |
 | `keybinding_mode` (`dual`, `lazy`) | - | done (block F: `keybinding_mode`) |
 | `keybindings` (one key per action) | `keys` (a list of keys per action, conflicts reported) | done |
 | `sidebar_ratio` 0.15 to 0.75 | fixed 22 columns | done (block E: `sidebar_width`, `preview_width`, `column_widths`, saved on drag) |
 | `nerd_font` | `icons` nerd / ascii / off, `icon_map` | done |
-| Per-key tolerant parsing: a wrong value goes back to its default, a warning says which, the rest is kept; unknown keys are preserved on save; an invalid file is saved as `config.json.bak` first | one invalid key makes the whole file fall back to the defaults; unknown keys are an error | missing (block H) |
+| Per-key tolerant parsing: a wrong value goes back to its default, a warning says which, the rest is kept; unknown keys are preserved on save | one invalid key makes the whole file fall back to the defaults; unknown keys are an error | **done** (`TestOneWrongKeyDoesNotSpoilTheRest`; a file that is not JSON is never overwritten, so there is nothing to back up: n/a) |
 | User themes in `themes/` next to config.json | same | done |
 | `notes_dir`, `editor`, `kanban_*`, `date_*`, `due_soon_days`, `done_tag*`, `daily_*`, `templates_folder`, `trash_days`, `max_note_mb`, `mascot`, `click_hint*`, `task_scope`, `hide_completed_*`, `show_tasks_tab`, `show_tags_tab`, `notes_sort`, `tasks_sort` | - | n/a: notes and tasks |
 | Config path per OS (`~/Library/Application Support/lazymark/config.json` on macOS) | `~/.config/lazyfinder/config.json` or `LAZYFINDER_CONFIG` | done (documented; same XDG idea) |
@@ -120,9 +120,9 @@ Settings popup, the popups and `internal/app/mouse.go`.
 
 | lazymark | lazyfinder | Status |
 |---|---|---|
-| Selection bar blue-gray (theme `surface1`) | selection bar peach | missing (block H) |
+| Selection bar blue-gray (theme `surface1`) | selection bar peach | **done** |
 | Border of the focused panel green, others dim | same | done |
-| Footer key hints (clickable) | key hints on the bottom row, not clickable | missing (block H) |
+| Footer key hints (clickable) | key hints on the bottom row, not clickable | **done** |
 | Nerd Font icons per kind with color | same (block B) | done |
 | Screen size guard "Terminal muy pequeña" | same text | done |
 | Texts: same i18n architecture, 8 languages, coverage test | same, plus `TestStringsShared` | done |

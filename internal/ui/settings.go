@@ -26,6 +26,7 @@ const (
 	setHidden
 	setFoldersFirst
 	setScreenBackground
+	setPopupBackground
 	setIcons
 	setKeys
 	setDateFormat
@@ -33,11 +34,12 @@ const (
 	setSearchScope
 	setSearchKinds
 	setSearchBy
+	setConfirmDelete
 	setMouse
 	settingCount
 )
 
-const settingsInner = 46
+const settingsInner = 54
 
 func (m *Model) settingLabel(i int) string {
 	switch i {
@@ -53,6 +55,10 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Carpetas primero", "Folders first")
 	case setScreenBackground:
 		return i18n.T("Fondo de pantalla", "Screen background")
+	case setPopupBackground:
+		return i18n.T("Fondo de popups", "Popup background")
+	case setConfirmDelete:
+		return i18n.T("Confirmar al borrar", "Confirm deletion")
 	case setIcons:
 		return i18n.T("Iconos", "Icons")
 	case setDateFormat:
@@ -100,6 +106,13 @@ func (m *Model) settingValue(i int) string {
 			return i18n.T("terminal", "terminal")
 		}
 		return i18n.T("tema", "theme")
+	case setPopupBackground:
+		if c.PopupBackground == config.ScreenBackgroundTerminal {
+			return i18n.T("terminal", "terminal")
+		}
+		return i18n.T("tema", "theme")
+	case setConfirmDelete:
+		return onOff(c.ConfirmDelete)
 	case setIcons:
 		return c.Icons
 	case setDateFormat:
@@ -171,6 +184,12 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.ScreenBackground = cycle([]string{config.ScreenBackgroundTheme, config.ScreenBackgroundTerminal}, m.deps.Cfg.ScreenBackground, dir)
 		key, val = "screen_background", m.deps.Cfg.ScreenBackground
 		m.restyle()
+	case setPopupBackground:
+		m.deps.Cfg.PopupBackground = cycle([]string{config.ScreenBackgroundTheme, config.ScreenBackgroundTerminal}, m.deps.Cfg.PopupBackground, dir)
+		key, val = "popup_background", m.deps.Cfg.PopupBackground
+	case setConfirmDelete:
+		m.deps.Cfg.ConfirmDelete = !m.deps.Cfg.ConfirmDelete
+		key, val = "confirm_delete", m.deps.Cfg.ConfirmDelete
 	case setIcons:
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons

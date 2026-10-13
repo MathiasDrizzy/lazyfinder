@@ -33,6 +33,8 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `column_widths` | cells of an optional column, 6 to 60, e.g. `{"kind": 24}` | `{}` |
 | `icon_map` | extension → glyph overrides, e.g. `{"go": "G"}` | `{}` |
 | `screen_background` | `theme` paints the whole screen with the theme background; `terminal` keeps the terminal's own | `theme` |
+| `popup_background` | `theme` paints popups with the theme background; `terminal` leaves the terminal's own behind them (a translucent terminal stays translucent) | `theme` |
+| `confirm_delete` | `false` never asks before moving to the Trash (`u` undoes it); `true` asks as `ops.confirm_trash_above` says | `true` |
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
 | `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |
 | `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |

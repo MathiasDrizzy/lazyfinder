@@ -8,26 +8,26 @@
 │ Locations          ││     notes.txt                               1 Sep 2026          38 bytes    Plain Text        │
 │  Disk              ││                                                                                                │
 │                    ││                                                                                                │
-│                    ││                                                                                                │
-│                    ││            ╭─ Settings ─────────────────────────────────────╮                                  │
-│                    ││            │   Theme                   ‹ catppuccin-mocha › │                                  │
-│                    ││            │   Language                            ‹ auto › │                                  │
-│                    ││            │   Images (Kitty)                      ‹ auto › │                                  │
-│                    ││            │   Hidden files                          ‹ no › │                                  │
-│                    ││            │   Folders first                        ‹ yes › │                                  │
-│                    ││            │   Screen background                  ‹ theme › │                                  │
-│                    ││            │   Icons                               ‹ nerd › │                                  │
-│                    ││            │   Keybindings            ‹ Lazy + Vim (hjkl) › │                                  │
-│                    ││            │   Date format                     ‹ relative › │                                  │
-│                    ││            │   Row density                      ‹ compact › │                                  │
-│                    ││            │   Search in                    ‹ This folder › │                                  │
-│                    ││            │   Search for             ‹ Files and folders › │                                  │
-│                    ││            │   Search by                           ‹ Name › │                                  │
-│                    ││            │   Mouse                                ‹ yes › │                                  │
-│                    ││            │                                                │                                  │
-│                    ││            │ ←/→ change · click: select, 2nd click: change  │                                  │
-│                    ││            ╰────────────────────────────────────────────────╯                                  │
-│                    ││                                                                                                │
+│                    ││        ╭─ Settings ─────────────────────────────────────────────╮                              │
+│                    ││        │   Theme                           ‹ catppuccin-mocha › │                              │
+│                    ││        │   Language                                    ‹ auto › │                              │
+│                    ││        │   Images (Kitty)                              ‹ auto › │                              │
+│                    ││        │   Hidden files                                  ‹ no › │                              │
+│                    ││        │   Folders first                                ‹ yes › │                              │
+│                    ││        │   Screen background                          ‹ theme › │                              │
+│                    ││        │   Popup background                           ‹ theme › │                              │
+│                    ││        │   Icons                                       ‹ nerd › │                              │
+│                    ││        │   Keybindings                    ‹ Lazy + Vim (hjkl) › │                              │
+│                    ││        │   Date format                             ‹ relative › │                              │
+│                    ││        │   Row density                              ‹ compact › │                              │
+│                    ││        │   Search in                            ‹ This folder › │                              │
+│                    ││        │   Search for                     ‹ Files and folders › │                              │
+│                    ││        │   Search by                                   ‹ Name › │                              │
+│                    ││        │   Confirm deletion                             ‹ yes › │                              │
+│                    ││        │   Mouse                                        ‹ yes › │                              │
+│                    ││        │                                                        │                              │
+│                    ││        │ ←/→ change · click: select, 2nd click: change          │                              │
+│                    ││        ╰────────────────────────────────────────────────────────╯                              │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

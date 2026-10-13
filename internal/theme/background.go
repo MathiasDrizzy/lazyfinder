@@ -14,8 +14,7 @@ var sgrSeq = regexp.MustCompile(`\x1b\[([0-9;:]*)m`)
 // se vuelve a poner. Así no queda ninguna celda con el fondo de la terminal: ni los espacios
 // entre paneles, ni el relleno de las líneas, ni lo que dibujan los popups sin fondo.
 func PaintBackground(s string, bg color.Color) string {
-	r, g, b, _ := bg.RGBA()
-	set := fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r>>8, g>>8, b>>8)
+	set := BackgroundSeq(bg)
 	lines := strings.Split(s, "\n")
 	for i, line := range lines {
 		line = sgrSeq.ReplaceAllStringFunc(line, func(seq string) string {
@@ -54,4 +53,10 @@ func clearsBackground(params string) bool {
 		}
 	}
 	return clears
+}
+
+// BackgroundSeq is the escape sequence that sets bg as the background color.
+func BackgroundSeq(bg color.Color) string {
+	r, g, b, _ := bg.RGBA()
+	return fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r>>8, g>>8, b>>8)
 }

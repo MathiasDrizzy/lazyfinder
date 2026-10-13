@@ -149,3 +149,17 @@ func TestUpdateLeavesNoTemporaryFile(t *testing.T) {
 		t.Fatalf("only config.json should remain, got %v", entries)
 	}
 }
+
+func TestPopupBackgroundAndConfirmDeleteDefaultsAndValidation(t *testing.T) {
+	d := Defaults("/h")
+	if d.PopupBackground != ScreenBackgroundTheme || !d.ConfirmDelete {
+		t.Fatalf("defaults: popup_background=%q confirm_delete=%v", d.PopupBackground, d.ConfirmDelete)
+	}
+	cfg, err := Parse([]byte(`{"version":1,"popup_background":"terminal","confirm_delete":false}`), "/h")
+	if err != nil || cfg.PopupBackground != ScreenBackgroundTerminal || cfg.ConfirmDelete {
+		t.Fatalf("parse: %+v, %v", cfg, err)
+	}
+	if _, err := Parse([]byte(`{"version":1,"popup_background":"blue"}`), "/h"); err == nil || !strings.Contains(err.Error(), "popup_background") {
+		t.Fatalf("a wrong popup_background must be named: %v", err)
+	}
+}

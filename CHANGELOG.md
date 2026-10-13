@@ -26,6 +26,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The selection bar is the theme's blue-gray surface, like lazymark's, instead of salmon.
+- Popups close only with `Esc`: a click outside does nothing. In Settings the first click selects a row and the second
+  changes it, and a hint line says so. The key hints of the bottom row run their action when clicked.
+- A wrong value in `config.json` no longer throws the whole file away: that key goes back to its default, a warning
+  says which, and the rest is kept (a file that is not JSON, or with a wrong `version`, still fails).
+- `popup_background` and `confirm_delete` are in Settings and `config.json`.
 - Columns that have no width in `column_widths` fit their title and their widest cell, so Kind and Date Modified are
   no longer cut when the window has room.
 - Settings write yes and no like lazymark (they said on and off).
