@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-13
+
 ### Added
 
 - Favorites and Locations are two boxes in the sidebar, each with its own border and title (the one holding the
@@ -34,6 +36,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- A data race in the file watcher: closing it while a change was being delivered could send on a closed channel.
 - On a light theme the plain text of the list (file names, dates) took the terminal's own light foreground and was
   almost invisible; it now takes the theme's text color.
 
