@@ -1,0 +1,25 @@
+{
+  "name": "lazyfinder-look",
+  "criterio": "R-40 R-41 (rounded panels, accent border on the focused panel, selection bar and background from the theme)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "two rounded panels with the folder in the title and a counter", "assert": {"contains": "╭─ proj ─"}},
+    {"assert": {"contains": "1 of 6 ─╯"}},
+    {"desc": "the selection bar is the theme's peach", "assert_color": {"region": {"line_with": "▸ >\\s+alpha"}, "bg": "#fab387", "mode": "any"}},
+    {"desc": "the whole screen has the theme background", "assert_color": {"region": {"line_with": "beta"}, "bg": "#1e1e2e", "mode": "any"}},
+    {"desc": "the list panel has the accent border, the sidebar does not", "assert_color": {"region": {"x": 22, "y": 1, "w": 98, "h": 1}, "fg": "#a6e3a1", "mode": "any"}},
+    {"assert_color": {"region": {"x": 0, "y": 1, "w": 22, "h": 1}, "fg": "#a6e3a1", "mode": "none"}},
+    {"desc": "Tab moves the accent to the sidebar", "keys": ["tab"]},
+    {"assert_color": {"region": {"x": 0, "y": 1, "w": 22, "h": 1}, "fg": "#a6e3a1", "mode": "any"}},
+    {"assert_color": {"region": {"x": 22, "y": 1, "w": 98, "h": 1}, "fg": "#a6e3a1", "mode": "none"}},
+    {"desc": "the key bar names the keys", "assert": {"contains": "Open: ⏎ \\| Preview: Space"}},
+    {"snapshot": {"name": "look"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

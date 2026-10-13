@@ -1,0 +1,25 @@
+{
+  "name": "lazyfinder-settings",
+  "criterio": "R-43 (the settings popup opens from the key and the gear, applies at once and closes)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "the gear opens the popup", "click": {"at": "⚙", "in": {"x": 100, "y": 0, "w": 20, "h": 1}}},
+    {"wait": {"regex": "Screen background"}},
+    {"assert_box": {"box_with": "Settings", "center_in": {"x": 40, "y": 10, "w": 40, "h": 20}, "within": {"x": 0, "y": 0, "w": 120, "h": 40}}},
+    {"desc": "Right changes the theme at once", "keys": ["right"]},
+    {"assert_color": {"region": {"line_with": "▸ >\\s+alpha"}, "bg": "#fab387", "mode": "none"}},
+    {"desc": "Esc closes it and the list is back", "keys": ["esc"]},
+    {"wait": {"regex": "Screen background", "absent": true}},
+    {"desc": "comma opens it again, comma closes it", "keys": [","]},
+    {"wait": {"regex": "Screen background"}},
+    {"keys": [","]},
+    {"wait": {"regex": "Screen background", "absent": true}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}
