@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-13
+
+Includes what 0.9.0 added (search field, texts, mouse resizing), which had no entry.
+
 ### Added
 
 - A **Search** field at the top right, like Finder's: a click or `/` focuses it and it shows what you type.
@@ -26,6 +30,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Settings shows the date format and the row density in the interface language.
 - A scenario at 120 columns in Spanish checks that the default columns are read whole and that the selected row
   is blue-gray in the list, the column view and the sidebar.
 - The selection bar is the theme's blue-gray surface, like lazymark's, instead of salmon.
