@@ -127,7 +127,7 @@ func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
 	case fsmodel.ColKind:
 		return e.Kind
 	}
-	if m.searchOn() && m.search.recursive {
+	if m.searchOn() && m.search.deep() {
 		if w := m.where(e); w != "" {
 			return strings.Repeat("  ", e.Depth) + e.Name + "  ‹ " + w
 		}
@@ -141,6 +141,7 @@ type place struct {
 	name    string
 	path    string
 	missing bool
+	recents bool // the Recents entry: opens the list of recent folders instead of a folder
 }
 
 func (m *Model) places() []place {
@@ -153,6 +154,7 @@ func (m *Model) places() []place {
 		}
 	}
 	section(i18n.T("Favoritos", "Favorites"), m.deps.Cfg.Sidebar.Favorites)
+	out = slices.Insert(out, 1, place{name: i18n.T("Recientes", "Recents"), recents: true})
 	out = append(out, place{})
 	section(i18n.T("Ubicaciones", "Locations"), m.deps.Cfg.Sidebar.Locations)
 	return out
@@ -327,7 +329,7 @@ func (m *Model) toolbar() string {
 	if l := m.tabLabel(); l != "" {
 		left += "  " + m.styles.accent(l)
 	}
-	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.styles.accent(lens) + "  " + m.styles.accent(gear) + " "
+	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.searchField() + "  " + m.styles.accent(gear) + " "
 	if b := m.branchLabel(); b != "" {
 		right = m.styles.accent(b) + "  " + right
 	}
@@ -336,6 +338,36 @@ func (m *Model) toolbar() string {
 		return fit(left, m.w-4) + " " + m.styles.accent(gear) + " "
 	}
 	return left + strings.Repeat(" ", pad) + right
+}
+
+// searchFieldW is the width of the Search field at the top right, the one Finder has; narrow windows show just the lens.
+const searchFieldW = 22
+
+// fieldW is the cells the field takes, 1 (the lens) in a narrow window.
+func (m *Model) fieldW() int {
+	if m.w < 80 {
+		return 1
+	}
+	return searchFieldW
+}
+
+// searchField draws the Search field: its hint while idle, the query while searching.
+func (m *Model) searchField() string {
+	w := m.fieldW()
+	if w == 1 {
+		return m.styles.accent(lens)
+	}
+	text := " " + lens + " " + i18n.T("Buscar", "Search")
+	style := m.styles.selectedInactive
+	if m.searchOn() {
+		cursor := ""
+		if m.search.mode == searchTyping {
+			cursor = "▏"
+		}
+		text = " " + lens + " " + m.search.input + cursor
+		style = m.styles.selected
+	}
+	return style(ansi.Strip(fit(text, w)))
 }
 
 func (m *Model) sidebarLines() []string {

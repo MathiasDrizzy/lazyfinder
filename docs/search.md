@@ -1,20 +1,34 @@
 # Search
 
-`/` (or `ctrl+f`, or a click on the lens in the toolbar) opens the search bar on the bottom row. Results appear
+`/` (or `ctrl+f`, or a click on the **Search** field at the top right, like Finder) opens the search bar on the bottom row; the field then shows what you type. Results appear
 while you type. Design: [ADR 0009](adr/0009-finder-and-explorer-parity.md).
 
 | Key | Does |
 | --- | --- |
 | type | Edit the query; the list shows the matches |
-| `Tab` | Switch between this folder and its subfolders |
+| `Tab` | Where to search: this folder, its subfolders, or the whole system |
+| `Ctrl+K` | What to look for: files and folders, only files, only folders |
+| `Ctrl+N` | Search by name or by what is inside the files |
 | `↑` `↓` `PgUp` `PgDn` | Move through the results while typing |
 | `Enter` | Keep the results and give the keyboard back to the list (`/` edits again) |
 | `Esc` | Clear the search and bring the folder back |
 | `Ctrl+U` | Clear the query |
 | `Ctrl+S` | Save the query; `F` lists the saved searches |
 
-Clicking a chip adds its filter to the query, clicking it again removes it; clicking `[This folder]` or
-`[Subfolders]` switches the scope.
+Clicking a chip adds its filter to the query, clicking it again removes it; clicking one of the three bracketed
+choices (`[This folder]`, `[Files and folders]`, `[Name]`) moves it to its next value. The three choices are also in
+Settings (`,`: Search in, Search for, Search by), are saved in `config.json` (`search.scope`, `search.kinds`,
+`search.by`) and a new search starts with them.
+
+## Whole system
+
+`[System]` asks the macOS index (Spotlight, `mdfind`): it finds names, or text with **Content**, anywhere on the
+disk without opening a single file, because the index was built by the system. Results that no longer exist, or are
+hidden, are dropped, and the ordinary filters (`kind:`, `size:`, ...) still apply. Where there is no index (Linux, or
+Spotlight turned off) the search walks your home folder instead and says so in the status bar; content search needs
+the index or a folder scope.
+
+**Recents** in the sidebar lists the folders you visited last (the same list as `E`).
 
 ## Query
 

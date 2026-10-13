@@ -47,6 +47,9 @@ type Deps struct {
 	// Probe and Raster are the external tools previews may use for media facts and PDF pages (nil: none).
 	// ContentFind lists files containing a text for the in: search filter (ripgrep); nil uses the native scan.
 	ContentFind search.Finder
+	// Index is the system index for the whole-system search scope (Spotlight); nil means there is none and the
+	// search walks the home folder instead.
+	Index search.Indexer
 
 	Probe  preview.Probe
 	Raster preview.Raster

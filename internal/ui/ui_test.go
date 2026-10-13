@@ -358,7 +358,8 @@ func TestSidebarClickAndMissingPlace(t *testing.T) {
 func TestTabMovesFocusToSidebar(t *testing.T) {
 	e := newEnv(t)
 	e.key("tab")
-	e.key("down") // Home -> Gone? first item is Home, second Gone, third Disk
+	e.key("down") // Recents, Home, Gone, Disk
+	e.key("down")
 	e.key("down")
 	e.key("enter")
 	if e.m.dir() != "/" {

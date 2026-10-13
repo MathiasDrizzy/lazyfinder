@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A **Search** field at the top right, like Finder's: a click or `/` focuses it and it shows what you type.
+- Search choices: where (this folder, subfolders, the whole system through the Spotlight index), what (files and
+  folders, files, folders) and how (by name or by content), on `Tab`, `Ctrl+K` and `Ctrl+N`, as chips, in Settings
+  and in `search.scope`, `search.kinds` and `search.by`; they are remembered.
+- **Recents** in the sidebar lists the last folders; `Ctrl+U` and `Ctrl+D` page like in lazymark.
+
+### Changed
+
+- Settings write yes and no like lazymark (they said on and off).
+
 ## [0.8.0] - 2026-10-13
 
 ### Added

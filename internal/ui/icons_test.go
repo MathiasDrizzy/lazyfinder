@@ -3,8 +3,6 @@ package ui
 import (
 	"strings"
 	"testing"
-
-	tea "charm.land/bubbletea/v2"
 )
 
 const (
@@ -32,7 +30,7 @@ func TestIconsCanBeSwitchedToAsciiOrOff(t *testing.T) {
 		d := e.m.deps
 		d.Cfg.Icons = style
 		e.m = New(d)
-		e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
+		e.send(sizeMsg())
 		r := e.row("beta")
 		if strings.ContainsAny(r, nerdFolder+"") {
 			t.Fatalf("%s: no Nerd Font glyph expected: %q", style, r)
@@ -48,7 +46,7 @@ func TestIconMapFromTheConfigOverridesAnExtension(t *testing.T) {
 	d := e.m.deps
 	d.Cfg.IconMap = map[string]string{"txt": "T"}
 	e.m = New(d)
-	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
+	e.send(sizeMsg())
 	if r := e.row("notes.txt"); !strings.Contains(r, "T notes.txt") {
 		t.Fatalf("row = %q", r)
 	}

@@ -45,7 +45,7 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneForward}
 		case x >= m.w-4:
 			return zone{kind: zoneSettings}
-		case x >= m.w-7 && x < m.w-4:
+		case x >= m.w-4-m.fieldW() && x < m.w-4:
 			return zone{kind: zoneSearch}
 		}
 	case y == m.h-1 && m.searchOn():

@@ -37,6 +37,9 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `ops.trash_dir` | Folder that receives trashed items (absolute or `~/…`) | `~/.Trash` |
 | `layout` | `list` (detail columns) or `columns` (parent, folder, preview); `M` toggles and saves it | `list` |
 | `commands` | Custom commands for the `!` menu, see below | none |
+| `search.scope` | where the search looks: `folder`, `subfolders` or `system` (the Spotlight index) | `folder` |
+| `search.kinds` | what it looks for: `both`, `files` or `folders` | `both` |
+| `search.by` | `name` or `content` (what is inside the files) | `name` |
 | `search.content_tool` | `auto` uses ripgrep for `in:` when installed (falls back to a built-in scan), `native` never runs it | `auto` |
 | `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
 | `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |

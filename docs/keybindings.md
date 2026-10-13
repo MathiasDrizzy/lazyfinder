@@ -8,7 +8,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | Key | Action | Name |
 | --- | --- | --- |
 | `↑` `↓`, `k` `j` | Move the selection | `up` `down` |
-| `PgUp` `PgDn` | Move a page | `page_up` `page_down` |
+| `PgUp` `ctrl+u`, `PgDn` `ctrl+d` | Move a page | `page_up` `page_down` |
 | `Home` `g`, `End` `G` | First and last row | `first` `last` |
 | `Enter`, `→`, `l` | Enter a folder, or open a file with its configured program | `open` |
 | `Backspace`, `←`, `h` | Parent folder | `parent` |

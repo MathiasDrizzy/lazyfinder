@@ -27,6 +27,9 @@ const (
 	setFoldersFirst
 	setScreenBackground
 	setIcons
+	setSearchScope
+	setSearchKinds
+	setSearchBy
 	setMouse
 	settingCount
 )
@@ -49,6 +52,12 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Fondo de pantalla", "Screen background")
 	case setIcons:
 		return i18n.T("Iconos", "Icons")
+	case setSearchScope:
+		return i18n.T("Buscar en", "Search in")
+	case setSearchKinds:
+		return i18n.T("Buscar", "Search for")
+	case setSearchBy:
+		return i18n.T("Buscar por", "Search by")
 	}
 	return i18n.T("Ratón", "Mouse")
 }
@@ -84,6 +93,12 @@ func (m *Model) settingValue(i int) string {
 		return i18n.T("tema", "theme")
 	case setIcons:
 		return c.Icons
+	case setSearchScope:
+		return scopeName(orDefault(c.Search.Scope, searchScopes))
+	case setSearchKinds:
+		return kindsName(orDefault(c.Search.Kinds, searchKinds))
+	case setSearchBy:
+		return byName(orDefault(c.Search.By, searchBys))
 	}
 	return onOff(m.mouse)
 }
@@ -142,6 +157,21 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons
 		m.icons.Style = icons.Style(m.deps.Cfg.Icons)
+	case setSearchScope, setSearchKinds, setSearchBy:
+		what := map[int]string{setSearchScope: "scope", setSearchKinds: "kinds", setSearchBy: "by"}[i]
+		m.deps.Cfg.Search.Scope = orDefault(m.deps.Cfg.Search.Scope, searchScopes)
+		m.deps.Cfg.Search.Kinds = orDefault(m.deps.Cfg.Search.Kinds, searchKinds)
+		m.deps.Cfg.Search.By = orDefault(m.deps.Cfg.Search.By, searchBys)
+		switch what {
+		case "scope":
+			m.deps.Cfg.Search.Scope = cycle(searchScopes, m.deps.Cfg.Search.Scope, dir)
+		case "kinds":
+			m.deps.Cfg.Search.Kinds = cycle(searchKinds, m.deps.Cfg.Search.Kinds, dir)
+		default:
+			m.deps.Cfg.Search.By = cycle(searchBys, m.deps.Cfg.Search.By, dir)
+		}
+		key = "search." + what
+		val = map[string]string{"scope": m.deps.Cfg.Search.Scope, "kinds": m.deps.Cfg.Search.Kinds, "by": m.deps.Cfg.Search.By}[what]
 	case setMouse:
 		m.mouse = !m.mouse
 		m.deps.Cfg.Mouse = m.mouse

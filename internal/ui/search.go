@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"maps"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/search"
@@ -27,7 +29,9 @@ const (
 type searchState struct {
 	mode      searchMode
 	input     string
-	recursive bool
+	scope     string // folder, subfolders or system
+	kinds     string // both, files or folders
+	by        string // name or content
 	base      fsmodel.Listing
 	results   []fsmodel.Entry
 	running   bool
@@ -40,6 +44,7 @@ type searchState struct {
 // searchEvent is one step of a running walk.
 type searchEvent struct {
 	gen     int
+	note    string // a message for the status bar
 	entries []fsmodel.Entry
 	done    bool
 	err     error
@@ -63,9 +68,27 @@ var chips = []chip{
 
 func (m *Model) searchOn() bool { return m.search.mode != searchOff }
 
+// The search choices, as written in config.json (search.scope, search.kinds, search.by).
+var (
+	searchScopes = []string{"folder", "subfolders", "system"}
+	searchKinds  = []string{"both", "files", "folders"}
+	searchBys    = []string{"name", "content"}
+)
+
+func orDefault(v string, list []string) string {
+	if slices.Contains(list, v) {
+		return v
+	}
+	return list[0]
+}
+
+// deep reports whether the search looks beyond the folder itself.
+func (s searchState) deep() bool { return s.scope != "folder" }
+
 func (m *Model) openSearch() {
 	if m.search.mode == searchOff {
-		m.search = searchState{base: m.listing}
+		c := m.deps.Cfg.Search
+		m.search = searchState{base: m.listing, scope: orDefault(c.Scope, searchScopes), kinds: orDefault(c.Kinds, searchKinds), by: orDefault(c.By, searchBys)}
 	}
 	m.search.mode = searchTyping
 }
@@ -93,8 +116,11 @@ func (m *Model) searchKey(k tea.KeyPressMsg) tea.Cmd {
 	case "ctrl+s":
 		return m.saveSearch()
 	case "tab":
-		m.search.recursive = !m.search.recursive
-		return m.runSearch()
+		return m.cycleSearch("scope", 1)
+	case "ctrl+k":
+		return m.cycleSearch("kinds", 1)
+	case "ctrl+n":
+		return m.cycleSearch("by", 1)
 	case "up", "down", "pgup", "pgdown":
 		act, _ := m.keys.Lookup(key)
 		return m.listKey(act)
@@ -112,6 +138,35 @@ func (m *Model) searchKey(k tea.KeyPressMsg) tea.Cmd {
 		return m.runSearch()
 	}
 	return nil
+}
+
+// cycleSearch moves one of the three search choices to its next value, remembers it in config.json and searches again.
+func (m *Model) cycleSearch(what string, dir int) tea.Cmd {
+	c := &m.deps.Cfg.Search
+	switch what {
+	case "scope":
+		m.search.scope = cycle(searchScopes, m.search.scope, dir)
+		c.Scope = m.search.scope
+	case "kinds":
+		m.search.kinds = cycle(searchKinds, m.search.kinds, dir)
+		c.Kinds = m.search.kinds
+	default:
+		m.search.by = cycle(searchBys, m.search.by, dir)
+		c.By = m.search.by
+	}
+	m.rememberSearch(what)
+	return m.runSearch()
+}
+
+func (m *Model) rememberSearch(what string) {
+	if m.deps.ConfigPath == "" {
+		return
+	}
+	c := m.deps.Cfg.Search
+	val := map[string]string{"scope": c.Scope, "kinds": c.Kinds, "by": c.By}[what]
+	if err := config.Update(m.deps.ConfigPath, map[string]any{"search." + what: val}); err != nil {
+		m.setError(err)
+	}
 }
 
 // resultsKey handles the keys of the results mode that differ from the plain list: esc clears, / edits.
@@ -136,16 +191,17 @@ func (m *Model) runSearch() tea.Cmd {
 	}
 	m.search.gen++
 	m.search.running, m.search.truncated = false, false
-	q, err := search.Parse(m.search.input, m.deps.Now())
+	q, err := search.ParseBy(m.search.input, m.deps.Now(), m.search.by)
 	if err != nil {
 		m.setError(err)
 		return nil
 	}
 	m.setStatus("")
-	if q.Empty() {
+	if q.Empty() && m.search.kinds == "both" {
 		return m.showResults(m.search.base.Entries)
 	}
-	if !m.search.recursive {
+	q = q.Only(m.search.kinds)
+	if !m.search.deep() {
 		var out []fsmodel.Entry
 		want := []byte(strings.ToLower(q.Content()))
 		for _, e := range m.search.base.Entries {
@@ -172,10 +228,15 @@ func (m *Model) startWalk(q search.Query) tea.Cmd {
 	ch := make(chan searchEvent, 4)
 	m.search.cancel, m.search.ch, m.search.running = cancel, ch, true
 	gen, root, max := m.search.gen, m.search.base.Dir, m.deps.Cfg.Search.MaxResults
+	system, index, home := m.search.scope == "system", m.deps.Index, m.deps.Home
 	tags := maps.Clone(m.tags) // the walk runs in its own goroutine
 	opts := search.Options{Recursive: true, ShowHidden: m.hidden, Max: max, Tags: func(p string) []string { return tags[p] }}
 	find, hidden, text := m.deps.ContentFind, m.hidden, q.Content()
 	go func() {
+		if system {
+			m.indexWalk(ctx, ch, gen, q, opts, index, home)
+			return
+		}
 		if text != "" {
 			set, err := search.ContentPaths(ctx, root, text, search.ContentOptions{Hidden: hidden, Find: find})
 			if err != nil {
@@ -201,6 +262,28 @@ func (m *Model) startWalk(q search.Query) tea.Cmd {
 	return waitSearch(ch)
 }
 
+// indexWalk is the whole-system search: it asks the system index and, when there is none, walks the home folder
+// and says so. It runs in its own goroutine and only talks through ch.
+func (m *Model) indexWalk(ctx context.Context, ch chan searchEvent, gen int, q search.Query, opts search.Options, index search.Indexer, home string) {
+	send := func(ev searchEvent) {
+		ev.gen = gen
+		select {
+		case ch <- ev:
+		case <-ctx.Done():
+		}
+	}
+	err := search.Index(ctx, index, q, opts, func(b []fsmodel.Entry) { send(searchEvent{entries: b}) })
+	if errors.Is(err, search.ErrNoIndex) {
+		send(searchEvent{note: i18n.T("El índice del sistema no está disponible: se busca en tu carpeta personal", "The system index is not available: searching your home folder")})
+		if q.Content() != "" {
+			send(searchEvent{done: true, err: err})
+			return
+		}
+		err = search.Walk(ctx, home, q, opts, func(b []fsmodel.Entry) { send(searchEvent{entries: b}) })
+	}
+	send(searchEvent{done: true, err: err})
+}
+
 func waitSearch(ch chan searchEvent) tea.Cmd {
 	return func() tea.Msg { return searchMsg(<-ch) }
 }
@@ -208,6 +291,9 @@ func waitSearch(ch chan searchEvent) tea.Cmd {
 func (m *Model) onSearch(msg searchMsg) tea.Cmd {
 	if msg.gen != m.search.gen || m.search.mode == searchOff {
 		return nil
+	}
+	if msg.note != "" {
+		m.setStatus(msg.note)
 	}
 	if len(msg.entries) > 0 {
 		keep := ""
@@ -237,6 +323,9 @@ func (m *Model) onSearch(msg searchMsg) tea.Cmd {
 
 // where is the folder of a result relative to the folder being searched, empty for direct children.
 func (m *Model) where(e fsmodel.Entry) string {
+	if m.search.scope == "system" {
+		return m.homeShort(filepath.Dir(e.Path))
+	}
 	rel, err := filepath.Rel(m.search.base.Dir, filepath.Dir(e.Path))
 	if err != nil || rel == "." {
 		return ""
@@ -246,16 +335,38 @@ func (m *Model) where(e fsmodel.Entry) string {
 
 // chipSpan is where a chip of the bar sits on the bottom row.
 type chipSpan struct {
-	x, w  int
-	scope bool
-	token string
+	x, w   int
+	action string // scope, kinds or by for the three choices; empty for a filter chip
+	token  string
 }
 
-func (m *Model) scopeLabel() string {
-	if m.search.recursive {
+func (m *Model) scopeLabel() string { return scopeName(m.search.scope) }
+
+func scopeName(scope string) string {
+	switch scope {
+	case "subfolders":
 		return i18n.T("Subcarpetas", "Subfolders")
+	case "system":
+		return i18n.T("Sistema", "System")
 	}
 	return i18n.T("Esta carpeta", "This folder")
+}
+
+func kindsName(kinds string) string {
+	switch kinds {
+	case "files":
+		return i18n.T("Archivos", "Files")
+	case "folders":
+		return i18n.T("Carpetas", "Folders")
+	}
+	return i18n.T("Archivos y carpetas", "Files and folders")
+}
+
+func byName(by string) string {
+	if by == "content" {
+		return i18n.T("Contenido", "Content")
+	}
+	return i18n.T("Nombre", "Name")
 }
 
 // searchBar renders the bottom row while searching and returns where its chips are.
@@ -273,7 +384,7 @@ func (m *Model) searchBar() (string, []chipSpan) {
 	var spans []chipSpan
 	x := ansi.StringWidth(left) + 2
 	var parts []string
-	add := func(label string, active bool, scope bool, token string) {
+	add := func(label string, active bool, action string, token string) {
 		s := " " + label + " "
 		w := ansi.StringWidth(s)
 		switch {
@@ -283,12 +394,14 @@ func (m *Model) searchBar() (string, []chipSpan) {
 			s = m.styles.footerKey(s)
 		}
 		parts = append(parts, s)
-		spans = append(spans, chipSpan{x: x, w: w, scope: scope, token: token})
+		spans = append(spans, chipSpan{x: x, w: w, action: action, token: token})
 		x += w + 1
 	}
-	add("["+m.scopeLabel()+"]", false, true, "")
+	add("["+m.scopeLabel()+"]", false, "scope", "")
+	add("["+kindsName(m.search.kinds)+"]", false, "kinds", "")
+	add("["+byName(m.search.by)+"]", false, "by", "")
 	for _, c := range chips {
-		add(c.label(), strings.Contains(" "+m.search.input+" ", " "+c.token+" "), false, c.token)
+		add(c.label(), strings.Contains(" "+m.search.input+" ", " "+c.token+" "), "", c.token)
 	}
 	count := fmt.Sprintf(i18n.T("%d encontrados", "%d found"), len(m.entries()))
 	switch {
@@ -329,9 +442,8 @@ func (m *Model) clickChip(idx int) tea.Cmd {
 	if idx < 0 || idx >= len(spans) {
 		return nil
 	}
-	if spans[idx].scope {
-		m.search.recursive = !m.search.recursive
-		return m.runSearch()
+	if a := spans[idx].action; a != "" {
+		return m.cycleSearch(a, 1)
 	}
 	return m.toggleToken(spans[idx].token)
 }

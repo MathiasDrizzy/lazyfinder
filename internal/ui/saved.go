@@ -13,7 +13,8 @@ const searchesFile = "searches.json"
 // savedSearch is a query worth keeping, with the scope it ran in.
 type savedSearch struct {
 	Query     string `json:"query"`
-	Recursive bool   `json:"recursive"`
+	Recursive bool   `json:"recursive"` // kept for files written before scopes existed
+	Scope     string `json:"scope,omitempty"`
 }
 
 // saveSearch keeps the search being typed. An empty query is not saved and the same query is kept once.
@@ -22,7 +23,7 @@ func (m *Model) saveSearch() tea.Cmd {
 	if q == "" {
 		return nil
 	}
-	s := savedSearch{Query: q, Recursive: m.search.recursive}
+	s := savedSearch{Query: q, Recursive: m.search.deep(), Scope: m.search.scope}
 	if !slices.Contains(m.saved, s) {
 		m.saved = append(m.saved, s)
 		saveState(m.stateFile(searchesFile), m.saved)
@@ -35,10 +36,7 @@ func (m *Model) savedItems() []pickItem {
 	items := make([]pickItem, len(m.saved))
 	for i, s := range m.saved {
 		s := s
-		hint := i18n.T("en esta carpeta", "this folder")
-		if s.Recursive {
-			hint = i18n.T("con subcarpetas", "with subfolders")
-		}
+		hint := scopeName(s.scope())
 		items[i] = pickItem{label: s.Query, hint: hint, run: func() tea.Cmd { return m.runSaved(s) }, del: func() {
 			m.saved = slices.DeleteFunc(m.saved, func(x savedSearch) bool { return x == s })
 			saveState(m.stateFile(searchesFile), m.saved)
@@ -60,7 +58,18 @@ func (m *Model) showSaved() tea.Cmd {
 func (m *Model) runSaved(s savedSearch) tea.Cmd {
 	m.cancelSearch()
 	m.openSearch()
-	m.search.input, m.search.recursive = s.Query, s.Recursive
+	m.search.input, m.search.scope = s.Query, s.scope()
 	m.search.mode = searchResults
 	return m.runSearch()
+}
+
+// scope is where the search ran: the saved scope, or the old recursive flag.
+func (s savedSearch) scope() string {
+	switch {
+	case s.Scope != "":
+		return s.Scope
+	case s.Recursive:
+		return "subfolders"
+	}
+	return "folder"
 }

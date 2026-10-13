@@ -184,6 +184,9 @@ func (m *Model) sidebarKey(key string, act keymap.Action) tea.Cmd {
 }
 
 func (m *Model) goPlace(p place) tea.Cmd {
+	if p.recents {
+		return m.showRecents()
+	}
 	if p.missing {
 		m.setStatus(fmt.Sprintf(i18n.T("%s no está disponible: %s", "%s is not available: %s"), p.name, p.path))
 		return nil

@@ -1,12 +1,12 @@
- ‹  ›   beta                                                                                              0 items  ⌕  ⚙
+ ‹  ›   beta                                                                         0 items   ⌕ Search               ⚙
 ╭─ Places ───────────╮╭─ beta ─────────────────────────────────────────────────────────────────────────────────────────╮
 │ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
-│  Home              ││                                                                                                │
-│  Projects          ││   This folder is empty                                                                         │
+│  Recents           ││                                                                                                │
+│  Home              ││   This folder is empty                                                                         │
+│  Projects          ││                                                                                                │
 │                    ││                                                                                                │
 │ Locations          ││                                                                                                │
 │  Disk              ││                                                                                                │
-│                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

@@ -214,6 +214,7 @@ func launch(o Options) error {
 	if o.Cfg.Search.ContentTool == "auto" {
 		d.ContentFind = search.SystemRg
 	}
+	d.Index = search.Spotlight
 	m := ui.New(d)
 	_, err := tea.NewProgram(m).Run()
 	return err
