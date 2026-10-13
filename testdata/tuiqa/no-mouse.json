@@ -1,0 +1,72 @@
+{
+  "name": "lazyfinder-no-mouse",
+  "criterio": "R-02 (--no-mouse: the keyboard does everything; tuiqa itself refuses to click because the app never enabled mouse tracking)",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--no-mouse",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "assert": {
+        "contains": "1 of 6"
+      }
+    },
+    {
+      "assert": {
+        "contains": "1 of 6"
+      }
+    },
+    {
+      "assert": {
+        "contains": "1 of 6"
+      }
+    },
+    {
+      "desc": "the keyboard still works",
+      "keys": [
+        "j",
+        "j"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "3 of 6"
+      }
+    },
+    {
+      "keys": [
+        "k",
+        "k",
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "inner\\.txt"
+      }
+    },
+    {
+      "keys": [
+        "backspace",
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}
