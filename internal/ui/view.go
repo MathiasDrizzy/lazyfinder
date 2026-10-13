@@ -512,7 +512,7 @@ func (m *Model) listLines() []string {
 	for r := 1; r < rows; r++ {
 		idx := m.top + (r-1)/m.rowH()
 		if (r-1)%m.rowH() != 0 || idx >= len(m.entries()) {
-			out[r] = m.blankRow(specs)
+			out[r] = strings.Repeat(" ", m.listW())
 			continue
 		}
 		out[r] = m.row(idx, specs)
@@ -531,7 +531,7 @@ func (m *Model) gap() int {
 	return colGap
 }
 
-// gapText is what is drawn between two columns.
+// gapText is what is drawn between two column names in the header: the │ separator, or plain air.
 func (m *Model) gapText() string {
 	if m.deps.Cfg.ColumnSeparators {
 		return " " + m.styles.border("│") + " "
@@ -539,18 +539,9 @@ func (m *Model) gapText() string {
 	return strings.Repeat(" ", colGap)
 }
 
-// blankRow is a line of the list with no entry: only the separators go through it, so the columns read as columns
-// down to the bottom of the panel.
-func (m *Model) blankRow(specs []colSpec) string {
-	if !m.deps.Cfg.ColumnSeparators {
-		return strings.Repeat(" ", m.listW())
-	}
-	line := strings.Repeat(" ", m.prefix()+specs[0].w)
-	for _, s := range specs[1:] {
-		line += m.gapText() + strings.Repeat(" ", s.w)
-	}
-	return line + strings.Repeat(" ", max(0, m.listW()-ansi.StringWidth(line)))
-}
+// rowGap is what is drawn between two cells of a row: air as wide as the header's gap, so the cells stay under their
+// column names. The bar is only in the header (Mathias, 2026-10-13: "no quería que los | fueran hasta abajo").
+func (m *Model) rowGap() string { return strings.Repeat(" ", m.gap()) }
 
 func (m *Model) row(idx int, specs []colSpec) string { return m.rowW(idx, specs, m.listW()) }
 
@@ -585,7 +576,7 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 	}
 	for i, s := range specs {
 		if i > 0 {
-			b.WriteString(m.gapText())
+			b.WriteString(m.rowGap())
 		}
 		text, lead := m.cell(e, s.col), ""
 		if s.col == fsmodel.ColName && m.iconW() > 0 { // indent, then the icon, then the name

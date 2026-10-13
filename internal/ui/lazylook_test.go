@@ -36,7 +36,7 @@ func TestDividerIsNotASelectableOrClickableDestination(t *testing.T) {
 	}
 }
 
-// Point 4: a │ between the columns, in the header and in every row, and dragging it still resizes.
+// Point 4 (as corrected by Mathias): a │ between the column names in the header only, and dragging it still resizes.
 func (e *env) listCells(y int) string {
 	r := e.cells(y)
 	return string(r[e.m.listX() : e.m.listX()+e.m.listW()])
@@ -45,9 +45,13 @@ func (e *env) listCells(y int) string {
 func TestColumnsAreSeparatedByABarLikeFinder(t *testing.T) {
 	e := newEnv(t)
 	n := len(e.m.columns()) - 1
-	for _, y := range []int{headerRow, firstRow, firstRow + 2} {
-		if got := strings.Count(e.listCells(y), "│"); got != n {
-			t.Fatalf("row %d has %d separators, want %d:\n%s", y, got, n, e.text())
+	if got := strings.Count(e.listCells(headerRow), "│"); got != n {
+		t.Fatalf("the header has %d separators, want %d:\n%s", got, n, e.text())
+	}
+	// Mathias: "no quería que los | fueran hasta abajo": only the names of the columns carry the bar.
+	for y := firstRow; y < e.m.panelH()-1; y++ {
+		if strings.Contains(e.listCells(y), "│") {
+			t.Fatalf("row %d must not have a column bar:\n%s", y, e.text())
 		}
 	}
 }

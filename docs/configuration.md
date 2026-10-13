@@ -28,7 +28,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `keybinding_mode` | `dual` (arrows and Vim letters) or `lazy` (arrows only) | `dual` |
 | `date_format` | `relative` (Today at 09:05), `finder` (Today, 09:05) or `numeric` (2026-10-13 09:05) | `relative` |
 | `icon_size` | `small` (a glyph and a space, as before), `medium` (more air, icons in the sidebar, the gear on a raised tile) or `large` (every icon on its own tile, two-line rows, a wider gear); see [ADR 0014](adr/0014-icon-size-setting.md) | `medium` |
-| `column_separators` | `true` draws a `│` between the columns, in the header and in every row, and the mouse can drag it to resize | `true` |
+| `column_separators` | `true` draws a `│` between the column names in the header (not down the rows), and the mouse can drag it to resize | `true` |
 | `density` | `compact` (one line per row) or `comfortable` (two lines, like Finder's roomy rows) | `compact` |
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |
 | `preview_width` | cells of the preview in the column view, 12 to 200; `0` is automatic | `0` |

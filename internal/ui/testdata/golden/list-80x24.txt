@@ -1,24 +1,24 @@
  ‹  ›   proj                               5 items   ⌕ Search                
 ╭─ Places ───────╮╭─ proj ─────────────────────────────────────────────────────╮
 │ Favorites      ││    Name ▲                 │ Date Modified      │ Size      │
-│  Recents      ││▸ >   alpha               │ 1 Sep 2026         │ --        │
-│  Home         ││  >   beta                │ 1 Sep 2026         │ --        │
-│  Projects     ││      data.xlsx           │ 1 Sep 2026         │ 4 bytes   │
-│ ────────────── ││      main.go             │ 1 Sep 2026         │ 45 bytes  │
-│ Locations      ││      notes.txt           │ 1 Sep 2026         │ 38 bytes  │
-│  Disk         ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
-│                ││                           │                    │           │
+│  Recents      ││▸ >   alpha                 1 Sep 2026           --        │
+│  Home         ││  >   beta                  1 Sep 2026           --        │
+│  Projects     ││      data.xlsx             1 Sep 2026           4 bytes   │
+│ ────────────── ││      main.go               1 Sep 2026           45 bytes  │
+│ Locations      ││      notes.txt             1 Sep 2026           38 bytes  │
+│  Disk         ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
 ╰────────────────╯╰─────────────────────────────────────────────────── 1 of 5 ─╯
 <breadcrumb>
  Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Quit: q

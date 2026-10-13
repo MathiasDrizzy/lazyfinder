@@ -9,7 +9,7 @@ All notable changes to this project are documented here. The format follows
 ### Added
 
 - A divider line between Favorites and Locations in the sidebar, in the border color of the theme.
-- A `│` between the columns, in the header and in every row, like Finder; `column_separators` and a Settings row
+- A `│` between the column names in the header, like Finder (not down the rows); `column_separators` and a Settings row
   switch it off, and dragging it still resizes the column.
 - `icon_size` (`small`, `medium`, `large`) in Settings and `config.json`: more air around the icons and icons in the
   sidebar from `medium`, every icon on a tile with two-line rows in `large`, and a Nerd Font gear on a raised tile

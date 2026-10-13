@@ -157,9 +157,11 @@ language, image protocol and more; changes apply at once and are saved. For one 
 <img src="docs/screenshots/settings.png" alt="The settings popup over the list" width="100%">
 
 Icons come in three sizes (`icon_size`, in Settings): `small` is a glyph, `medium` adds air, icons in the sidebar and a
-framed gear, `large` puts every icon on a tile with two-line rows and a wider gear. A `│` separates the columns like in
+framed gear, `large` puts every icon on a tile with two-line rows and a wider gear. A `│` separates the column names in the header like in
 Finder (`column_separators`), and **Columns** in Settings or a right click on the header shows fewer or more data per
 file, with a *Basic* and a *Full* preset.
+
+![The column menu](docs/screenshots/columns-menu.png)
 
 <img src="docs/screenshots/look-dark-small.png" alt="Small icons, dark theme" width="100%">
 
