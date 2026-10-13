@@ -1,0 +1,97 @@
+{
+  "name": "lazyfinder-preview-c2pa-jpeg",
+  "criterio": "order 2026-10-13-07 point E: a JPEG with a C2PA/JUMBF manifest (APP11) is a picture, not a hex dump; a format without Kitty shows its facts in words",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures-images",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "env": {
+    "LAZYFINDER_CONFIG": "${TUIQA_SCENARIO_DIR}/fixtures-images/config.json"
+  },
+  "steps": [
+    {
+      "wait": {
+        "regex": "Gemini_c2pa\\.jpg",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "space on the JPEG with the manifest",
+      "keys": [
+        "space"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Image \\d+ x \\d+|Dimensions: \\d+ x \\d+",
+        "region": {
+          "box_with": "─ Gemini_c2pa\\.jpg ─"
+        },
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "it is a picture: never a hex dump",
+      "assert": {
+        "not_contains": "00000000  "
+      }
+    },
+    {
+      "snapshot": {
+        "name": "c2pa-jpeg"
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "keys": [
+        "down"
+      ]
+    },
+    {
+      "keys": [
+        "down"
+      ]
+    },
+    {
+      "keys": [
+        "space"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Image \\d+ x \\d+|Dimensions: \\d+ x \\d+",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "a WebP is a picture too",
+      "assert": {
+        "not_contains": "00000000  "
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

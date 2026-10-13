@@ -6,6 +6,9 @@ package termimg
 
 import (
 	"fmt"
+	_ "golang.org/x/image/bmp"  // decoders
+	_ "golang.org/x/image/tiff" // decoders
+	_ "golang.org/x/image/webp" // decoders
 	"image"
 	_ "image/gif"  // decoders
 	_ "image/jpeg" // decoders

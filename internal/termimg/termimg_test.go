@@ -92,3 +92,14 @@ func TestEncodeMissingFile(t *testing.T) {
 		t.Fatal("want error")
 	}
 }
+
+// Every format the preview accepts must also encode for the terminal (Mathias, 2026-10-13: "hay imagenes que no se
+// pueden mirar"); the fixtures are the ones of the preview tests.
+func TestEncodeEveryFormatOfThePreview(t *testing.T) {
+	for _, name := range []string{"baseline.jpg", "progressive.jpg", "cmyk.jpg", "photo.png", "interlaced.gif", "photo.webp"} {
+		seq, err := Encode(filepath.Join("..", "preview", "testdata", "images", name), 20, 8)
+		if err != nil || seq == "" {
+			t.Errorf("%s: %v", name, err)
+		}
+	}
+}

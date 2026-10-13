@@ -22,6 +22,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- A JPEG with a C2PA/JUMBF manifest (the ones AI tools and cameras write) was shown as a hex dump; it is a picture
+  now. The header is read from the file, not from the first 8 KiB. WebP, BMP and TIFF are decoded too, and a picture
+  that cannot be drawn (HEIC, a file over 25 MB) is described in words, never dumped as hex.
 - A date that is empty or from before 1980 (a system folder whose birth time is 0, shown as `31/12/1969`) is now `--`.
 
 ## [0.11.0] - 2026-10-13

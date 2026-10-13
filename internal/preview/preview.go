@@ -23,6 +23,9 @@ import (
 	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/charmbracelet/x/ansi"
+	_ "golang.org/x/image/bmp"  // register decoders for DecodeConfig
+	_ "golang.org/x/image/tiff" // register decoders for DecodeConfig
+	_ "golang.org/x/image/webp" // register decoders for DecodeConfig
 )
 
 // Kind classifies a preview result.
@@ -115,10 +118,24 @@ func Load(ctx context.Context, path string, opts Options) Result {
 		return failed(res, path, err)
 	}
 	head = head[:n]
-	if cfg, _, err := image.DecodeConfig(bytes.NewReader(head)); err == nil && info.Size() <= imageMaxBytes {
+	// The header is read from the file itself, not from the sniffed bytes: a JPEG from a camera or an AI tool carries
+	// C2PA/JUMBF segments before the picture that can be bigger than the sniff.
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return failed(res, path, err)
+	}
+	cfg, _, cfgErr := image.DecodeConfig(f)
+	if _, err := f.Seek(int64(len(head)), io.SeekStart); err != nil {
+		return failed(res, path, err)
+	}
+	switch {
+	case cfgErr == nil && info.Size() <= imageMaxBytes:
 		res.Kind, res.ImageW, res.ImageH = KindImage, cfg.Width, cfg.Height
 		res.Facts = append(res.Facts, fmt.Sprintf(i18n.T("Dimensiones: %d x %d", "Dimensions: %d x %d"), cfg.Width, cfg.Height))
 		return res
+	case cfgErr == nil:
+		return describeImage(res, info, cfg.Width, cfg.Height, i18n.T("pesa demasiado para mostrarla aquí", "too big to draw here"))
+	case isImageByName(filepath.Base(path)):
+		return describeImage(res, info, 0, 0, i18n.T("este formato no se puede mostrar aquí", "this format cannot be drawn here"))
 	}
 	name := filepath.Base(path)
 	if r, ok := loadSpecial(ctx, res, path, name, opts); ok {
@@ -143,6 +160,31 @@ func Load(ctx context.Context, path string, opts Options) Result {
 		}
 	}
 	res.Lines = highlight(name, body, opts.NoColor)
+	return res
+}
+
+// imageExts are the extensions of pictures; one that cannot be drawn is described, never dumped as hex.
+var imageExts = map[string]bool{
+	"jpg": true, "jpeg": true, "png": true, "gif": true, "webp": true, "bmp": true, "tif": true, "tiff": true,
+	"heic": true, "heif": true, "avif": true, "jxl": true, "ico": true, "icns": true, "psd": true,
+	"cr2": true, "cr3": true, "nef": true, "arw": true, "dng": true, "raf": true, "orf": true, "rw2": true,
+}
+
+func isImageByName(name string) bool { return imageExts[extOf(name)] }
+
+// describeImage is what the popup shows for a picture it cannot draw: its facts in words.
+func describeImage(res Result, info os.FileInfo, w, h int, why string) Result {
+	res.Kind = KindText
+	kind := strings.ToUpper(extOf(info.Name()))
+	lines := []string{fmt.Sprintf(i18n.T("Imagen %s", "Image %s"), kind)}
+	if w > 0 && h > 0 {
+		lines = append(lines, fmt.Sprintf(i18n.T("Dimensiones: %d x %d", "Dimensions: %d x %d"), w, h))
+	}
+	lines = append(lines,
+		fmt.Sprintf(i18n.T("Tamaño: %s", "Size: %s"), fsmodel.HumanSize(info.Size())),
+		fmt.Sprintf(i18n.T("Modificado: %s", "Modified: %s"), fsmodel.FormatDate(info.ModTime(), time.Now())),
+		"", why+i18n.T(". Pulsa Q para Vista rápida.", ". Press Q for Quick Look."))
+	res.Lines = lines
 	return res
 }
 
