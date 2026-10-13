@@ -1,0 +1,146 @@
+── go: gofmt
+── go: vet
+── go: test
+ok  	github.com/MathiasDrizzy/lazyfinder/cmd/lazyfinder	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/config	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/fileops	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/fsmodel	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/git	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/history	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/i18n	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/icons	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/keymap	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/opener	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/preview	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/search	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/termimg	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/theme	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/ui	(cached)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/watch	(cached)
+── go: tests con HOME aislado (R-23)
+ok  	github.com/MathiasDrizzy/lazyfinder/cmd/lazyfinder	0.425s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/config	0.402s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/fileops	3.173s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/fsmodel	0.359s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/git	0.951s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/history	0.293s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/i18n	0.316s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/icons	0.190s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/keymap	0.185s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/opener	0.174s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/preview	0.315s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/search	0.202s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/termimg	0.262s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/theme	0.418s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/ui	8.818s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/watch	2.091s
+── go: test -race
+ok  	github.com/MathiasDrizzy/lazyfinder/cmd/lazyfinder	1.970s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/config	1.819s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/fileops	4.287s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/fsmodel	1.305s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/git	2.187s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/history	1.253s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/i18n	1.975s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/icons	1.211s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/keymap	1.199s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/opener	1.453s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/preview	2.453s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/search	1.256s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/termimg	2.133s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/theme	1.724s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/ui	20.426s
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/watch	2.994s
+── go: test -race watch x20 (timing races)
+ok  	github.com/MathiasDrizzy/lazyfinder/internal/watch	35.474s
+── go: golangci-lint v2
+0 issues.
+── go: govulncheck
+=== Symbol Results ===
+
+No vulnerabilities found.
+
+Your code is affected by 0 vulnerabilities.
+This scan also found 7 vulnerabilities in packages you import and 8
+vulnerabilities in modules you require, but your code doesn't appear to call
+these vulnerabilities.
+Use '-show verbose' for more details.
+── go: build darwin/linux
+── tuiqa: scenarios in testdata/tuiqa
+ok    clicks.json
+ok    column-separators.json
+ok    columns-menu.json
+ok    columns.json
+ok    defaults-120.json
+ok    density-wide.json
+ok    errors.json
+ok    favorites.json
+ok    file-ops.json
+ok    follow-mode.json
+ok    git-status.json
+ok    goto.json
+FAIL  icons.json
+  ok    6 an expanded folder shows the open glyph
+  ok    7 keys
+  ok    8 keys
+  FAIL  9 Settings shows the Icons row and switched to ascii: no contiene "‹ ascii ›" en {x:0 y:0 w:120 h:40}
+tuiqa: lazyfinder-icons FAIL -> /var/folders/q_/tfp84szx3v3_mwmwl5b60f4m0000gn/T/lazyfinder-tuiqa.CgJNmc/res/report.json
+ok    key-combinations.json
+ok    keys.json
+ok    language-ja.json
+ok    language.json
+ok    live-follow.json
+ok    look.json
+ok    no-color.json
+ok    no-mouse.json
+ok    open-with.json
+ok    popups.json
+ok    preview-c2pa-jpeg.json
+ok    preview.json
+ok    previews-more.json
+ok    rebound-keys.json
+ok    resize-panels.json
+ok    resize.json
+ok    search-field.json
+ok    search.json
+ok    settings.json
+ok    sidebar-boxes-grow.json
+ok    sidebar-boxes-half.json
+ok    sidebar-divider.json
+ok    sidebar-git.json
+ok    sidebar-icons.json
+ok    smoke.json
+ok    themes.json
+ok    tree.json
+ok    user-theme.json
+ok    workspace.json
+── gha: actionlint
+── gha: zizmor (seguridad)
+ INFO zizmor: 🌈 zizmor v1.30.1
+ INFO audit: zizmor: 🌈 completed .github/workflows/ci.yml
+ INFO audit: zizmor: 🌈 completed .github/workflows/release.yml
+No findings to report. Good job! (3 suppressed)
+── commits: conventional, en inglés
+── harness: .claude/harness/tests
+----------------------------------------------------------------------
+Ran 40 tests in 12.896s
+
+OK
+
+════ verificar.sh — a090206
+  OK    go: gofmt (0s)
+  OK    go: vet (1s)
+  OK    go: test (1s)
+  OK    go: tests con HOME aislado (R-23) (10s)
+  OK    go: test -race (25s)
+  OK    go: test -race watch x20 (timing races) (36s)
+  OK    go: golangci-lint v2 (4s)
+  OK    go: govulncheck (5s)
+  OK    go: build darwin/linux (2s)
+  FALLA tuiqa: scenarios in testdata/tuiqa
+  OK    gha: actionlint (0s)
+  OK    gha: zizmor (seguridad) (0s)
+  OK    commits: conventional, en inglés (0s)
+  OK    harness: .claude/harness/tests (13s)
+✗ 1 paso(s) fallaron: no desplegar.
+exit 1
