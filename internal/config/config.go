@@ -56,7 +56,7 @@ type Config struct {
 	Icons      string            `json:"icons"`       // nerd (Nerd Font glyphs), ascii or off
 	IconMap    map[string]string `json:"icon_map"`    // extension -> glyph, overrides the built-in ones
 	DateFormat string            `json:"date_format"` // absolute (13 Oct 2026, 09:05), relative (6 h ago) or numeric (2026-10-13 09:05)
-	Density    string            `json:"density"`     // compact (one line per row) or comfortable (two)
+	Density    string            `json:"density"`     // compact, normal or comfortable (see DensityCompact)
 	// IconSize is ignored: there is no icon size any more (docs/adr/0015-no-icon-size.md). The key stays so a file
 	// written by 0.10 or 0.11 still loads.
 	IconSize string `json:"icon_size"`
@@ -163,10 +163,18 @@ type Watch struct {
 
 var validColumns = map[string]bool{"name": true, "modified": true, "created": true, "opened": true, "size": true, "kind": true, "extension": true, "permissions": true, "owner": true, "path": true, "tags": true}
 
+// The row densities: compact is one plain line, normal one line with soft stripes and a pill selection, comfortable
+// (the default, "wide" in the Settings) two lines like Finder's roomy rows.
+const (
+	DensityCompact     = "compact"
+	DensityNormal      = "normal"
+	DensityComfortable = "comfortable"
+)
+
 // Valid values of the "date_format" and "density" settings.
 var (
 	DateFormats = []string{"absolute", "relative", "numeric"}
-	Densities   = []string{"compact", "comfortable"}
+	Densities   = []string{DensityCompact, DensityNormal, DensityComfortable}
 )
 
 // ColumnPresets are the two ready-made sets of columns: basic is Finder's default, full shows every column.
@@ -210,7 +218,7 @@ func Defaults(home string) Config {
 		Preview:    Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
 		Icons:      "nerd",
 		IconMap:    map[string]string{},
-		DateFormat: "absolute", Density: "compact", KeybindingMode: "dual",
+		DateFormat: "absolute", Density: DensityComfortable, KeybindingMode: "dual",
 		ColumnSeparators: true,
 		Layout:           "list",
 		Theme:            theme.Default,

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image/color"
+	"strings"
 
 	"charm.land/lipgloss/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
@@ -23,13 +24,17 @@ type look struct {
 // distinction).
 type styles struct {
 	selected, selectedInactive func(string) string
-	dim, bold, folder, accent  func(string) string
-	fresh                      func(string) string
-	errText, border            func(string) string
-	borderActive, titleActive  func(string) string
-	title, footerKey, footer   func(string) string
-	icon                       func(role icons.Role, glyph string, dim bool) string
-	popupBorder, popupTitle    func(string) string
+	// stripe paints the soft alternate background of every second row (identity without a palette); stripeBg is
+	// its color.
+	stripe                    func(string) string
+	stripeBg                  color.Color
+	dim, bold, folder, accent func(string) string
+	fresh                     func(string) string
+	errText, border           func(string) string
+	borderActive, titleActive func(string) string
+	title, footerKey, footer  func(string) string
+	icon                      func(role icons.Role, glyph string, dim bool) string
+	popupBorder, popupTitle   func(string) string
 	// gitLetter colors the git state next to a name
 	gitLetter func(code string) string
 	// bg is painted behind the whole screen (nil: the terminal's own background)
@@ -50,6 +55,7 @@ func newStyles(l look) styles {
 	mono := l.NoColor
 	if mono {
 		return styles{
+			stripe:   plain,
 			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
 			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)), folder: r(lipgloss.NewStyle().Bold(true)),
 			accent: plain, fresh: r(lipgloss.NewStyle().Bold(true)), errText: r(lipgloss.NewStyle().Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
@@ -63,6 +69,7 @@ func newStyles(l look) styles {
 	if !ok { // "terminal": the terminal's own 16 colors
 		blue, red := lipgloss.Color("12"), lipgloss.Color("1")
 		return styles{
+			stripe:   plain,
 			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
 			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)),
 			folder: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), accent: r(lipgloss.NewStyle().Foreground(blue)), fresh: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
@@ -78,7 +85,17 @@ func newStyles(l look) styles {
 	fg := func(c color.Color, bold bool) func(string) string {
 		return r(lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Bold(bold))
 	}
+	stripeBg := theme.Mix(p.Base, p.Surface0, 0.5)
+	stripeSeq := theme.BackgroundSeq(stripeBg)
 	s := styles{
+		stripeBg: stripeBg,
+		// A row is striped by setting the background after the start and after every reset inside it, so the colored
+		// icons and git letters do not cut the stripe.
+		stripe: func(t string) string {
+			t = strings.ReplaceAll(t, "\x1b[m", "\x1b[m"+stripeSeq)
+			t = strings.ReplaceAll(t, "\x1b[0m", "\x1b[0m"+stripeSeq)
+			return stripeSeq + t + "\x1b[m"
+		},
 		// The selection bar is the theme's surface1, a blue-gray, as in lazymark; the inactive one is a step darker.
 		selected:         r(lipgloss.NewStyle().Background(p.Surface1).Foreground(theme.Readable(p.Text, p.Surface1, minReadable)).Bold(true)),
 		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface0).Foreground(theme.Readable(p.Text, p.Surface0, minReadable))),

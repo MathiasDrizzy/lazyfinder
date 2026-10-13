@@ -1,0 +1,107 @@
+{
+  "name": "lazyfinder-density-wide",
+  "criterio": "order 2026-10-13-07 point J.3: the default density is wide like Finder: two-line rows, soft stripes on every second row and a selection pill with a margin",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "rows are two lines apart",
+      "assert": {
+        "contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"
+      }
+    },
+    {
+      "desc": "the cell left of the pill keeps the screen background",
+      "assert_color": {
+        "region": {
+          "x": 23,
+          "y": 3,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#1e1e2e",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "the selection pill starts one cell in",
+      "assert_color": {
+        "region": {
+          "x": 24,
+          "y": 3,
+          "w": 10,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "the pill covers the second line of its row too",
+      "assert_color": {
+        "region": {
+          "x": 24,
+          "y": 4,
+          "w": 10,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "the second row is striped on both of its lines",
+      "assert_color": {
+        "region": {
+          "x": 30,
+          "y": 5,
+          "w": 60,
+          "h": 2
+        },
+        "bg": "#282839",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "the third row is not",
+      "assert_color": {
+        "region": {
+          "x": 30,
+          "y": 7,
+          "w": 60,
+          "h": 2
+        },
+        "bg": "#1e1e2e",
+        "mode": "all"
+      }
+    },
+    {
+      "snapshot": {
+        "name": "density-wide"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

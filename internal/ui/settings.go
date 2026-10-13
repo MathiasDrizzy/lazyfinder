@@ -302,8 +302,11 @@ func dateFormatName(f string) string {
 }
 
 func densityName(d string) string {
-	if d == "comfortable" {
-		return i18n.T("cómodas", "comfortable")
+	switch d {
+	case config.DensityNormal:
+		return i18n.T("normal", "normal")
+	case config.DensityComfortable:
+		return i18n.T("amplia", "wide")
 	}
 	return i18n.T("compactas", "compact")
 }

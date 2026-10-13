@@ -29,7 +29,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `date_format` | `absolute` (13 Oct 2026, 09:05), `relative` (5 h ago) or `numeric` (2026-10-13 09:05). One format for the whole column; a missing date (empty or before 1980) is `--`. The old `finder` value reads as `absolute`. | `absolute` |
 | `icon_size` | Ignored since 0.12 (there is no icon size, [ADR 0015](adr/0015-no-icon-size.md)); old files still load. | |
 | `column_separators` | `true` draws a `│` between the column names in the header (not down the rows), and the mouse can drag it to resize | `true` |
-| `density` | `compact` (one line per row) or `comfortable` (two lines, like Finder's roomy rows) | `compact` |
+| `density` | `compact` (one plain line per row), `normal` (one line, soft stripes and a pill selection) or `comfortable` (two lines, like Finder's roomy rows) | `comfortable` |
 | `favorites_height` | lines of the Favorites box; `0` fits it to its folders. Dragging the border between Favorites and Locations, or `ctrl+up` / `ctrl+down`, saves it | `0` |
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |
 | `preview_width` | cells of the preview in the column view, 12 to 200; `0` is automatic | `0` |

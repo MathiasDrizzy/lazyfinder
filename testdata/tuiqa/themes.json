@@ -1,17 +1,63 @@
 {
   "name": "lazyfinder-themes",
   "criterio": "R-41 (--theme for one run: built-in light theme)",
-  "cmd": ["${LAZYFINDER_BIN}", "--theme", "catppuccin-latte", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "sh",
+    "-c",
+    "printf '{\"version\":1,\"density\":\"compact\"}' > \"${TUIQA_HOME}/density.json\"; exec \"${LAZYFINDER_BIN}\" \"--theme\" \"catppuccin-latte\" \"${TUIQA_HOME}/proj\""
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "latte selection bar and background", "assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "bg": "#bcc0cc", "mode": "any"}},
-    {"assert_color": {"region": {"line_with": "beta"}, "bg": "#eff1f5", "mode": "any"}},
-    {"assert_color": {"region": {"line_with": "beta"}, "bg": "#1e1e2e", "mode": "none"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
-  ]
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "latte selection bar and background",
+      "assert_color": {
+        "region": {
+          "line_with": "▸ >\\s+\\S\\s+alpha"
+        },
+        "bg": "#bcc0cc",
+        "mode": "any"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "line_with": "beta"
+        },
+        "bg": "#eff1f5",
+        "mode": "any"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "line_with": "beta"
+        },
+        "bg": "#1e1e2e",
+        "mode": "none"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ],
+  "env": {
+    "LAZYFINDER_CONFIG": "${TUIQA_HOME}/density.json"
+  }
 }

@@ -102,7 +102,7 @@ func (m *Model) hit(x, y int) zone {
 		}
 	case y >= firstRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW():
 		if idx := m.top + (y-firstRow)/m.rowH(); idx < len(m.entries()) {
-			if x == m.listX()+2 && m.entries()[idx].IsDir && !m.searchOn() { // the > marker
+			if x == m.listX()+2+m.padL() && m.entries()[idx].IsDir && !m.searchOn() { // the > marker
 				return zone{kind: zoneToggle, idx: idx}
 			}
 			return zone{kind: zoneRow, idx: idx}

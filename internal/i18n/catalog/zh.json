@@ -294,7 +294,6 @@
  "cannot create %s: %w": "无法创建 %s:%w",
  "cannot read config %s: %w": "无法读取配置 %s:%w",
  "cannot write config: %w": "无法写入配置:%w",
- "comfortable": "宽松",
  "command %q: \"argv\" must have at least the program name": "命令 %q:\"argv\" 至少要有程序名",
  "command %q: \"mode\" must be %q or %q (got %q)": "命令 %q:\"mode\" 必须是 %q 或 %q(当前为 %q)",
  "command %q: %s cannot be the program name": "命令 %q:%s 不能作为程序名",
@@ -314,6 +313,7 @@
  "limit reached": "已达上限",
  "modified: and created: the date (today, week, 2026-10-01…)": "modified: 和 created: 日期（today、week、2026-10-01…）",
  "more than %d entries": "超过 %d 个条目",
+ "normal": "标准",
  "not saving: %s is not valid JSON, fix it first": "未保存:%s 不是有效的 JSON,请先修正",
  "numeric": "数字",
  "opener %q: \"argv\" must contain %s exactly once": "程序 %q:\"argv\" 必须恰好包含一次 %s",
@@ -333,6 +333,7 @@
  "unknown \"sort.by\" column %q": "\"sort.by\" 中有未知的列 %q",
  "unknown column %q in \"columns\"": "\"columns\" 中有未知的列 %q",
  "untitled folder": "未命名文件夹",
+ "wide": "宽松",
  "yes": "是",
  "… truncated": "… 已截断",
  "←/→ change · click: select, 2nd click: change": "←/→ 更改 · 单击: 选择，再次单击: 更改"

@@ -1,15 +1,15 @@
  ‹  ›   proj                                                                         5 items   ⌕ Search               
 ╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│  Recents          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
-│▸  Home            ││▸ >  alpha                                 1 Sep 2026, 12:00    --           Folder            │
-│  Projects         ││  >  beta                                  1 Sep 2026, 12:00    --           Folder            │
-╰────────────────────╯│     data.xlsx                             1 Sep 2026, 12:00    4 bytes      Excel Spreadsheet │
-╭─ Locations ────────╮│     main.go                               1 Sep 2026, 12:00    45 bytes     Go Source         │
-│  Disk             ││     notes.txt                             1 Sep 2026, 12:00    38 bytes     Plain Text        │
+│  Recents          ││     Name ▲                              │ Date Modified      │ Size       │ Kind               │
+│▸  Home            ││ ▸ >  alpha                               1 Sep 2026, 12:00    --           Folder             │
+│  Projects         ││                                                                                                │
+╰────────────────────╯│   >  beta                                1 Sep 2026, 12:00    --           Folder             │
+╭─ Locations ────────╮│                                                                                                │
+│  Disk             ││      data.xlsx                           1 Sep 2026, 12:00    4 bytes      Excel Spreadsheet  │
 │                    ││                                                                                                │
-╰────────────────────╯│                                                                                                │
+╰────────────────────╯│      main.go                             1 Sep 2026, 12:00    45 bytes     Go Source          │
                       │                                                                                                │
-                      │                                                                                                │
+                      │      notes.txt                           1 Sep 2026, 12:00    38 bytes     Plain Text         │
                       │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │

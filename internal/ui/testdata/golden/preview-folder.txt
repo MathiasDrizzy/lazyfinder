@@ -1,15 +1,15 @@
  ‹  ›   proj                                                                         5 items   ⌕ Search               
 ╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│  Recents          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
-│  Home             ││▸ >  alpha                                 1 Sep 2026, 12:00    --           Folder            │
-│  Projects         ││  >  beta                                  1 Sep 2026, 12:00    --           Folder            │
-╰──────────────╭─ alpha ────────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │
-╭─ Locations ──│ deep/                                                                                  │ource         │
-│  Disk       │ inner.txt                                                                              │n Text        │
+│  Recents          ││     Name ▲                              │ Date Modified      │ Size       │ Kind               │
+│  Home             ││ ▸ >  alpha                               1 Sep 2026, 12:00    --           Folder             │
+│  Projects         ││                                                                                                │
+╰──────────────╭─ alpha ────────────────────────────────────────────────────────────────────────────────╮r             │
+╭─ Locations ──│ deep/                                                                                  │              │
+│  Disk       │ inner.txt                                                                              │ Spreadsheet  │
 │              │                                                                                        │              │
-╰──────────────│                                                                                        │              │
+╰──────────────│                                                                                        │urce          │
                │                                                                                        │              │
-               │                                                                                        │              │
+               │                                                                                        │ Text         │
                │                                                                                        │              │
                │                                                                                        │              │
                │                                                                                        │              │

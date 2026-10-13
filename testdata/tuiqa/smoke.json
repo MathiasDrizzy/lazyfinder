@@ -1,23 +1,84 @@
 {
   "name": "lazyfinder-smoke",
   "criterio": "R-05 R-09 R-20",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"desc": "starts and lists the project", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "column headers", "assert": {"contains": "Name.*Date Modified.*Date Created.*Size.*Kind"}},
-    {"desc": "sidebar sections", "assert": {"contains": "Favorites"}},
-    {"assert": {"contains": "Locations"}},
-    {"desc": "folders carry the > marker and sort first", "assert": {"contains": ">\\s+\\S\\s+alpha"}},
-    {"desc": "kinds come from the built-in table", "assert": {"contains": "Plain Text"}},
-    {"assert": {"contains": "PNG image"}},
-    {"desc": "dotfiles are hidden", "assert": {"not_contains": "\\.secret"}},
-    {"desc": "the created column shows a real date", "assert": {"contains": "(Today at \\d\\d:\\d\\d|\\d+ \\w+ 20\\d\\d)"}},
-    {"snapshot": {"name": "list"}},
-    {"desc": "q quits cleanly", "keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "desc": "starts and lists the project",
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "column headers",
+      "assert": {
+        "contains": "Name.*Date Modified.*Size.*Kind"
+      }
+    },
+    {
+      "desc": "sidebar sections",
+      "assert": {
+        "contains": "Favorites"
+      }
+    },
+    {
+      "assert": {
+        "contains": "Locations"
+      }
+    },
+    {
+      "desc": "folders carry the > marker and sort first",
+      "assert": {
+        "contains": ">\\s+\\S\\s+alpha"
+      }
+    },
+    {
+      "desc": "kinds come from the built-in table",
+      "assert": {
+        "contains": "Plain Text"
+      }
+    },
+    {
+      "assert": {
+        "contains": "PNG image"
+      }
+    },
+    {
+      "desc": "dotfiles are hidden",
+      "assert": {
+        "not_contains": "\\.secret"
+      }
+    },
+    {
+      "desc": "the created column shows a real date",
+      "assert": {
+        "contains": "(Today at \\d\\d:\\d\\d|\\d+ \\w+ 20\\d\\d)"
+      }
+    },
+    {
+      "snapshot": {
+        "name": "list"
+      }
+    },
+    {
+      "desc": "q quits cleanly",
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

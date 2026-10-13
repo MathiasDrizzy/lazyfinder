@@ -112,6 +112,10 @@ func TestSettingsHaveDateFormatAndDensityRows(t *testing.T) {
 	}
 	e.m.set.sel = setDensity
 	e.key("right")
+	if e.m.deps.Cfg.Density != "normal" {
+		t.Fatalf("density %q, want normal after compact", e.m.deps.Cfg.Density)
+	}
+	e.key("right")
 	if e.m.deps.Cfg.Density != "comfortable" {
 		t.Fatalf("density %q", e.m.deps.Cfg.Density)
 	}

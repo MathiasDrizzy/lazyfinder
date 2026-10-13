@@ -102,3 +102,11 @@ func clearsForeground(params string) bool {
 	}
 	return clears
 }
+
+// Mix is the color t of the way from a to b (0 is a, 1 is b).
+func Mix(a, b color.Color, t float64) color.Color {
+	ar, ag, ab, _ := a.RGBA()
+	br, bg, bb, _ := b.RGBA()
+	mix := func(x, y uint32) uint8 { return uint8((float64(x>>8)*(1-t) + float64(y>>8)*t) + 0.5) }
+	return color.RGBA{R: mix(ar, br), G: mix(ag, bg), B: mix(ab, bb), A: 255}
+}

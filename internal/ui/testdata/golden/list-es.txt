@@ -1,15 +1,15 @@
  ‹  ›   proj                                                                     5 elementos   ⌕ Buscar               
 ╭─ Favoritos ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│  Recientes        ││    Nombre ▲                  │ Fecha de modificación   │ Tamaño     │ Clase                    │
-│  Inicio           ││▸ >  alpha                     01/09/2026 12:00          --           Carpeta                  │
-│  Projects         ││  >  beta                      01/09/2026 12:00          --           Carpeta                  │
-╰────────────────────╯│     data.xlsx                 01/09/2026 12:00          4 bytes      Hoja de cálculo de Excel │
-╭─ Ubicaciones ──────╮│     main.go                   01/09/2026 12:00          45 bytes     Código fuente de Go      │
-│  Disk             ││     notes.txt                 01/09/2026 12:00          38 bytes     Texto sin formato        │
+│  Recientes        ││     Nombre ▲                │ Fecha de modificación   │ Tamaño     │ Clase                     │
+│  Inicio           ││ ▸ >  alpha                   01/09/2026 12:00          --           Carpeta                   │
+│  Projects         ││                                                                                                │
+╰────────────────────╯│   >  beta                    01/09/2026 12:00          --           Carpeta                   │
+╭─ Ubicaciones ──────╮│                                                                                                │
+│  Disk             ││      data.xlsx               01/09/2026 12:00          4 bytes      Hoja de cálculo de Excel  │
 │                    ││                                                                                                │
-╰────────────────────╯│                                                                                                │
+╰────────────────────╯│      main.go                 01/09/2026 12:00          45 bytes     Código fuente de Go       │
                       │                                                                                                │
-                      │                                                                                                │
+                      │      notes.txt               01/09/2026 12:00          38 bytes     Texto sin formato         │
                       │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │

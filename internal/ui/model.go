@@ -351,9 +351,9 @@ func (m *Model) setSelection(i int) tea.Cmd {
 	return m.refreshPreview()
 }
 
-// rowH is how many lines a row of the detail list takes: two in the comfortable density, like Finder's roomy rows.
+// rowH is how many lines a row of the detail list takes: two in the comfortable (wide) density, like Finder's roomy rows.
 func (m *Model) rowH() int {
-	if m.deps.Cfg.Density == "comfortable" && !m.columnsOn() {
+	if m.deps.Cfg.Density == config.DensityComfortable && !m.columnsOn() {
 		return 2
 	}
 	return 1

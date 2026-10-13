@@ -90,9 +90,18 @@ const (
 // prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
 func (m *Model) prefix() int {
 	if m.git.ok {
-		return prefixW + gitGutterW
+		return m.padL() + prefixW + gitGutterW
 	}
-	return prefixW
+	return m.padL() + prefixW
+}
+
+// padL is the margin left of the rows of the detail list: the pill selection and the stripes keep one cell of air on
+// each side (the compact density and the column view have none).
+func (m *Model) padL() int {
+	if m.columnsOn() || m.deps.Cfg.Density == config.DensityCompact {
+		return 0
+	}
+	return 1
 }
 
 func (m *Model) panelH() int { return m.h - 3 }
@@ -109,7 +118,7 @@ func (m *Model) columns() []colSpec {
 		}
 	}
 	nameW := func() int {
-		w := m.listW() - m.prefix()
+		w := m.listW() - m.prefix() - m.padL() // the margin on the right is as wide as the one on the left
 		for _, c := range extra {
 			w -= m.colWidth(c) + m.gap()
 		}
@@ -471,16 +480,45 @@ func (m *Model) listLines() []string {
 	out[0] += strings.Repeat(" ", max(0, m.listW()-ansi.StringWidth(out[0])))
 	for r := 1; r < rows; r++ {
 		idx := m.top + (r-1)/m.rowH()
-		if (r-1)%m.rowH() != 0 || idx >= len(m.entries()) {
+		if idx >= len(m.entries()) {
 			out[r] = strings.Repeat(" ", m.listW())
 			continue
 		}
-		out[r] = m.row(idx, specs)
+		out[r] = m.listRowLine(idx, (r-1)%m.rowH(), specs)
 	}
 	if len(m.entries()) == 0 && rows > 2 {
 		out[2] = m.styles.dim(fit("   "+i18n.T("Esta carpeta está vacía", "This folder is empty"), m.listW()))
 	}
 	return out
+}
+
+// listRowLine is line sub of row idx of the detail list. Every second row is striped and the selection is a pill,
+// except in the compact density; both cover all the lines of a row.
+func (m *Model) listRowLine(idx, sub int, specs []colSpec) string {
+	w := m.listW()
+	if sub == 0 {
+		line := m.row(idx, specs)
+		if idx%2 == 1 && idx != m.sel && m.padL() > 0 {
+			return m.styles.stripe(line)
+		}
+		return line
+	}
+	blank := strings.Repeat(" ", w)
+	switch {
+	case idx == m.sel && m.padL() > 0:
+		return " " + m.selectedStyle()(strings.Repeat(" ", w-2)) + " "
+	case idx%2 == 1 && m.padL() > 0:
+		return m.styles.stripe(blank)
+	}
+	return blank
+}
+
+// selectedStyle is the selection color: bright while the list has the focus, dimmer otherwise.
+func (m *Model) selectedStyle() func(string) string {
+	if m.focus == focusList {
+		return m.styles.selected
+	}
+	return m.styles.selectedInactive
 }
 
 // gap is the cells between two columns: the │ separator takes one more than plain air.
@@ -526,7 +564,7 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		}
 	}
 	var b strings.Builder
-	b.WriteString(pointer + mark + marker + " ")
+	b.WriteString(strings.Repeat(" ", m.padL()) + pointer + mark + marker + " ")
 	if m.git.ok {
 		code := string(m.gitCode(e))
 		if code == "" {
@@ -559,10 +597,10 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 	}
 	line := fit(b.String(), width)
 	switch {
-	case selected && m.focus == focusList:
-		return m.styles.selected(ansi.Strip(line))
+	case selected && m.padL() > 0: // a pill: one cell of margin on each side
+		return " " + m.selectedStyle()(ansi.Strip(ansi.Cut(line, 1, width-1))) + " "
 	case selected:
-		return m.styles.selectedInactive(ansi.Strip(line))
+		return m.selectedStyle()(ansi.Strip(line))
 	}
 	return line
 }

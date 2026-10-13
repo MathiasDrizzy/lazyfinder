@@ -294,7 +294,6 @@
  "cannot create %s: %w": "impossible de créer %s : %w",
  "cannot read config %s: %w": "impossible de lire la configuration %s : %w",
  "cannot write config: %w": "impossible d'écrire la configuration : %w",
- "comfortable": "confortable",
  "command %q: \"argv\" must have at least the program name": "commande %q : « argv » doit contenir au moins le nom du programme",
  "command %q: \"mode\" must be %q or %q (got %q)": "commande %q : « mode » doit être %q ou %q (reçu %q)",
  "command %q: %s cannot be the program name": "commande %q : %s ne peut pas être le nom du programme",
@@ -314,6 +313,7 @@
  "limit reached": "limite atteinte",
  "modified: and created: the date (today, week, 2026-10-01…)": "modified: et created: la date (today, week, 2026-10-01…)",
  "more than %d entries": "plus de %d entrées",
+ "normal": "normale",
  "not saving: %s is not valid JSON, fix it first": "non enregistré : %s n'est pas un JSON valide, corrigez-le d'abord",
  "numeric": "numérique",
  "opener %q: \"argv\" must contain %s exactly once": "programme %q : « argv » doit contenir %s exactement une fois",
@@ -333,6 +333,7 @@
  "unknown \"sort.by\" column %q": "colonne inconnue %q dans « sort.by »",
  "unknown column %q in \"columns\"": "colonne inconnue %q dans « columns »",
  "untitled folder": "dossier sans titre",
+ "wide": "large",
  "yes": "oui",
  "… truncated": "… tronqué",
  "←/→ change · click: select, 2nd click: change": "←/→ changer · clic: sélectionner, 2e clic: changer"

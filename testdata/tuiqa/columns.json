@@ -64,9 +64,9 @@
       }
     },
     {
-      "desc": "rows are one line apart by default",
+      "desc": "rows are two lines apart by default (wide density)",
       "assert": {
-        "contains": "alpha[^\\n]*\\n[^\\n]*beta"
+        "contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"
       }
     },
     {
@@ -86,7 +86,7 @@
       }
     },
     {
-      "desc": "move to Row density and make it comfortable",
+      "desc": "move to Row density and cycle it back to compact",
       "keys": [
         "down",
         "down",
@@ -102,9 +102,9 @@
       ]
     },
     {
-      "desc": "now a blank line separates the rows",
+      "desc": "now the rows are one line apart",
       "assert": {
-        "contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"
+        "contains": "alpha[^\\n]*\\n[^\\n]*beta"
       }
     }
   ]

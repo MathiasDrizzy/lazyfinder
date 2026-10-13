@@ -2,8 +2,9 @@
   "name": "lazyfinder-column-separators",
   "criterio": "order 2026-10-13-06 point 4 (a │ between the column names in the header only, as Mathias asked: not down the rows; configurable, still draggable)",
   "cmd": [
-    "${LAZYFINDER_BIN}",
-    "${TUIQA_HOME}/proj"
+    "sh",
+    "-c",
+    "printf '{\"version\":1,\"density\":\"compact\"}' > \"${TUIQA_HOME}/density.json\"; exec \"${LAZYFINDER_BIN}\" \"${TUIQA_HOME}/proj\""
   ],
   "cols": 120,
   "rows": 40,
@@ -121,5 +122,8 @@
         "code": 0
       }
     }
-  ]
+  ],
+  "env": {
+    "LAZYFINDER_CONFIG": "${TUIQA_HOME}/density.json"
+  }
 }

@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The default row density is now wide, closer to Finder: two-line rows, a soft stripe on every second row and a
+  selection pill with one cell of margin on each side. `density` accepts `compact` (one plain line), `normal` (one
+  line with stripes and pill) and `comfortable` (wide, the default).
 - Search: the filters moved to their own row above the prompt as labelled buttons (`Look in`, `What`, `By`, with
   their keys); quick filters that do not fit are dropped whole, never cut; the operators (`kind:`, `ext:`, `size:`,
   `modified:`, `created:`, `in:`) are explained in the help, and a click on the field gives it the keyboard back.

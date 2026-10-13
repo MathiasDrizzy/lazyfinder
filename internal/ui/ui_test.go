@@ -48,6 +48,7 @@ type env struct {
 
 const cfgJSON = `{
   "version": 1,
+  "density": "compact",
   "openers": {
     "edit": {"argv": ["myeditor", "{file}"], "mode": "gui"},
     "vim":  {"argv": ["vim", "{file}"], "mode": "terminal"}
