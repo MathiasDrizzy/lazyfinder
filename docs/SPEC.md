@@ -162,7 +162,7 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
   like the VS Code explorer, highlighting what is new. PROPOSAL for the exact UX.
 - **R-33 Disclosure triangles (M3, done)** from the reference screenshot: expand folders in place with `>`.
 - **R-34 Search (M3, done)**: the screenshot's Search field; name filter first, content search later.
-- **R-35 File operations (M4, PROPOSAL)**: copy, move, rename, trash (never `rm`), new folder, with undo.
+- **R-35 File operations (M4, done)**: copy, move, rename, trash (never `rm`), new folder, with undo.
 
 ## Parity with Finder and Explorer search (ADR 0009)
 
@@ -172,7 +172,7 @@ Mathias, 2026-10-13: "debe tener las mismas funcionalidades que finder y el busc
   `modified:`, `size:` filters; chips that can be clicked; scope current folder or recursive; results appear while
   typing and can be cancelled with `esc`. AC: unit tests of the parser and the matcher; a tuiqa scenario types a
   query and clicks a chip.
-- **R-51 Operations parity (M4).** Copy, cut, paste, duplicate, rename, new folder, move to Trash, select many,
+- **R-51 Operations parity (M4, done).** Copy, cut, paste, duplicate, rename, new folder, move to Trash, select many,
   Get Info popup. AC: fixture tests for each; Trash never deletes for good.
 - **R-52 Go to folder (M3, done).** `ctrl+g` prompts for a path (with `~` and completion). AC: scenario.
 - **R-53 Tabs, tags, saved searches, recents (M6).** AC: per feature in the milestone.

@@ -103,3 +103,29 @@ func TestDefaultJSONRoundTrips(t *testing.T) {
 		t.Fatalf("default config must be valid: %v", err)
 	}
 }
+
+func TestOpsDefaultsAndOverrides(t *testing.T) {
+	def := Defaults("/home/u")
+	if def.Ops.ConfirmTrashAbove != 1 || def.Ops.TrashDir != "/home/u/.Trash" {
+		t.Fatalf("defaults = %+v", def.Ops)
+	}
+	cfg, err := Load(write(t, t.TempDir(), `{"version":1,"ops":{"confirm_trash_above":0,"trash_dir":"~/bin-can"}}`), "/home/u")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Ops.ConfirmTrashAbove != 0 || cfg.Ops.TrashDir != "/home/u/bin-can" {
+		t.Fatalf("ops = %+v", cfg.Ops)
+	}
+}
+
+func TestOpsRejectsNonsense(t *testing.T) {
+	for name, body := range map[string]string{
+		"negative threshold": `{"version":1,"ops":{"confirm_trash_above":-1}}`,
+		"relative trash":     `{"version":1,"ops":{"trash_dir":"trash"}}`,
+		"empty trash":        `{"version":1,"ops":{"trash_dir":""}}`,
+	} {
+		if _, err := Load(write(t, t.TempDir(), body), "/home/u"); err == nil || !strings.Contains(err.Error(), "ops.") {
+			t.Errorf("%s: err = %v", name, err)
+		}
+	}
+}

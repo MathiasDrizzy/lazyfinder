@@ -103,6 +103,10 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	if m.menu.open {
 		return m.menuClick(mouse.X, mouse.Y)
 	}
+	if m.info.open {
+		m.info = infoState{}
+		return nil
+	}
 	if m.pv.open {
 		if x, y, bx := m.previewBox(); !inBox(mouse.X, mouse.Y, x, y, bx) {
 			return m.closePreview()
@@ -117,6 +121,11 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	}
 	if mouse.Button != tea.MouseLeft {
 		return nil
+	}
+	if z.kind == zoneRow && mouse.Mod&tea.ModCtrl != 0 { // ctrl-click marks the row without opening it
+		m.focus = focusList
+		m.toggleMark(m.entries()[z.idx].Path)
+		return m.setSelection(z.idx)
 	}
 	return m.clickZone(z)
 }

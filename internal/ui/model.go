@@ -11,6 +11,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/fileops"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/history"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
@@ -92,6 +93,12 @@ type Model struct {
 	hideIgnored bool
 	search      searchState
 	goto_       gotoState
+
+	ops    *fileops.Ops
+	marked map[string]bool // rows marked to act on together; cleared when the folder changes
+	clip   clipboard
+	prompt promptState
+	info   infoState
 }
 
 type click struct {
@@ -115,7 +122,7 @@ func New(d Deps) *Model {
 	m := &Model{
 		deps: d, resolve: opener.New(d.Cfg), keys: km, mouse: d.Cfg.Mouse,
 		hist: history.New(d.Start), sort: s, hidden: d.Cfg.ShowHidden,
-		lastSel: map[string]string{}, nextImgID: 1000, fresh: map[string]bool{}, watchSet: map[string]bool{}, expanded: map[string]bool{},
+		lastSel: map[string]string{}, nextImgID: 1000, fresh: map[string]bool{}, watchSet: map[string]bool{}, marked: map[string]bool{}, ops: fileops.New(d.Cfg.Ops.TrashDir), expanded: map[string]bool{},
 		hideIgnored:   d.Cfg.Git.HideIgnored,
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
 	}
@@ -163,6 +170,9 @@ func (m *Model) load(dir, name string) error {
 	l, err := fsmodel.ReadDir(dir, fsmodel.ReadOptions{ShowHidden: m.hidden, Sort: m.sort})
 	if err != nil {
 		return err
+	}
+	if dir != m.listing.Dir {
+		clear(m.marked)
 	}
 	m.scanGit(dir)
 	m.listing = m.withChildren(l)

@@ -21,6 +21,14 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `/` or `ctrl+f` | Open the search bar (see [search](search.md)) | `search` |
 | `+` `=`, `-` | Open or close the selected folder in place; `-` on a row inside an open folder closes that folder. Clicking the `>` marker does the same | `expand` `collapse` |
 | `ctrl+g` | Go to a folder: type a path (`~`, relative or absolute), `Tab` completes, `Enter` goes | `goto` |
+| `v`, `ctrl+a`, `esc` | Mark the row and move down, mark every row, clear the marks. Ctrl-click marks with the mouse | `mark` `mark_all` |
+| `c`, `x`, `p` or `ctrl+v` | Copy, cut, paste into the current folder (marked rows, else the selected one) | `copy` `cut` `paste` |
+| `D` | Duplicate in the same folder (`name copy.ext`) | `duplicate` |
+| `F2`, `R` | Rename the selected item | `rename` |
+| `N`, `ctrl+n` | New folder (the name is asked, `untitled folder` by default) | `new_folder` |
+| `d`, `Delete` | Move to the Trash (asks above `ops.confirm_trash_above` items) | `trash` |
+| `u`, `ctrl+z` | Undo the last operation | `undo` |
+| `i` | Get Info popup | `info` |
 | `r` | Reload the folder | `reload` |
 | `Tab` | Move focus between the sidebar and the list | `focus` |
 | `Space` | Preview popup | `preview` |

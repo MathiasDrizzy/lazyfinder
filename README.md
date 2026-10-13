@@ -95,6 +95,12 @@ The config is one JSON file: `$LAZYFINDER_CONFIG`, else `$XDG_CONFIG_HOME/lazyfi
 `~/.config/lazyfinder/config.json`. Without a file the defaults apply. An invalid file starts the app with the
 defaults and shows what is wrong. See [docs/configuration.md](docs/configuration.md).
 
+## File operations
+
+Copy `c`, cut `x`, paste `p`, duplicate `D`, rename `F2`, new folder `N`, Trash `d` and undo `u`, on the selected row or on
+the rows you marked with `v`, `ctrl+a` or ctrl-click. Nothing deletes or overwrites for good: the Trash is a folder, a
+taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](docs/adr/0010-file-operations.md)). `i` shows Get Info.
+
 ## Project sidebar
 
 ![The narrow project tree](docs/screenshots/follow.png)

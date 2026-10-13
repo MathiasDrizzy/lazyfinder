@@ -163,13 +163,13 @@ func TestSettingsWithoutAConfigPathChangesOnlyTheSession(t *testing.T) {
 
 func TestRebindingAKeyMovesTheAction(t *testing.T) {
 	e := newEnv(t)
-	cfg, err := config.Parse([]byte(`{"version":1,"keys":{"quit":["x"],"down":["n"]}}`), e.home)
+	cfg, err := config.Parse([]byte(`{"version":1,"keys":{"quit":["Z"],"down":["n"]}}`), e.home)
 	if err != nil {
 		t.Fatal(err)
 	}
 	e.m = New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: e.m.deps.Now})
 	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
-	e.mustHave("Quit: x")
+	e.mustHave("Quit: Z")
 	e.key("n")
 	e.mustHave("2 of 4")
 	e.key("j") // no longer bound
@@ -177,8 +177,8 @@ func TestRebindingAKeyMovesTheAction(t *testing.T) {
 	if cmd := e.m.onKey(keyMsg("q")); cmd != nil {
 		t.Fatal("q must not quit once quit is rebound")
 	}
-	if cmd := e.m.onKey(keyMsg("x")); cmd == nil {
-		t.Fatal("x must quit")
+	if cmd := e.m.onKey(keyMsg("Z")); cmd == nil {
+		t.Fatal("Z must quit")
 	}
 }
 

@@ -138,6 +138,13 @@ func keyMsg(k string) tea.KeyPressMsg {
 		return tea.KeyPressMsg{Code: tea.KeyLeft, Mod: tea.ModAlt}
 	case "alt+right":
 		return tea.KeyPressMsg{Code: tea.KeyRight, Mod: tea.ModAlt}
+	case "f2":
+		return tea.KeyPressMsg{Code: tea.KeyF2}
+	case "delete":
+		return tea.KeyPressMsg{Code: tea.KeyDelete}
+	}
+	if strings.HasPrefix(k, "ctrl+") {
+		return tea.KeyPressMsg{Code: []rune(k)[5], Mod: tea.ModCtrl}
 	}
 	r := []rune(k)
 	return tea.KeyPressMsg{Code: r[0], Text: k}

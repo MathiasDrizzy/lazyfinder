@@ -35,6 +35,17 @@ const (
 	Goto        Action = "goto"
 	Expand      Action = "expand"
 	Collapse    Action = "collapse"
+	Mark        Action = "mark"
+	MarkAll     Action = "mark_all"
+	Copy        Action = "copy"
+	Cut         Action = "cut"
+	Paste       Action = "paste"
+	Duplicate   Action = "duplicate"
+	Rename      Action = "rename"
+	NewFolder   Action = "new_folder"
+	Trash       Action = "trash"
+	Undo        Action = "undo"
+	Info        Action = "info"
 	Focus       Action = "focus"
 	Settings    Action = "settings"
 	Quit        Action = "quit"
@@ -43,7 +54,7 @@ const (
 // Actions lists every action.
 var Actions = []Action{
 	Up, Down, PageUp, PageDown, First, Last, Open, Parent, Back, Forward, Preview, OpenWith, QuickLook,
-	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Reload, Focus, Settings, Quit,
+	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Focus, Settings, Quit,
 }
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
@@ -51,7 +62,10 @@ var Defaults = map[Action][]string{
 	Up: {"up", "k"}, Down: {"down", "j"}, PageUp: {"pgup"}, PageDown: {"pgdown"}, First: {"home", "g"},
 	Last: {"end", "G"}, Open: {"enter", "right", "l"}, Parent: {"backspace", "left", "h"},
 	Back: {"alt+left", "["}, Forward: {"alt+right", "]"}, Preview: {"space"}, OpenWith: {"O"}, QuickLook: {"Q"},
-	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"}, Reload: {"r"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
+	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"},
+	Mark: {"v"}, MarkAll: {"ctrl+a"}, Copy: {"c"}, Cut: {"x"}, Paste: {"p", "ctrl+v"}, Duplicate: {"D"},
+	Rename: {"f2", "R"}, NewFolder: {"N", "ctrl+n"}, Trash: {"d", "delete"}, Undo: {"u", "ctrl+z"}, Info: {"i"},
+	Reload: {"r"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
 }
 
 // Map is the effective binding. Build it with New; it is read-only afterwards.

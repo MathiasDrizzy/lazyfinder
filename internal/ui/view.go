@@ -276,6 +276,10 @@ func (m *Model) screen() []string {
 		x, y, bx := m.settingsBox()
 		lines = overlay(lines, bx, x, y)
 	}
+	if m.info.open {
+		x, y, bx := m.infoBox()
+		lines = overlay(lines, bx, x, y)
+	}
 	return lines
 }
 
@@ -292,7 +296,11 @@ func (m *Model) counter() string {
 	if n == 0 {
 		return fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), 0, 0)
 	}
-	return fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), m.sel+1, n)
+	c := fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), m.sel+1, n)
+	if k := m.markCount(); k > 0 {
+		c += fmt.Sprintf(i18n.T(" · %d seleccionados", " · %d selected"), k)
+	}
+	return c
 }
 
 const (
@@ -390,7 +398,10 @@ func (m *Model) listLines() []string {
 func (m *Model) row(idx int, specs []colSpec) string {
 	e := m.entries()[idx]
 	selected := idx == m.sel
-	pointer, marker := " ", " "
+	pointer, marker, mark := " ", " ", " "
+	if m.marked[e.Path] {
+		mark = "●"
+	}
 	switch {
 	case selected:
 		pointer = "▸"
@@ -404,7 +415,7 @@ func (m *Model) row(idx int, specs []colSpec) string {
 		}
 	}
 	var b strings.Builder
-	b.WriteString(pointer + " " + marker + " ")
+	b.WriteString(pointer + mark + marker + " ")
 	if m.git.ok {
 		code := string(m.gitCode(e))
 		if code == "" {
@@ -491,6 +502,12 @@ func keyLabel(k string) string {
 }
 
 func (m *Model) footerBar() string {
+	if m.prompt.kind != promptNone {
+		if m.status != "" && m.statusErr {
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+		}
+		return m.promptBar()
+	}
 	if m.goto_.open {
 		if m.status != "" && m.statusErr {
 			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))

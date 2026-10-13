@@ -28,6 +28,8 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `watch.max_dirs` | Folders followed with the operating system's notifications; more are polled | `64` |
 | `watch.poll_interval_ms` | Polling period for folders beyond `watch.max_dirs` or that the system cannot watch | `2000` |
 | `search.max_results` | Most results a search collects before it stops and says so | `5000` |
+| `ops.confirm_trash_above` | Ask before trashing more than this many items at once; `0` asks always | `1` |
+| `ops.trash_dir` | Folder that receives trashed items (absolute or `~/…`) | `~/.Trash` |
 | `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
 | `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |
 
@@ -80,7 +82,7 @@ Alias) are translated. Config error messages are in English.
 theirs:
 
 ```json
-{ "version": 1, "keys": { "quit": ["x"], "down": ["n", "down"] } }
+{ "version": 1, "keys": { "quit": ["Z"], "down": ["n", "down"] } }
 ```
 
 An unknown action, an empty list, or a key that would belong to two actions is a warning shown at start: the

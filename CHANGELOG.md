@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-13
+
+### Added
+
+- File operations, none of which deletes or overwrites for good (ADR 0010): copy (`c`), cut (`x`) and paste (`p`),
+  duplicate (`D`), rename (`F2`), new folder (`N`) and move to the Trash (`d` or `Delete`), each with undo (`u`).
+  Names that are taken get Finder's `copy` suffix. Trashing a batch asks first (`ops.confirm_trash_above`).
+- Selection of many: `v` marks and moves down, `ctrl+a` marks all, ctrl-click marks with the mouse, `esc` clears.
+- Get Info popup (`i`) with kind, location, size (the content of a folder), modification time and permissions.
+- Settings `ops.confirm_trash_above` and `ops.trash_dir`.
+
+### Changed
+
+- `x`, `c`, `p`, `d`, `u`, `i`, `v`, `D`, `R` and `N` are default keys now. A `keys` entry that gives one of them to
+  another action is reported as a clash at start and the default stays.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

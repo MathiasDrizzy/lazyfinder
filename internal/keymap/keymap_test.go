@@ -38,20 +38,20 @@ func TestNewWithoutOverridesUsesDefaults(t *testing.T) {
 }
 
 func TestOverrideReplacesTheKeysOfOneActionOnly(t *testing.T) {
-	m, warns := New(map[string][]string{"quit": {"x", "ctrl+q"}})
+	m, warns := New(map[string][]string{"quit": {"Z", "ctrl+q"}})
 	if len(warns) != 0 {
 		t.Fatalf("unexpected warnings: %v", warns)
 	}
 	if _, ok := m.Lookup("q"); ok {
 		t.Error("q must stop quitting once quit is rebound")
 	}
-	if a, _ := m.Lookup("x"); a != Quit {
+	if a, _ := m.Lookup("Z"); a != Quit {
 		t.Errorf("x should quit, got %q", a)
 	}
 	if a, _ := m.Lookup("j"); a != Down {
 		t.Errorf("other actions keep their keys, j = %q", a)
 	}
-	if got := m.Keys(Quit); strings.Join(got, ",") != "x,ctrl+q" {
+	if got := m.Keys(Quit); strings.Join(got, ",") != "Z,ctrl+q" {
 		t.Errorf("Keys(Quit) = %v", got)
 	}
 }

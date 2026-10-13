@@ -44,6 +44,7 @@ type Config struct {
 	Watch      Watch             `json:"watch"`
 	Git        Git               `json:"git"`
 	Search     Search            `json:"search"`
+	Ops        Ops               `json:"ops"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
 	Language         string              `json:"language"`
@@ -97,6 +98,14 @@ type Search struct {
 	MaxResults int `json:"max_results"`
 }
 
+// Ops configures file operations.
+type Ops struct {
+	// ConfirmTrashAbove asks before trashing more than this many items at once (0 asks always).
+	ConfirmTrashAbove int `json:"confirm_trash_above"`
+	// TrashDir is the folder that receives trashed items; the macOS Trash by default.
+	TrashDir string `json:"trash_dir"`
+}
+
 // Git configures the status markers and the branch name.
 type Git struct {
 	Enabled     bool `json:"enabled"`
@@ -137,6 +146,7 @@ func Defaults(home string) Config {
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
 		Git:      Git{Enabled: true},
 		Search:   Search{MaxResults: 5000},
+		Ops:      Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -249,6 +259,12 @@ func validate(cfg *Config, home string) error {
 	if cfg.Search.MaxResults <= 0 {
 		return errors.New(`"search.max_results" must be positive`)
 	}
+	if cfg.Ops.ConfirmTrashAbove < 0 {
+		return errors.New(`"ops.confirm_trash_above" must not be negative`)
+	}
+	if !strings.HasPrefix(cfg.Ops.TrashDir, "~") && !strings.HasPrefix(cfg.Ops.TrashDir, "$HOME") && !filepath.IsAbs(cfg.Ops.TrashDir) {
+		return errors.New(`"ops.trash_dir" must be an absolute path or start with ~`)
+	}
 	if cfg.Preview.MaxTextBytes <= 0 {
 		return errors.New(`"preview.max_text_bytes" must be positive`)
 	}
@@ -265,6 +281,7 @@ func validate(cfg *Config, home string) error {
 		norm[strings.ToLower(strings.TrimPrefix(ext, "."))] = name
 	}
 	cfg.OpenWith = norm
+	cfg.Ops.TrashDir = expandHome(cfg.Ops.TrashDir, home)
 	cfg.Sidebar.Favorites = expandPlaces(cfg.Sidebar.Favorites, home)
 	cfg.Sidebar.Locations = expandPlaces(cfg.Sidebar.Locations, home)
 	return nil

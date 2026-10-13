@@ -34,7 +34,7 @@ Adopt the matrix below. "Done" means shipped, otherwise the milestone that owns 
 | Live view | auto refresh | auto refresh | done (watcher) | M2 |
 | Tree | disclosure triangles | tree pane | expand in place (R-33) | M3 |
 | Search | Spotlight scoped search | search box with filters | `/` bar: name, kind, date, size filters, live results, this folder or recursive (R-34, R-50) | M3 |
-| Selection | click, shift, cmd | same | many with `x`/Shift+click, select all, invert | M4 |
+| Selection | click, shift, cmd | same | many with `v`/ctrl-click, select all (ADR 0010) | M4 |
 | Operations | copy, move, rename, new folder, Trash, duplicate, Get Info | same | same, Trash only, undo (R-35, R-51) | M4 |
 | Clipboard | copy/paste files | same | copy, cut and paste inside the app | M4 |
 | Previews++ | Quick Look of PDF, media, archives | preview pane | Sixel/iTerm2, PDF, archives, Markdown, hex | M5 |
