@@ -63,7 +63,7 @@ func (m *Model) settingValue(i int) string {
 		return c.Theme
 	case setLanguage:
 		if c.Language == "auto" {
-			return i18n.T("automático", "auto")
+			return i18n.T("auto", "auto")
 		}
 		l, _ := i18n.Parse(c.Language)
 		return l.Name()
@@ -75,9 +75,9 @@ func (m *Model) settingValue(i int) string {
 		return onOff(m.sort.FoldersFirst)
 	case setScreenBackground:
 		if c.ScreenBackground == config.ScreenBackgroundTerminal {
-			return i18n.T("de la terminal", "terminal")
+			return i18n.T("terminal", "terminal")
 		}
-		return i18n.T("del tema", "theme")
+		return i18n.T("tema", "theme")
 	}
 	return onOff(m.mouse)
 }

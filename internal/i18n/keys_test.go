@@ -1,10 +1,12 @@
 package i18n
 
 import (
+	"encoding/json"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -149,5 +151,57 @@ func TestCatalogsCoverEveryTextAndNothingElse(t *testing.T) {
 				t.Errorf("%s: %q is in the catalog but not in the code (stale)", lang, en)
 			}
 		}
+	}
+}
+
+// plainInLazymark are texts that lazymark never translates: a value such as terminal reads the same everywhere.
+var plainInLazymark = []string{"terminal"}
+
+// TestStringsShared compares, key by key, the texts lazyfinder has in common with lazymark (a committed snapshot,
+// see scripts/snapshot-lazymark-strings.py): the same English text must have the same Spanish and the same
+// translation in every language, so the two apps sound alike.
+func TestStringsShared(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("testdata", "lazymark.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var snap struct {
+		Source  string
+		Es      map[string]string
+		Catalog map[string]map[string]string
+	}
+	if err := json.Unmarshal(raw, &snap); err != nil {
+		t.Fatal(err)
+	}
+	keys, _ := sourceKeys(t)
+	shared := 0
+	for en, es := range keys {
+		if want, ok := snap.Es[en]; ok {
+			shared++
+			if es != want {
+				t.Errorf("%q: lazyfinder says %q, %s says %q", en, es, snap.Source, want)
+			}
+			for lang, cat := range snap.Catalog {
+				if got, mine := catalog(Language(lang))[en], cat[en]; mine != "" && got != mine {
+					t.Errorf("%s: %q is %q here and %q in %s", lang, en, got, mine, snap.Source)
+				}
+			}
+		}
+	}
+	for _, en := range plainInLazymark {
+		if es, ok := keys[en]; ok {
+			shared++
+			if es != en {
+				t.Errorf("%q: lazymark leaves it as is, lazyfinder says %q", en, es)
+			}
+			for _, lang := range Languages {
+				if lang != LangEN && lang != LangES && catalog(lang)[en] != en {
+					t.Errorf("%s: %q should stay %q, is %q", lang, en, en, catalog(lang)[en])
+				}
+			}
+		}
+	}
+	if shared < 5 {
+		t.Fatalf("only %d texts shared with %s: the snapshot or the sweep is broken", shared, snap.Source)
 	}
 }

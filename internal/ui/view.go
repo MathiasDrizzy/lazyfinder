@@ -241,7 +241,7 @@ func (m *Model) View() tea.View {
 func (m *Model) tooSmall() string {
 	lines := make([]string, max(m.h, 1))
 	w := max(m.w, 1)
-	lines[0] = ansi.Truncate(i18n.T("Terminal demasiado pequeña", "Terminal too small"), w, "")
+	lines[0] = ansi.Truncate(i18n.T("Terminal muy pequeña", "Terminal too small"), w, "")
 	if len(lines) > 1 {
 		lines[1] = ansi.Truncate(fmt.Sprintf(i18n.T("Hace falta %dx%d, hay %dx%d", "Need %dx%d, have %dx%d"), m.minSize()[0], m.minSize()[1], m.w, m.h), w, "")
 	}
