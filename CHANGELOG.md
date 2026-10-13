@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Dates use one format for the whole column. The default is the absolute date with its time (`13 Oct 2026, 09:05`), never
+  "Yesterday" mixed with dates; `relative` (`5 h ago`) is a choice and then applies to every row. The old `finder`
+  value reads as `absolute`.
+- Settings no longer lists "Images (Kitty)" or "Mouse", like lazymark: the terminal is asked for Kitty support by
+  itself (`preview.images` stays in the file to force it off) and the mouse is `mouse` in the file or `--no-mouse`.
+
+### Fixed
+
+- A date that is empty or from before 1980 (a system folder whose birth time is 0, shown as `31/12/1969`) is now `--`.
+
 ## [0.11.0] - 2026-10-13
 
 ### Added

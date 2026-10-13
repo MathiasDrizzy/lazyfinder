@@ -55,7 +55,7 @@ type Config struct {
 	Preview    Preview           `json:"preview"`
 	Icons      string            `json:"icons"`       // nerd (Nerd Font glyphs), ascii or off
 	IconMap    map[string]string `json:"icon_map"`    // extension -> glyph, overrides the built-in ones
-	DateFormat string            `json:"date_format"` // relative (Today at 09:05), finder (Today, 09:05) or numeric (2026-10-13 09:05)
+	DateFormat string            `json:"date_format"` // absolute (13 Oct 2026, 09:05), relative (6 h ago) or numeric (2026-10-13 09:05)
 	Density    string            `json:"density"`     // compact (one line per row) or comfortable (two)
 	// IconSize is small (a glyph), medium (a glyph with air and a framed gear) or large (a glyph on a tile, roomy rows).
 	IconSize string `json:"icon_size"`
@@ -161,7 +161,7 @@ var validColumns = map[string]bool{"name": true, "modified": true, "created": tr
 
 // Valid values of the "date_format" and "density" settings.
 var (
-	DateFormats = []string{"relative", "finder", "numeric"}
+	DateFormats = []string{"absolute", "relative", "numeric"}
 	Densities   = []string{"compact", "comfortable"}
 	IconSizes   = []string{"small", "medium", "large"}
 )
@@ -207,7 +207,7 @@ func Defaults(home string) Config {
 		Preview:    Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
 		Icons:      "nerd",
 		IconMap:    map[string]string{},
-		DateFormat: "relative", Density: "compact", KeybindingMode: "dual",
+		DateFormat: "absolute", Density: "compact", KeybindingMode: "dual",
 		IconSize: "medium", ColumnSeparators: true,
 		Layout: "list",
 		Theme:  theme.Default,
@@ -404,6 +404,9 @@ func validate(cfg *Config, home string) error {
 		if w < MinColumn || w > MaxColumn {
 			return i18n.Errorf(`"column_widths.%s" debe ser de %d a %d (hay %d)`, `"column_widths.%s" must be from %d to %d (got %d)`, c, MinColumn, MaxColumn, w)
 		}
+	}
+	if cfg.DateFormat == "finder" { // the old name of the format that mixed "Today" with dates: one format per column now
+		cfg.DateFormat = "absolute"
 	}
 	if !slices.Contains(DateFormats, cfg.DateFormat) {
 		return i18n.Errorf(`"date_format" %q no es válido (usa %s)`, `"date_format" %q is not valid (use %s)`, cfg.DateFormat, strings.Join(DateFormats, ", "))

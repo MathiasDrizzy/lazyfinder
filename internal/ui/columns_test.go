@@ -107,7 +107,7 @@ func TestSettingsHaveDateFormatAndDensityRows(t *testing.T) {
 	e.m.set = settingsState{open: true, sel: setDateFormat}
 	e.mustHave("Date format")
 	e.key("right")
-	if e.m.deps.Cfg.DateFormat != "finder" {
+	if e.m.deps.Cfg.DateFormat != "relative" {
 		t.Fatalf("date format %q", e.m.deps.Cfg.DateFormat)
 	}
 	e.m.set.sel = setDensity
@@ -116,7 +116,7 @@ func TestSettingsHaveDateFormatAndDensityRows(t *testing.T) {
 		t.Fatalf("density %q", e.m.deps.Cfg.Density)
 	}
 	cfg := e.savedConfig(path)
-	if cfg.DateFormat != "finder" || cfg.Density != "comfortable" {
+	if cfg.DateFormat != "relative" || cfg.Density != "comfortable" {
 		t.Fatalf("saved %q %q", cfg.DateFormat, cfg.Density)
 	}
 	_ = fsmodel.ColName

@@ -300,10 +300,10 @@ func (m *Model) settingsClick(x, y int) tea.Cmd {
 // dateFormatName and densityName are the words Settings shows for the config values (the file keeps the keys).
 func dateFormatName(f string) string {
 	switch f {
+	case "absolute":
+		return i18n.T("absoluto", "absolute")
 	case "relative":
 		return i18n.T("relativo", "relative")
-	case "finder":
-		return "Finder"
 	case "numeric":
 		return i18n.T("numérico", "numeric")
 	}

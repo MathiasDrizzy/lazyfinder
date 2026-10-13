@@ -293,7 +293,7 @@ func TestSettingsShowDateFormatAndDensityInTheInterfaceLanguage(t *testing.T) {
 	t.Cleanup(func() { i18n.SetLanguage("en") })
 	e.m.set = settingsState{open: true}
 	e.mustHave("Formato de fechas")
-	e.mustHave("‹ relativo ›")
+	e.mustHave("‹ absoluto ›")
 	e.mustHave("‹ compactas ›")
 	e.mustNotHave("compact ›")
 }

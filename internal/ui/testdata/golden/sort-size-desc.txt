@@ -1,11 +1,11 @@
  ‹  ›   proj                                                                       5 items   ⌕ Search                
 ╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │  Recents          ││    Name                                  │ Date Modified      │ Size ▼     │ Kind              │
-│  Home             ││▸ >   alpha                                1 Sep 2026           --           Folder            │
-│  Projects         ││  >   beta                                 1 Sep 2026           --           Folder            │
-│                    ││      main.go                              1 Sep 2026           45 bytes     Go Source         │
-│                    ││      notes.txt                            1 Sep 2026           38 bytes     Plain Text        │
-│                    ││      data.xlsx                            1 Sep 2026           4 bytes      Excel Spreadsheet │
+│  Home             ││▸ >   alpha                                1 Sep 2026, 12:00    --           Folder            │
+│  Projects         ││  >   beta                                 1 Sep 2026, 12:00    --           Folder            │
+│                    ││      main.go                              1 Sep 2026, 12:00    45 bytes     Go Source         │
+│                    ││      notes.txt                            1 Sep 2026, 12:00    38 bytes     Plain Text        │
+│                    ││      data.xlsx                            1 Sep 2026, 12:00    4 bytes      Excel Spreadsheet │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

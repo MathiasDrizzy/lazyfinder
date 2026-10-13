@@ -270,36 +270,55 @@ func PermsOf(e Entry) string {
 	return kind + e.Mode.Perm().String()[1:]
 }
 
-// FormatDateAs formats t in one of the date formats of the config: "relative" (Today at 09:05), "finder"
-// (Today, 09:05) or "numeric" (2026-10-13 09:05). The zero time renders as "--".
+// earliestDate is the oldest timestamp that counts as a real date. A system folder whose birth time is 0 reads as
+// 1970 (or the last day of 1969 in a western time zone): that is a missing date, not a real one.
+var earliestDate = time.Date(1980, 1, 1, 0, 0, 0, 0, time.UTC)
+
+// validDate says whether t is a date worth showing.
+func validDate(t time.Time) bool { return !t.IsZero() && !t.Before(earliestDate) }
+
+// FormatDateAs formats t in one of the date formats of the config, the same way for every row of a column:
+// "absolute" (2 Mar 2026, 08:00), "numeric" (2026-03-02 08:00) or "relative" (6 h ago). A missing date is "--".
 func FormatDateAs(format string, t, now time.Time) string {
+	if !validDate(t) {
+		return "--"
+	}
+	t, now = t.In(now.Location()), now.In(now.Location())
 	switch format {
 	case "numeric":
-		if t.IsZero() {
-			return "--"
+		return t.Format("2006-01-02 15:04")
+	case "relative":
+		if s, ok := relativeAge(now.Sub(t)); ok {
+			return s
 		}
-		return t.In(now.Location()).Format("2006-01-02 15:04")
-	case "finder":
-		if t.IsZero() {
-			return "--"
-		}
-		t, now = t.In(now.Location()), now.In(now.Location())
-		day := func(x time.Time) time.Time { return time.Date(x.Year(), x.Month(), x.Day(), 0, 0, 0, 0, x.Location()) }
-		switch {
-		case day(t).Equal(day(now)):
-			return i18n.T("hoy, ", "Today, ") + t.Format("15:04")
-		case day(t).Equal(day(now).AddDate(0, 0, -1)):
-			return i18n.T("ayer, ", "Yesterday, ") + t.Format("15:04")
-		}
-		return t.Format(i18n.T("02/01/2006, 15:04", "2 Jan 2006, 15:04"))
 	}
-	return FormatDate(t, now)
+	return t.Format(i18n.T("02/01/2006 15:04", "2 Jan 2006, 15:04"))
+}
+
+// relativeAge writes how long ago something was, in one short unit ("5 min ago"); ok is false for the future.
+func relativeAge(d time.Duration) (string, bool) {
+	const day = 24 * time.Hour
+	switch {
+	case d < 0:
+		return "", false
+	case d < time.Minute:
+		return i18n.T("ahora", "just now"), true
+	case d < time.Hour:
+		return fmt.Sprintf(i18n.T("hace %d min", "%d min ago"), int(d/time.Minute)), true
+	case d < day:
+		return fmt.Sprintf(i18n.T("hace %d h", "%d h ago"), int(d/time.Hour)), true
+	case d < 30*day:
+		return fmt.Sprintf(i18n.T("hace %d d", "%d d ago"), int(d/day)), true
+	case d < 365*day:
+		return fmt.Sprintf(i18n.T("hace %d meses", "%d mo ago"), int(d/(30*day))), true
+	}
+	return fmt.Sprintf(i18n.T("hace %d años", "%d y ago"), int(d/(365*day))), true
 }
 
 // FormatDate formats t relative to now: "Today at 09:05", "Yesterday at 23:59" or "2 Mar 2026".
-// The zero time renders as "--".
+// A missing date renders as "--". It is for single values (a facts line), not for a column.
 func FormatDate(t, now time.Time) string {
-	if t.IsZero() {
+	if !validDate(t) {
 		return "--"
 	}
 	t, now = t.In(now.Location()), now.In(now.Location())

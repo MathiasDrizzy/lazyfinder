@@ -301,7 +301,7 @@ func TestMoreColumnsAndDateFormat(t *testing.T) {
 		t.Fatalf("%v %+v", err, cfg)
 	}
 	d := Defaults("/home/u")
-	if d.DateFormat != "relative" || d.Density != "compact" {
+	if d.DateFormat != "absolute" || d.Density != "compact" {
 		t.Fatalf("defaults %q %q", d.DateFormat, d.Density)
 	}
 	for _, js := range []string{`{"version":1,"date_format":"iso"}`, `{"version":1,"density":"huge"}`, `{"version":1,"columns":["name","location"]}`} {
