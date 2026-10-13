@@ -20,7 +20,11 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `open_with` | Extension to opener name, e.g. `"txt": "edit"` | none (system `open`) |
 | `preview.max_text_bytes` | Bytes read for a text preview | `524288` |
 | `preview.images` | `auto` (ask the terminal), `kitty` (force) or `off` | `auto` |
-| `theme` | `auto`, `dark` or `light` | `auto` |
+| `theme` | A built-in theme, a user theme (see below) or `terminal` | `catppuccin-mocha` |
+| `screen_background` | `theme` paints the whole screen with the theme background; `terminal` keeps the terminal's own | `theme` |
+| `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
+| `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |
+| `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |
 | `watch` | Reserved for live follow (milestone 2) | see the defaults |
 
 On narrow windows the Date Created, Kind, Size and Date Modified columns are dropped, in that order, so the name
@@ -44,3 +48,49 @@ stays readable.
   is replaced by the selected path; a path that starts with `-` is passed as `./path`.
 - `mode` is `gui` (started in the background) or `terminal` (lazyfinder hands the terminal over until it exits).
 - An extension without an entry opens with `open -- <path>`. Nothing else is ever run.
+
+## Themes
+
+`theme` takes one of the 14 palettes of lazymark: `catppuccin-mocha`, `catppuccin-latte`, `catppuccin-frappe`,
+`catppuccin-macchiato`, `tokyo-night`, `gruvbox-dark`, `nord`, `dracula`, `one-dark`, `rose-pine`, `kanagawa`,
+`everforest-dark`, `solarized-dark` or `solarized-light`; or `terminal`, which uses only the terminal's own 16
+colors. `NO_COLOR` turns every color off whatever the theme says; the selection then shows as reverse video.
+
+Your own theme is one file, `<config dir>/themes/<name>.json` (the folder next to `config.json`), with the 14
+colors as `#rrggbb`: `base`, `mantle`, `surface0`, `surface1`, `overlay0`, `text`, `subtext0`, `peach`, `mauve`,
+`teal`, `green`, `red`, `blue`, `yellow`. The name is the file name (`[a-z0-9._-]+`). Only regular files up to
+64 KiB are read; a broken file is skipped and the problem is shown in the status bar at start.
+
+## Language
+
+The interface follows `language`. Names of files and the sidebar entries you configured are never translated. The
+names of the file kinds for specific formats ("PNG image") stay in English; the generic ones (Folder, Document,
+Alias) are translated. Config error messages are in English.
+
+## Keys
+
+`keys` maps an action to the list of keys that trigger it; naming an action replaces its defaults, the others keep
+theirs:
+
+```json
+{ "version": 1, "keys": { "quit": ["x"], "down": ["n", "down"] } }
+```
+
+An unknown action, an empty list, or a key that would belong to two actions is a warning shown at start: the
+offending entry is ignored and the app still starts. The key bar at the bottom shows the effective keys.
+
+## Settings popup
+
+`,` (or a click on the gear in the top right corner) opens a popup with the theme, language, image protocol,
+hidden files, folders first, screen background and mouse. A change applies at once and is written to
+`config.json`. Only the changed key is written; everything else in the file (openers, `~` shorthands) is kept, and a
+file that is not valid JSON is never overwritten. Run-only options (`--theme`, `--lang`, `--no-mouse`) are not
+saved unless you change that same setting in the popup.
+
+## Command line
+
+| Flag | Effect for this run |
+| --- | --- |
+| `--theme NAME` | Use that theme |
+| `--lang CODE` | Use that language |
+| `--no-mouse` | Ignore the mouse |

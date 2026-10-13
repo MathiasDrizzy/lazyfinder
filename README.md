@@ -83,9 +83,10 @@ lazyfinder --print-default-config > ~/.config/lazyfinder/config.json
 | `.` | Show or hide dotfiles |
 | `r` | Reload the folder |
 | `Tab` | Move between the sidebar and the list |
+| `,` | Settings popup (theme, language, images, ...) |
 | `q` | Quit |
 
-The mouse does the same: click rows, headers, sidebar entries, breadcrumb segments and the back and forward
+Every key can be rebound with `keys` in `config.json`. The mouse does the same: click rows, headers, sidebar entries, breadcrumb segments and the back and forward
 buttons. The full list is in [docs/keybindings.md](docs/keybindings.md).
 
 ## Configuration
@@ -93,6 +94,15 @@ buttons. The full list is in [docs/keybindings.md](docs/keybindings.md).
 The config is one JSON file: `$LAZYFINDER_CONFIG`, else `$XDG_CONFIG_HOME/lazyfinder/config.json`, else
 `~/.config/lazyfinder/config.json`. Without a file the defaults apply. An invalid file starts the app with the
 defaults and shows what is wrong. See [docs/configuration.md](docs/configuration.md).
+
+## Look, themes and languages
+
+lazyfinder looks like Finder in what it shows and like [lazymark](https://github.com/MathiasDrizzy/lazymark) in how
+it draws it: rounded panels, the accent on the focused one and a key bar at the bottom. It ships the 14 lazymark
+themes (`catppuccin-mocha` by default), takes your own from `<config dir>/themes`, and speaks English, Spanish,
+Portuguese, French, German, Italian, Japanese and Chinese. Press `,` (or click the gear) to change the theme,
+language, image protocol and more; changes apply at once and are saved. For one run only:
+`lazyfinder --theme nord --lang es --no-mouse`.
 
 ## Build and test
 

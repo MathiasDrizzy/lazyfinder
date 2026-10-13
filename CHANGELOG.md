@@ -19,3 +19,12 @@ All notable changes to this project are documented here. The format follows
   folders, and Quick Look (`Q`) as the fallback on macOS.
 - Hidden files toggle (`.`), reload (`r`), `NO_COLOR` support and a minimum-size message.
 - `lazyfinder --version`, `--print-default-config`, `--log` and `--log-paths`.
+- Lazy look from lazymark: rounded panels (the focused one has the accent border), a `n of m` counter, the
+  folder in the panel title and a key bar generated from the effective keys.
+- Themes: the 14 lazymark palettes, your own in `<config dir>/themes/<name>.json`, `terminal` (the terminal's own
+  colors), `screen_background` and `--theme`.
+- Languages: English, Spanish, Portuguese, French, German, Italian, Japanese and Chinese (`language`, `--lang`,
+  detected from the locale by default).
+- Settings popup (`,` or the gear) that applies changes at once and saves them to `config.json` without touching
+  the rest of the file.
+- Configurable `keys` and `mouse` (`--no-mouse`).

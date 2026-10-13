@@ -1,25 +1,29 @@
 # Keybindings
 
+These are the defaults. Every list action can be rebound with `keys` in `config.json`
+(see [configuration](configuration.md#keys)); the action names are in the last column.
+
 ## List
 
-| Key | Action |
-| --- | --- |
-| `↑` `↓`, `k` `j` | Move the selection |
-| `PgUp` `PgDn` | Move a page |
-| `Home` `g`, `End` `G` | First and last row |
-| `Enter`, `→`, `l` | Enter a folder, or open a file with its configured program |
-| `Backspace`, `←`, `h` | Parent folder |
-| `Alt+←`, `[` | Back in history |
-| `Alt+→`, `]` | Forward in history |
-| `s` | Sort by the next column |
-| `S` | Reverse the sort order |
-| `.` | Show or hide dotfiles |
-| `r` | Reload the folder |
-| `Tab` | Move focus between the sidebar and the list |
-| `Space` | Preview popup |
-| `O` | Open With menu |
-| `Q` | Quick Look for the selection |
-| `q` | Quit |
+| Key | Action | Name |
+| --- | --- | --- |
+| `↑` `↓`, `k` `j` | Move the selection | `up` `down` |
+| `PgUp` `PgDn` | Move a page | `page_up` `page_down` |
+| `Home` `g`, `End` `G` | First and last row | `first` `last` |
+| `Enter`, `→`, `l` | Enter a folder, or open a file with its configured program | `open` |
+| `Backspace`, `←`, `h` | Parent folder | `parent` |
+| `Alt+←`, `[` | Back in history | `back` |
+| `Alt+→`, `]` | Forward in history | `forward` |
+| `s` | Sort by the next column | `sort` |
+| `S` | Reverse the sort order | `sort_reverse` |
+| `.` | Show or hide dotfiles | `hidden` |
+| `r` | Reload the folder | `reload` |
+| `Tab` | Move focus between the sidebar and the list | `focus` |
+| `Space` | Preview popup | `preview` |
+| `O` | Open With menu | `open_with` |
+| `Q` | Quick Look for the selection | `quick_look` |
+| `,` | Settings popup | `settings` |
+| `q` | Quit | `quit` |
 
 ## Sidebar (after `Tab`)
 
@@ -29,6 +33,10 @@
 
 `Space` or `Esc` closes it, `↑` `↓` show the previous or next entry, `Enter` opens the file, `Q` starts Quick Look,
 `q` quits.
+
+## Settings popup
+
+`↑` `↓` pick a setting, `←` `→` (or `Enter`, `Space`) change it, `Esc` or `,` close it. `Ctrl+C` quits from anywhere.
 
 ## Open With menu
 
@@ -45,3 +53,7 @@
 | Click on a sidebar entry | Go to that place |
 | Click on a breadcrumb segment | Go to that folder |
 | Click on `‹` or `›` | Back or forward |
+| Click on the gear `⚙` | Settings popup |
+| Click outside a popup | Close it |
+
+`--no-mouse` or `"mouse": false` turns the mouse off.
