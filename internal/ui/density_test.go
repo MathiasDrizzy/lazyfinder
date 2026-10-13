@@ -55,19 +55,15 @@ func TestWideRowsHaveSoftStripesAndCompactOnesDoNot(t *testing.T) {
 	}
 }
 
-func TestTheSelectionIsAPillWithAMarginOnBothLinesOfARow(t *testing.T) {
+func TestTheSelectionCoversBothLinesOfARowFromBorderToBorder(t *testing.T) {
 	e := newEnv(t)
 	e.setDensity("comfortable")
 	i := lineOf(t, e, "alpha")
 	first, second := rawAt(e, i), rawAt(e, i+1)
-	if !strings.Contains(first, " \x1b[") || !strings.Contains(second, mochaSelectionBg) {
-		t.Fatalf("the pill covers both lines of the row:\n%q\n%q", first, second)
+	if !strings.Contains(first, mochaSelectionBg) || !strings.Contains(second, mochaSelectionBg) {
+		t.Fatalf("the selection covers both lines of the row:\n%q\n%q", first, second)
 	}
-	plain := ansi.Strip(first)
-	x := strings.Index(plain, "▸")
-	if x < 0 || plain[x-len(" "):x] != " " {
-		t.Fatalf("the pill must start one cell inside the panel: %q", plain)
-	}
+	// order 2026-10-13-07 point L: the tuiqa scenarios selection-full-* measure the first and last interior cells
 }
 
 func TestNormalDensityIsOneLineWithStripes(t *testing.T) {
