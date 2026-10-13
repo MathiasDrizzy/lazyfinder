@@ -1,0 +1,10 @@
+Terminal too small
+Need 60x16, have 50x10
+
+
+
+
+
+
+<breadcrumb>
+

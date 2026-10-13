@@ -1,0 +1,40 @@
+ ‹  ›   proj                                                                                                    5 items
+                     │    Name ▲                                      Date Modified       Size        Kind
+ Favorites           │  > alpha                                       1 Sep 2026          --          Folder
+  Home               │  > beta                                        1 Sep 2026          --          Folder
+  Projects           │    data.xlsx                                   1 Sep 2026          4 bytes     Excel Spreadsheet
+                     │    main.go                                     1 Sep 2026          45 bytes    Go Source
+ Locations           │▸   notes.txt                                   1 Sep 2026          38 bytes    Plain Text
+  Disk               │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │                      ┌ Open With ───────────────────┐
+                     │                      │ ▸ edit          myeditor     │
+                     │                      │   default       open         │
+                     │                      └──────────────────────────────┘
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+                     │
+<breadcrumb>
+ ↑↓ move  ⏎ open  Space preview  O open with  s sort  . hidden  Tab sidebar  q quit

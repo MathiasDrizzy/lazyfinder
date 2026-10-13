@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
@@ -17,7 +18,7 @@ const (
 	sidebarNarrow = 18
 	colGap        = 2
 	prefixW       = 4 // pointer, space, folder marker, space
-	minNameW      = 20
+	minNameW      = 16
 	crumbSep      = " › "
 )
 
@@ -45,7 +46,10 @@ func (m *Model) sidebarW() int {
 func (m *Model) listX() int { return m.sidebarW() }
 func (m *Model) listW() int { return m.w - m.sidebarW() }
 
-// columns lays out the visible columns; optional ones are dropped from the right until the name fits.
+// dropOrder says which optional columns go first when the window is narrow.
+var dropOrder = []fsmodel.Column{fsmodel.ColCreated, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
+
+// columns lays out the visible columns; optional ones are dropped by dropOrder until the name fits.
 func (m *Model) columns() []colSpec {
 	var extra []fsmodel.Column
 	for _, c := range m.deps.Cfg.Columns {
@@ -53,20 +57,22 @@ func (m *Model) columns() []colSpec {
 			extra = append(extra, col)
 		}
 	}
-	nameW := func(n int) int {
+	nameW := func() int {
 		w := m.listW() - prefixW
-		for _, c := range extra[:n] {
+		for _, c := range extra {
 			w -= columnWidths[c] + colGap
 		}
 		return w
 	}
-	n := len(extra)
-	for n > 0 && nameW(n) < minNameW {
-		n--
+	for _, drop := range dropOrder {
+		if nameW() >= minNameW {
+			break
+		}
+		extra = slices.DeleteFunc(extra, func(c fsmodel.Column) bool { return c == drop })
 	}
-	specs := []colSpec{{col: fsmodel.ColName, x: prefixW, w: max(1, nameW(n))}}
+	specs := []colSpec{{col: fsmodel.ColName, x: prefixW, w: max(1, nameW())}}
 	x := prefixW + specs[0].w + colGap
-	for _, c := range extra[:n] {
+	for _, c := range extra {
 		specs = append(specs, colSpec{col: c, x: x, w: columnWidths[c]})
 		x += columnWidths[c] + colGap
 	}
@@ -190,9 +196,12 @@ func (m *Model) View() tea.View {
 }
 
 func (m *Model) tooSmall() string {
-	msg := fmt.Sprintf("Terminal too small (%dx%d); lazyfinder needs at least %dx%d", m.w, m.h, minWidth, minHeight)
 	lines := make([]string, max(m.h, 1))
-	lines[0] = ansi.Truncate(msg, max(m.w, 1), "")
+	w := max(m.w, 1)
+	lines[0] = ansi.Truncate("Terminal too small", w, "")
+	if len(lines) > 1 {
+		lines[1] = ansi.Truncate(fmt.Sprintf("Need %dx%d, have %dx%d", minWidth, minHeight, m.w, m.h), w, "")
+	}
 	return strings.Join(lines, "\n")
 }
 

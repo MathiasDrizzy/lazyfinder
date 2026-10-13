@@ -1,0 +1,24 @@
+ ‹  ›   proj                                                            5 items
+                 │    Name ▲                      Date Modified       Size
+ Favorites       │▸ > alpha                       1 Sep 2026          --
+  Home           │  > beta                        1 Sep 2026          --
+  Projects       │    data.xlsx                   1 Sep 2026          4 bytes
+                 │    main.go                     1 Sep 2026          45 bytes
+ Locations       │    notes.txt                   1 Sep 2026          38 bytes
+  Disk           │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+                 │
+<breadcrumb>
+ ↑↓ move  ⏎ open  Space preview  O open with  s sort  . hidden  Tab sidebar  q …
