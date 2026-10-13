@@ -95,6 +95,12 @@ The config is one JSON file: `$LAZYFINDER_CONFIG`, else `$XDG_CONFIG_HOME/lazyfi
 `~/.config/lazyfinder/config.json`. Without a file the defaults apply. An invalid file starts the app with the
 defaults and shows what is wrong. See [docs/configuration.md](docs/configuration.md).
 
+## Live follow and git
+
+The open folder updates by itself and shows git state and the branch:
+
+![Live follow and git state](docs/screenshots/live-git.png)
+
 ## Look, themes and languages
 
 lazyfinder looks like Finder in what it shows and like [lazymark](https://github.com/MathiasDrizzy/lazymark) in how
