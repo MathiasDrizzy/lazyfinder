@@ -302,5 +302,6 @@
  "unknown column %q in \"columns\"": "colonna sconosciuta %q in \"columns\"",
  "untitled folder": "cartella senza nome",
  "yes": "sì",
- "… truncated": "… troncato"
+ "… truncated": "… troncato",
+ "←/→ change · click: select, 2nd click: change": "←/→ cambia · clic: seleziona, 2° clic: cambia"
 }

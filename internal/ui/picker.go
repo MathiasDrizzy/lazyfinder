@@ -112,8 +112,7 @@ func (m *Model) choosePick(i int) tea.Cmd {
 func (m *Model) pickerClick(x, y int) tea.Cmd {
 	px, py, bx := m.pickerBox()
 	if !inBox(x, y, px, py, bx) {
-		m.picker = pickerState{}
-		return nil
+		return nil // like lazymark: a popup closes only with Esc
 	}
 	rows := m.pickerRows()
 	top := max(0, min(m.picker.sel-rows+1, len(m.picker.items)-rows))

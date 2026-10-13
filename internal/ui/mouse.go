@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 
 	tea "charm.land/bubbletea/v2"
 )
@@ -20,6 +21,7 @@ const (
 	zoneSearch
 	zoneChip
 	zoneToggle
+	zoneHint          // a key hint of the bottom row
 	zoneSideBorder    // the border between the sidebar and the list: drag to resize
 	zoneColBorder     // the gap right of a column header
 	zonePreviewBorder // the border in front of the preview in the column view
@@ -63,6 +65,13 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneSettings}
 		case x >= m.w-4-m.fieldW() && x < m.w-4:
 			return zone{kind: zoneSearch}
+		}
+	case y == m.h-1 && m.footerShowsHints():
+		_, spans := m.footerHints()
+		for _, s := range spans {
+			if x >= s.x && x < s.x+s.w {
+				return zone{kind: zoneHint, path: string(s.action)}
+			}
 		}
 	case y == m.h-1 && m.searchOn():
 		_, spans := m.searchBar()
@@ -120,8 +129,7 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 		return m.ctxClick(mouse.X, mouse.Y)
 	}
 	if m.help.open {
-		m.help = helpState{}
-		return nil
+		return nil // like lazymark: a popup closes only with Esc
 	}
 	if m.set.open {
 		return m.settingsClick(mouse.X, mouse.Y)
@@ -175,6 +183,8 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 		}
 		m.beginDrag(z, m.pointerX)
 		return nil
+	case zoneHint:
+		return m.listKey(keymap.Action(z.path))
 	case zoneBack:
 		return m.step(m.hist.Back())
 	case zoneForward:

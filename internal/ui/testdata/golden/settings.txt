@@ -9,7 +9,6 @@
 │  Disk              ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
-│                    ││                                                                                                │
 │                    ││            ╭─ Settings ─────────────────────────────────────╮                                  │
 │                    ││            │   Theme                   ‹ catppuccin-mocha › │                                  │
 │                    ││            │   Language                            ‹ auto › │                                  │
@@ -25,8 +24,9 @@
 │                    ││            │   Search for             ‹ Files and folders › │                                  │
 │                    ││            │   Search by                           ‹ Name › │                                  │
 │                    ││            │   Mouse                                ‹ yes › │                                  │
+│                    ││            │                                                │                                  │
+│                    ││            │ ←/→ change · click: select, 2nd click: change  │                                  │
 │                    ││            ╰────────────────────────────────────────────────╯                                  │
-│                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

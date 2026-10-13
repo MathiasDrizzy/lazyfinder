@@ -634,8 +634,22 @@ func (m *Model) footerBar() string {
 		}
 		return fit(" "+m.status, m.w)
 	}
-	build := func(skip int) (string, int) {
+	line, _ := m.footerHints()
+	return fit(line, m.w)
+}
+
+// hintSpan is a key hint of the bottom row and the action a click on it runs.
+type hintSpan struct {
+	x, w   int
+	action keymap.Action
+}
+
+// footerHints writes the key hints that fit the window, dropping the last ones first, and says where each sits.
+func (m *Model) footerHints() (string, []hintSpan) {
+	build := func(skip int) (string, int, []hintSpan) {
 		var parts []string
+		var spans []hintSpan
+		x := 1
 		for i, it := range footerItems {
 			if i >= len(footerItems)-skip-1 && it.action != keymap.Quit && i < len(footerItems)-1 {
 				continue
@@ -644,18 +658,29 @@ func (m *Model) footerBar() string {
 			if len(ks) == 0 {
 				continue
 			}
+			plain := it.label() + ": " + keyLabel(ks[0])
+			if len(parts) > 0 {
+				x += 3 // the " | " between two hints
+			}
+			spans = append(spans, hintSpan{x: x, w: ansi.StringWidth(plain), action: it.action})
+			x += ansi.StringWidth(plain)
 			parts = append(parts, m.styles.footer(it.label()+": ")+m.styles.footerKey(keyLabel(ks[0])))
 		}
 		line := " " + strings.Join(parts, m.styles.dim(" | "))
-		return line, ansi.StringWidth(line)
+		return line, ansi.StringWidth(line), spans
 	}
 	for skip := 0; skip < len(footerItems); skip++ {
-		if line, w := build(skip); w <= m.w {
-			return fit(line, m.w)
+		if line, w, spans := build(skip); w <= m.w {
+			return line, spans
 		}
 	}
-	line, _ := build(len(footerItems))
-	return fit(line, m.w)
+	line, _, spans := build(len(footerItems))
+	return line, spans
+}
+
+// footerShowsHints says whether the bottom row holds the key hints rather than a prompt, a status or the search bar.
+func (m *Model) footerShowsHints() bool {
+	return m.prompt.kind == promptNone && !m.goto_.open && !m.searchOn() && m.status == ""
 }
 
 // branchLabel is the git branch with its distance from the upstream, empty outside a repository.

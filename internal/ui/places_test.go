@@ -133,3 +133,55 @@ func TestSettingsKeybindingsRowTurnsTheVimLettersOff(t *testing.T) {
 		t.Fatalf("saved %q", cfg.KeybindingMode)
 	}
 }
+
+func TestPopupsCloseOnlyWithEscNotWithAClickOutside(t *testing.T) {
+	e := newEnv(t)
+	e.m.set = settingsState{open: true}
+	e.click(1, 1)
+	if !e.m.set.open {
+		t.Fatal("a click outside must not close Settings (lazymark behaves the same)")
+	}
+	e.key("esc")
+	if e.m.set.open {
+		t.Fatal("esc closes Settings")
+	}
+	e.key("?")
+	e.click(1, 1)
+	if !e.m.help.open {
+		t.Fatal("a click outside must not close Help")
+	}
+}
+
+func TestSettingsFirstClickSelectsAndSecondChanges(t *testing.T) {
+	e := newEnv(t)
+	e.m.set = settingsState{open: true}
+	e.mustHave("←/→ change · click: select, 2nd click: change")
+	x, y := e.find("Hidden files")
+	before := e.m.hidden
+	e.click(x, y)
+	if e.m.set.sel != setHidden || e.m.hidden != before {
+		t.Fatalf("first click selects only: sel=%d hidden=%v", e.m.set.sel, e.m.hidden)
+	}
+	e.click(x, y)
+	if e.m.hidden == before {
+		t.Fatal("second click changes the value")
+	}
+}
+
+func TestFooterKeyHintsAreClickable(t *testing.T) {
+	e := newEnv(t)
+	x, y := e.find("Hidden: .")
+	if y != e.m.h-1 {
+		t.Fatalf("the hints are on the last row, found at %d", y)
+	}
+	before := e.m.hidden
+	e.click(x+2, y)
+	if e.m.hidden == before {
+		t.Fatal("clicking the Hidden hint toggles hidden files")
+	}
+	x, y = e.find("Settings: ,")
+	e.click(x+2, y)
+	if !e.m.set.open {
+		t.Fatal("clicking the Settings hint opens Settings")
+	}
+}

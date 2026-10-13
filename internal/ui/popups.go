@@ -335,8 +335,7 @@ func (m *Model) chooseOpener(i int) tea.Cmd {
 func (m *Model) menuClick(x, y int) tea.Cmd {
 	mx, my, bx := m.menuBox()
 	if !inBox(x, y, mx, my, bx) {
-		m.menu = menuState{}
-		return nil
+		return nil // like lazymark: a popup closes only with Esc
 	}
 	if i := y - my - 1; i >= 0 && i < len(m.menu.items) {
 		m.menu.sel = i

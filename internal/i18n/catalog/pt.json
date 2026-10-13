@@ -302,5 +302,6 @@
  "unknown column %q in \"columns\"": "coluna desconhecida %q em \"columns\"",
  "untitled folder": "pasta sem título",
  "yes": "sim",
- "… truncated": "… truncado"
+ "… truncated": "… truncado",
+ "←/→ change · click: select, 2nd click: change": "←/→ alterar · clique: selecionar, 2º clique: alterar"
 }

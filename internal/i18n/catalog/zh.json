@@ -302,5 +302,6 @@
  "unknown column %q in \"columns\"": "\"columns\" 中有未知的列 %q",
  "untitled folder": "未命名文件夹",
  "yes": "是",
- "… truncated": "… 已截断"
+ "… truncated": "… 已截断",
+ "←/→ change · click: select, 2nd click: change": "←/→ 更改 · 单击: 选择，再次单击: 更改"
 }

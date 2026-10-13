@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/charmbracelet/x/ansi"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,9 +13,10 @@ import (
 )
 
 const (
-	mochaPeachBg = "48;2;250;179;135" // the selection bar of catppuccin-mocha
-	lattePeachBg = "48;2;254;100;11"
-	mochaBase    = "48;2;30;30;46"
+	mochaSelectionBg = "48;2;69;71;90" // surface1 of catppuccin-mocha: the selection bar, blue-gray like lazymark's
+	lattePeachBg     = "48;2;188;192;204"
+	mochaPeachBg     = "48;2;250;179;135" // the old salmon bar, which must not come back
+	mochaBase        = "48;2;30;30;46"
 )
 
 func raw(e *env) string { return e.m.View().Content }
@@ -41,15 +43,26 @@ func TestKeyBarListsTheEffectiveKeys(t *testing.T) {
 	}
 }
 
-func TestTheSelectionBarUsesTheThemeAccent(t *testing.T) {
+func rawLine(e *env, word string) string {
+	for _, l := range strings.Split(raw(e), "\n") {
+		if strings.Contains(ansi.Strip(l), word) {
+			return l
+		}
+	}
+	return ""
+}
+
+// The selection bar is the theme's surface1, a blue-gray, as in lazymark (order 2026-10-13-05, block H).
+func TestTheSelectionBarIsBlueGrayLikeLazymark(t *testing.T) {
 	e := newEnv(t)
-	if !strings.Contains(raw(e), mochaPeachBg) {
-		t.Fatalf("mocha selection bar missing")
+	line := rawLine(e, "▸ >")
+	if !strings.Contains(line, mochaSelectionBg) || strings.Contains(raw(e), mochaPeachBg) {
+		t.Fatalf("mocha selection bar is not surface1: %q", line)
 	}
 	e.m.deps.Cfg.Theme = "catppuccin-latte"
 	e.m.restyle()
-	if got := raw(e); !strings.Contains(got, lattePeachBg) || strings.Contains(got, mochaPeachBg) {
-		t.Fatalf("latte selection bar not applied")
+	if got := rawLine(e, "▸ >"); !strings.Contains(got, lattePeachBg) {
+		t.Fatalf("latte selection bar not applied: %q", got)
 	}
 }
 
@@ -93,7 +106,9 @@ func TestSettingsPopupOpensWithKeyAndGearAndCloses(t *testing.T) {
 	e.mustNotHave("Screen background")
 	e.clickText("⚙")
 	e.mustHave("Screen background")
-	e.click(0, 20) // outside the popup
+	e.click(0, 20) // outside the popup: like lazymark, only Esc closes it (order 2026-10-13-05, block H)
+	e.mustHave("Screen background")
+	e.key("esc")
 	e.mustNotHave("Screen background")
 }
 

@@ -302,5 +302,6 @@
  "unknown column %q in \"columns\"": "\"columns\" に未知の列 %q があります",
  "untitled folder": "名称未設定フォルダ",
  "yes": "はい",
- "… truncated": "… 省略"
+ "… truncated": "… 省略",
+ "←/→ change · click: select, 2nd click: change": "←/→ 変更 · クリック: 選択、2回目のクリック: 変更"
 }

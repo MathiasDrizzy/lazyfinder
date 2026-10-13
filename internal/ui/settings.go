@@ -234,7 +234,7 @@ func (m *Model) settingsKey(key string, act keymap.Action) tea.Cmd {
 }
 
 func (m *Model) settingsGeom() (x, y int) {
-	return (m.w - settingsInner - 4) / 2, (m.h - settingCount - 2) / 2
+	return (m.w - settingsInner - 4) / 2, (m.h - settingCount - 4) / 2
 }
 
 func (m *Model) settingsBox() (x, y int, lines []string) {
@@ -249,6 +249,7 @@ func (m *Model) settingsBox() (x, y int, lines []string) {
 		}
 		content[i] = line
 	}
+	content = append(content, "", m.styles.dim(i18n.T("←/→ cambiar · clic: seleccionar, 2.º clic: cambiar", "←/→ change · click: select, 2nd click: change")))
 	return x, y, m.box(i18n.T("Ajustes", "Settings"), content, settingsInner)
 }
 
@@ -257,11 +258,13 @@ func spaces(n int) string { return strings.Repeat(" ", n) }
 func (m *Model) settingsClick(x, y int) tea.Cmd {
 	mx, my, bx := m.settingsBox()
 	if !inBox(x, y, mx, my, bx) {
-		m.set = settingsState{}
-		return nil
+		return nil // like lazymark: a popup closes only with Esc
 	}
 	if i := y - my - 1; i >= 0 && i < settingCount {
-		m.set.sel = i
+		if m.set.sel != i { // the first click selects, the second changes
+			m.set.sel = i
+			return nil
+		}
 		return m.change(i, 1)
 	}
 	return nil

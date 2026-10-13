@@ -73,8 +73,9 @@ func newStyles(l look) styles {
 		return r(lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Bold(bold))
 	}
 	s := styles{
-		selected:         r(lipgloss.NewStyle().Background(p.Peach).Foreground(theme.Readable(p.Base, p.Peach, minReadable)).Bold(true)),
-		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface1).Foreground(theme.Readable(p.Text, p.Surface1, minReadable))),
+		// The selection bar is the theme's surface1, a blue-gray, as in lazymark; the inactive one is a step darker.
+		selected:         r(lipgloss.NewStyle().Background(p.Surface1).Foreground(theme.Readable(p.Text, p.Surface1, minReadable)).Bold(true)),
+		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface0).Foreground(theme.Readable(p.Text, p.Surface0, minReadable))),
 		dim:              fg(p.Overlay0, false), bold: fg(p.Text, true), folder: fg(p.Blue, true), accent: fg(p.Peach, false), fresh: fg(p.Green, true),
 		errText: fg(p.Red, true), border: fg(p.Overlay0, false),
 		borderActive: fg(p.Green, false), titleActive: fg(p.Green, true), title: fg(p.Subtext0, false),
