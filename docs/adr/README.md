@@ -16,3 +16,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | 0010 | [File operations: Trash only, never overwrite, always undoable](0010-file-operations.md) | accepted |
 | 0011 | [Previews++: what ships, what waits](0011-previews-plus.md) | accepted |
 | 0012 | [Workspace features: tabs, bookmarks, tags, saved searches, column view](0012-workspace-features.md) | accepted |
+| 0013 | [Icon size: Nerd Font glyphs and roomy rows, not Kitty file icons](0013-icon-size.md) | accepted |

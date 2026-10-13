@@ -26,6 +26,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- A scenario at 120 columns in Spanish checks that the default columns are read whole and that the selected row
+  is blue-gray in the list, the column view and the sidebar.
 - The selection bar is the theme's blue-gray surface, like lazymark's, instead of salmon.
 - Popups close only with `Esc`: a click outside does nothing. In Settings the first click selects a row and the second
   changes it, and a hint line says so. The key hints of the bottom row run their action when clicked.

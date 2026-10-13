@@ -1,0 +1,25 @@
+{
+  "name": "lazyfinder-defaults-120",
+  "criterio": "order 2026-10-13-05 revision 2 (at 120 columns in Spanish the default columns are read whole, and every selected row, in the list, the sidebar and the column view, is the blue-gray selection)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 30,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "env": {"LC_ALL": "es_ES.UTF-8", "LANG": "es_ES.UTF-8"},
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "the date and kind columns are not cut", "assert": {"contains": "Fecha de modificación"}},
+    {"assert": {"contains": "Hoja de cálculo de Excel"}},
+    {"assert": {"contains": "Código fuente de Go"}},
+    {"assert": {"not_contains": "(?m)(modifica|cálculo d|fuente de )…"}},
+    {"desc": "the selected row of the list is blue-gray", "assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "bg": "#45475a", "mode": "any"}},
+    {"assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "bg": "#fab387", "mode": "none"}},
+    {"desc": "in the column view too", "keys": ["M"]},
+    {"assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha", "x": 40, "w": 20}, "bg": "#fab387", "mode": "none"}},
+    {"assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha", "x": 40, "w": 20}, "bg": "#45475a", "mode": "any"}},
+    {"desc": "and in the sidebar", "keys": ["M", "tab"]},
+    {"assert_color": {"region": {"line_with": "│▸ \\w", "x": 1, "w": 20}, "bg": "#45475a", "mode": "any"}},
+    {"assert_color": {"region": {"line_with": "│▸ \\w", "x": 1, "w": 20}, "bg": "#fab387", "mode": "none"}}
+  ]
+}
