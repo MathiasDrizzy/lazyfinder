@@ -23,25 +23,12 @@
       }
     },
     {
-      "desc": "the cell left of the pill keeps the screen background",
+      "desc": "the selection starts at the first interior cell, no margin",
       "assert_color": {
         "region": {
           "x": 23,
           "y": 3,
-          "w": 1,
-          "h": 1
-        },
-        "bg": "#1e1e2e",
-        "mode": "all"
-      }
-    },
-    {
-      "desc": "the selection pill starts one cell in",
-      "assert_color": {
-        "region": {
-          "x": 24,
-          "y": 3,
-          "w": 10,
+          "w": 11,
           "h": 1
         },
         "bg": "#45475a",
@@ -49,12 +36,12 @@
       }
     },
     {
-      "desc": "the pill covers the second line of its row too",
+      "desc": "the selection covers the second line of its row too",
       "assert_color": {
         "region": {
-          "x": 24,
+          "x": 23,
           "y": 4,
-          "w": 10,
+          "w": 11,
           "h": 1
         },
         "bg": "#45475a",
