@@ -76,18 +76,11 @@ func TestLoadValid(t *testing.T) {
 }
 
 func TestInvalidConfigs(t *testing.T) {
+	// Only a file that cannot be read as a whole fails; a wrong key is a warning (TestOneWrongKeyDoesNotSpoilTheRest).
 	cases := []struct{ name, body, want string }{
 		{"malformed", `{"version": 1,`, "line"},
-		{"unknown key", `{"version":1,"colums":["name"]}`, "colums"},
 		{"bad version", `{"version": 2}`, "version"},
 		{"no version", `{"columns":["name"]}`, "version"},
-		{"bad column", `{"version":1,"columns":["name","weight"]}`, "weight"},
-		{"dangling opener", `{"version":1,"open_with":{"txt":"nope"}}`, "nope"},
-		{"file not whole arg", `{"version":1,"openers":{"x":{"argv":["x","--f={file}"],"mode":"gui"}},"open_with":{}}`, "{file}"},
-		{"no file placeholder", `{"version":1,"openers":{"x":{"argv":["x"],"mode":"gui"}}}`, "{file}"},
-		{"bad mode", `{"version":1,"openers":{"x":{"argv":["x","{file}"],"mode":"weird"}}}`, "mode"},
-		{"empty argv", `{"version":1,"openers":{"x":{"argv":[],"mode":"gui"}}}`, "argv"},
-		{"bad theme", `{"version":1,"theme":"neon"}`, "theme"},
 	}
 	for _, c := range cases {
 		p := write(t, t.TempDir(), c.body)
@@ -95,6 +88,41 @@ func TestInvalidConfigs(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: err = %v, want mention of %q", c.name, err, c.want)
 		}
+	}
+}
+
+// A wrong value goes back to its default, a warning says which key, the rest of the file is kept.
+func TestOneWrongKeyDoesNotSpoilTheRest(t *testing.T) {
+	cases := []struct{ name, body, want string }{
+		{"unknown key", `{"version":1,"colums":["name"]}`, "colums"},
+		{"bad column", `{"version":1,"columns":["name","weight"]}`, "weight"},
+		{"dangling opener", `{"version":1,"open_with":{"txt":"nope"}}`, "nope"},
+		{"file not whole arg", `{"version":1,"openers":{"x":{"argv":["x","--f={file}"],"mode":"gui"}},"open_with":{}}`, "{file}"},
+		{"no file placeholder", `{"version":1,"openers":{"x":{"argv":["x"],"mode":"gui"}}}`, "{file}"},
+		{"bad mode", `{"version":1,"openers":{"x":{"argv":["x","{file}"],"mode":"weird"}}}`, "mode"},
+		{"empty argv", `{"version":1,"openers":{"x":{"argv":[],"mode":"gui"}}}`, "argv"},
+		{"bad theme", `{"version":1,"theme":"neon"}`, "theme"},
+		{"wrong type", `{"version":1,"mouse":"yes"}`, "mouse"},
+	}
+	for _, c := range cases {
+		body := strings.Replace(c.body, `"version":1,`, `"version":1,"density":"comfortable","sidebar_width":30,`, 1)
+		p := write(t, t.TempDir(), body)
+		cfg, err := Load(p, "/home/u")
+		if err != nil {
+			t.Errorf("%s: a wrong key must not fail the file: %v", c.name, err)
+			continue
+		}
+		if cfg.Density != "comfortable" || cfg.SidebarWidth != 30 {
+			t.Errorf("%s: the good keys were lost: density=%q sidebar=%d", c.name, cfg.Density, cfg.SidebarWidth)
+		}
+		if len(cfg.Warnings) != 1 || !strings.Contains(cfg.Warnings[0], c.want) {
+			t.Errorf("%s: warnings = %v, want one mentioning %q", c.name, cfg.Warnings, c.want)
+		}
+	}
+	p := write(t, t.TempDir(), `{"version":1,"theme":"neon"}`)
+	cfg, _ := Load(p, "/home/u")
+	if cfg.Theme != Defaults("/home/u").Theme {
+		t.Errorf("a wrong theme goes back to the default, got %q", cfg.Theme)
 	}
 }
 
@@ -125,7 +153,7 @@ func TestOpsRejectsNonsense(t *testing.T) {
 		"relative trash":     `{"version":1,"ops":{"trash_dir":"trash"}}`,
 		"empty trash":        `{"version":1,"ops":{"trash_dir":""}}`,
 	} {
-		if _, err := Load(write(t, t.TempDir(), body), "/home/u"); err == nil || !strings.Contains(err.Error(), "ops.") {
+		if _, err := Parse([]byte(body), "/home/u"); err == nil || !strings.Contains(err.Error(), "ops.") {
 			t.Errorf("%s: err = %v", name, err)
 		}
 	}
@@ -151,7 +179,7 @@ func TestPreviewExtrasRejectNonsense(t *testing.T) {
 		"hex bytes":      `{"version":1,"preview":{"hex_bytes":0}}`,
 		"external tools": `{"version":1,"preview":{"external_tools":"maybe"}}`,
 	} {
-		if _, err := Load(write(t, t.TempDir(), body), "/home/u"); err == nil || !strings.Contains(err.Error(), "preview.") {
+		if _, err := Parse([]byte(body), "/home/u"); err == nil || !strings.Contains(err.Error(), "preview.") {
 			t.Errorf("%s: err = %v", name, err)
 		}
 	}
@@ -172,7 +200,7 @@ func TestCommandsAreParsedAndValidated(t *testing.T) {
 		"program name":     `{"version":1,"commands":{"x":{"argv":["{file}"],"mode":"gui"}}}`,
 		"twice":            `{"version":1,"commands":{"x":{"argv":["ls","{file}","{file}"],"mode":"gui"}}}`,
 	} {
-		if _, err := Load(write(t, t.TempDir(), body), "/home/u"); err == nil || !strings.Contains(err.Error(), "command") {
+		if _, err := Parse([]byte(body), "/home/u"); err == nil || !strings.Contains(err.Error(), "command") {
 			t.Errorf("%s: err = %v", name, err)
 		}
 	}
@@ -186,7 +214,7 @@ func TestSearchContentToolDefaultsAndValidation(t *testing.T) {
 	if err != nil || cfg.Search.ContentTool != "native" {
 		t.Fatalf("cfg = %+v err = %v", cfg.Search, err)
 	}
-	if _, err := Load(write(t, t.TempDir(), `{"version":1,"search":{"content_tool":"grep"}}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "search.content_tool") {
+	if _, err := Parse([]byte(`{"version":1,"search":{"content_tool":"grep"}}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "search.content_tool") {
 		t.Fatalf("err = %v", err)
 	}
 }
@@ -198,7 +226,7 @@ func TestLayoutDefaultAndValidation(t *testing.T) {
 	if cfg, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"columns"}`), "/home/u"); err != nil || cfg.Layout != "columns" {
 		t.Fatalf("cfg = %q err = %v", cfg.Layout, err)
 	}
-	if _, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"grid"}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "layout") {
+	if _, err := Parse([]byte(`{"version":1,"layout":"grid"}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "layout") {
 		t.Fatalf("err = %v", err)
 	}
 }
@@ -209,7 +237,7 @@ func TestValidationErrorsSpeakTheInterfaceLanguage(t *testing.T) {
 		"de": "muss list oder columns sein", "it": "deve essere list o columns", "ja": "list か columns です", "zh": "必须是 list 或 columns"}
 	for lang, text := range want {
 		i18n.SetLanguage(lang)
-		_, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"grid"}`), "/home/u")
+		_, err := Parse([]byte(`{"version":1,"layout":"grid"}`), "/home/u")
 		if err == nil || !strings.Contains(err.Error(), text) {
 			t.Errorf("%s: err = %v, want it to contain %q", lang, err, text)
 		}

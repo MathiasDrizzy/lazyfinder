@@ -229,12 +229,62 @@ func Load(path, home string) (Config, error) {
 	for _, p := range theme.LoadUserThemes(filepath.Join(filepath.Dir(path), "themes")) {
 		warnings = append(warnings, fmt.Sprintf(p.EN, p.Args...))
 	}
-	cfg, err := Parse(data, home)
+	cfg, dropped, err := parseTolerant(data, home)
 	if err != nil {
 		return Config{}, i18n.Errorf(`configuración no válida: %w (archivo %s)`, `invalid config: %w (file %s)`, err, path)
 	}
-	cfg.Warnings = append(warnings, cfg.Warnings...)
+	cfg.Warnings = append(append(dropped, warnings...), cfg.Warnings...)
 	return cfg, nil
+}
+
+// parseTolerant is Parse, except that a key with a wrong value (or an unknown key) goes back to its default and
+// comes back as a warning, so one typo does not throw away the rest of the file. Only a file that is not JSON or has
+// the wrong "version" fails whole. The file itself is never rewritten here, and Update keeps the keys it does not know.
+func parseTolerant(data []byte, home string) (Config, []string, error) {
+	if cfg, err := Parse(data, home); err == nil {
+		return cfg, nil, nil
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		_, perr := Parse(data, home) // the strict error names the line
+		return Config{}, nil, perr
+	}
+	if v, ok := raw["version"]; !ok || string(bytes.TrimSpace(v)) != fmt.Sprint(currentVersion) {
+		_, perr := Parse(data, home)
+		return Config{}, nil, perr
+	}
+	keys := make([]string, 0, len(raw))
+	for k := range raw {
+		if k != "version" {
+			keys = append(keys, k)
+		}
+	}
+	// openers and commands first: other keys (open_with) refer to them.
+	slices.SortFunc(keys, func(a, b string) int {
+		rank := func(k string) int {
+			if k == "openers" || k == "commands" {
+				return 0
+			}
+			return 1
+		}
+		if d := rank(a) - rank(b); d != 0 {
+			return d
+		}
+		return strings.Compare(a, b)
+	})
+	kept := map[string]json.RawMessage{"version": raw["version"]}
+	var dropped []string
+	for _, k := range keys {
+		kept[k] = raw[k]
+		body, _ := json.Marshal(kept)
+		if _, err := Parse(body, home); err != nil {
+			delete(kept, k)
+			dropped = append(dropped, i18n.Errorf(`se ignora la clave %q: %w`, `ignoring the key %q: %w`, k, err).Error())
+		}
+	}
+	body, _ := json.Marshal(kept)
+	cfg, err := Parse(body, home)
+	return cfg, dropped, err
 }
 
 // Parse validates data and fills in defaults for omitted fields.

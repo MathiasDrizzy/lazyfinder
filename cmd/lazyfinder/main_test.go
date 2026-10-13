@@ -57,7 +57,7 @@ func TestInvalidConfigStartsWithDefaultsAndWarns(t *testing.T) {
 	if !strings.Contains(e.String(), "colums") {
 		t.Fatalf("warning should name the bad field: %q", e.String())
 	}
-	if got.Warning == "" || len(got.Cfg.Columns) != 5 {
+	if len(got.Cfg.Warnings) != 1 || len(got.Cfg.Columns) != 5 {
 		t.Fatalf("defaults not used: %+v", got)
 	}
 }

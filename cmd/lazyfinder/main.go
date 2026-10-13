@@ -114,6 +114,9 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 		fmt.Fprintln(stderr, "lazyfinder: using default settings:", err)
 		cfg = config.Defaults(home)
 	}
+	for _, w := range cfg.Warnings {
+		fmt.Fprintln(stderr, "lazyfinder: warning:", w)
+	}
 	if *langFlag != "" {
 		if _, ok := i18n.Parse(*langFlag); !ok && *langFlag != "auto" {
 			fmt.Fprintf(stderr, "lazyfinder: unknown language %q (use auto, en, es, pt, fr, de, it, ja or zh)\n", *langFlag)
