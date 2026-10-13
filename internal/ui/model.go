@@ -28,7 +28,7 @@ import (
 const (
 	minWidth          = 60
 	minHeight         = 16
-	followMinWidth    = 24
+	followMinWidth    = 20
 	followMinHeight   = 8
 	doubleClickWindow = 400 * time.Millisecond
 	wheelStep         = 3

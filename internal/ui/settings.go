@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 type settingsState struct {
 	open bool
 	sel  int
+	top  int // first visible row when the window is too short for all of them
 }
 
 const (
@@ -263,24 +265,70 @@ func (m *Model) settingsKey(key string, act keymap.Action) tea.Cmd {
 	return nil
 }
 
+// settingsView is the part of the rows that fits the window: inner width, visible rows and whether the hint line fits.
+func (m *Model) settingsView() (inner, rows int, hint bool) {
+	inner = min(settingsInner, max(8, m.w-4))
+	rows = min(settingCount, max(1, m.h-4))
+	hint = rows == settingCount && m.h >= settingCount+4
+	if hint {
+		rows = min(settingCount, m.h-6)
+		hint = rows == settingCount
+	}
+	return inner, rows, hint
+}
+
 func (m *Model) settingsGeom() (x, y int) {
-	return (m.w - settingsInner - 4) / 2, (m.h - settingCount - 4) / 2
+	inner, rows, hint := m.settingsView()
+	h := rows + 2
+	if hint {
+		h += 2
+	}
+	return max(0, (m.w-inner-4)/2), max(0, (m.h-h)/2)
 }
 
 func (m *Model) settingsBox() (x, y int, lines []string) {
 	x, y = m.settingsGeom()
-	content := make([]string, settingCount)
-	for i := range content {
-		label, value := m.settingLabel(i), "‹ "+m.settingValue(i)+" ›"
-		pad := max(1, settingsInner-ansi.StringWidth(label)-ansi.StringWidth(value)-2)
-		line := "  " + label + spaces(pad) + value
-		if i == m.set.sel {
-			line = m.styles.selected(ansi.Strip(fit(line, settingsInner)))
-		}
-		content[i] = line
+	inner, rows, hint := m.settingsView()
+	m.set.top = max(0, min(m.set.top, settingCount-rows))
+	if m.set.sel < m.set.top {
+		m.set.top = m.set.sel
 	}
-	content = append(content, "", m.styles.dim(i18n.T("←/→ cambiar · clic: seleccionar, 2.º clic: cambiar", "←/→ change · click: select, 2nd click: change")))
-	return x, y, m.box(i18n.T("Ajustes", "Settings"), content, settingsInner)
+	if m.set.sel >= m.set.top+rows {
+		m.set.top = m.set.sel - rows + 1
+	}
+	content := make([]string, 0, rows+2)
+	for i := m.set.top; i < m.set.top+rows; i++ {
+		label, value := m.settingLabel(i), "‹ "+m.settingValue(i)+" ›"
+		if vmax := max(8, inner-3-min(ansi.StringWidth(label), 11)); ansi.StringWidth(value) > vmax { // narrow window: both give way
+			value = "‹ " + ansi.Truncate(m.settingValue(i), vmax-4, "…") + " ›"
+		}
+		pad := max(1, inner-ansi.StringWidth(label)-ansi.StringWidth(value)-2)
+		line := "  " + label + spaces(pad) + value
+		if ansi.StringWidth(line) > inner { // narrow window: the label gives way to the value
+			label = ansi.Truncate(label, max(1, inner-ansi.StringWidth(value)-3), "…")
+			line = "  " + label + " " + value
+		}
+		if i == m.set.sel {
+			line = m.styles.selected(ansi.Strip(fit(line, inner)))
+		}
+		content = append(content, line)
+	}
+	if hint {
+		text := i18n.T("←/→ cambiar · clic: seleccionar, 2.º clic: cambiar", "←/→ change · click: select, 2nd click: change")
+		if ansi.StringWidth(text) > inner {
+			text = i18n.T("←/→ cambiar · Esc cierra", "←/→ change · Esc closes")
+		}
+		content = append(content, "", m.styles.dim(text))
+	}
+	title := i18n.T("Ajustes", "Settings")
+	if rows < settingCount { // a scrolled list says where it is
+		if counter := fmt.Sprintf("%d/%d", m.set.sel+1, settingCount); inner-4 >= ansi.StringWidth(title+" "+counter) {
+			title += " " + counter
+		} else {
+			title = counter
+		}
+	}
+	return x, y, m.box(title, content, inner)
 }
 
 func spaces(n int) string { return strings.Repeat(" ", n) }
@@ -290,7 +338,8 @@ func (m *Model) settingsClick(x, y int) tea.Cmd {
 	if !inBox(x, y, mx, my, bx) {
 		return nil // like lazymark: a popup closes only with Esc
 	}
-	if i := y - my - 1; i >= 0 && i < settingCount {
+	_, rows, _ := m.settingsView()
+	if i := m.set.top + y - my - 1; y-my-1 >= 0 && y-my-1 < rows && i < settingCount {
 		if m.set.sel != i { // the first click selects, the second changes
 			m.set.sel = i
 			return nil
