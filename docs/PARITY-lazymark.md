@@ -7,6 +7,20 @@ refreshes it). Source of each section: lazymark `docs/keybindings.md`, `docs/con
 Settings popup, the popups and `internal/app/mouse.go`.
 
 
+## Measured screen by screen (2026-10-13)
+
+Both apps were run in the same 100x30 pty (`tui_captura.py`, isolated HOME, same two markdown files as fixture) and the
+text of each screen is committed in `docs/parity/<screen>-lazymark.txt` and `<screen>-lazyfinder.txt`.
+
+| Screen | Capture pair | Difference | Verdict |
+|---|---|---|---|
+| Main list | `list-*` | lazymark has three stacked panels and a preview; lazyfinder has Favorites / Locations boxes and one detail list. Same rounded borders, title in the top edge, counter `N of M` in the bottom-right, footer of clickable hints | justified: a file manager has places and columns, not notes, tasks and categories |
+| Settings | `settings-*` | same frame, same `‹ value ›` rows, same hint line; lazymark closes with `[Esc]` on the frame, lazyfinder did not; `auto` did not say the language | **fixed** (`[Esc]` on every popup, `auto · English`) |
+| Help (`?`) | `help-*` | lazymark lists keys of the panel in two columns; lazyfinder groups them by section (Moving, Search, Files...) because it has many more keys | justified |
+| Footer | `list-*` | lazymark hints end with `Keybindings: ?`; lazyfinder lacked a Help hint | **fixed** (`Help: ?` in the footer) |
+| Search | `search-*` | lazymark's `/` filters its note list in place; lazyfinder opens a two-row bar (scope chips + field) because it searches folders, subfolders and the system | justified |
+| Selection bar | `list-*` | lazymark paints the whole row; lazyfinder left one cell of air on each side | **fixed** (order 07, point L; tuiqa `selection-full-*` measures the first and last interior cell at 80, 120 and 160 columns) |
+
 ## Keys: global
 
 | lazymark | lazyfinder | Status |
@@ -75,7 +89,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | lazymark | lazyfinder | Status |
 |---|---|---|
 | Tema / Theme | Tema | done |
-| Idioma / Language ("auto · Name") | Idioma (values `auto` and the language name) | done |
+| Idioma / Language ("auto · Name") | same: `auto · English` (`TestAutoLanguageShowsWhatItResolvedTo`) | done |
 | Editor | `commands` and Open With programs in config.json | n/a: a file manager opens files with Open With |
 | Atajos / Keybindings | - | done (block F) |
 | Alcance de tareas / Task scope | - | n/a: no tasks |
@@ -88,7 +102,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | Orden de las notas / Orden de las tareas | Sort by any column (`s`, header click) | done |
 | yes / no values ("sí" / "no") | "sí"/"yes" and "no" (fixed in this audit; they said on/off) | done |
 | `←` `→` change, `Enter` change, `Esc` close; hint line "←/→ cambiar · clic: seleccionar, 2.º clic: cambiar" | `←` `→` `enter` `esc`; no hint line | **done** |
-| - | Icons, Images (Kitty), Hidden files, Folders first, Mouse rows | done (file-manager settings) |
+| - | Icons, Hidden files, Folders first, Date format, Row density, Columns, Search scope, Side mode | done (file-manager settings; the Kitty and Mouse rows were removed: images are detected, the mouse follows Keybindings or `--no-mouse`) |
 
 ## config.json keys
 

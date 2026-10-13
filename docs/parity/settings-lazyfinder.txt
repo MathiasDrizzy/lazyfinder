@@ -1,0 +1,30 @@
+ ‹  ›   proj                                                     2 items   ⌕ Search               
+╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────╮
+│  Recents          ││    Name ▲            │ Date Modified      │ Size       │ Kind              │
+│  Home             ││▸    hello.md          13 Oct 2026, 20:44   14 bytes     Markdown Document │
+│  Desktop          ╭─ Settings ─────────────────────────────────────────────╮                    │
+│  Documents        │   Theme                           ‹ catppuccin-mocha › │  Markdown Document │
+│  Downloads        │   Language                          ‹ auto · English › │                    │
+│  Applications     │   Hidden files                                  ‹ no › │                    │
+╰────────────────────│   Folders first                                ‹ yes › │                    │
+╭─ Locations ────────│   Screen background                          ‹ theme › │                    │
+│  Macintosh HD     │   Popup background                           ‹ theme › │                    │
+│  Volumes          │   Icons                                       ‹ nerd › │                    │
+│  Trash            │   Keybindings                    ‹ Lazy + Vim (hjkl) › │                    │
+╰────────────────────│   Date format                             ‹ absolute › │                    │
+                     │   Row density                                 ‹ wide › │                    │
+                     │   Columns                                   ‹ custom › │                    │
+                     │   Column separators                            ‹ yes › │                    │
+                     │   Search in                            ‹ This folder › │                    │
+                     │   Search for                     ‹ Files and folders › │                    │
+                     │   Search by                                   ‹ Name › │                    │
+                     │   Confirm deletion                             ‹ yes › │                    │
+                     │   Side mode (project)                           ‹ no › │                    │
+                     │                                                        │                    │
+                     │ ←/→ change · click: select, 2nd click: change          │                    │
+                     ╰──────────────────────────────────────────────────[Esc]─╯                    │
+                      │                                                                            │
+                      │                                                                            │
+                      ╰─────────────────────────────────────────────────────────────────── 1 of 2 ─╯
+ … ›  aaf6b5e8-8091-4494-a8b2-c721ddd225db ›  scratchpad ›  pp ›  h ›  proj
+ Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Quit: q

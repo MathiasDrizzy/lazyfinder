@@ -1,0 +1,30 @@
+╭─[1]─Notes─────────────────────╮╭─[4]─hello───────────────────────────────────────────────────────╮
+│  hello.md              13 Oct││    Hello                                                        │
+│  todo.md               13 Oct││                                                                 │
+│                               ││   body                                                          │
+│                               ││                                                                 │
+│                               ││                                                                 │
+│                               ││                                                                 │
+│                  ╭─Keybindings──────────────────────────────────────────────────────────────────╮│
+│                  │ enter         Open                                                           ││
+│                  │ e             Edit                    q/ctrl+c      Quit                     ││
+│                  │ c             New note                ?             Keybindings              ││
+│                  │ C             New note from template  ctrl+v        Paste image              ││
+│                  │ F             New folder              ,             Settings                 ││
+│                  │ r             Rename                  x             Trash                    ││
+│                  │ m             Move                    /             Search                   ││
+│                  │ d             Delete                  T             Daily note               ││
+╰──────────────────│ v             Select                  1             Notes panel              ││
+╭─[2]─Tasks────────│ V             Select all              2             Tasks panel              ││
+│ ☐ one            │                                       3             Categories panel         ││
+│                  │ ↑/k           Up                      4             Preview panel            ││
+│                  │ ↓/j           Down                    tab           Next panel               ││
+│                  │ ←/h           Left                    shift+tab     Previous panel           ││
+│                  │ →/l           Right                   w             Zoom panel               ││
+│                  │ home/g        Top                     W             Kanban board             ││
+│                  │ end/G         Bottom                  [             Narrow column            ││
+╰──────────────────│ pgup/ctrl+u   Page up                 ]             Widen column             ││
+╭─[3]─Categories───│ pgdown/ctrl+d Page down               esc           Clear filter             ││
+│                  ╰────────────────────────────────────────────────────────────────────────[Esc]─╯│
+╰────────────────────────0 of 0─╯╰────────────────────────────────────────────────────────100% 1/3─╯
+󰩺 0 Edit: e | New note: c | New folder: F | Kanban (W) | Quit: q | Keybindings: ?     2 notes loaded

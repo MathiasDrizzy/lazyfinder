@@ -1,0 +1,30 @@
+ ‹  ›   proj                                                     2 items   ⌕ ▏                    
+╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────╮
+│  Recents          ││    Name ▲            │ Date Modified      │ Size       │ Kind              │
+│  Home             ││▸    hello.md          13 Oct 2026, 20:44   14 bytes     Markdown Document │
+│  Desktop          ││                                                                            │
+│  Documents        ││     todo.md           13 Oct 2026, 20:44   18 bytes     Markdown Document │
+│  Downloads        ││                                                                            │
+│  Applications     ││                                                                            │
+╰────────────────────╯│                                                                            │
+╭─ Locations ────────╮│                                                                            │
+│  Macintosh HD     ││                                                                            │
+│  Volumes          ││                                                                            │
+│  Trash            ││                                                                            │
+╰────────────────────╯│                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      │                                                                            │
+                      ╰─────────────────────────────────────────────────────────────────── 1 of 2 ─╯
+ Look in (Tab):  This folder ▾   What (^K):  Files and folders ▾   By (^N):  Name ▾
+ / type to search · Enter goes to the results · Esc closes▏                                 2 found

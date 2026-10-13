@@ -1,0 +1,30 @@
+ ‹  ›   proj                                                     2 items   ⌕ Search               
+╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────╮
+│╭─ Help ─────────────────────────────────────────────────────────────────────────────────────────╮│
+││ Moving                                                                                         ││
+││   ↑ k ↓ j                 Move the selection                                                   ││
+││   ⏎ → / ⌫ ←               Open / parent folder                                                 ││
+││   alt+left [ alt+right ]  Back / forward in history                                            ││
+││   ctrl+g                  Go to a path                                                         ││
+╰│ Search                                                                                         ││
+╭│   / ctrl+f                Search; Tab, Ctrl+K and Ctrl+N change where, what and how            ││
+││   kind:image              In the search: kind: filters by kind (image, text, folder…)          ││
+││   ext:go  name:report     ext: the extension; name: part of the name; tag: the tag             ││
+││   size:>10MB              size: the size (> or <, with KB, MB or GB)                           ││
+╰│   modified:week           modified: and created: the date (today, week, 2026-10-01…)           ││
+ │   in:invoice              in: searches inside the files                                        ││
+ │ Favorites and places                                                                           ││
+ │   b                       Add the folder to Favorites (or remove it)                           ││
+ │   Tab                     Switch to the sidebar and back                                       ││
+ │   d  F2  K  J             In the sidebar: remove, rename, move up, move down a favorite        ││
+ │   right click             Menu of a favorite or a folder                                       ││
+ │ Sizes                                                                                          ││
+ │   < >                     Narrower / wider sidebar                                             ││
+ │   ctrl+left ctrl+right    Narrower / wider sorted column                                       ││
+ │   ctrl+up ctrl+down       Shorter / taller Favorites box (or drag its border)                  ││
+ │   drag                    The borders; a double click fits the content                         ││
+ │ Files                                                                                          ││
+ │   c x p ctrl+v            Copy, cut, paste                                                     ││
+ ╰──────────────────────────────────────────────────────────────────────────────────────────[Esc]─╯╯
+ … ›  aaf6b5e8-8091-4494-a8b2-c721ddd225db ›  scratchpad ›  pp ›  h ›  proj
+ Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Quit: q
