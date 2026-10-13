@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"image/color"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -141,5 +142,22 @@ func TestSafeTextEscapesControlCharacters(t *testing.T) {
 	}
 	if got := safeText("a\x1b[31mb"); strings.ContainsRune(got, 0x1b) {
 		t.Fatalf("escape must be quoted, got %q", got)
+	}
+}
+
+func TestReadableKeepsGoodColorsAndFixesWeakOnes(t *testing.T) {
+	bg := color.RGBA{R: 0xef, G: 0xf1, B: 0xf5, A: 255}
+	good := color.RGBA{A: 255}
+	if got := Readable(good, bg, 3.1); got != color.Color(good) {
+		t.Fatalf("a readable color changed: %v", got)
+	}
+	weak := color.RGBA{R: 0xac, G: 0xb0, B: 0xbe, A: 255}
+	fixed := Readable(weak, bg, 3.1)
+	if Contrast(fixed, bg) < 3.1 {
+		t.Fatalf("still weak: %.2f", Contrast(fixed, bg))
+	}
+	dark := color.RGBA{R: 0x1e, G: 0x1e, B: 0x2e, A: 255}
+	if Contrast(Readable(color.RGBA{R: 0x45, G: 0x47, B: 0x5a, A: 255}, dark, 3.1), dark) < 3.1 {
+		t.Fatal("a dark background was not lifted toward white")
 	}
 }

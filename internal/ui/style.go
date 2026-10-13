@@ -7,6 +7,9 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 )
 
+// minReadable is the contrast every text keeps against its background (WCAG asks 3:1 for bold text and interface).
+const minReadable = 3.1
+
 // look says how to draw. It comes from the config and the environment; the model rebuilds the styles when it changes.
 type look struct {
 	Theme            string // a palette name or theme.Terminal
@@ -57,12 +60,13 @@ func newStyles(l look) styles {
 			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)),
 		}
 	}
+	// Every text color is lifted when the palette leaves it under minReadable on the background it is drawn on.
 	fg := func(c color.Color, bold bool) func(string) string {
-		return r(lipgloss.NewStyle().Foreground(c).Bold(bold))
+		return r(lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Bold(bold))
 	}
 	s := styles{
-		selected:         r(lipgloss.NewStyle().Background(p.Peach).Foreground(p.Base).Bold(true)),
-		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface1).Foreground(p.Text)),
+		selected:         r(lipgloss.NewStyle().Background(p.Peach).Foreground(theme.Readable(p.Base, p.Peach, minReadable)).Bold(true)),
+		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface1).Foreground(theme.Readable(p.Text, p.Surface1, minReadable))),
 		dim:              fg(p.Overlay0, false), bold: fg(p.Text, true), folder: fg(p.Blue, true), accent: fg(p.Peach, false), fresh: fg(p.Green, true),
 		errText: fg(p.Red, true), border: fg(p.Overlay0, false),
 		borderActive: fg(p.Green, false), titleActive: fg(p.Green, true), title: fg(p.Subtext0, false),

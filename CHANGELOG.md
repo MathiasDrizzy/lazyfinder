@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Releases get an SPDX SBOM per archive and a keyless cosign signature of `checksums.txt`.
+
+### Fixed
+
+- Text that was hard to read in the light themes, nord, one-dark and catppuccin-frappe (dim text, titles, the
+  selected row) is lifted to at least 3:1 contrast, keeping each palette's hue.
+
 ## [0.7.0] - 2026-10-13
 
 ### Added
