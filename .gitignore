@@ -1,0 +1,6 @@
+/bin/
+/dist/
+*.test
+.claude/.verificado
+.claude/tui_captura.txt
+.DS_Store

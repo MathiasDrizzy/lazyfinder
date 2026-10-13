@@ -1,0 +1,105 @@
+package config
+
+import (
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+func write(t *testing.T, dir, body string) string {
+	t.Helper()
+	p := filepath.Join(dir, "config.json")
+	if err := os.WriteFile(p, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+func TestDefaultsWhenFileMissing(t *testing.T) {
+	cfg, err := Load(filepath.Join(t.TempDir(), "nope.json"), "/home/u")
+	if err != nil {
+		t.Fatalf("missing file must mean defaults: %v", err)
+	}
+	if len(cfg.Columns) != 5 || cfg.Columns[0] != "name" || cfg.Columns[4] != "kind" {
+		t.Fatalf("columns = %v", cfg.Columns)
+	}
+	if !cfg.Sort.FoldersFirst || cfg.ShowHidden {
+		t.Fatalf("defaults wrong: %+v", cfg)
+	}
+	if len(cfg.Sidebar.Favorites) == 0 || cfg.Sidebar.Favorites[0].Path != "/home/u" {
+		t.Fatalf("favorites = %+v", cfg.Sidebar.Favorites)
+	}
+	if cfg.Preview.MaxTextBytes != 524288 {
+		t.Fatalf("max text = %d", cfg.Preview.MaxTextBytes)
+	}
+}
+
+func TestResolvePathOrder(t *testing.T) {
+	env := map[string]string{"LAZYFINDER_CONFIG": "/x/c.json", "XDG_CONFIG_HOME": "/xdg"}
+	get := func(k string) string { return env[k] }
+	if got := ResolvePath(get, "/home/u"); got != "/x/c.json" {
+		t.Fatalf("got %q", got)
+	}
+	delete(env, "LAZYFINDER_CONFIG")
+	if got := ResolvePath(get, "/home/u"); got != "/xdg/lazyfinder/config.json" {
+		t.Fatalf("got %q", got)
+	}
+	delete(env, "XDG_CONFIG_HOME")
+	if got := ResolvePath(get, "/home/u"); got != "/home/u/.config/lazyfinder/config.json" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestLoadValid(t *testing.T) {
+	p := write(t, t.TempDir(), `{
+	  "version": 1,
+	  "columns": ["name","size"],
+	  "openers": {"code": {"argv": ["code","{file}"], "mode": "gui"}},
+	  "open_with": {"TXT": "code"},
+	  "sidebar": {"favorites": [{"name":"Home","path":"~"}], "locations": []}
+	}`)
+	cfg, err := Load(p, "/home/u")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Columns) != 2 {
+		t.Fatalf("columns = %v", cfg.Columns)
+	}
+	if cfg.OpenWith["txt"] != "code" {
+		t.Fatalf("extension keys must be lowercased: %v", cfg.OpenWith)
+	}
+	if cfg.Sidebar.Favorites[0].Path != "/home/u" {
+		t.Fatalf("~ not expanded: %+v", cfg.Sidebar.Favorites)
+	}
+}
+
+func TestInvalidConfigs(t *testing.T) {
+	cases := []struct{ name, body, want string }{
+		{"malformed", `{"version": 1,`, "line"},
+		{"unknown key", `{"version":1,"colums":["name"]}`, "colums"},
+		{"bad version", `{"version": 2}`, "version"},
+		{"no version", `{"columns":["name"]}`, "version"},
+		{"bad column", `{"version":1,"columns":["name","weight"]}`, "weight"},
+		{"dangling opener", `{"version":1,"open_with":{"txt":"nope"}}`, "nope"},
+		{"file not whole arg", `{"version":1,"openers":{"x":{"argv":["x","--f={file}"],"mode":"gui"}},"open_with":{}}`, "{file}"},
+		{"no file placeholder", `{"version":1,"openers":{"x":{"argv":["x"],"mode":"gui"}}}`, "{file}"},
+		{"bad mode", `{"version":1,"openers":{"x":{"argv":["x","{file}"],"mode":"weird"}}}`, "mode"},
+		{"empty argv", `{"version":1,"openers":{"x":{"argv":[],"mode":"gui"}}}`, "argv"},
+		{"bad theme", `{"version":1,"theme":"neon"}`, "theme"},
+	}
+	for _, c := range cases {
+		p := write(t, t.TempDir(), c.body)
+		_, err := Load(p, "/home/u")
+		if err == nil || !strings.Contains(err.Error(), c.want) {
+			t.Errorf("%s: err = %v, want mention of %q", c.name, err, c.want)
+		}
+	}
+}
+
+func TestDefaultJSONRoundTrips(t *testing.T) {
+	p := write(t, t.TempDir(), string(DefaultJSON("/home/u")))
+	if _, err := Load(p, "/home/u"); err != nil {
+		t.Fatalf("default config must be valid: %v", err)
+	}
+}
