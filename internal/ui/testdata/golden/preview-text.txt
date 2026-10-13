@@ -1,12 +1,12 @@
  ‹  ›   proj                                                                       5 items   ⌕ Search                
-╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
-│  Recents          ││  >   alpha                                1 Sep 2026           --           Folder            │
-│  Home             ││  >   beta                                 1 Sep 2026           --           Folder            │
-│  Projects   ╭─ main.go ──────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │
-│ ─────────────│ package main                                                                           │ource         │
-│ Locations    │                                                                                        │n Text        │
-│  Disk       │ func main() {                                                                          │              │
+╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
+│  Recents          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
+│  Home             ││  >   alpha                                1 Sep 2026           --           Folder            │
+│  Projects         ││  >   beta                                 1 Sep 2026           --           Folder            │
+╰──────────────╭─ main.go ──────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │
+╭─ Locations ──│ package main                                                                           │ource         │
+│  Disk       │                                                                                        │n Text        │
+│              │ func main() {                                                                          │              │
 │              │     println("hi")                                                                      │              │
 │              │ }                                                                                      │              │
 │              │                                                                                        │              │

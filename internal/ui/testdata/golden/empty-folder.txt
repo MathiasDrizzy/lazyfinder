@@ -1,12 +1,12 @@
  ‹  ›   beta                                                                       0 items   ⌕ Search                
-╭─ Places ───────────╮╭─ beta ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                            │ Date Modified      │ Size       │ Kind  │
-│  Recents          ││                                                                                                │
-│  Home             ││   This folder is empty                                                                         │
-│  Projects         ││                                                                                                │
-│ ────────────────── ││                                                                                                │
-│ Locations          ││                                                                                                │
+╭─ Favorites ────────╮╭─ beta ─────────────────────────────────────────────────────────────────────────────────────────╮
+│  Recents          ││    Name ▲                                            │ Date Modified      │ Size       │ Kind  │
+│  Home             ││                                                                                                │
+│  Projects         ││   This folder is empty                                                                         │
+╰────────────────────╯│                                                                                                │
+╭─ Locations ────────╮│                                                                                                │
 │  Disk             ││                                                                                                │
+│                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

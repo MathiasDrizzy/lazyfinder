@@ -172,7 +172,7 @@ type place struct {
 	missing bool
 	fav     int  // 1 + the index in sidebar.favorites for a favorite, else 0
 	recents bool // the Recents entry: opens the list of recent folders instead of a folder
-	divider bool // a line between two sections
+	divider bool // marks where Locations starts: the two sections are two boxes
 }
 
 func (m *Model) places() []place {
@@ -345,7 +345,7 @@ func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []str
 			lines[y+1] = list[y]
 		}
 	} else {
-		side := m.panel(i18n.T("Sitios", "Places"), "", m.sidebarLines(), m.sidebarW(), m.panelH(), m.focus == focusSidebar)
+		side := m.sidebarBoxes()
 		for y := 0; y < m.panelH(); y++ {
 			lines[y+1] = side[y] + list[y]
 		}
@@ -439,49 +439,6 @@ func (m *Model) searchField() string {
 		style = m.styles.selected
 	}
 	return style(ansi.Strip(fit(text, w)))
-}
-
-func (m *Model) sidebarLines() []string {
-	w := m.sidebarW() - 2
-	rows := m.panelH() - 2
-	out := make([]string, rows)
-	ps := m.places()
-	dests := destinations(ps)
-	for i := range out {
-		out[i] = strings.Repeat(" ", w)
-		if i >= len(ps) {
-			continue
-		}
-		p := ps[i]
-		switch {
-		case p.title != "":
-			out[i] = m.styles.dim(fit(" "+p.title, w))
-		case p.divider:
-			out[i] = " " + m.styles.border(strings.Repeat("─", max(0, w-2))) + " "
-		case p.name == "":
-		default:
-			glyph, lead := m.placeIcon(p)
-			label := fit(lead+" "+p.name, w)
-			if glyph != "" {
-				label = fit(lead+glyph+" "+p.name, w)
-			}
-			focused := m.focus == focusSidebar && len(dests) > 0 && dests[min(m.sideSel, len(dests)-1)] == i
-			switch {
-			case focused:
-				plain := "▸ " + p.name
-				if glyph != "" {
-					plain = "▸ " + ansi.Strip(glyph) + " " + p.name
-				}
-				label = m.styles.selected(ansi.Strip(fit(plain, w)))
-			case p.missing:
-				label = m.styles.dim(ansi.Strip(label))
-			case p.path == m.dir():
-				label = m.styles.bold(label)
-			}
-			out[i] = label
-		}
-	}
-	return out
 }
 
 func (m *Model) listLines() []string {

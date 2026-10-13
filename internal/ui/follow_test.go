@@ -24,7 +24,7 @@ func followEnv(t *testing.T, w, h int) (*env, *fakeWatcher) {
 func TestFollowModeHasNoSidebarAndStartsWithFoldersOpen(t *testing.T) {
 	e, _ := followEnv(t, 40, 20)
 	e.mustNotHave("Favorites")
-	e.mustNotHave("Places")
+	e.mustNotHave("Favorites")
 	e.mustHave("inner.txt")
 	e.mustHave("alpha")
 }

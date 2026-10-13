@@ -87,7 +87,7 @@ func (m *Model) hit(x, y int) zone {
 			}
 		}
 	case y >= headerRow && y < lastRow && x >= 1 && x < m.sidebarW()-1:
-		return m.sidebarHit(y - headerRow)
+		return m.sidebarHit(y - 1)
 	case y == headerRow && x >= m.listX() && x < m.listX()+m.listW():
 		for _, s := range m.columns() {
 			if x-m.listX() >= s.x && x-m.listX() < s.x+s.w {
@@ -105,9 +105,10 @@ func (m *Model) hit(x, y int) zone {
 	return zone{}
 }
 
-func (m *Model) sidebarHit(pi int) zone {
+func (m *Model) sidebarHit(row int) zone {
 	ps := m.places()
-	if pi >= len(ps) || ps[pi].title != "" || ps[pi].name == "" {
+	pi, ok := m.sidebarItemAt(row)
+	if !ok {
 		return zone{}
 	}
 	dests := destinations(ps)

@@ -1,12 +1,12 @@
  ‹  ›   proj                                5 items  ⌕   
-╭─ Places ───────╮╭─ proj ─────────────────────────────────╮
-│ Favorites      ││    Name ▲                              │
-│  Recents      ││▸ >   alpha                            │
-│  Home         ││  >   beta                             │
-│  Projects     ││      data.xlsx                        │
-│ ────────────── ││      main.go                          │
-│ Locations      ││      notes.txt                        │
-│  Disk         ││                                        │
+╭─ Favorites ────╮╭─ proj ─────────────────────────────────╮
+│  Recents      ││    Name ▲                              │
+│  Home         ││▸ >   alpha                            │
+│  Projects     ││  >   beta                             │
+╰────────────────╯│      data.xlsx                        │
+╭─ Locations ────╮│      main.go                          │
+│  Disk         ││      notes.txt                        │
+│                ││                                        │
 │                ││                                        │
 │                ││                                        │
 │                ││                                        │

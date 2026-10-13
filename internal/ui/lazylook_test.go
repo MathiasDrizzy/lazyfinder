@@ -17,22 +17,74 @@ func (e *env) sidebarRow(y int) string {
 	return string(r[1 : e.m.sidebarW()-1])
 }
 
-// Order 2026-10-13-06, point 1: a divider line between Favorites and Locations.
-func TestSidebarHasADividerBetweenFavoritesAndLocations(t *testing.T) {
+// Order 2026-10-13-06, point 1 (as corrected by Mathias): Favorites and Locations are two boxes, each with its own
+// border and title, like Folders, Tasks and Tags in lazymark; no "—" line between them.
+func TestSidebarIsTwoBoxesFavoritesAndLocations(t *testing.T) {
 	e := newEnv(t)
-	_, y := e.find("Locations")
-	if got := strings.TrimSpace(e.sidebarRow(y - 1)); got == "" || strings.Trim(got, "─") != "" {
-		t.Fatalf("the line above Locations must be a divider, got %q\n%s", got, e.text())
+	w := e.m.sidebarW()
+	var tops, bottoms []int
+	for y := 1; y < e.m.panelH()+1; y++ {
+		row := string(e.cells(y)[:w])
+		if strings.HasPrefix(row, "╭") {
+			tops = append(tops, y)
+		}
+		if strings.HasPrefix(row, "╰") {
+			bottoms = append(bottoms, y)
+		}
+		if strings.Trim(strings.TrimSpace(e.sidebarRow(y)), "─") == "" && strings.Contains(e.sidebarRow(y), "──") && !strings.HasPrefix(row, "╭") && !strings.HasPrefix(row, "╰") {
+			t.Fatalf("row %d is a divider line, not a box:\n%s", y, e.text())
+		}
+	}
+	if len(tops) != 2 || len(bottoms) != 2 {
+		t.Fatalf("want two boxes, got tops %v bottoms %v:\n%s", tops, bottoms, e.text())
+	}
+	if !strings.Contains(string(e.cells(tops[0])[:w]), "Favorites") || !strings.Contains(string(e.cells(tops[1])[:w]), "Locations") {
+		t.Fatalf("each box carries its title:\n%s", e.text())
+	}
+	if e.has("Places") {
+		t.Fatal("the old single Places box is gone")
+	}
+	if bottoms[0] >= tops[1] {
+		t.Fatalf("the Favorites box must end before the Locations box starts: %v %v", bottoms, tops)
 	}
 }
 
-func TestDividerIsNotASelectableOrClickableDestination(t *testing.T) {
+func TestBoxBordersOfTheSidebarAreNotClickable(t *testing.T) {
 	e := newEnv(t)
-	_, y := e.find("Locations")
 	before := e.m.dir()
+	_, y := e.find("Locations")
+	e.click(3, y) // the title edge of the Locations box
 	e.click(3, y-1)
 	if e.m.dir() != before {
-		t.Fatalf("clicking the divider moved to %s", e.m.dir())
+		t.Fatalf("clicking a box edge moved to %s", e.m.dir())
+	}
+}
+
+func TestClickingAnItemInEachBoxOpensIt(t *testing.T) {
+	e := newEnv(t)
+	for _, name := range []string{"Home", "Disk"} {
+		x, y := e.find(name)
+		e.click(x, y)
+		if e.m.sideSel < 0 {
+			t.Fatal("selection lost")
+		}
+		if p, ok := e.m.selectedPlace(); !ok || p.name != name {
+			t.Fatalf("clicking %s selected %+v", name, p)
+		}
+	}
+}
+
+func TestTheSidebarBoxesFitAShortWindowWithoutBreaking(t *testing.T) {
+	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 100, Height: 16})
+	w := e.m.sidebarW()
+	for y := 1; y <= e.m.panelH(); y++ {
+		if got := len([]rune(string(e.cells(y)[:w]))); got != w {
+			t.Fatalf("row %d is %d cells wide, want %d", y, got, w)
+		}
+	}
+	if !strings.Contains(e.text(), "Favorites") || !strings.Contains(e.text(), "Locations") {
+		t.Fatalf("both boxes must stay at the minimum size:\n%s", e.text())
 	}
 }
 
