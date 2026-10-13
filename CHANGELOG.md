@@ -17,6 +17,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Releases carry a GitHub build provenance attestation (`actions/attest`) for every archive and SBOM instead of a
+  cosign signature of `checksums.txt`; verify with `gh attestation verify <file> -R MathiasDrizzy/lazyfinder`.
 - The default row density is now wide, closer to Finder: two-line rows, a soft stripe on every second row and a
   selection pill with one cell of margin on each side. `density` accepts `compact` (one plain line), `normal` (one
   line with stripes and pill) and `comfortable` (wide, the default).
