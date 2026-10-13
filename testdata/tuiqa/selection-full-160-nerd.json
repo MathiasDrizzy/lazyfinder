@@ -1,0 +1,100 @@
+{
+  "name": "lazyfinder-selection-full-160-icons-nerd",
+  "criterio": "order 2026-10-13-07 point L: the selected row is painted from the first to the last interior cell of the list, like the stripes",
+  "cmd": [
+    "sh",
+    "-c",
+    "printf '{\"version\":1,\"icons\":\"nerd\"}' > \"${TUIQA_HOME}/cfg.json\"; exec \"${LAZYFINDER_BIN}\" \"${TUIQA_HOME}/proj\""
+  ],
+  "env": {
+    "LAZYFINDER_CONFIG": "${TUIQA_HOME}/cfg.json"
+  },
+  "cols": 160,
+  "rows": 30,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the selection starts at the first interior cell",
+      "assert_color": {
+        "region": {
+          "x": 23,
+          "y": 3,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "and ends at the last interior cell",
+      "assert_color": {
+        "region": {
+          "x": 158,
+          "y": 3,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "all along the row, with no hole between the columns",
+      "assert_color": {
+        "region": {
+          "x": 23,
+          "y": 3,
+          "w": 136,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "and on its second line",
+      "assert_color": {
+        "region": {
+          "x": 23,
+          "y": 4,
+          "w": 136,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "the stripe of the next row reaches the same edges",
+      "assert_color": {
+        "region": {
+          "x": 23,
+          "y": 5,
+          "w": 136,
+          "h": 1
+        },
+        "bg": "#282839",
+        "mode": "all"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

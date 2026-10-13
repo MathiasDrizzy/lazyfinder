@@ -90,9 +90,9 @@ const (
 // prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
 func (m *Model) prefix() int {
 	if m.git.ok && !m.projectMode() { // in the project mode the git letter sits at the right edge
-		return m.padL() + prefixW + gitGutterW
+		return prefixW + gitGutterW
 	}
-	return m.padL() + prefixW
+	return prefixW
 }
 
 // rightGutter is the cells at the right edge of a row that hold the git letter in the project mode.
@@ -103,13 +103,10 @@ func (m *Model) rightGutter() int {
 	return 0
 }
 
-// padL is the margin left of the rows of the detail list: the pill selection and the stripes keep one cell of air on
-// each side (the compact density and the column view have none).
-func (m *Model) padL() int {
-	if m.columnsOn() || m.projectMode() || m.deps.Cfg.Density == config.DensityCompact {
-		return 0
-	}
-	return 1
+// striped says whether every second row of the detail list gets a soft stripe (the compact density, the column view
+// and the project mode have none). Stripes and the selection both run from the first to the last interior cell.
+func (m *Model) striped() bool {
+	return !m.columnsOn() && !m.projectMode() && m.deps.Cfg.Density != config.DensityCompact
 }
 
 func (m *Model) panelH() int { return m.h - 3 }
@@ -126,7 +123,7 @@ func (m *Model) columns() []colSpec {
 		}
 	}
 	nameW := func() int {
-		w := m.listW() - m.prefix() - m.padL() - m.rightGutter() // the margin on the right is as wide as the one on the left
+		w := m.listW() - m.prefix() - m.rightGutter()
 		for _, c := range extra {
 			w -= m.colWidth(c) + m.gap()
 		}
@@ -523,16 +520,16 @@ func (m *Model) listRowLine(idx, sub int, specs []colSpec) string {
 	w := m.listW()
 	if sub == 0 {
 		line := m.row(idx, specs)
-		if idx%2 == 1 && idx != m.sel && m.padL() > 0 {
+		if idx%2 == 1 && idx != m.sel && m.striped() {
 			return m.styles.stripe(line)
 		}
 		return line
 	}
 	blank := strings.Repeat(" ", w)
 	switch {
-	case idx == m.sel && m.padL() > 0:
-		return " " + m.selectedStyle()(strings.Repeat(" ", w-2)) + " "
-	case idx%2 == 1 && m.padL() > 0:
+	case idx == m.sel && m.striped():
+		return m.selectedStyle()(strings.Repeat(" ", w))
+	case idx%2 == 1 && m.striped():
 		return m.styles.stripe(blank)
 	}
 	return blank
@@ -589,7 +586,7 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		}
 	}
 	var b strings.Builder
-	b.WriteString(strings.Repeat(" ", m.padL()) + pointer + mark + marker + " ")
+	b.WriteString(pointer + mark + marker + " ")
 	if m.git.ok && !m.projectMode() {
 		code := string(m.gitCode(e))
 		if code == "" {
@@ -629,8 +626,6 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		line += " " + m.styles.gitLetter(code)
 	}
 	switch {
-	case selected && m.padL() > 0: // a pill: one cell of margin on each side
-		return " " + m.selectedStyle()(ansi.Strip(ansi.Cut(line, 1, width-1))) + " "
 	case selected:
 		return m.selectedStyle()(ansi.Strip(line))
 	}
@@ -674,6 +669,7 @@ var footerItems = []struct {
 	{keymap.Hidden, func() string { return i18n.T("Ocultos", "Hidden") }},
 	{keymap.Focus, func() string { return i18n.T("Barra lateral", "Sidebar") }},
 	{keymap.Settings, func() string { return i18n.T("Ajustes", "Settings") }},
+	{keymap.Help, func() string { return i18n.T("Ayuda", "Help") }},
 	{keymap.Project, func() string { return i18n.T("Modo lateral", "Side mode") }},
 	{keymap.Quit, func() string { return i18n.T("Salir", "Quit") }},
 }

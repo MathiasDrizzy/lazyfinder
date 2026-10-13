@@ -52,8 +52,15 @@ func (m *Model) box(title string, content []string, inner int) []string {
 	for _, l := range content {
 		out = append(out, m.styles.popupBorder("│")+" "+fit(l, inner)+" "+m.styles.popupBorder("│"))
 	}
-	return append(out, m.styles.popupBorder("╰"+strings.Repeat("─", inner+2)+"╯"))
+	bottom := "╰" + strings.Repeat("─", inner+2) + "╯"
+	if inner+2 >= len(escHint)+4 { // like lazymark, the way out is written on the frame
+		bottom = "╰" + strings.Repeat("─", inner+2-len(escHint)-1) + escHint + "─╯"
+	}
+	return append(out, m.styles.popupBorder(bottom))
 }
+
+// escHint is written on the bottom border of every popup: the popups close with Esc and only with it.
+const escHint = "[Esc]"
 
 // panel draws a rounded panel of exactly w x h cells. lines are the inner rows (already inner wide or shorter); the
 // title sits in the top border, the footer (a counter) in the bottom one. The active panel gets the accent border.
