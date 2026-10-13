@@ -259,7 +259,7 @@ func validate(cfg *Config, home string) error {
 	}
 	norm := make(map[string]string, len(cfg.OpenWith))
 	for ext, name := range cfg.OpenWith {
-		if _, ok := cfg.Openers[name]; !ok {
+		if _, ok := cfg.Opener(name); !ok {
 			return fmt.Errorf(`"open_with.%s" refers to opener %q, which is not defined in "openers"`, ext, name)
 		}
 		norm[strings.ToLower(strings.TrimPrefix(ext, "."))] = name

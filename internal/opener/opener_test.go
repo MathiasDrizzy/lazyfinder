@@ -59,6 +59,9 @@ func TestDashPrefixedNamesCannotBeOptions(t *testing.T) {
 }
 
 func TestChoicesListsConfiguredOpenersAndDefault(t *testing.T) {
+	old := AppExists
+	t.Cleanup(func() { AppExists = old })
+	AppExists = func(string) bool { return false }
 	names := []string{}
 	for _, c := range New(cfg()).Choices("/d/a.txt") {
 		names = append(names, c.Name)
@@ -106,5 +109,30 @@ func TestQuickLookIsFixedArgvWithOneFileArgument(t *testing.T) {
 	}
 	if QuickLook("-x.png").Argv[2] != "./-x.png" {
 		t.Fatal("dash-prefixed names must not become options")
+	}
+}
+
+func TestChoicesAddsInstalledBuiltInsAfterTheConfiguredOnes(t *testing.T) {
+	old := AppExists
+	t.Cleanup(func() { AppExists = old })
+	AppExists = func(app string) bool { return app == "TextEdit" }
+	var names []string
+	for _, c := range New(cfg()).Choices("/d/a.txt") {
+		names = append(names, c.Name)
+	}
+	want := []string{"code", "vim", "textedit", "default"} // vim is the user's; preview and vscode are not installed
+	if !reflect.DeepEqual(names, want) {
+		t.Fatalf("choices = %v, want %v", names, want)
+	}
+}
+
+func TestABuiltInCanBeMappedToAnExtension(t *testing.T) {
+	c, err := config.Parse([]byte(`{"version": 1, "open_with": {"txt": "textedit"}}`), "/home/u")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := New(c).Resolve("/d/a.txt")
+	if !reflect.DeepEqual(got.Argv, []string{"open", "-a", "TextEdit", "/d/a.txt"}) {
+		t.Fatalf("argv = %v", got.Argv)
 	}
 }

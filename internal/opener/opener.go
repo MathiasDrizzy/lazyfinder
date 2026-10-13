@@ -5,6 +5,7 @@ package opener
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -43,11 +44,16 @@ func (r Resolver) Choices(path string) []Command {
 	for _, n := range r.cfg.OpenerNames() {
 		out = append(out, r.named(n, path))
 	}
+	for _, n := range r.cfg.BuiltinNames() {
+		if c := r.named(n, path); appInstalled(c.Argv) {
+			out = append(out, c)
+		}
+	}
 	return append(out, systemDefault(path))
 }
 
 func (r Resolver) named(name, path string) Command {
-	op := r.cfg.Openers[name]
+	op, _ := r.cfg.Opener(name)
 	argv := make([]string, len(op.Argv))
 	for i, a := range op.Argv {
 		if a == config.FilePlaceholder {
@@ -104,4 +110,24 @@ func (Resolver) Open(run Runner, c Command) error {
 // started only when the user presses Q (docs/adr/0006-preview-and-images.md).
 func QuickLook(path string) Command {
 	return Command{Name: "quicklook", Mode: config.ModeGUI, Argv: []string{"qlmanage", "-p", safeArg(path)}}
+}
+
+// AppExists says whether a macOS application bundle is installed. It is a variable so tests do not depend on the
+// applications of the machine they run on.
+var AppExists = func(name string) bool {
+	home, _ := os.UserHomeDir()
+	for _, dir := range []string{"/Applications", "/System/Applications", "/System/Applications/Utilities", filepath.Join(home, "Applications")} {
+		if _, err := os.Stat(filepath.Join(dir, name+".app")); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// appInstalled is false for an "open -a <App>" command whose application is missing; other commands pass.
+func appInstalled(argv []string) bool {
+	if len(argv) >= 3 && argv[0] == "open" && argv[1] == "-a" {
+		return AppExists(argv[2])
+	}
+	return true
 }
