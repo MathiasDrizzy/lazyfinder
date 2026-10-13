@@ -1,0 +1,122 @@
+{
+  "name": "lazyfinder-sidebar-mode-40",
+  "criterio": "order 2026-10-13-07 point G: --sidebar is a first-class mode: tabs Files/Search/Git, the project name in capitals, git letters at the right and the branch at the bottom, at 40 columns",
+  "cmd": [
+    "sh",
+    "-c",
+    "cd \"${TUIQA_HOME}/proj\" && export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null && g() { git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false \"$@\"; } && g init -q -b trunk . && g add . && g commit -q -m init && echo changed >> notes.txt && echo x > loose.txt && exec \"${LAZYFINDER_BIN}\" --sidebar"
+  ],
+  "cols": 40,
+  "rows": 24,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "loose\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the three tabs are on the first row",
+      "assert": {
+        "contains": "Git"
+      }
+    },
+    {
+      "desc": "the project name is in capitals",
+      "assert": {
+        "contains": "PROJ"
+      }
+    },
+    {
+      "desc": "the branch is at the bottom",
+      "assert": {
+        "contains": "trunk  ↓0 ↑0"
+      }
+    },
+    {
+      "desc": "a modified file has its letter at the right",
+      "assert": {
+        "contains": "notes\\.txt\\s+M\\b"
+      }
+    },
+    {
+      "desc": "the letter is yellow",
+      "assert_color": {
+        "region": {
+          "line_with": "notes\\.txt",
+          "x": 34,
+          "w": 4
+        },
+        "fg": "#f9e2af",
+        "mode": "any"
+      }
+    },
+    {
+      "desc": "the Git tab keeps only the changed files",
+      "click": {
+        "at": "Git",
+        "in": {
+          "x": 0,
+          "y": 0,
+          "w": 40,
+          "h": 1
+        }
+      }
+    },
+    {
+      "desc": "the unchanged files are gone",
+      "wait": {
+        "regex": "data\\.xlsx",
+        "absent": true,
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "assert": {
+        "contains": "loose\\.txt"
+      }
+    },
+    {
+      "desc": "the Files tab brings everything back",
+      "click": {
+        "at": "Files",
+        "in": {
+          "x": 0,
+          "y": 0,
+          "w": 40,
+          "h": 1
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "data\\.xlsx",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "desc": "the shortcut to leave the mode is in the bottom bar",
+      "assert": {
+        "contains": "ctrl\\+b"
+      }
+    },
+    {
+      "snapshot": {
+        "name": "sidebar-mode-40"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

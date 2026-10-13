@@ -26,7 +26,7 @@ _lazyfinder() {
     --log) COMPREPLY=($(compgen -f -- "$cur")); return ;;
   esac
   if [[ "$cur" == -* ]]; then
-    COMPREPLY=($(compgen -W "--version --print-default-config --log --log-paths --lang --theme --follow --no-mouse --completions" -- "$cur"))
+    COMPREPLY=($(compgen -W "--version --print-default-config --log --log-paths --lang --theme --follow --sidebar --no-mouse --completions" -- "$cur"))
   else
     COMPREPLY=($(compgen -d -- "$cur"))
   fi
@@ -44,6 +44,7 @@ _arguments \
   '--lang=[interface language for this run]:language:(%s)' \
   '--theme=[theme for this run]:theme:(%s terminal)' \
   '--follow=[follow a project in a narrow tree]:directory:_files -/' \
+  '--sidebar[start in the narrow project sidebar]' \
   '--no-mouse[ignore the mouse for this run]' \
   '--completions=[print a completion script]:shell:(bash zsh fish)' \
   '1:directory:_files -/'
@@ -57,6 +58,7 @@ complete -c lazyfinder -l log-paths -d 'Include file names in the log'
 complete -c lazyfinder -l lang -x -a '%s' -d 'Interface language for this run'
 complete -c lazyfinder -l theme -x -a '%s terminal' -d 'Theme for this run'
 complete -c lazyfinder -l follow -r -a '(__fish_complete_directories)' -d 'Follow a project in a narrow tree'
+complete -c lazyfinder -l sidebar -d 'Start in the narrow project sidebar'
 complete -c lazyfinder -l no-mouse -d 'Ignore the mouse for this run'
 complete -c lazyfinder -l completions -x -a 'bash zsh fish' -d 'Print a completion script'
 `, langs, themes), true

@@ -116,13 +116,20 @@ taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](doc
 
 ![Marked rows and the Trash confirmation](docs/screenshots/marks.png)
 
-## Project sidebar
+## Sidebar mode
 
-![The narrow project tree](docs/screenshots/follow.png)
+![Sidebar mode at 36 columns](docs/screenshots/sidebar-mode.png)
+
+A narrow panel meant to sit next to another terminal, like the VS Code explorer and the herdr sidebar. Start it with
+`lazyfinder --sidebar [dir]` (`--follow <dir>` is the same), with `Ctrl+B` in any window, or from Settings (Side mode).
+It works from 24 columns:
+
+- clickable tabs **Files**, **Search** and **Git** (the Git tab lists only the changed files, in their folders);
+- the project name in capitals, the tree with the git letter and color at the right edge (`M` modified, `U` new, `A`
+  added, `D` deleted, `R` renamed, `!` conflict) and, at the bottom, the branch with how far it is from its upstream;
+- it updates by itself: files created, changed or removed by another program appear at once, marked with `+`.
 
 ![Project mode with git letters](docs/screenshots/project-mode.png)
-
-Press `Ctrl+B` in any window to switch to this tree and back. `lazyfinder --follow <dir>` starts in it and shows one project as a narrow tree that updates by itself, like the VS Code explorer: new files and folders appear marked with `+`, with their git state.
 
 ## Search
 

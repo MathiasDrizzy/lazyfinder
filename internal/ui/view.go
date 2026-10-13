@@ -89,16 +89,24 @@ const (
 
 // prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
 func (m *Model) prefix() int {
-	if m.git.ok {
+	if m.git.ok && !m.projectMode() { // in the project mode the git letter sits at the right edge
 		return m.padL() + prefixW + gitGutterW
 	}
 	return m.padL() + prefixW
 }
 
+// rightGutter is the cells at the right edge of a row that hold the git letter in the project mode.
+func (m *Model) rightGutter() int {
+	if m.projectMode() && m.git.ok {
+		return 2
+	}
+	return 0
+}
+
 // padL is the margin left of the rows of the detail list: the pill selection and the stripes keep one cell of air on
 // each side (the compact density and the column view have none).
 func (m *Model) padL() int {
-	if m.columnsOn() || m.deps.Cfg.Density == config.DensityCompact {
+	if m.columnsOn() || m.projectMode() || m.deps.Cfg.Density == config.DensityCompact {
 		return 0
 	}
 	return 1
@@ -118,7 +126,7 @@ func (m *Model) columns() []colSpec {
 		}
 	}
 	nameW := func() int {
-		w := m.listW() - m.prefix() - m.padL() // the margin on the right is as wide as the one on the left
+		w := m.listW() - m.prefix() - m.padL() - m.rightGutter() // the margin on the right is as wide as the one on the left
 		for _, c := range extra {
 			w -= m.colWidth(c) + m.gap()
 		}
@@ -360,6 +368,9 @@ func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []str
 		}
 	}
 	lines[m.h-2] = m.breadcrumb()
+	if m.projectMode() {
+		lines[m.h-2] = m.projectFooter()
+	}
 	if m.searchOn() {
 		lines[m.h-2], _ = m.filterBar()
 	}
@@ -398,6 +409,9 @@ const (
 )
 
 func (m *Model) toolbar() string {
+	if m.projectMode() {
+		return m.projectToolbar()
+	}
 	back, fwd := " ‹ ", " › "
 	if !m.hist.CanBack() {
 		back = m.styles.dim(back)
@@ -477,6 +491,9 @@ func (m *Model) listLines() []string {
 		parts = append(parts, m.styles.title(fit(label, s.w)))
 	}
 	out[0] = m.styles.title(hdr) + strings.Join(parts, "")
+	if m.projectMode() {
+		out[0] = m.projectHeader()
+	}
 	out[0] += strings.Repeat(" ", max(0, m.listW()-ansi.StringWidth(out[0])))
 	for r := 1; r < rows; r++ {
 		idx := m.top + (r-1)/m.rowH()
@@ -565,7 +582,7 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 	}
 	var b strings.Builder
 	b.WriteString(strings.Repeat(" ", m.padL()) + pointer + mark + marker + " ")
-	if m.git.ok {
+	if m.git.ok && !m.projectMode() {
 		code := string(m.gitCode(e))
 		if code == "" {
 			code = " "
@@ -595,7 +612,14 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		}
 		b.WriteString(lead + text)
 	}
-	line := fit(b.String(), width)
+	line := fit(b.String(), width-m.rightGutter())
+	if m.rightGutter() > 0 {
+		code := string(m.gitCode(e))
+		if code == "" {
+			code = " "
+		}
+		line += " " + m.styles.gitLetter(code)
+	}
 	switch {
 	case selected && m.padL() > 0: // a pill: one cell of margin on each side
 		return " " + m.selectedStyle()(ansi.Strip(ansi.Cut(line, 1, width-1))) + " "
@@ -639,6 +663,7 @@ var footerItems = []struct {
 	{keymap.Hidden, func() string { return i18n.T("Ocultos", "Hidden") }},
 	{keymap.Focus, func() string { return i18n.T("Barra lateral", "Sidebar") }},
 	{keymap.Settings, func() string { return i18n.T("Ajustes", "Settings") }},
+	{keymap.Project, func() string { return i18n.T("Modo lateral", "Side mode") }},
 	{keymap.Quit, func() string { return i18n.T("Salir", "Quit") }},
 }
 
@@ -709,12 +734,16 @@ type hintSpan struct {
 
 // footerHints writes the key hints that fit the window, dropping the last ones first, and says where each sits.
 func (m *Model) footerHints() (string, []hintSpan) {
+	items := footerItems
+	if m.projectMode() {
+		items = projectFooterItems
+	}
 	build := func(skip int) (string, int, []hintSpan) {
 		var parts []string
 		var spans []hintSpan
 		x := 1
-		for i, it := range footerItems {
-			if i >= len(footerItems)-skip-1 && it.action != keymap.Quit && i < len(footerItems)-1 {
+		for i, it := range items {
+			if i >= len(items)-skip-1 && it.action != keymap.Quit && i < len(items)-1 {
 				continue
 			}
 			ks := m.keys.Keys(it.action)
@@ -732,12 +761,12 @@ func (m *Model) footerHints() (string, []hintSpan) {
 		line := " " + strings.Join(parts, m.styles.dim(" | "))
 		return line, ansi.StringWidth(line), spans
 	}
-	for skip := 0; skip < len(footerItems); skip++ {
+	for skip := 0; skip < len(items); skip++ {
 		if line, w, spans := build(skip); w <= m.w {
 			return line, spans
 		}
 	}
-	line, _, spans := build(len(footerItems))
+	line, _, spans := build(len(items))
 	return line, spans
 }
 

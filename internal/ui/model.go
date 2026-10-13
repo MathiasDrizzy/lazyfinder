@@ -99,6 +99,7 @@ type Model struct {
 	nextImgID     int
 
 	watchSet     map[string]bool // the folders the watcher follows
+	projTab      projectTab      // the tab of the project sidebar mode that is showing
 	savedColumns []string        // the window columns, kept while the project mode shows names only
 	expanded     map[string]bool // folders opened in place with +; kept while you move around
 	treeDirs     []string        // the expanded folders that are on screen now
@@ -353,7 +354,7 @@ func (m *Model) setSelection(i int) tea.Cmd {
 
 // rowH is how many lines a row of the detail list takes: two in the comfortable (wide) density, like Finder's roomy rows.
 func (m *Model) rowH() int {
-	if m.deps.Cfg.Density == config.DensityComfortable && !m.columnsOn() {
+	if m.deps.Cfg.Density == config.DensityComfortable && !m.columnsOn() && !m.projectMode() {
 		return 2
 	}
 	return 1

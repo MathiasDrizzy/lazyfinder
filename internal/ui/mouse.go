@@ -26,6 +26,7 @@ const (
 	zoneColBorder     // the gap right of a column header
 	zonePreviewBorder // the border in front of the preview in the column view
 	zoneBoxBorder     // the border between Favorites and Locations: drag to resize
+	zoneProjectTab    // a tab of the project mode
 )
 
 // zone is what lies under a screen cell.
@@ -51,7 +52,7 @@ func (m *Model) hit(x, y int) zone {
 	if y >= 1 && y <= lastRow && m.sidebarW() > 0 && (x == m.sidebarW()-1 || x == m.sidebarW()) {
 		return zone{kind: zoneSideBorder}
 	}
-	if !m.columnsOn() && y == headerRow {
+	if !m.columnsOn() && !m.projectMode() && y == headerRow {
 		for _, s := range m.columns() {
 			if rel := x - m.listX(); rel >= s.x+s.w && rel < s.x+s.w+m.gap() {
 				return zone{kind: zoneColBorder, col: s.col}
@@ -59,6 +60,13 @@ func (m *Model) hit(x, y int) zone {
 		}
 	}
 	switch {
+	case y == 0 && m.projectMode():
+		if t, ok := m.projectTabAt(x); ok {
+			return zone{kind: zoneProjectTab, idx: int(t)}
+		}
+		if x >= m.w-m.gearW() {
+			return zone{kind: zoneSettings}
+		}
 	case y == 0:
 		switch {
 		case x < 3:
@@ -86,7 +94,7 @@ func (m *Model) hit(x, y int) zone {
 				return zone{kind: zoneChip, idx: i}
 			}
 		}
-	case y == m.h-2:
+	case y == m.h-2 && !m.projectMode():
 		for _, c := range m.crumbs() {
 			if x >= c.x && x < c.x+c.w {
 				return zone{kind: zoneCrumb, path: c.path}
@@ -94,7 +102,7 @@ func (m *Model) hit(x, y int) zone {
 		}
 	case y >= headerRow && y < lastRow && x >= 1 && x < m.sidebarW()-1:
 		return m.sidebarHit(y - 1)
-	case y == headerRow && x >= m.listX() && x < m.listX()+m.listW():
+	case y == headerRow && !m.projectMode() && x >= m.listX() && x < m.listX()+m.listW():
 		for _, s := range m.columns() {
 			if x-m.listX() >= s.x && x-m.listX() < s.x+s.w {
 				return zone{kind: zoneHeader, col: s.col}
@@ -192,6 +200,9 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 		return nil
 	case zoneHint:
 		return m.listKey(keymap.Action(z.path))
+	case zoneProjectTab:
+		m.clickProjectTab(projectTab(z.idx))
+		return nil
 	case zoneBack:
 		return m.step(m.hist.Back())
 	case zoneForward:

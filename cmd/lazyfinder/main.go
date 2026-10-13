@@ -58,10 +58,11 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	langFlag := fs.String("lang", "", "interface language for this run: auto, en, es, pt, fr, de, it, ja or zh")
 	themeFlag := fs.String("theme", "", "theme for this run: a built-in or user theme name, or terminal")
 	followDir := fs.String("follow", "", "follow a project in a narrow tree with live updates and git state: `directory`")
+	sidebarFlag := fs.Bool("sidebar", false, "start in the narrow project sidebar of the directory (default: the current one); --follow is the same with its directory as the value")
 	shellFlag := fs.String("completions", "", "print the completion script of `shell` (bash, zsh or fish) and exit")
 	noMouse := fs.Bool("no-mouse", false, "ignore the mouse for this run")
 	fs.Usage = func() {
-		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n       lazyfinder --follow directory\n\nFlags:\n")
+		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n       lazyfinder --sidebar [directory]\n\nFlags:\n")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
@@ -106,7 +107,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 		fmt.Fprintln(stderr, "lazyfinder:", err)
 		return exitRuntime
 	}
-	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != "", Follow: *followDir != ""}
+	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != "", Follow: *followDir != "" || *sidebarFlag}
 	opts.ConfigPath = config.ResolvePath(getenv, home)
 	cfg, err := config.Load(opts.ConfigPath, home)
 	if err != nil {

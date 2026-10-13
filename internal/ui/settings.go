@@ -36,6 +36,7 @@ const (
 	setSearchKinds
 	setSearchBy
 	setConfirmDelete
+	setSidebarMode
 	settingCount
 )
 
@@ -57,6 +58,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Fondo de popups", "Popup background")
 	case setConfirmDelete:
 		return i18n.T("Confirmar al borrar", "Confirm deletion")
+	case setSidebarMode:
+		return i18n.T("Modo lateral (proyecto)", "Side mode (project)")
 	case setIcons:
 		return i18n.T("Iconos", "Icons")
 	case setColumns:
@@ -111,6 +114,8 @@ func (m *Model) settingValue(i int) string {
 		return i18n.T("tema", "theme")
 	case setConfirmDelete:
 		return onOff(c.ConfirmDelete)
+	case setSidebarMode:
+		return onOff(m.projectMode())
 	case setIcons:
 		return c.Icons
 	case setColumns:
@@ -183,6 +188,9 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setConfirmDelete:
 		m.deps.Cfg.ConfirmDelete = !m.deps.Cfg.ConfirmDelete
 		key, val = "confirm_delete", m.deps.Cfg.ConfirmDelete
+	case setSidebarMode:
+		m.toggleProject()
+		return nil // a mode of this run, not a saved setting
 	case setIcons:
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "emoji", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons

@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Sidebar mode is a mode of its own: `--sidebar [dir]`, a Settings row and `Ctrl+B`, clickable Files, Search and Git tabs
+  (the Git tab lists the changed files), the project name in capitals, the git letter at the right edge and the branch
+  with ↓behind ↑ahead at the bottom, one line per row whatever the density.
 - Icons follow the herdr sidebar table: a colored glyph per file kind (by whole name and extension), the same in the
   list and the tree, an `emoji` icon style for fonts without Nerd Font glyphs, and `icon_map` accepts whole file names.
   The table is MIT licensed (see `NOTICE`).

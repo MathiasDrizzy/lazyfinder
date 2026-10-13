@@ -1,0 +1,173 @@
+package ui
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/charmbracelet/x/ansi"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/MathiasDrizzy/lazyfinder/internal/git"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
+)
+
+// The project sidebar mode (--sidebar, ctrl+b) is a narrow panel meant to sit next to another terminal, like the
+// herdr sidebar: three tabs on top (Files, Search, Git), the project name in capitals, the tree with the git letter at
+// the right edge and the branch with its distance from the upstream at the bottom.
+
+// projectTab is the tab of the project sidebar that is showing.
+type projectTab int
+
+const (
+	tabFiles projectTab = iota
+	tabSearch
+	tabGit
+)
+
+type tabSpan struct{ x, w int }
+
+func (m *Model) projectMode() bool { return m.deps.Follow }
+
+// projectTabsLine draws the tabs and says where each is, so the click lands on the one drawn there. Labels go away
+// (all but the active tab's) when the window is too narrow for them.
+func (m *Model) projectTabsLine() (string, []tabSpan) {
+	type tab struct{ glyph, label string }
+	nerd := m.icons.Style == icons.Nerd
+	tabs := []tab{{"▤", i18n.T("Archivos", "Files")}, {lens, i18n.T("Buscar", "Search")}, {"⎇", "Git"}}
+	if nerd {
+		tabs[0].glyph, tabs[1].glyph, tabs[2].glyph = "", "", ""
+	}
+	active := tabFiles
+	switch {
+	case m.searchOn():
+		active = tabSearch
+	case m.projTab == tabGit:
+		active = tabGit
+	}
+	build := func(labels bool) (string, []tabSpan) {
+		var b strings.Builder
+		var spans []tabSpan
+		x := 0
+		for i, t := range tabs {
+			text := " " + t.glyph + " "
+			if labels || projectTab(i) == active {
+				text += t.label + " "
+			}
+			style := m.styles.dim
+			if projectTab(i) == active {
+				style = m.styles.selected
+			}
+			spans = append(spans, tabSpan{x: x, w: ansi.StringWidth(text)})
+			b.WriteString(style(text))
+			x += ansi.StringWidth(text)
+		}
+		return b.String(), spans
+	}
+	line, spans := build(true)
+	if ansi.StringWidth(line)+m.gearW() > m.w {
+		line, spans = build(false)
+	}
+	return line, spans
+}
+
+// projectToolbar is row 0 of the project mode: the tabs and, at the right edge, the Settings gear.
+func (m *Model) projectToolbar() string {
+	line, _ := m.projectTabsLine()
+	pad := m.w - ansi.StringWidth(line) - m.gearW()
+	if pad < 0 {
+		return fit(line, m.w-m.gearW()) + m.gearButton() + " "
+	}
+	return line + strings.Repeat(" ", pad) + m.gearButton() + " "
+}
+
+func (m *Model) projectTabAt(x int) (projectTab, bool) {
+	_, spans := m.projectTabsLine()
+	for i, s := range spans {
+		if x >= s.x && x < s.x+s.w {
+			return projectTab(i), true
+		}
+	}
+	return 0, false
+}
+
+// projectName is the folder being followed in capitals, the heading of the tree.
+func (m *Model) projectName() string {
+	return strings.ToUpper(m.folderTitle())
+}
+
+// projectHeader is the line above the tree.
+func (m *Model) projectHeader() string {
+	return m.styles.accent(fit(" "+m.projectName(), m.listW()))
+}
+
+// projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream.
+func (m *Model) projectFooter() string {
+	if !m.git.ok || m.git.st.Branch == "" {
+		return m.styles.dim(fit(" "+i18n.T("sin git", "no git"), m.w))
+	}
+	branch := "⎇"
+	if m.icons.Style == icons.Nerd {
+		branch = "\ue725"
+	}
+	l := " " + branch + " " + m.git.st.Branch + fmt.Sprintf("  ↓%d ↑%d", m.git.st.Behind, m.git.st.Ahead)
+	return m.styles.accent(fit(l, m.w))
+}
+
+// clickProjectTab switches to a tab of the project mode.
+func (m *Model) clickProjectTab(t projectTab) {
+	switch t {
+	case tabSearch:
+		m.openSearch()
+	case tabGit:
+		_ = m.endSearch()
+		m.projTab = tabGit
+		m.expandChanged()
+	default:
+		_ = m.endSearch()
+		m.projTab = tabFiles
+		_ = m.reload()
+	}
+}
+
+// expandChanged opens every folder that holds a change, so the Git tab shows all the changed files.
+func (m *Model) expandChanged() {
+	for range 12 { // deep enough for any project; each pass opens one more level
+		before := len(m.expanded)
+		for _, e := range m.entries() {
+			if e.IsDir && !e.IsLink && m.gitCode(e) != git.None && m.gitCode(e) != git.Ignored {
+				m.expanded[e.Path] = true
+			}
+		}
+		_ = m.reload()
+		if len(m.expanded) == before {
+			return
+		}
+	}
+}
+
+// onlyChanged keeps the entries with a git change when the Git tab is showing.
+func (m *Model) onlyChanged(es []fsmodel.Entry) []fsmodel.Entry {
+	if !m.projectMode() || m.projTab != tabGit || !m.git.ok {
+		return es
+	}
+	kept := make([]fsmodel.Entry, 0, len(es))
+	for _, e := range es {
+		if c := m.gitCode(e); c != git.None && c != git.Ignored {
+			kept = append(kept, e)
+		}
+	}
+	return kept
+}
+
+// projectFooterItems are the key hints of the narrow mode: only what a 30 column window can hold.
+var projectFooterItems = []struct {
+	action keymap.Action
+	label  func() string
+}{
+	{keymap.Project, func() string { return i18n.T("Salir del modo", "Exit mode") }},
+	{keymap.Search, func() string { return i18n.T("Buscar", "Search") }},
+	{keymap.Help, func() string { return i18n.T("Ayuda", "Help") }},
+	{keymap.Quit, func() string { return i18n.T("Salir", "Quit") }},
+}

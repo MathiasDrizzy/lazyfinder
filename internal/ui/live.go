@@ -127,6 +127,7 @@ func (m *Model) scanGit(dir string) {
 
 // visible drops the entries git ignores when the user asked to hide them.
 func (m *Model) visible(es []fsmodel.Entry) []fsmodel.Entry {
+	es = m.onlyChanged(es)
 	if !m.git.ok || !m.hideIgnored {
 		return es
 	}
@@ -241,12 +242,14 @@ func (m *Model) gitDir() string {
 func (m *Model) toggleProject() {
 	if m.deps.Follow {
 		m.deps.Follow = false
+		m.projTab = tabFiles
 		m.deps.Cfg.Columns = m.savedColumns
 		clear(m.expanded)
 		_ = m.load(m.dir(), "")
 		return
 	}
 	m.deps.Follow = true
+	m.projTab = tabFiles
 	m.savedColumns = m.deps.Cfg.Columns
 	m.deps.Cfg.Columns = []string{"name"}
 	m.openFirstLevel()
