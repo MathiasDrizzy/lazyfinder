@@ -164,6 +164,21 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
 - **R-34 Search (M3, PROPOSAL)**: the screenshot's Search field; name filter first, content search later.
 - **R-35 File operations (M4, PROPOSAL)**: copy, move, rename, trash (never `rm`), new folder, with undo.
 
+## Parity with Finder and Explorer search (ADR 0009)
+
+Mathias, 2026-10-13: "debe tener las mismas funcionalidades que finder y el buscador de archivos de windows".
+
+- **R-50 Search bar (M3).** `/` opens a search bar with the grammar of ADR 0009: words for the name; `kind:`,
+  `modified:`, `size:` filters; chips that can be clicked; scope current folder or recursive; results appear while
+  typing and can be cancelled with `esc`. AC: unit tests of the parser and the matcher; a tuiqa scenario types a
+  query and clicks a chip.
+- **R-51 Operations parity (M4).** Copy, cut, paste, duplicate, rename, new folder, move to Trash, select many,
+  Get Info popup. AC: fixture tests for each; Trash never deletes for good.
+- **R-52 Go to folder (M3).** `ctrl+g` prompts for a path (with `~` and completion). AC: scenario.
+- **R-53 Tabs, tags, saved searches, recents (M6).** AC: per feature in the milestone.
+- **R-54 Default openers (M1, extended M3).** A built-in table of defaults per extension that the config replaces
+  (never run anything unconfigured stays true: defaults call `open`). AC: test of the table and an override.
+
 ## Out of scope for M1
 
 Any write operation, live follow, git, tabs, remote filesystems, Windows and Linux support beyond "builds and

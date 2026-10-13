@@ -12,3 +12,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | [0006](0006-preview-and-images.md) | Preview pipeline and image protocol | accepted |
 | [0007](0007-lint-baseline.md) | Lint baseline | accepted |
 | [0008](0008-look-themes-languages-settings.md) | Look, themes, languages and settings | accepted |
+| 0009 | [Parity with Finder and with the Windows Explorer search](0009-finder-and-explorer-parity.md) | accepted |
