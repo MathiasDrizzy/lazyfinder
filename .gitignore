@@ -4,3 +4,5 @@
 .claude/.verificado
 .claude/tui_captura.txt
 .DS_Store
+/dist/
+coverage.out

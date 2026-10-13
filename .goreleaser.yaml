@@ -1,0 +1,29 @@
+# GoReleaser v2. Docs: https://goreleaser.com/customization/
+version: 2
+
+project_name: lazyfinder
+
+builds:
+  - id: lazyfinder
+    main: ./cmd/lazyfinder
+    binary: lazyfinder
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot"
