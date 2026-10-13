@@ -94,7 +94,7 @@ func (m *Model) settingValue(i int) string {
 		return c.Theme
 	case setLanguage:
 		if c.Language == "auto" {
-			return i18n.T("auto", "auto")
+			return "auto · " + i18n.CurrentLanguage().Name() // like lazymark: what "auto" resolved to
 		}
 		l, _ := i18n.Parse(c.Language)
 		return l.Name()

@@ -17,3 +17,11 @@ func TestPopupsShowTheEscHintInTheirBottomBorderLikeLazymark(t *testing.T) {
 		t.Fatalf("the settings popup has no [Esc] hint:\n%s", e.text())
 	}
 }
+
+func TestAutoLanguageShowsWhatItResolvedTo(t *testing.T) {
+	e := newEnv(t)
+	e.key(",")
+	if !strings.Contains(e.text(), "auto · ") {
+		t.Fatalf("the Language row must say what auto resolved to (like lazymark):\n%s", e.text())
+	}
+}

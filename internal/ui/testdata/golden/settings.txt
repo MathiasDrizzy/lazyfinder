@@ -9,7 +9,7 @@
 │                    ││                                                                                                │
 ╰────────────────────╯│     ma╭─ Settings ─────────────────────────────────────────────╮5 bytes     Go Source         │
                       │        │   Theme                           ‹ catppuccin-mocha › │                              │
-                      │     no│   Language                                    ‹ auto › │8 bytes     Plain Text        │
+                      │     no│   Language                          ‹ auto · English › │8 bytes     Plain Text        │
                       │        │   Hidden files                                  ‹ no › │                              │
                       │        │   Folders first                                ‹ yes › │                              │
                       │        │   Screen background                          ‹ theme › │                              │
