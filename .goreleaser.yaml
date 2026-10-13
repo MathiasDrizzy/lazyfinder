@@ -26,5 +26,16 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+sboms:
+  - id: archive
+    artifacts: archive # one SPDX JSON per archive, made by syft
+
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    output: true
+    args: ["sign-blob", "--yes", "--bundle=${signature}", "${artifact}"]
+    signature: "${artifact}.sigstore.json"
+
 snapshot:
   version_template: "{{ incpatch .Version }}-snapshot"
