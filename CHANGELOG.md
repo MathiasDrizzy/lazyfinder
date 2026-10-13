@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A divider line between Favorites and Locations in the sidebar, in the border color of the theme.
+- A `│` between the columns, in the header and in every row, like Finder; `column_separators` and a Settings row
+  switch it off, and dragging it still resizes the column.
+- `icon_size` (`small`, `medium`, `large`) in Settings and `config.json`: more air around the icons and icons in the
+  sidebar from `medium`, every icon on a tile with two-line rows in `large`, and a Nerd Font gear on a raised tile
+  that grows with it, with a click zone as wide as the tile ([ADR 0014](docs/adr/0014-icon-size-setting.md)).
+- Owner and Path columns; **Basic** (Finder's four columns) and **Full** presets in the header menu and in a Settings
+  row, saved in `columns`.
+
+### Fixed
+
+- On a light theme the plain text of the list (file names, dates) took the terminal's own light foreground and was
+  almost invisible; it now takes the theme's text color.
+
 ## [0.10.0] - 2026-10-13
 
 Includes what 0.9.0 added (search field, texts, mouse resizing), which had no entry.
