@@ -116,9 +116,9 @@ func (m *Model) settingValue(i int) string {
 	case setIcons:
 		return c.Icons
 	case setDateFormat:
-		return c.DateFormat
+		return dateFormatName(c.DateFormat)
 	case setDensity:
-		return c.Density
+		return densityName(c.Density)
 	case setKeys:
 		if c.KeybindingMode == keymap.ModeLazy {
 			return "Lazy"
@@ -287,4 +287,24 @@ func (m *Model) settingsClick(x, y int) tea.Cmd {
 		return m.change(i, 1)
 	}
 	return nil
+}
+
+// dateFormatName and densityName are the words Settings shows for the config values (the file keeps the keys).
+func dateFormatName(f string) string {
+	switch f {
+	case "relative":
+		return i18n.T("relativo", "relative")
+	case "finder":
+		return "Finder"
+	case "numeric":
+		return i18n.T("numérico", "numeric")
+	}
+	return f
+}
+
+func densityName(d string) string {
+	if d == "comfortable" {
+		return i18n.T("cómodas", "comfortable")
+	}
+	return i18n.T("compactas", "compact")
 }

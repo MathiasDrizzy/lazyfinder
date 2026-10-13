@@ -288,3 +288,14 @@ func TestConfirmDeleteOffTrashesWithoutAsking(t *testing.T) {
 		t.Fatal("with confirm_delete off the Trash is immediate")
 	}
 }
+
+func TestSettingsShowDateFormatAndDensityInTheInterfaceLanguage(t *testing.T) {
+	e := newEnv(t)
+	i18n.SetLanguage("es")
+	t.Cleanup(func() { i18n.SetLanguage("en") })
+	e.m.set = settingsState{open: true}
+	e.mustHave("Formato de fechas")
+	e.mustHave("‹ relativo ›")
+	e.mustHave("‹ compactas ›")
+	e.mustNotHave("compact ›")
+}
