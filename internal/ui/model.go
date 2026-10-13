@@ -350,7 +350,9 @@ func (m *Model) openSelected() tea.Cmd {
 // run starts cmd: GUI openers directly, terminal openers by handing the terminal over.
 func (m *Model) run(c opener.Command) tea.Cmd {
 	if c.Mode == config.ModeTerminal {
-		return tea.ExecProcess(exec.Command(c.Argv[0], c.Argv[1:]...), func(err error) tea.Msg { return execDoneMsg{err: err} })
+		cmd := exec.Command(c.Argv[0], c.Argv[1:]...)
+		cmd.Dir = c.Dir
+		return tea.ExecProcess(cmd, func(err error) tea.Msg { return execDoneMsg{err: err} })
 	}
 	if err := m.resolve.Open(m.deps.Runner, c); err != nil {
 		m.setError(err)

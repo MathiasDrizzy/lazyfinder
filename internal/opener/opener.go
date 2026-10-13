@@ -21,6 +21,7 @@ type Command struct {
 	Name string
 	Mode string
 	Argv []string
+	Dir  string // the folder to run in; empty means the current one
 }
 
 // Resolver maps files to commands using the user's configuration.
@@ -77,6 +78,28 @@ func safeArg(path string) string {
 	return path
 }
 
+// Custom builds a user command: {file} and {dir} are replaced as whole arguments and the command runs in dir.
+func Custom(name string, c config.Opener, file, dir string) Command {
+	argv := make([]string, len(c.Argv))
+	for i, a := range c.Argv {
+		switch a {
+		case config.FilePlaceholder:
+			argv[i] = safeArg(file)
+		case config.DirPlaceholder:
+			argv[i] = dir
+		default:
+			argv[i] = a
+		}
+	}
+	return Command{Name: name, Mode: c.Mode, Argv: argv, Dir: dir}
+}
+
+// DirRunner is a Runner that can also start a process in a given folder.
+type DirRunner interface {
+	Runner
+	StartIn(dir string, argv []string) error
+}
+
 // Runner starts a process. Tests inject a recorder.
 type Runner interface {
 	Start(argv []string) error
@@ -86,11 +109,15 @@ type Runner interface {
 type ExecRunner struct{}
 
 // Start launches argv detached from lazyfinder's lifetime.
-func (ExecRunner) Start(argv []string) error {
+func (r ExecRunner) Start(argv []string) error { return r.StartIn("", argv) }
+
+// StartIn is Start with the working folder set (empty keeps the current one).
+func (ExecRunner) StartIn(dir string, argv []string) error {
 	if len(argv) == 0 {
 		return errors.New("empty command")
 	}
 	cmd := exec.Command(argv[0], argv[1:]...)
+	cmd.Dir = dir
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("cannot start %q: %w", argv[0], err)
 	}
@@ -102,6 +129,9 @@ func (ExecRunner) Start(argv []string) error {
 func (Resolver) Open(run Runner, c Command) error {
 	if c.Mode == config.ModeTerminal {
 		return fmt.Errorf("opener %q runs in the terminal: it must be started by the UI", c.Name)
+	}
+	if dr, ok := run.(DirRunner); ok && c.Dir != "" {
+		return dr.StartIn(c.Dir, c.Argv)
 	}
 	return run.Start(c.Argv)
 }

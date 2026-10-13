@@ -155,3 +155,24 @@ func TestPreviewExtrasRejectNonsense(t *testing.T) {
 		}
 	}
 }
+
+func TestCommandsAreParsedAndValidated(t *testing.T) {
+	cfg, err := Load(write(t, t.TempDir(), `{"version":1,"commands":{"gs":{"argv":["git","status","{dir}"],"mode":"terminal"},"wc":{"argv":["wc","-l","{file}"],"mode":"terminal"},"make":{"argv":["make"],"mode":"gui"}}}`), "/home/u")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := cfg.CommandNames(); strings.Join(got, ",") != "gs,make,wc" {
+		t.Fatalf("names = %v", got)
+	}
+	for name, body := range map[string]string{
+		"no argv":          `{"version":1,"commands":{"x":{"argv":[],"mode":"gui"}}}`,
+		"bad mode":         `{"version":1,"commands":{"x":{"argv":["ls"],"mode":"fancy"}}}`,
+		"placeholder part": `{"version":1,"commands":{"x":{"argv":["ls","a{file}"],"mode":"gui"}}}`,
+		"program name":     `{"version":1,"commands":{"x":{"argv":["{file}"],"mode":"gui"}}}`,
+		"twice":            `{"version":1,"commands":{"x":{"argv":["ls","{file}","{file}"],"mode":"gui"}}}`,
+	} {
+		if _, err := Load(write(t, t.TempDir(), body), "/home/u"); err == nil || !strings.Contains(err.Error(), "command") {
+			t.Errorf("%s: err = %v", name, err)
+		}
+	}
+}

@@ -2,6 +2,7 @@ package opener
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
@@ -134,5 +135,35 @@ func TestABuiltInCanBeMappedToAnExtension(t *testing.T) {
 	got := New(c).Resolve("/d/a.txt")
 	if !reflect.DeepEqual(got.Argv, []string{"open", "-a", "TextEdit", "/d/a.txt"}) {
 		t.Fatalf("argv = %v", got.Argv)
+	}
+}
+
+type dirRunner struct {
+	dir  string
+	argv []string
+}
+
+func (d *dirRunner) Start(argv []string) error { d.argv = argv; return nil }
+func (d *dirRunner) StartIn(dir string, argv []string) error {
+	d.dir, d.argv = dir, argv
+	return nil
+}
+
+func TestCustomSubstitutesFileAndDirAsWholeArguments(t *testing.T) {
+	c := Custom("count", config.Opener{Argv: []string{"wc", "-l", config.FilePlaceholder, config.DirPlaceholder}, Mode: config.ModeGUI}, "-odd name.txt", "/work/dir")
+	want := []string{"wc", "-l", "./-odd name.txt", "/work/dir"}
+	if strings.Join(c.Argv, "|") != strings.Join(want, "|") || c.Dir != "/work/dir" || c.Name != "count" {
+		t.Fatalf("command = %+v", c)
+	}
+}
+
+func TestOpenRunsACommandInItsFolderWhenTheRunnerCan(t *testing.T) {
+	r := &dirRunner{}
+	c := Command{Name: "make", Mode: config.ModeGUI, Argv: []string{"make"}, Dir: "/work"}
+	if err := (Resolver{}).Open(r, c); err != nil {
+		t.Fatal(err)
+	}
+	if r.dir != "/work" || r.argv[0] != "make" {
+		t.Fatalf("dir = %q argv = %v", r.dir, r.argv)
 	}
 }

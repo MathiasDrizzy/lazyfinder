@@ -98,6 +98,8 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return m.expandSelected()
 	case keymap.Collapse:
 		return m.collapseSelected()
+	case keymap.Commands:
+		return m.showCommands()
 	case keymap.Recents:
 		return m.showRecents()
 	case keymap.Bookmark:

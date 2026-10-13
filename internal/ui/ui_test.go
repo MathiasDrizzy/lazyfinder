@@ -20,6 +20,14 @@ import (
 type fakeRunner struct {
 	mu    sync.Mutex
 	calls [][]string
+	dirs  []string // the folder of each call made with StartIn
+}
+
+func (f *fakeRunner) StartIn(dir string, argv []string) error {
+	f.mu.Lock()
+	f.dirs = append(f.dirs, dir)
+	f.mu.Unlock()
+	return f.Start(argv)
 }
 
 func (f *fakeRunner) Start(argv []string) error {

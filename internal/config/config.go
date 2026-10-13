@@ -19,6 +19,9 @@ import (
 // FilePlaceholder is the only placeholder in an opener's argv; it must be a whole element.
 const FilePlaceholder = "{file}"
 
+// DirPlaceholder is the current folder in a custom command's argv; like {file} it must be a whole element.
+const DirPlaceholder = "{dir}"
+
 // Opener modes.
 const (
 	ModeGUI      = "gui"
@@ -38,6 +41,7 @@ type Config struct {
 	ShowHidden bool              `json:"show_hidden"`
 	Sidebar    Sidebar           `json:"sidebar"`
 	Openers    map[string]Opener `json:"openers"`
+	Commands   map[string]Opener `json:"commands"`
 	OpenWith   map[string]string `json:"open_with"`
 	Preview    Preview           `json:"preview"`
 	Theme      string            `json:"theme"`
@@ -143,6 +147,7 @@ func Defaults(home string) Config {
 		Sort:     SortConfig{By: "name", FoldersFirst: true},
 		Sidebar:  defaultSidebar(home),
 		Openers:  map[string]Opener{},
+		Commands: map[string]Opener{},
 		OpenWith: map[string]string{},
 		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
 		Theme:    theme.Default,
@@ -285,6 +290,11 @@ func validate(cfg *Config, home string) error {
 			return err
 		}
 	}
+	for name, c := range cfg.Commands {
+		if err := validateCommand(name, c); err != nil {
+			return err
+		}
+	}
 	norm := make(map[string]string, len(cfg.OpenWith))
 	for ext, name := range cfg.OpenWith {
 		if _, ok := cfg.Opener(name); !ok {
@@ -321,6 +331,44 @@ func validateOpener(name string, op Opener) error {
 		return fmt.Errorf(`opener %q: "argv" must contain %s exactly once`, name, FilePlaceholder)
 	}
 	return nil
+}
+
+// validateCommand checks a custom command: a program, a mode, and {file} and {dir} (each optional, at most once,
+// whole elements, never the program).
+func validateCommand(name string, c Opener) error {
+	if len(c.Argv) == 0 || c.Argv[0] == "" {
+		return fmt.Errorf(`command %q: "argv" must have at least the program name`, name)
+	}
+	if c.Mode != ModeGUI && c.Mode != ModeTerminal {
+		return fmt.Errorf(`command %q: "mode" must be %q or %q (got %q)`, name, ModeGUI, ModeTerminal, c.Mode)
+	}
+	for _, ph := range []string{FilePlaceholder, DirPlaceholder} {
+		count := 0
+		for i, a := range c.Argv {
+			switch {
+			case a == ph && i == 0:
+				return fmt.Errorf(`command %q: %s cannot be the program name`, name, ph)
+			case a == ph:
+				count++
+			case strings.Contains(a, ph):
+				return fmt.Errorf(`command %q: %s must be a whole argv element, not part of %q`, name, ph, a)
+			}
+		}
+		if count > 1 {
+			return fmt.Errorf(`command %q: %s may appear only once`, name, ph)
+		}
+	}
+	return nil
+}
+
+// CommandNames returns the custom command names sorted.
+func (c Config) CommandNames() []string {
+	names := make([]string, 0, len(c.Commands))
+	for n := range c.Commands {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	return names
 }
 
 func expandPlaces(ps []Place, home string) []Place {
