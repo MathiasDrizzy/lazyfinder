@@ -1,24 +1,24 @@
- ‹  ›   proj                                                            5 items
-                 │    Name ▲                      Date Modified       Size
- Favorites       │▸ > alpha                       1 Sep 2026          --
-  Home           │  > beta                        1 Sep 2026          --
-  Projects       │    data.xlsx                   1 Sep 2026          4 bytes
-                 │    main.go                     1 Sep 2026          45 bytes
- Locations       │    notes.txt                   1 Sep 2026          38 bytes
-  Disk           │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
-                 │
+ ‹  ›   proj                                                         5 items  ⚙
+╭─ Places ───────╮╭─ proj ─────────────────────────────────────────────────────╮
+│ Favorites      ││    Name ▲                    Date Modified       Size      │
+│  Home          ││▸ > alpha                     1 Sep 2026          --        │
+│  Projects      ││  > beta                      1 Sep 2026          --        │
+│                ││    data.xlsx                 1 Sep 2026          4 bytes   │
+│ Locations      ││    main.go                   1 Sep 2026          45 bytes  │
+│  Disk          ││    notes.txt                 1 Sep 2026          38 bytes  │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+│                ││                                                            │
+╰────────────────╯╰─────────────────────────────────────────────────── 1 of 5 ─╯
 <breadcrumb>
- ↑↓ move  ⏎ open  Space preview  O open with  s sort  . hidden  Tab sidebar  q …
+ Open: ⏎ | Preview: Space | Open with: O | Sort: s | Hidden: . | Quit: q

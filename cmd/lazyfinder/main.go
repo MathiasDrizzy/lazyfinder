@@ -8,9 +8,12 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/MathiasDrizzy/lazyfinder/internal/ui"
 )
 
@@ -32,6 +35,8 @@ type Options struct {
 	Warning string
 	NoColor bool
 	Logger  *slog.Logger
+
+	ConfigPath string
 }
 
 func main() {
@@ -45,6 +50,9 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	printDefault := fs.Bool("print-default-config", false, "print the default config.json and exit")
 	logPath := fs.String("log", "", "write a JSON log to `file` (off by default)")
 	logPaths := fs.Bool("log-paths", false, "include file names in the log")
+	langFlag := fs.String("lang", "", "interface language for this run: auto, en, es, pt, fr, de, it, ja or zh")
+	themeFlag := fs.String("theme", "", "theme for this run: a built-in or user theme name, or terminal")
+	noMouse := fs.Bool("no-mouse", false, "ignore the mouse for this run")
 	fs.Usage = func() {
 		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n\nFlags:\n")
 		fs.PrintDefaults()
@@ -76,12 +84,31 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 		return exitRuntime
 	}
 	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != ""}
-	cfg, err := config.Load(config.ResolvePath(getenv, home), home)
+	opts.ConfigPath = config.ResolvePath(getenv, home)
+	cfg, err := config.Load(opts.ConfigPath, home)
 	if err != nil {
 		opts.Warning = err.Error()
 		fmt.Fprintln(stderr, "lazyfinder: using default settings:", err)
 		cfg = config.Defaults(home)
 	}
+	if *langFlag != "" {
+		if _, ok := i18n.Parse(*langFlag); !ok && *langFlag != "auto" {
+			fmt.Fprintf(stderr, "lazyfinder: unknown language %q (use auto, en, es, pt, fr, de, it, ja or zh)\n", *langFlag)
+			return exitUsage
+		}
+		cfg.Language = *langFlag
+	}
+	if *themeFlag != "" {
+		if !theme.Valid(*themeFlag) {
+			fmt.Fprintf(stderr, "lazyfinder: unknown theme %q (use %s)\n", *themeFlag, strings.Join(theme.Names(), ", "))
+			return exitUsage
+		}
+		cfg.Theme = *themeFlag
+	}
+	if *noMouse {
+		cfg.Mouse = false
+	}
+	i18n.SetLanguage(cfg.Language)
 	opts.Cfg = cfg
 	logger, closeLog, err := newLogger(*logPath, *logPaths, stderr)
 	if err != nil {
@@ -146,7 +173,7 @@ func newLogger(path string, withPaths bool, _ io.Writer) (*slog.Logger, func(), 
 }
 
 func launch(o Options) error {
-	m := ui.New(ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning})
+	m := ui.New(ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath})
 	_, err := tea.NewProgram(m).Run()
 	return err
 }

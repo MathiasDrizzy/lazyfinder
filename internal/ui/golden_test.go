@@ -10,6 +10,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -141,4 +142,18 @@ func TestGoldenEmptyFolder(t *testing.T) {
 	e.key(".")
 	e.key(".")
 	e.golden("empty-folder")
+}
+
+func TestGoldenSettings(t *testing.T) {
+	e := goldenEnv(t, 120, 40)
+	e.key(",")
+	e.key("down")
+	e.golden("settings")
+}
+
+func TestGoldenSpanish(t *testing.T) {
+	i18n.SetLanguage("es")
+	t.Cleanup(func() { i18n.SetLanguage("en") })
+	e := goldenEnv(t, 120, 40)
+	e.golden("list-es")
 }

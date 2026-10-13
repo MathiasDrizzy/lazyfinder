@@ -1,0 +1,198 @@
+package ui
+
+import (
+	"slices"
+	"strings"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
+	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
+	"github.com/charmbracelet/x/ansi"
+)
+
+// settingsState is the settings popup. Every change applies at once and is saved to config.json (docs/adr/0008).
+type settingsState struct {
+	open bool
+	sel  int
+}
+
+const (
+	setTheme = iota
+	setLanguage
+	setImages
+	setHidden
+	setFoldersFirst
+	setScreenBackground
+	setMouse
+	settingCount
+)
+
+const settingsInner = 46
+
+func (m *Model) settingLabel(i int) string {
+	switch i {
+	case setTheme:
+		return i18n.T("Tema", "Theme")
+	case setLanguage:
+		return i18n.T("Idioma", "Language")
+	case setImages:
+		return i18n.T("Imágenes (Kitty)", "Images (Kitty)")
+	case setHidden:
+		return i18n.T("Archivos ocultos", "Hidden files")
+	case setFoldersFirst:
+		return i18n.T("Carpetas primero", "Folders first")
+	case setScreenBackground:
+		return i18n.T("Fondo de pantalla", "Screen background")
+	}
+	return i18n.T("Ratón", "Mouse")
+}
+
+func onOff(b bool) string {
+	if b {
+		return i18n.T("sí", "on")
+	}
+	return i18n.T("no", "off")
+}
+
+func (m *Model) settingValue(i int) string {
+	c := m.deps.Cfg
+	switch i {
+	case setTheme:
+		return c.Theme
+	case setLanguage:
+		if c.Language == "auto" {
+			return i18n.T("automático", "auto")
+		}
+		l, _ := i18n.Parse(c.Language)
+		return l.Name()
+	case setImages:
+		return c.Preview.Images
+	case setHidden:
+		return onOff(m.hidden)
+	case setFoldersFirst:
+		return onOff(m.sort.FoldersFirst)
+	case setScreenBackground:
+		if c.ScreenBackground == config.ScreenBackgroundTerminal {
+			return i18n.T("de la terminal", "terminal")
+		}
+		return i18n.T("del tema", "theme")
+	}
+	return onOff(m.mouse)
+}
+
+// cycle returns the item after (dir 1) or before (dir -1) cur in list, wrapping around.
+func cycle(list []string, cur string, dir int) string {
+	i := slices.Index(list, cur)
+	return list[((i+dir)%len(list)+len(list))%len(list)]
+}
+
+func languageCodes() []string {
+	codes := []string{"auto"}
+	for _, l := range i18n.Languages {
+		codes = append(codes, string(l))
+	}
+	return codes
+}
+
+// change moves setting i one step and saves it.
+func (m *Model) change(i, dir int) tea.Cmd {
+	var key string
+	var val any
+	var cmd tea.Cmd
+	switch i {
+	case setTheme:
+		m.deps.Cfg.Theme = cycle(theme.Names(), m.deps.Cfg.Theme, dir)
+		key, val = "theme", m.deps.Cfg.Theme
+		m.restyle()
+	case setLanguage:
+		m.deps.Cfg.Language = cycle(languageCodes(), m.deps.Cfg.Language, dir)
+		key, val = "language", m.deps.Cfg.Language
+		i18n.SetLanguage(m.deps.Cfg.Language)
+	case setImages:
+		m.deps.Cfg.Preview.Images = cycle([]string{"auto", "kitty", "off"}, m.deps.Cfg.Preview.Images, dir)
+		key, val = "preview.images", m.deps.Cfg.Preview.Images
+		m.imagesAllowed = m.deps.Cfg.Preview.Images == "kitty"
+		if m.deps.Cfg.Preview.Images == "auto" {
+			cmd = m.Init()
+		}
+	case setHidden:
+		m.hidden = !m.hidden
+		key, val = "show_hidden", m.hidden
+		m.deps.Cfg.ShowHidden = m.hidden
+		cmd = m.reload()
+	case setFoldersFirst:
+		s := m.sort
+		s.FoldersFirst = !s.FoldersFirst
+		key, val = "sort.folders_first", s.FoldersFirst
+		m.deps.Cfg.Sort.FoldersFirst = s.FoldersFirst
+		cmd = m.resort(s)
+	case setScreenBackground:
+		m.deps.Cfg.ScreenBackground = cycle([]string{config.ScreenBackgroundTheme, config.ScreenBackgroundTerminal}, m.deps.Cfg.ScreenBackground, dir)
+		key, val = "screen_background", m.deps.Cfg.ScreenBackground
+		m.restyle()
+	case setMouse:
+		m.mouse = !m.mouse
+		m.deps.Cfg.Mouse = m.mouse
+		key, val = "mouse", m.mouse
+	}
+	if m.deps.ConfigPath != "" {
+		if err := config.Update(m.deps.ConfigPath, map[string]any{key: val}); err != nil {
+			m.setError(err)
+		}
+	}
+	return cmd
+}
+
+func (m *Model) settingsKey(key string, act keymap.Action) tea.Cmd {
+	switch {
+	case act == keymap.Quit:
+		return tea.Quit
+	case key == "esc" || act == keymap.Settings:
+		m.set = settingsState{}
+	case act == keymap.Up:
+		m.set.sel = max(0, m.set.sel-1)
+	case act == keymap.Down:
+		m.set.sel = min(settingCount-1, m.set.sel+1)
+	case key == "left" || key == "h":
+		return m.change(m.set.sel, -1)
+	case key == "right" || key == "l" || key == "enter" || key == "space":
+		return m.change(m.set.sel, 1)
+	}
+	return nil
+}
+
+func (m *Model) settingsGeom() (x, y int) {
+	return (m.w - settingsInner - 4) / 2, (m.h - settingCount - 2) / 2
+}
+
+func (m *Model) settingsBox() (x, y int, lines []string) {
+	x, y = m.settingsGeom()
+	content := make([]string, settingCount)
+	for i := range content {
+		label, value := m.settingLabel(i), "‹ "+m.settingValue(i)+" ›"
+		pad := max(1, settingsInner-ansi.StringWidth(label)-ansi.StringWidth(value)-2)
+		line := "  " + label + spaces(pad) + value
+		if i == m.set.sel {
+			line = m.styles.selected(ansi.Strip(fit(line, settingsInner)))
+		}
+		content[i] = line
+	}
+	return x, y, m.box(i18n.T("Ajustes", "Settings"), content, settingsInner)
+}
+
+func spaces(n int) string { return strings.Repeat(" ", n) }
+
+func (m *Model) settingsClick(x, y int) tea.Cmd {
+	mx, my, bx := m.settingsBox()
+	if !inBox(x, y, mx, my, bx) {
+		m.set = settingsState{}
+		return nil
+	}
+	if i := y - my - 1; i >= 0 && i < settingCount {
+		m.set.sel = i
+		return m.change(i, 1)
+	}
+	return nil
+}

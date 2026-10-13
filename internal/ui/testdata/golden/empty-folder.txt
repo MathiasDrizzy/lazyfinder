@@ -1,40 +1,40 @@
- ‹  ›   beta                                                                                                    0 items
-                     │    Name ▲                                      Date Modified       Size        Kind
- Favorites           │
-  Home               │   This folder is empty
-  Projects           │
-                     │
- Locations           │
-  Disk               │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
-                     │
+ ‹  ›   beta                                                                                                 0 items  ⚙
+╭─ Places ───────────╮╭─ beta ─────────────────────────────────────────────────────────────────────────────────────────╮
+│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
+│  Home              ││                                                                                                │
+│  Projects          ││   This folder is empty                                                                         │
+│                    ││                                                                                                │
+│ Locations          ││                                                                                                │
+│  Disk              ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 0 of 0 ─╯
 <breadcrumb>
- ↑↓ move  ⏎ open  Space preview  O open with  s sort  . hidden  Tab sidebar  q quit
+ Open: ⏎ | Preview: Space | Open with: O | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q

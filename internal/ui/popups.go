@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
 	"github.com/MathiasDrizzy/lazyfinder/internal/termimg"
@@ -142,23 +144,23 @@ func (m *Model) onImage(msg imageMsg) tea.Cmd {
 	return tea.Raw(termimg.WithID(msg.seq, imgID))
 }
 
-func (m *Model) previewKey(key string) tea.Cmd {
-	switch key {
-	case "q":
+func (m *Model) previewKey(key string, act keymap.Action) tea.Cmd {
+	switch {
+	case act == keymap.Quit:
 		return tea.Quit
-	case "esc", "space", " ":
+	case key == "esc" || act == keymap.Preview:
 		return m.closePreview()
-	case "up", "k":
+	case act == keymap.Up:
 		return m.setSelection(m.sel - 1)
-	case "down", "j":
+	case act == keymap.Down:
 		return m.setSelection(m.sel + 1)
-	case "pgup":
+	case act == keymap.PageUp:
 		m.scrollPreview(-m.pageSize())
-	case "pgdown":
+	case act == keymap.PageDown:
 		m.scrollPreview(m.pageSize())
-	case "enter":
+	case key == "enter":
 		return tea.Sequence(m.closePreview(), m.openSelected())
-	case "Q":
+	case act == keymap.QuickLook:
 		return m.quickLook()
 	}
 	return nil
@@ -187,13 +189,13 @@ func (m *Model) quickLook() tea.Cmd {
 		m.setError(err)
 		return nil
 	}
-	m.setStatus("Opened in Quick Look")
+	m.setStatus(i18n.T("Abierto en Vista rápida", "Opened in Quick Look"))
 	return nil
 }
 
 func (m *Model) previewBox() (x, y int, lines []string) {
 	x, y, pw, ph, iw, bodyH := m.previewGeom()
-	title := "Preview"
+	title := i18n.T("Vista previa", "Preview")
 	if e, ok := m.selected(); ok {
 		title = e.Name
 	}
@@ -201,20 +203,20 @@ func (m *Model) previewBox() (x, y int, lines []string) {
 	for len(body) < bodyH {
 		body = append(body, "")
 	}
-	facts, hints := "", "Space/Esc close · ↑↓ other file · ⏎ open · Q Quick Look"
+	facts, hints := "", i18n.T("Espacio/Esc cerrar · ↑↓ otro archivo · ⏎ abrir · Q Vista rápida", "Space/Esc close · ↑↓ other file · ⏎ open · Q Quick Look")
 	if m.pv.res != nil {
 		facts = strings.Join(m.pv.res.Facts, "  ·  ")
 	}
 	content := append(body[:bodyH:bodyH], m.styles.dim(fit(facts, iw)), m.styles.dim(fit(hints, iw)))
 	_ = pw
 	_ = ph
-	return x, y, box(title, content, iw, m.styles.border)
+	return x, y, m.box(title, content, iw)
 }
 
 func (m *Model) previewBody(iw, bodyH int) []string {
 	r := m.pv.res
 	if r == nil {
-		return []string{m.styles.dim("Loading…")}
+		return []string{m.styles.dim(i18n.T("Cargando…", "Loading…"))}
 	}
 	switch r.Kind {
 	case preview.KindText, preview.KindDir:
@@ -222,11 +224,11 @@ func (m *Model) previewBody(iw, bodyH int) []string {
 	case preview.KindImage:
 		return m.imageBody(r, iw)
 	case preview.KindBinary:
-		return []string{m.styles.dim("Binary file: no text preview")}
+		return []string{m.styles.dim(i18n.T("Archivo binario: sin vista previa de texto", "Binary file: no text preview"))}
 	case preview.KindOther:
-		return []string{m.styles.dim("Special file: not previewed")}
+		return []string{m.styles.dim(i18n.T("Archivo especial: sin vista previa", "Special file: not previewed"))}
 	case preview.KindError:
-		return []string{m.styles.errText("Error: " + r.Err.Error())}
+		return []string{m.styles.errText(i18n.T("Error: ", "Error: ") + r.Err.Error())}
 	}
 	return nil
 }
@@ -238,7 +240,7 @@ func (m *Model) textBody(r *preview.Result, iw, bodyH int) []string {
 		out = append(out, strings.ReplaceAll(l, "\t", "    "))
 	}
 	if r.Truncated && end == len(r.Lines) && len(out) > 0 {
-		out[len(out)-1] = m.styles.dim("… truncated")
+		out[len(out)-1] = m.styles.dim(i18n.T("… recortado", "… truncated"))
 	}
 	return out
 }
@@ -253,11 +255,11 @@ func (m *Model) imageBody(r *preview.Result, iw int) []string {
 		}
 		return lines
 	case m.imagesAllowed:
-		return []string{m.styles.dim("Loading image…")}
+		return []string{m.styles.dim(i18n.T("Cargando imagen…", "Loading image…"))}
 	}
 	return []string{
-		m.styles.dim(fmt.Sprintf("Image %d x %d", r.ImageW, r.ImageH)),
-		m.styles.dim("This terminal does not show images. Press Q for Quick Look."),
+		m.styles.dim(fmt.Sprintf(i18n.T("Imagen %d x %d", "Image %d x %d"), r.ImageW, r.ImageH)),
+		m.styles.dim(i18n.T("Esta terminal no muestra imágenes. Pulsa Q para Vista rápida.", "This terminal does not show images. Press Q for Quick Look.")),
 	}
 }
 
@@ -296,21 +298,21 @@ func (m *Model) menuBox() (x, y int, lines []string) {
 		}
 		content = append(content, line)
 	}
-	return x, y, box("Open With", content, iw, m.styles.border)
+	return x, y, m.box(i18n.T("Abrir con", "Open With"), content, iw)
 }
 
-func (m *Model) menuKey(key string) tea.Cmd {
+func (m *Model) menuKey(key string, act keymap.Action) tea.Cmd {
 	n := len(m.menu.items)
-	switch key {
-	case "q":
+	switch {
+	case act == keymap.Quit:
 		return tea.Quit
-	case "esc", "O":
+	case key == "esc" || act == keymap.OpenWith:
 		m.menu = menuState{}
-	case "up", "k":
+	case act == keymap.Up:
 		m.menu.sel = max(0, m.menu.sel-1)
-	case "down", "j":
+	case act == keymap.Down:
 		m.menu.sel = min(n-1, m.menu.sel+1)
-	case "enter":
+	case key == "enter":
 		return m.chooseOpener(m.menu.sel)
 	}
 	return nil

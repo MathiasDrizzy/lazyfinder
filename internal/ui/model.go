@@ -4,6 +4,7 @@ package ui
 
 import (
 	"errors"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -12,6 +13,8 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/history"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	"github.com/MathiasDrizzy/lazyfinder/internal/termimg"
 	uv "github.com/charmbracelet/ultraviolet"
@@ -33,6 +36,9 @@ type Deps struct {
 	Now     func() time.Time
 	NoColor bool
 	Warning string // shown in the status line at start (for example an invalid config)
+
+	// ConfigPath is where the settings popup saves; empty means it only changes the running session.
+	ConfigPath string
 }
 
 type focus int
@@ -47,6 +53,9 @@ type Model struct {
 	deps    Deps
 	styles  styles
 	resolve opener.Resolver
+	keys    keymap.Map
+	mouse   bool
+	set     settingsState
 
 	w, h int
 
@@ -83,11 +92,17 @@ func New(d Deps) *Model {
 		d.Runner = opener.ExecRunner{}
 	}
 	s := fsmodel.Sort{By: fsmodel.Column(d.Cfg.Sort.By), Descending: d.Cfg.Sort.Descending, FoldersFirst: d.Cfg.Sort.FoldersFirst}
+	km, _ := keymap.New(d.Cfg.Keys) // the problems were already reported as config warnings
 	m := &Model{
-		deps: d, styles: newStyles(d.Cfg.Theme), resolve: opener.New(d.Cfg),
+		deps: d, resolve: opener.New(d.Cfg), keys: km, mouse: d.Cfg.Mouse,
 		hist: history.New(d.Start), sort: s, hidden: d.Cfg.ShowHidden,
 		lastSel: map[string]string{}, nextImgID: 1000,
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
+	}
+	m.restyle()
+	if d.Warning == "" && len(d.Cfg.Warnings) > 0 {
+		d.Warning = d.Cfg.Warnings[0]
+		m.deps.Warning = d.Warning
 	}
 	if d.Warning != "" {
 		m.setError(errors.New(d.Warning))
@@ -227,7 +242,7 @@ func (m *Model) setSelection(i int) tea.Cmd {
 	return m.refreshPreview()
 }
 
-func (m *Model) listRows() int { return max(1, m.h-4) }
+func (m *Model) listRows() int { return max(1, m.panelH()-3) }
 
 func (m *Model) ensureVisible() {
 	rows := m.listRows()
@@ -261,7 +276,7 @@ func (m *Model) run(c opener.Command) tea.Cmd {
 		m.setError(err)
 		return nil
 	}
-	m.setStatus("Opened with " + c.Name)
+	m.setStatus(fmt.Sprintf(i18n.T("Abierto con %s", "Opened with %s"), c.Name))
 	return nil
 }
 
@@ -295,4 +310,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.ClearScreen
 	}
 	return m, nil
+}
+
+// restyle rebuilds the styles from the config and the environment.
+func (m *Model) restyle() {
+	m.styles = newStyles(look{Theme: m.deps.Cfg.Theme, NoColor: m.deps.NoColor, ScreenBackground: m.deps.Cfg.ScreenBackground})
 }

@@ -16,6 +16,7 @@ const (
 	zoneRow
 	zoneHeader
 	zoneCrumb
+	zoneSettings
 )
 
 // zone is what lies under a screen cell.
@@ -26,8 +27,9 @@ type zone struct {
 	path string
 }
 
-// hit resolves a screen position on the base layer (popups are handled before).
+// hit resolves a screen position on the base layer (popups are handled before). Panel borders are not clickable.
 func (m *Model) hit(x, y int) zone {
+	lastRow := m.panelH() - 1 // last panel row (its bottom border)
 	switch {
 	case y == 0:
 		switch {
@@ -35,6 +37,8 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneBack}
 		case x < 6:
 			return zone{kind: zoneForward}
+		case x >= m.w-4:
+			return zone{kind: zoneSettings}
 		}
 	case y == m.h-2:
 		for _, c := range m.crumbs() {
@@ -42,28 +46,24 @@ func (m *Model) hit(x, y int) zone {
 				return zone{kind: zoneCrumb, path: c.path}
 			}
 		}
-	case y >= 1 && y <= m.h-3 && x < m.sidebarW()-1:
-		return m.sidebarHit(y - 1)
-	case y == 1 && x >= m.listX():
+	case y >= headerRow && y < lastRow && x >= 1 && x < m.sidebarW()-1:
+		return m.sidebarHit(y - headerRow)
+	case y == headerRow && x >= m.listX() && x < m.listX()+m.listW():
 		for _, s := range m.columns() {
 			if x-m.listX() >= s.x && x-m.listX() < s.x+s.w {
 				return zone{kind: zoneHeader, col: s.col}
 			}
 		}
-	case y >= 2 && y <= m.h-3 && x >= m.listX():
-		if idx := m.top + y - 2; idx < len(m.entries()) {
+	case y >= firstRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW():
+		if idx := m.top + y - firstRow; idx < len(m.entries()) {
 			return zone{kind: zoneRow, idx: idx}
 		}
 	}
 	return zone{}
 }
 
-func (m *Model) sidebarHit(row int) zone {
-	if row < 1 {
-		return zone{}
-	}
+func (m *Model) sidebarHit(pi int) zone {
 	ps := m.places()
-	pi := row - 1
 	if pi >= len(ps) || ps[pi].title != "" || ps[pi].name == "" {
 		return zone{}
 	}
@@ -78,10 +78,13 @@ func (m *Model) sidebarHit(row int) zone {
 
 func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	mouse := c.Mouse()
-	if m.w < minWidth || m.h < minHeight {
+	if m.w < minWidth || m.h < minHeight || !m.mouse {
 		return nil
 	}
 	m.setStatus("")
+	if m.set.open {
+		return m.settingsClick(mouse.X, mouse.Y)
+	}
 	if m.menu.open {
 		return m.menuClick(mouse.X, mouse.Y)
 	}
@@ -111,6 +114,9 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 		return m.step(m.hist.Back())
 	case zoneForward:
 		return m.step(m.hist.Forward())
+	case zoneSettings:
+		m.set = settingsState{open: true}
+		return nil
 	case zoneCrumb:
 		if z.path == m.dir() {
 			return nil
@@ -142,6 +148,9 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 
 func (m *Model) onWheel(w tea.MouseWheelMsg) tea.Cmd {
 	mouse := w.Mouse()
+	if !m.mouse || m.set.open {
+		return nil
+	}
 	dir := 0
 	switch mouse.Button {
 	case tea.MouseWheelUp:

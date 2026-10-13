@@ -1,0 +1,40 @@
+ ‹  ›   proj                                                                                                 5 items  ⚙
+╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
+│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
+│  Home              ││▸ > alpha                                     1 Sep 2026          --          Folder            │
+│  Projects          ││  > beta                                      1 Sep 2026          --          Folder            │
+│                    ││    data.xlsx                                 1 Sep 2026          4 bytes     Excel Spreadsheet │
+│ Locations          ││    main.go                                   1 Sep 2026          45 bytes    Go Source         │
+│  Disk              ││    notes.txt                                 1 Sep 2026          38 bytes    Plain Text        │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││            ╭─ Settings ─────────────────────────────────────╮                                  │
+│                    ││            │   Theme                   ‹ catppuccin-mocha › │                                  │
+│                    ││            │   Language                            ‹ auto › │                                  │
+│                    ││            │   Images (Kitty)                      ‹ auto › │                                  │
+│                    ││            │   Hidden files                         ‹ off › │                                  │
+│                    ││            │   Folders first                         ‹ on › │                                  │
+│                    ││            │   Screen background                  ‹ theme › │                                  │
+│                    ││            │   Mouse                                 ‹ on › │                                  │
+│                    ││            ╰────────────────────────────────────────────────╯                                  │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+│                    ││                                                                                                │
+╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 1 of 5 ─╯
+<breadcrumb>
+ Open: ⏎ | Preview: Space | Open with: O | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q

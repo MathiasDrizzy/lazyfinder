@@ -1,8 +1,12 @@
 package ui
 
 import (
+	"fmt"
+
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 )
 
 var sortCycle = []fsmodel.Column{fsmodel.ColName, fsmodel.ColModified, fsmodel.ColCreated, fsmodel.ColSize, fsmodel.ColKind}
@@ -13,59 +17,64 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		return tea.Quit
 	}
 	m.setStatus("")
+	act, _ := m.keys.Lookup(key)
 	switch {
+	case m.set.open:
+		return m.settingsKey(key, act)
 	case m.menu.open:
-		return m.menuKey(key)
+		return m.menuKey(key, act)
 	case m.pv.open:
-		return m.previewKey(key)
+		return m.previewKey(key, act)
 	case m.focus == focusSidebar:
-		return m.sidebarKey(key)
+		return m.sidebarKey(key, act)
 	}
-	return m.listKey(key)
+	return m.listKey(act)
 }
 
-func (m *Model) listKey(key string) tea.Cmd {
+func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	page := m.listRows()
-	switch key {
-	case "q":
+	switch act {
+	case keymap.Quit:
 		return tea.Quit
-	case "up", "k":
+	case keymap.Up:
 		return m.setSelection(m.sel - 1)
-	case "down", "j":
+	case keymap.Down:
 		return m.setSelection(m.sel + 1)
-	case "pgup":
+	case keymap.PageUp:
 		return m.setSelection(m.sel - page)
-	case "pgdown":
+	case keymap.PageDown:
 		return m.setSelection(m.sel + page)
-	case "home", "g":
+	case keymap.First:
 		return m.setSelection(0)
-	case "end", "G":
+	case keymap.Last:
 		return m.setSelection(len(m.entries()) - 1)
-	case "enter", "right", "l":
+	case keymap.Open:
 		return m.openSelected()
-	case "backspace", "left", "h":
+	case keymap.Parent:
 		return m.parent()
-	case "alt+left", "[":
+	case keymap.Back:
 		return m.step(m.hist.Back())
-	case "alt+right", "]":
+	case keymap.Forward:
 		return m.step(m.hist.Forward())
-	case "s":
+	case keymap.Sort:
 		return m.cycleSort(false)
-	case "S":
+	case keymap.SortReverse:
 		return m.cycleSort(true)
-	case ".":
+	case keymap.Hidden:
 		m.hidden = !m.hidden
 		return m.reload()
-	case "r":
+	case keymap.Reload:
 		return m.reload()
-	case "tab":
+	case keymap.Focus:
 		m.focus = focusSidebar
-	case "space", " ":
+	case keymap.Preview:
 		return m.openPreview()
-	case "O":
+	case keymap.OpenWith:
 		return m.openMenu()
-	case "Q":
+	case keymap.QuickLook:
 		return m.quickLook()
+	case keymap.Settings:
+		m.set = settingsState{open: true}
 	}
 	return nil
 }
@@ -86,18 +95,20 @@ func (m *Model) cycleSort(reverse bool) tea.Cmd {
 	return m.resort(s)
 }
 
-func (m *Model) sidebarKey(key string) tea.Cmd {
+func (m *Model) sidebarKey(key string, act keymap.Action) tea.Cmd {
 	dests := destinations(m.places())
-	switch key {
-	case "q":
+	switch {
+	case act == keymap.Quit:
 		return tea.Quit
-	case "up", "k":
+	case act == keymap.Up:
 		m.sideSel = max(0, m.sideSel-1)
-	case "down", "j":
+	case act == keymap.Down:
 		m.sideSel = min(len(dests)-1, m.sideSel+1)
-	case "tab", "esc":
+	case act == keymap.Focus || key == "esc":
 		m.focus = focusList
-	case "enter", "right", "l":
+	case act == keymap.Settings:
+		m.set = settingsState{open: true}
+	case act == keymap.Open:
 		if len(dests) == 0 {
 			return nil
 		}
@@ -108,7 +119,7 @@ func (m *Model) sidebarKey(key string) tea.Cmd {
 
 func (m *Model) goPlace(p place) tea.Cmd {
 	if p.missing {
-		m.setStatus(p.name + " is not available: " + p.path)
+		m.setStatus(fmt.Sprintf(i18n.T("%s no está disponible: %s", "%s is not available: %s"), p.name, p.path))
 		return nil
 	}
 	m.focus = focusList

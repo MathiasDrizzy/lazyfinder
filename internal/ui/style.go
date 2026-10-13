@@ -1,32 +1,75 @@
 package ui
 
-import "charm.land/lipgloss/v2"
+import (
+	"image/color"
 
-// Styles never rely on colour alone: selection is reverse video plus a pointer, folders carry a ">" marker, and
-// errors start with "Error:" (NO_COLOR and monochrome terminals keep every distinction).
-type styles struct {
-	selected func(string) string
-	dim      func(string) string
-	bold     func(string) string
-	folder   func(string) string
-	accent   func(string) string
-	errText  func(string) string
-	border   func(string) string
+	"charm.land/lipgloss/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
+)
+
+// look says how to draw. It comes from the config and the environment; the model rebuilds the styles when it changes.
+type look struct {
+	Theme            string // a palette name or theme.Terminal
+	NoColor          bool   // NO_COLOR: no colors at all, only bold, faint and reverse
+	ScreenBackground string // config.ScreenBackgroundTheme or ...Terminal
 }
 
-func newStyles(theme string) styles {
-	blue := lipgloss.Color("12")
-	if theme == "light" {
-		blue = lipgloss.Color("4")
-	}
+// styles are the render functions the views use. A style never relies on color alone: the selection is a bar plus
+// a pointer, folders carry a ">" marker, and errors start with "Error:" (NO_COLOR and monochrome terminals keep every
+// distinction).
+type styles struct {
+	selected, selectedInactive func(string) string
+	dim, bold, folder, accent  func(string) string
+	errText, border            func(string) string
+	borderActive, titleActive  func(string) string
+	title, footerKey, footer   func(string) string
+	popupBorder, popupTitle    func(string) string
+	// bg is painted behind the whole screen (nil: the terminal's own background)
+	bg color.Color
+}
+
+func newStyles(l look) styles {
 	r := func(s lipgloss.Style) func(string) string { return func(t string) string { return s.Render(t) } }
-	return styles{
-		selected: r(lipgloss.NewStyle().Reverse(true)),
-		dim:      r(lipgloss.NewStyle().Faint(true)),
-		bold:     r(lipgloss.NewStyle().Bold(true)),
-		folder:   r(lipgloss.NewStyle().Foreground(blue).Bold(true)),
-		accent:   r(lipgloss.NewStyle().Foreground(blue)),
-		errText:  r(lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Bold(true)),
-		border:   r(lipgloss.NewStyle().Faint(true)),
+	plain := func(s string) string { return s }
+	mono := l.NoColor
+	if mono {
+		return styles{
+			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
+			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)), folder: r(lipgloss.NewStyle().Bold(true)),
+			accent: plain, errText: r(lipgloss.NewStyle().Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
+			borderActive: plain, titleActive: r(lipgloss.NewStyle().Bold(true)), title: r(lipgloss.NewStyle().Faint(true)),
+			footerKey: r(lipgloss.NewStyle().Bold(true)), footer: r(lipgloss.NewStyle().Faint(true)),
+			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)),
+		}
 	}
+	p, ok := theme.Lookup(l.Theme)
+	if !ok { // "terminal": the terminal's own 16 colors
+		blue, red := lipgloss.Color("12"), lipgloss.Color("1")
+		return styles{
+			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
+			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)),
+			folder: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), accent: r(lipgloss.NewStyle().Foreground(blue)),
+			errText: r(lipgloss.NewStyle().Foreground(red).Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
+			borderActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2"))), titleActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
+			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Bold(true)),
+			footer: r(lipgloss.NewStyle().Faint(true)), popupBorder: r(lipgloss.NewStyle().Foreground(blue)),
+			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)),
+		}
+	}
+	fg := func(c color.Color, bold bool) func(string) string {
+		return r(lipgloss.NewStyle().Foreground(c).Bold(bold))
+	}
+	s := styles{
+		selected:         r(lipgloss.NewStyle().Background(p.Peach).Foreground(p.Base).Bold(true)),
+		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface1).Foreground(p.Text)),
+		dim:              fg(p.Overlay0, false), bold: fg(p.Text, true), folder: fg(p.Blue, true), accent: fg(p.Peach, false),
+		errText: fg(p.Red, true), border: fg(p.Overlay0, false),
+		borderActive: fg(p.Green, false), titleActive: fg(p.Green, true), title: fg(p.Subtext0, false),
+		footerKey: fg(p.Mauve, true), footer: fg(p.Blue, false),
+		popupBorder: fg(p.Peach, false), popupTitle: fg(p.Peach, true),
+	}
+	if l.ScreenBackground == "theme" {
+		s.bg = p.Base
+	}
+	return s
 }
