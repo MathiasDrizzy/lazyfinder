@@ -129,3 +129,29 @@ func TestOpsRejectsNonsense(t *testing.T) {
 		}
 	}
 }
+
+func TestPreviewExtrasDefaultsAndOverrides(t *testing.T) {
+	def := Defaults("/home/u").Preview
+	if def.Markdown != "render" || def.HexBytes != 4096 || def.ExternalTools != "auto" {
+		t.Fatalf("defaults = %+v", def)
+	}
+	cfg, err := Load(write(t, t.TempDir(), `{"version":1,"preview":{"markdown":"raw","hex_bytes":256,"external_tools":"off"}}`), "/home/u")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p := cfg.Preview; p.Markdown != "raw" || p.HexBytes != 256 || p.ExternalTools != "off" {
+		t.Fatalf("preview = %+v", p)
+	}
+}
+
+func TestPreviewExtrasRejectNonsense(t *testing.T) {
+	for name, body := range map[string]string{
+		"markdown":       `{"version":1,"preview":{"markdown":"fancy"}}`,
+		"hex bytes":      `{"version":1,"preview":{"hex_bytes":0}}`,
+		"external tools": `{"version":1,"preview":{"external_tools":"maybe"}}`,
+	} {
+		if _, err := Load(write(t, t.TempDir(), body), "/home/u"); err == nil || !strings.Contains(err.Error(), "preview.") {
+			t.Errorf("%s: err = %v", name, err)
+		}
+	}
+}

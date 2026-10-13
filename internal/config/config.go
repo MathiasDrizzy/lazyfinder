@@ -89,8 +89,11 @@ type Opener struct {
 
 // Preview configures the preview popup.
 type Preview struct {
-	MaxTextBytes int64  `json:"max_text_bytes"`
-	Images       string `json:"images"`
+	MaxTextBytes  int64  `json:"max_text_bytes"`
+	Images        string `json:"images"`
+	Markdown      string `json:"markdown"`       // render or raw
+	HexBytes      int    `json:"hex_bytes"`      // bytes of a binary file shown as hex
+	ExternalTools string `json:"external_tools"` // auto lets previews use mdls, pdftoppm or sips; off never runs them
 }
 
 // Search configures the search bar.
@@ -141,7 +144,7 @@ func Defaults(home string) Config {
 		Sidebar:  defaultSidebar(home),
 		Openers:  map[string]Opener{},
 		OpenWith: map[string]string{},
-		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto"},
+		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
 		Theme:    theme.Default,
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
 		Git:      Git{Enabled: true},
@@ -255,6 +258,15 @@ func validate(cfg *Config, home string) error {
 	case "auto", "kitty", "off":
 	default:
 		return fmt.Errorf(`"preview.images" must be auto, kitty or off (got %q)`, cfg.Preview.Images)
+	}
+	if cfg.Preview.Markdown != "render" && cfg.Preview.Markdown != "raw" {
+		return fmt.Errorf(`"preview.markdown" must be render or raw (got %q)`, cfg.Preview.Markdown)
+	}
+	if cfg.Preview.HexBytes <= 0 {
+		return errors.New(`"preview.hex_bytes" must be positive`)
+	}
+	if cfg.Preview.ExternalTools != "auto" && cfg.Preview.ExternalTools != "off" {
+		return fmt.Errorf(`"preview.external_tools" must be auto or off (got %q)`, cfg.Preview.ExternalTools)
 	}
 	if cfg.Search.MaxResults <= 0 {
 		return errors.New(`"search.max_results" must be positive`)

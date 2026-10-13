@@ -14,3 +14,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | [0008](0008-look-themes-languages-settings.md) | Look, themes, languages and settings | accepted |
 | 0009 | [Parity with Finder and with the Windows Explorer search](0009-finder-and-explorer-parity.md) | accepted |
 | 0010 | [File operations: Trash only, never overwrite, always undoable](0010-file-operations.md) | accepted |
+| 0011 | [Previews++: what ships, what waits](0011-previews-plus.md) | accepted |

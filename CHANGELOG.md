@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-13
+
+### Added
+
+- Hex view for binary files, replacing the "Binary file" message (`preview.hex_bytes`).
+- Archive listing for zip, tar and tar.gz files; nothing is extracted and hostile names cannot inject terminal codes.
+- Markdown files are shown rendered (`preview.markdown` to see the source).
+- Duration, dimensions and codecs of audio and video files, and the first page of a PDF as an image, through
+  `mdls`, `pdftoppm` or `sips` when present (`preview.external_tools` turns them off).
+- ADR 0011 records why Sixel and iTerm2 images are not part of this release.
+
 ## [0.4.0] - 2026-10-13
 
 ### Added

@@ -34,6 +34,10 @@ Columns, a sidebar, a Space preview popup and open-with, with keyboard and mouse
 
 Press `Space` on a file or folder for a popup, and `↑`/`↓` to look at the next one without closing it.
 
+Text is highlighted, Markdown is rendered, zip and tar archives list their contents (nothing is extracted), binary
+files show a hex dump, audio and video show their duration and codecs, and a PDF shows its first page where the
+terminal supports Kitty images. `preview.external_tools` turns off the helper programs.
+
 <img src="docs/screenshots/preview-text.png" alt="Space preview of a Go file with syntax highlighting" width="100%">
 
 <img src="docs/screenshots/preview-image.png" alt="Space preview of an image drawn inside the popup" width="100%">

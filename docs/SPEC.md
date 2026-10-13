@@ -90,6 +90,8 @@ follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener 
 - **R-15 Text preview (M1).** Text files show syntax highlighting (chroma), line numbers optional, capped at a size
   limit (default 512 KiB read, configurable) with a "truncated" marker; binary files show type and size instead of
   bytes. AC: fixtures for Go, Markdown, JSON, a binary and a file over the limit.
+  M5 (done): binary files show a hex dump, Markdown is rendered, archives list their contents, media shows facts
+  and a PDF its first page (ADR 0011). AC: `previews-more.json` and the unit tests of `internal/preview`.
 - **R-16 Directory preview (M1).** A directory shows its first entries (name, kind, size) and the entry count.
 - **R-17 Image preview (M1).** Where the terminal supports the Kitty graphics protocol (detected by query, ADR 0006),
   images render inline in the popup. Elsewhere the popup shows file facts and the key `Q` launches Quick Look

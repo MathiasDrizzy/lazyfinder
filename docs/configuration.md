@@ -20,6 +20,9 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `open_with` | Extension to opener name, e.g. `"txt": "edit"` | none (system `open`) |
 | `preview.max_text_bytes` | Bytes read for a text preview | `524288` |
 | `preview.images` | `auto` (ask the terminal), `kitty` (force) or `off` | `auto` |
+| `preview.markdown` | `render` shows Markdown formatted, `raw` shows the source | `render` |
+| `preview.hex_bytes` | Bytes of a binary file shown as a hex dump | `4096` |
+| `preview.external_tools` | `auto` lets previews run `mdls`, `pdftoppm` or `sips` (media facts, PDF first page); `off` never runs them | `auto` |
 | `theme` | A built-in theme, a user theme (see below) or `terminal` | `catppuccin-mocha` |
 | `screen_background` | `theme` paints the whole screen with the theme background; `terminal` keeps the terminal's own | `theme` |
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |

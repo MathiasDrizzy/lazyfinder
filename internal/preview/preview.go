@@ -37,6 +37,8 @@ const (
 	KindOther // special files (pipes, devices, sockets): never read
 	KindError
 	KindCancelled
+	KindArchive // a listing of what is inside, never extracted
+	KindMedia   // facts about audio or video
 )
 
 const (
@@ -51,6 +53,12 @@ type Options struct {
 	MaxTextBytes int64
 	Width        int
 	NoColor      bool
+	HexBytes     int  // bytes of a binary file shown as hex; 0 means DefaultHexBytes
+	MarkdownRaw  bool // show Markdown as source instead of rendering it
+
+	// Probe and Raster are the optional external tools for media facts and PDF pages; nil turns each off.
+	Probe  Probe
+	Raster Raster
 }
 
 // Result is what the popup shows.
@@ -62,6 +70,7 @@ type Result struct {
 	Truncated bool
 	ImageW    int
 	ImageH    int
+	ImagePath string // the file to draw when it is not Path itself (the first page of a PDF)
 	Err       error
 }
 
@@ -111,9 +120,12 @@ func Load(ctx context.Context, path string, opts Options) Result {
 		res.Facts = append(res.Facts, fmt.Sprintf(i18n.T("Dimensiones: %d x %d", "Dimensions: %d x %d"), cfg.Width, cfg.Height))
 		return res
 	}
-	if bytes.IndexByte(head, 0) >= 0 {
-		res.Kind = KindBinary
-		return res
+	name := filepath.Base(path)
+	if r, ok := loadSpecial(ctx, res, path, name, opts); ok {
+		return r
+	}
+	if bytes.IndexByte(head, 0) >= 0 || isBinaryByName(name) {
+		return loadHex(res, f, info.Size(), opts)
 	}
 	body, truncated, err := readLimited(f, head, opts.MaxTextBytes)
 	if err != nil {
@@ -124,7 +136,76 @@ func Load(ctx context.Context, path string, opts Options) Result {
 		return res
 	}
 	res.Kind, res.Truncated = KindText, truncated
-	res.Lines = highlight(filepath.Base(path), body, opts.NoColor)
+	if ext := extOf(name); (ext == "md" || ext == "markdown") && !opts.MarkdownRaw && !truncated {
+		if lines, ok := renderMarkdown(string(body), opts.Width, opts.NoColor); ok {
+			res.Lines = lines
+			return res
+		}
+	}
+	res.Lines = highlight(name, body, opts.NoColor)
+	return res
+}
+
+// isBinaryByName says whether the name alone makes the file binary even if its first bytes look like text: a
+// PDF or media file whose tool is missing gets the hex view, not a wall of garbage.
+func isBinaryByName(name string) bool {
+	e := extOf(name)
+	return e == "pdf" || mediaExts[e] || archiveOf(name) != notArchive
+}
+
+// loadSpecial handles the formats that have their own view: archives, media and PDF. ok is false when the file
+// is none of those, or the view could not be made (the caller then falls back to hex).
+func loadSpecial(ctx context.Context, res Result, path, name string, opts Options) (Result, bool) {
+	if k := archiveOf(name); k != notArchive {
+		lines, total, more, err := listArchive(ctx, path, k)
+		if err != nil {
+			return res, false
+		}
+		res.Kind, res.Lines, res.Truncated = KindArchive, lines, total > len(lines)
+		res.Facts = append(res.Facts, entriesFact(total, more))
+		return res, true
+	}
+	switch ext := extOf(name); {
+	case mediaExts[ext] && opts.Probe != nil:
+		facts, err := opts.Probe(ctx, path)
+		if err != nil || len(facts) == 0 {
+			return res, false
+		}
+		res.Kind, res.Lines = KindMedia, facts
+		return res, true
+	case ext == "pdf" && opts.Raster != nil:
+		png, err := opts.Raster(ctx, path)
+		if err != nil {
+			return res, false
+		}
+		pf, err := os.Open(png)
+		if err != nil {
+			return res, false
+		}
+		defer func() { _ = pf.Close() }()
+		cfg, _, err := image.DecodeConfig(pf)
+		if err != nil {
+			Discard(png)
+			return res, false
+		}
+		res.Kind, res.ImagePath, res.ImageW, res.ImageH = KindImage, png, cfg.Width, cfg.Height
+		return res, true
+	}
+	return res, false
+}
+
+// loadHex shows the first bytes of a binary file as a hex dump.
+func loadHex(res Result, f *os.File, size int64, opts Options) Result {
+	n := opts.HexBytes
+	if n <= 0 {
+		n = DefaultHexBytes
+	}
+	buf := make([]byte, n)
+	got, err := f.ReadAt(buf, 0)
+	if err != nil && err != io.EOF {
+		return failed(res, res.Path, err)
+	}
+	res.Kind, res.Lines, res.Truncated = KindBinary, hexRows(buf[:got]), size > int64(got)
 	return res
 }
 

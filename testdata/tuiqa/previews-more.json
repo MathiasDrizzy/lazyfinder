@@ -1,0 +1,27 @@
+{
+  "name": "lazyfinder-previews-more",
+  "criterio": "R-14 (M5: hex view, archive listing, Markdown rendering)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures-previews",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "env": {"LAZYFINDER_CONFIG": "${TUIQA_SCENARIO_DIR}/fixtures-previews/config.json"},
+  "steps": [
+    {"wait": {"regex": "blob\\.bin", "timeout_ms": 8000}},
+    {"desc": "a binary file shows a hex dump", "keys": ["space"]},
+    {"wait": {"regex": "00000000  61 62 63 00 01 02 64 65  66", "region": {"box_with": "─ blob\\.bin ─"}}},
+    {"assert": {"contains": "\\|abc\\.\\.\\.def\\.\\|"}},
+    {"snapshot": {"name": "hex"}},
+    {"desc": "the next file is the archive: its contents are listed", "keys": ["down"]},
+    {"wait": {"regex": "docs/guide\\.txt", "region": {"box_with": "─ pack\\.zip ─"}}},
+    {"assert": {"contains": "2 entries"}},
+    {"snapshot": {"name": "archive"}},
+    {"desc": "Markdown is rendered, not shown as source", "keys": ["down"]},
+    {"wait": {"regex": "Big Title", "region": {"box_with": "─ readme\\.md ─"}}},
+    {"assert": {"not_contains": "# Big Title"}},
+    {"snapshot": {"name": "markdown"}},
+    {"keys": ["esc", "q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

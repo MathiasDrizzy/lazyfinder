@@ -17,6 +17,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
+	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
 	"github.com/MathiasDrizzy/lazyfinder/internal/termimg"
 	"github.com/MathiasDrizzy/lazyfinder/internal/watch"
 	uv "github.com/charmbracelet/ultraviolet"
@@ -40,6 +41,10 @@ type Deps struct {
 	Now     func() time.Time
 	NoColor bool
 	Watcher watch.Watcher // nil: nothing is followed
+
+	// Probe and Raster are the external tools previews may use for media facts and PDF pages (nil: none).
+	Probe  preview.Probe
+	Raster preview.Raster
 
 	// Follow is the project sidebar mode (--follow): no sidebar, a tree of the start folder that stays on it.
 	Follow  bool

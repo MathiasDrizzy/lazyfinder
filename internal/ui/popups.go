@@ -104,7 +104,11 @@ func (m *Model) refreshPreview() tea.Cmd {
 	m.pv.cancel = cancel
 	id := m.pv.id
 	_, _, _, _, iw, _ := m.previewGeom()
-	opts := preview.Options{MaxTextBytes: m.deps.Cfg.Preview.MaxTextBytes, Width: iw, NoColor: m.deps.NoColor}
+	pc := m.deps.Cfg.Preview
+	opts := preview.Options{MaxTextBytes: pc.MaxTextBytes, Width: iw, NoColor: m.deps.NoColor, HexBytes: pc.HexBytes, MarkdownRaw: pc.Markdown == "raw"}
+	if pc.ExternalTools != "off" {
+		opts.Probe, opts.Raster = m.deps.Probe, m.deps.Raster
+	}
 	load := func() tea.Msg { return previewMsg{id: id, res: preview.Load(ctx, e.Path, opts)} }
 	return tea.Batch(drop, load)
 }
@@ -124,7 +128,11 @@ func (m *Model) onPreview(msg previewMsg) tea.Cmd {
 	_, _, _, _, iw, bodyH := m.previewGeom()
 	cols, rows := termimg.Fit(res.ImageW, res.ImageH, iw, bodyH)
 	id, path := msg.id, res.Path
+	if res.ImagePath != "" {
+		path = res.ImagePath
+	}
 	return func() tea.Msg {
+		defer preview.Discard(path) // only a page image of ours is removed
 		seq, err := termimg.Encode(path, cols, rows)
 		return imageMsg{id: id, seq: seq, cols: cols, rows: rows, err: err}
 	}
@@ -223,8 +231,8 @@ func (m *Model) previewBody(iw, bodyH int) []string {
 		return m.textBody(r, iw, bodyH)
 	case preview.KindImage:
 		return m.imageBody(r, iw)
-	case preview.KindBinary:
-		return []string{m.styles.dim(i18n.T("Archivo binario: sin vista previa de texto", "Binary file: no text preview"))}
+	case preview.KindBinary, preview.KindArchive, preview.KindMedia:
+		return m.textBody(r, iw, bodyH)
 	case preview.KindOther:
 		return []string{m.styles.dim(i18n.T("Archivo especial: sin vista previa", "Special file: not previewed"))}
 	case preview.KindError:
