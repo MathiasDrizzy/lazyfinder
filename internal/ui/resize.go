@@ -198,7 +198,7 @@ func (m *Model) fitBorder(z zone) tea.Cmd {
 	case zoneColBorder:
 		c := z.col
 		if c == fsmodel.ColName {
-			c = m.fitName()
+			m.fitName()
 			break
 		}
 		w := ansi.StringWidth(columnLabel(c))
@@ -212,10 +212,10 @@ func (m *Model) fitBorder(z zone) tea.Cmd {
 }
 
 // fitName makes the Name column as wide as its longest name, taking the difference from the last optional column.
-func (m *Model) fitName() fsmodel.Column {
+func (m *Model) fitName() {
 	specs := m.columns()
 	if len(specs) < 2 {
-		return fsmodel.ColName
+		return
 	}
 	need := ansi.StringWidth(columnLabel(fsmodel.ColName))
 	for _, e := range m.entries() {
@@ -224,5 +224,4 @@ func (m *Model) fitName() fsmodel.Column {
 	last := specs[len(specs)-1].col
 	m.nudgeColumn(fsmodel.ColName, need-specs[0].w)
 	m.saveSize("column_widths."+string(last), m.colWidth(last))
-	return last
 }
