@@ -40,6 +40,7 @@ type Entry struct {
 	Created  time.Time
 	Kind     string
 	Mode     os.FileMode
+	Depth    int // levels below the listed folder, for entries shown by expanding a folder in place
 }
 
 // Listing is the content of one directory. Methods return new values and never modify the receiver.

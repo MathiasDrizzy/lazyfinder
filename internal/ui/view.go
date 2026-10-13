@@ -125,10 +125,10 @@ func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
 	}
 	if m.searchOn() && m.search.recursive {
 		if w := m.where(e); w != "" {
-			return e.Name + "  ‹ " + w
+			return strings.Repeat("  ", e.Depth) + e.Name + "  ‹ " + w
 		}
 	}
-	return e.Name
+	return strings.Repeat("  ", e.Depth) + e.Name
 }
 
 // place is a flattened sidebar line: a section title or a destination.
@@ -385,11 +385,14 @@ func (m *Model) row(idx int, specs []colSpec) string {
 	switch {
 	case selected:
 		pointer = "▸"
-	case m.isFresh(e.Name):
+	case m.isFresh(e.Path):
 		pointer = "+"
 	}
 	if e.IsDir {
 		marker = ">"
+		if m.expanded[e.Path] {
+			marker = "v"
+		}
 	}
 	var b strings.Builder
 	b.WriteString(pointer + " " + marker + " ")
@@ -407,7 +410,7 @@ func (m *Model) row(idx int, specs []colSpec) string {
 		text := fit(m.cell(e, s.col), s.w)
 		switch {
 		case s.col != fsmodel.ColName || selected:
-		case m.isFresh(e.Name):
+		case m.isFresh(e.Path):
 			text = m.styles.fresh(text)
 		case e.IsDir:
 			text = m.styles.folder(text)

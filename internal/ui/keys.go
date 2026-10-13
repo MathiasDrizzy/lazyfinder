@@ -77,6 +77,10 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Ignored:
 		m.hideIgnored = !m.hideIgnored
 		return m.reload()
+	case keymap.Expand:
+		return m.expandSelected()
+	case keymap.Collapse:
+		return m.collapseSelected()
 	case keymap.Goto:
 		m.goto_ = gotoState{open: true}
 	case keymap.Search:

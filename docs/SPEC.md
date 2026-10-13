@@ -160,7 +160,7 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
   and the branch name are shown, refreshed on the same events. Ignored files can be hidden. AC: fixture repo.
 - **R-32 Project sidebar mode (M2/M3)** (Q5). `lazyfinder --follow <dir>` runs a narrow tree view of one project,
   like the VS Code explorer, highlighting what is new. PROPOSAL for the exact UX.
-- **R-33 Disclosure triangles (M3, PROPOSAL)** from the reference screenshot: expand folders in place with `>`.
+- **R-33 Disclosure triangles (M3, done)** from the reference screenshot: expand folders in place with `>`.
 - **R-34 Search (M3, done)**: the screenshot's Search field; name filter first, content search later.
 - **R-35 File operations (M4, PROPOSAL)**: copy, move, rename, trash (never `rm`), new folder, with undo.
 

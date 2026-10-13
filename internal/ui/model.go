@@ -79,7 +79,9 @@ type Model struct {
 	imagesAllowed bool // the terminal answered the Kitty query (or config forces it)
 	nextImgID     int
 
-	watched     string          // the folder the watcher follows
+	watchSet    map[string]bool // the folders the watcher follows
+	expanded    map[string]bool // folders opened in place with +; kept while you move around
+	treeDirs    []string        // the expanded folders that are on screen now
 	fresh       map[string]bool // names that appeared while we looked at this folder
 	git         gitState
 	hideIgnored bool
@@ -108,7 +110,7 @@ func New(d Deps) *Model {
 	m := &Model{
 		deps: d, resolve: opener.New(d.Cfg), keys: km, mouse: d.Cfg.Mouse,
 		hist: history.New(d.Start), sort: s, hidden: d.Cfg.ShowHidden,
-		lastSel: map[string]string{}, nextImgID: 1000, fresh: map[string]bool{},
+		lastSel: map[string]string{}, nextImgID: 1000, fresh: map[string]bool{}, watchSet: map[string]bool{}, expanded: map[string]bool{},
 		hideIgnored:   d.Cfg.Git.HideIgnored,
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
 	}
@@ -154,13 +156,14 @@ func (m *Model) load(dir, name string) error {
 	if err != nil {
 		return err
 	}
-	m.listing = m.readGit(l)
+	m.scanGit(dir)
+	m.listing = m.withChildren(l)
 	if name == "" {
 		name = m.lastSel[dir]
 	}
 	m.sel, m.top = 0, 0
-	for i, e := range l.Entries {
-		if e.Name == name {
+	for i, e := range m.listing.Entries {
+		if e.Depth == 0 && e.Name == name {
 			m.sel = i
 			break
 		}
@@ -232,33 +235,45 @@ func (m *Model) parent() tea.Cmd {
 	return m.enter(p, filepath.Base(d))
 }
 
-// reload re-reads the current directory keeping the selection by name.
+// reload re-reads the current directory keeping the selection by path.
 func (m *Model) reload() tea.Cmd {
-	name := ""
+	keep := ""
 	if e, ok := m.selected(); ok {
-		name = e.Name
+		keep = e.Path
 	}
-	if err := m.load(m.dir(), name); err != nil {
+	if err := m.load(m.dir(), ""); err != nil {
 		m.setError(err)
 		return nil
 	}
+	m.selectPath(keep)
+	m.follow()
 	return m.refreshPreview()
 }
 
-func (m *Model) resort(s fsmodel.Sort) tea.Cmd {
-	name := ""
-	if e, ok := m.selected(); ok {
-		name = e.Name
-	}
-	m.sort = s
-	m.listing = m.listing.Sorted(s)
-	m.sel = 0
+// selectPath moves the selection to the row of path, if it is on screen.
+func (m *Model) selectPath(path string) {
 	for i, e := range m.listing.Entries {
-		if e.Name == name {
+		if e.Path == path {
 			m.sel = i
+			break
 		}
 	}
 	m.ensureVisible()
+}
+
+func (m *Model) resort(s fsmodel.Sort) tea.Cmd {
+	m.sort = s
+	if m.searchOn() { // the list holds results: order them, do not read the folder
+		keep := ""
+		if e, ok := m.selected(); ok {
+			keep = e.Path
+		}
+		m.listing = m.listing.Sorted(s)
+		m.sel = 0
+		m.selectPath(keep)
+		return nil
+	}
+	m.reload()
 	return nil
 }
 

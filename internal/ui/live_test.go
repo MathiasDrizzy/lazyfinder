@@ -36,6 +36,11 @@ func (f *fakeWatcher) Unwatch(d string) {
 }
 func (f *fakeWatcher) Events() <-chan watch.Event { return nil }
 func (f *fakeWatcher) Close() error               { return nil }
+func (f *fakeWatcher) has(d string) bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.watched[d]
+}
 func (f *fakeWatcher) only(d string) bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -113,7 +118,7 @@ func TestNewFilesAreMarkedUntilYouLeaveTheFolder(t *testing.T) {
 	e, _ := liveEnv(t, "")
 	e.touch("fresh.txt", "x")
 	e.send(dirChangedMsg{dir: e.root})
-	if !e.m.isFresh("fresh.txt") || e.m.isFresh("notes.txt") {
+	if !e.m.isFresh(filepath.Join(e.root, "fresh.txt")) || e.m.isFresh(filepath.Join(e.root, "notes.txt")) {
 		t.Fatalf("fresh = %v, want only fresh.txt", e.m.fresh)
 	}
 	if !strings.Contains(e.row("fresh.txt"), "+") {
@@ -122,7 +127,7 @@ func TestNewFilesAreMarkedUntilYouLeaveTheFolder(t *testing.T) {
 	e.clickText("alpha")
 	e.key("enter")
 	e.key("backspace")
-	if e.m.isFresh("fresh.txt") {
+	if e.m.isFresh(filepath.Join(e.root, "fresh.txt")) {
 		t.Fatal("the new-file mark must clear after leaving the folder")
 	}
 }

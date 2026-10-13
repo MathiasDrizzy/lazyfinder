@@ -1,0 +1,28 @@
+{
+  "name": "lazyfinder-tree",
+  "criterio": "R-33",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"desc": "starts", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"assert": {"not_contains": "inner\\.txt"}},
+    {"desc": "a click on the > marker opens the folder in place", "click": {"x": 25, "y": 3}},
+    {"wait": {"regex": "inner\\.txt", "timeout_ms": 3000}},
+    {"desc": "the marker turns into v and the children are indented", "assert": {"contains": "v\\s+alpha"}},
+    {"assert": {"contains": "\\s{6}inner\\.txt"}},
+    {"desc": "folders open inside folders with +", "keys": ["down", "+"]},
+    {"wait": {"regex": "x\\.txt", "timeout_ms": 3000}},
+    {"assert": {"contains": "\\s{8}x\\.txt"}},
+    {"snapshot": {"name": "tree"}},
+    {"desc": "- closes the folder again", "keys": ["-"]},
+    {"assert": {"not_contains": "x\\.txt"}},
+    {"desc": "a - on a child closes its parent and selects it", "keys": ["down", "-"]},
+    {"assert": {"not_contains": "inner\\.txt"}},
+    {"assert": {"contains": "▸ >\\s+alpha"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

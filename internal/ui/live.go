@@ -34,37 +34,48 @@ func waitEvent(w watch.Watcher) tea.Cmd {
 	}
 }
 
-// follow moves the watch to the current folder.
+// follow keeps the watcher on the current folder and on every folder expanded in place.
 func (m *Model) follow() {
-	if m.watched == m.dir() {
-		return
+	want := map[string]bool{m.dir(): true}
+	for _, d := range m.treeDirs {
+		want[d] = true
 	}
-	if m.watched != "" {
-		m.deps.Watcher.Unwatch(m.watched)
+	for d := range m.watchSet {
+		if !want[d] {
+			m.deps.Watcher.Unwatch(d)
+			delete(m.watchSet, d)
+		}
 	}
-	m.watched = ""
-	if err := m.deps.Watcher.Watch(m.dir()); err == nil {
-		m.watched = m.dir()
+	for d := range want {
+		if m.watchSet[d] {
+			continue
+		}
+		if err := m.deps.Watcher.Watch(d); err == nil {
+			m.watchSet[d] = true
+		}
 	}
 }
 
 // onDirChanged re-reads the folder that changed, keeping the selection by name and marking what is new.
 func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 	next := waitEvent(m.deps.Watcher)
-	if msg.dir != m.dir() || m.search.mode != searchOff {
+	if !m.watchSet[msg.dir] || m.search.mode != searchOff {
 		return next
 	}
-	if _, err := os.Stat(m.dir()); err != nil {
-		return tea.Batch(next, m.leaveVanished())
+	if _, err := os.Stat(msg.dir); err != nil {
+		if msg.dir == m.dir() {
+			return tea.Batch(next, m.leaveVanished())
+		}
+		delete(m.expanded, msg.dir) // an expanded folder that vanished
 	}
 	before := map[string]bool{}
 	for _, e := range m.entries() {
-		before[e.Name] = true
+		before[e.Path] = true
 	}
 	cmd := m.reload()
 	for _, e := range m.entries() {
-		if !before[e.Name] {
-			m.fresh[e.Name] = true
+		if !before[e.Path] {
+			m.fresh[e.Path] = true
 		}
 	}
 	return tea.Batch(next, cmd)
@@ -81,30 +92,31 @@ func (m *Model) leaveVanished() tea.Cmd {
 	}
 }
 
-func (m *Model) isFresh(name string) bool { return m.fresh[name] }
+func (m *Model) isFresh(path string) bool { return m.fresh[path] }
 
-// readGit refreshes the repository status for dir and drops ignored entries when asked to.
-func (m *Model) readGit(l fsmodel.Listing) fsmodel.Listing {
+// scanGit refreshes the repository status for dir; outside a repository, or with git turned off, ok stays false.
+func (m *Model) scanGit(dir string) {
 	m.git = gitState{}
 	if !m.deps.Cfg.Git.Enabled {
-		return l
+		return
 	}
-	st, ok, err := git.Read(l.Dir)
-	if err != nil || !ok {
-		return l
+	if st, ok, err := git.Read(dir); err == nil && ok {
+		m.git = gitState{st: st, ok: true}
 	}
-	m.git = gitState{st: st, ok: true}
-	if !m.hideIgnored {
-		return l
+}
+
+// visible drops the entries git ignores when the user asked to hide them.
+func (m *Model) visible(es []fsmodel.Entry) []fsmodel.Entry {
+	if !m.git.ok || !m.hideIgnored {
+		return es
 	}
-	kept := make([]fsmodel.Entry, 0, len(l.Entries))
-	for _, e := range l.Entries {
-		if st.Of(e.Path, e.IsDir) != git.Ignored {
+	kept := make([]fsmodel.Entry, 0, len(es))
+	for _, e := range es {
+		if m.git.st.Of(e.Path, e.IsDir) != git.Ignored {
 			kept = append(kept, e)
 		}
 	}
-	l.Entries = kept
-	return l
+	return kept
 }
 
 func (m *Model) gitCode(e fsmodel.Entry) git.Code {
@@ -112,4 +124,72 @@ func (m *Model) gitCode(e fsmodel.Entry) git.Code {
 		return git.None
 	}
 	return m.git.st.Of(e.Path, e.IsDir)
+}
+
+// withChildren turns a listing into the visible rows: ignored entries hidden when asked, and the folders expanded in
+// place followed by their children, one level deeper each.
+func (m *Model) withChildren(l fsmodel.Listing) fsmodel.Listing {
+	m.treeDirs = nil
+	l.Entries = m.rows(m.visible(l.Entries), 0)
+	return l
+}
+
+func (m *Model) rows(es []fsmodel.Entry, depth int) []fsmodel.Entry {
+	out := make([]fsmodel.Entry, 0, len(es))
+	for _, e := range es {
+		e.Depth = depth
+		out = append(out, e)
+		if !e.IsDir || e.IsLink || !m.expanded[e.Path] {
+			continue
+		}
+		child, err := fsmodel.ReadDir(e.Path, fsmodel.ReadOptions{ShowHidden: m.hidden, Sort: m.sort})
+		if err != nil {
+			delete(m.expanded, e.Path)
+			continue
+		}
+		m.treeDirs = append(m.treeDirs, e.Path)
+		out = append(out, m.rows(m.visible(child.Entries), depth+1)...)
+	}
+	return out
+}
+
+// toggle opens or closes the folder at path in place.
+func (m *Model) toggle(path string) tea.Cmd {
+	if m.searchOn() {
+		return nil
+	}
+	if m.expanded[path] {
+		delete(m.expanded, path)
+	} else {
+		m.expanded[path] = true
+	}
+	m.sel = max(m.sel, 0)
+	return m.reload()
+}
+
+// expandSelected opens the selected folder in place.
+func (m *Model) expandSelected() tea.Cmd {
+	e, ok := m.selected()
+	if !ok || !e.IsDir || e.IsLink || m.expanded[e.Path] {
+		return nil
+	}
+	return m.toggle(e.Path)
+}
+
+// collapseSelected closes the selected folder; on a row inside an open folder it selects that folder and closes it.
+func (m *Model) collapseSelected() tea.Cmd {
+	e, ok := m.selected()
+	if !ok {
+		return nil
+	}
+	if e.IsDir && m.expanded[e.Path] {
+		return m.toggle(e.Path)
+	}
+	if e.Depth == 0 {
+		return nil
+	}
+	parent := filepath.Dir(e.Path)
+	m.sel = 0
+	m.selectPath(parent)
+	return m.toggle(parent)
 }

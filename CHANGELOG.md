@@ -10,6 +10,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Folders open in place like Finder's list view: `+` or a click on the `>` marker (it becomes `v`) shows the children
+  indented under the folder, `-` closes it. Open folders are followed live and remembered while you move around.
 - Go to folder (`ctrl+g`): type a path (`~`, relative or absolute), `Tab` completes folder names, `Enter` goes there
   (a file path goes to its folder and selects it).
 - Built-in openers for Open With: TextEdit, Preview, Visual Studio Code (when installed) and Vim. They can be mapped

@@ -19,6 +19,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `.` | Show or hide dotfiles | `hidden` |
 | `I` | Show or hide files ignored by git | `ignored` |
 | `/` or `ctrl+f` | Open the search bar (see [search](search.md)) | `search` |
+| `+` `=`, `-` | Open or close the selected folder in place; `-` on a row inside an open folder closes that folder. Clicking the `>` marker does the same | `expand` `collapse` |
 | `ctrl+g` | Go to a folder: type a path (`~`, relative or absolute), `Tab` completes, `Enter` goes | `goto` |
 | `r` | Reload the folder | `reload` |
 | `Tab` | Move focus between the sidebar and the list | `focus` |
