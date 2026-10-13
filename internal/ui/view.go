@@ -148,7 +148,7 @@ func (m *Model) places() []place {
 		out = append(out, place{title: title})
 		for _, p := range ps {
 			_, err := os.Stat(p.Path)
-			out = append(out, place{name: p.Name, path: p.Path, missing: err != nil})
+			out = append(out, place{name: localName(p.Name), path: p.Path, missing: err != nil})
 		}
 	}
 	section(i18n.T("Favoritos", "Favorites"), m.deps.Cfg.Sidebar.Favorites)
@@ -179,12 +179,11 @@ func (m *Model) crumbs() []crumb {
 	var parts []crumb
 	cur := dir
 	for {
-		base := filepath.Base(cur)
 		if parent := filepath.Dir(cur); parent == cur {
 			parts = append([]crumb{{label: "/", path: cur}}, parts...)
 			break
 		}
-		parts = append([]crumb{{label: base, path: cur}}, parts...)
+		parts = append([]crumb{{label: m.folderLabel(cur), path: cur}}, parts...)
 		cur = filepath.Dir(cur)
 	}
 	width := func(ps []crumb, ellipsis bool) int {
@@ -291,7 +290,7 @@ func (m *Model) folderTitle() string {
 	if m.dir() == "/" {
 		return "/"
 	}
-	return filepath.Base(m.dir())
+	return m.folderLabel(m.dir())
 }
 
 // counter is the "n of m" in the bottom border of the list panel.
