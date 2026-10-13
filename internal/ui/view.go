@@ -351,6 +351,9 @@ func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []str
 		}
 	}
 	lines[m.h-2] = m.breadcrumb()
+	if m.searchOn() {
+		lines[m.h-2], _ = m.filterBar()
+	}
 	lines[m.h-1] = m.footerBar()
 	if m.popupsKeepTerminalBackground() {
 		lines = strings.Split(m.paint(strings.Join(lines, "\n")), "\n")
@@ -648,8 +651,7 @@ func (m *Model) footerBar() string {
 		if m.status != "" {
 			return fit(" "+m.status, m.w)
 		}
-		bar, _ := m.searchBar()
-		return bar
+		return m.searchBar()
 	}
 	if m.status != "" {
 		if m.statusErr {

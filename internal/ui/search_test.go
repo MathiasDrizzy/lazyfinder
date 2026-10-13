@@ -19,7 +19,7 @@ func (e *env) typeText(s string) {
 func TestSlashOpensTheSearchBarAndTypingFiltersTheFolder(t *testing.T) {
 	e := newEnv(t)
 	e.key("/")
-	e.mustHave("Search")
+	e.mustHave("type to search")
 	e.typeText("notes")
 	e.mustHave("notes.txt")
 	e.mustNotHave("data.xlsx")
@@ -124,7 +124,7 @@ func TestTheScopeChipCanBeClicked(t *testing.T) {
 	e := newEnv(t)
 	e.key("/")
 	e.typeText("inner")
-	e.clickText("[This folder]")
+	e.clickText("This folder ▾")
 	e.mustHave("inner.txt")
 }
 

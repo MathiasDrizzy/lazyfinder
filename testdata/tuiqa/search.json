@@ -21,7 +21,7 @@
     {"desc": "each result says where it lives", "assert": {"contains": "inner\\.txt\\s+‹ alpha"}},
     {"snapshot": {"name": "search-recursive"}},
     {"desc": "a chip is a click away", "keys": ["ctrl+u"]},
-    {"click": {"at": "Folders", "in": {"x": 0, "y": 39, "w": 120, "h": 1}}},
+    {"click": {"at": "Folders", "in": {"x": 0, "y": 38, "w": 120, "h": 1}}},
     {"wait": {"regex": "kind:folder", "timeout_ms": 3000}},
     {"assert": {"contains": ">\\s+\\S\\s+alpha"}},
     {"assert": {"not_contains": "notes\\.txt"}},

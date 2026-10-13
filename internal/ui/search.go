@@ -369,8 +369,8 @@ func byName(by string) string {
 	return i18n.T("Nombre", "Name")
 }
 
-// searchBar renders the bottom row while searching and returns where its chips are.
-func (m *Model) searchBar() (string, []chipSpan) {
+// searchBar renders the prompt row while searching: the field and how many things were found.
+func (m *Model) searchBar() string {
 	prompt := " / "
 	text := m.search.input
 	cursor := ""
@@ -378,31 +378,9 @@ func (m *Model) searchBar() (string, []chipSpan) {
 		cursor = "▏"
 	}
 	if text == "" && m.search.mode == searchTyping {
-		text = m.styles.dim(i18n.T("escribe para buscar (kind: size: modified:)", "type to search (kind: size: modified:)"))
+		text = m.styles.dim(i18n.T("escribe para buscar · Enter va a los resultados · Esc cierra", "type to search · Enter goes to the results · Esc closes"))
 	}
-	left := m.styles.accent(prompt) + text + cursor
-	var spans []chipSpan
-	x := ansi.StringWidth(left) + 2
-	var parts []string
-	add := func(label string, active bool, action string, token string) {
-		s := " " + label + " "
-		w := ansi.StringWidth(s)
-		switch {
-		case active:
-			s = m.styles.selected(s)
-		default:
-			s = m.styles.footerKey(s)
-		}
-		parts = append(parts, s)
-		spans = append(spans, chipSpan{x: x, w: w, action: action, token: token})
-		x += w + 1
-	}
-	add("["+m.scopeLabel()+"]", false, "scope", "")
-	add("["+kindsName(m.search.kinds)+"]", false, "kinds", "")
-	add("["+byName(m.search.by)+"]", false, "by", "")
-	for _, c := range chips {
-		add(c.label(), strings.Contains(" "+m.search.input+" ", " "+c.token+" "), "", c.token)
-	}
+	line := m.styles.accent(prompt) + text + cursor
 	count := fmt.Sprintf(i18n.T("%d encontrados", "%d found"), len(m.entries()))
 	switch {
 	case m.search.running:
@@ -410,12 +388,67 @@ func (m *Model) searchBar() (string, []chipSpan) {
 	case m.search.truncated:
 		count += " (" + i18n.T("límite alcanzado", "limit reached") + ")"
 	}
-	line := left + "  " + strings.Join(parts, " ")
 	pad := m.w - ansi.StringWidth(line) - ansi.StringWidth(count) - 1
 	if pad > 0 {
 		line += strings.Repeat(" ", pad) + m.styles.dim(count)
 	}
+	return fit(line, m.w)
+}
+
+// filterBar renders the row above the prompt: where, what and how to search as labelled buttons, then the quick
+// filters. What does not fit is dropped whole (first the quick filters, then the key hints), never cut.
+func (m *Model) filterBar() (string, []chipSpan) {
+	for _, v := range []struct {
+		hints, labels bool
+		chips         int
+	}{{true, true, len(chips)}, {true, true, 3}, {true, true, 0}, {false, true, 0}, {false, false, 0}} {
+		if line, spans := m.buildFilterBar(v.hints, v.labels, v.chips); ansi.StringWidth(line) <= m.w {
+			return line, spans
+		}
+	}
+	line, spans := m.buildFilterBar(false, false, 0)
 	return fit(line, m.w), spans
+}
+
+func (m *Model) buildFilterBar(hints, labels bool, nChips int) (string, []chipSpan) {
+	var b strings.Builder
+	var spans []chipSpan
+	x := 0
+	put := func(styled, plain string) {
+		b.WriteString(styled)
+		x += ansi.StringWidth(plain)
+	}
+	put(" ", " ")
+	choice := func(label, hint, value, action string) {
+		if hints {
+			label += " (" + hint + ")"
+		}
+		if labels {
+			put(m.styles.dim(label+": "), label+": ")
+		}
+		button := " " + value + " ▾ "
+		spans = append(spans, chipSpan{x: x, w: ansi.StringWidth(button), action: action})
+		put(m.styles.selected(button), button)
+		put("  ", "  ")
+	}
+	choice(i18n.T("Dónde", "Look in"), "Tab", m.scopeLabel(), "scope")
+	choice(i18n.T("Qué", "What"), "^K", kindsName(m.search.kinds), "kinds")
+	choice(i18n.T("Por", "By"), "^N", byName(m.search.by), "by")
+	if nChips > 0 {
+		put(m.styles.dim("│ "), "│ ")
+	}
+	for _, c := range chips[:nChips] {
+		label := " " + c.label() + " "
+		active := strings.Contains(" "+m.search.input+" ", " "+c.token+" ")
+		spans = append(spans, chipSpan{x: x, w: ansi.StringWidth(label), token: c.token})
+		if active {
+			put(m.styles.selected(label), label)
+		} else {
+			put(m.styles.footerKey(label), label)
+		}
+		put(" ", " ")
+	}
+	return b.String(), spans
 }
 
 // toggleToken adds the token to the query, or removes it when it is already there.
@@ -438,7 +471,7 @@ func (m *Model) toggleToken(token string) tea.Cmd {
 }
 
 func (m *Model) clickChip(idx int) tea.Cmd {
-	_, spans := m.searchBar()
+	_, spans := m.filterBar()
 	if idx < 0 || idx >= len(spans) {
 		return nil
 	}

@@ -74,7 +74,9 @@ func (m *Model) hit(x, y int) zone {
 			}
 		}
 	case y == m.h-1 && m.searchOn():
-		_, spans := m.searchBar()
+		return zone{kind: zoneSearch}
+	case y == m.h-2 && m.searchOn():
+		_, spans := m.filterBar()
 		for i, s := range spans {
 			if x >= s.x && x < s.x+s.w {
 				return zone{kind: zoneChip, idx: i}

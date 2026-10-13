@@ -12,12 +12,12 @@
     {"desc": "Recents is a place of the sidebar", "assert": {"contains": "Recents"}},
     {"desc": "a click on the field starts a search", "click": {"at": "Search", "in": {"x": 0, "y": 0, "w": 120, "h": 1}}},
     {"keys": ["n", "o", "t", "e", "s"]},
-    {"desc": "the bar offers the three choices", "assert": {"contains": "\\[This folder\\]\\s+\\[Files and folders\\]\\s+\\[Name\\]"}},
+    {"desc": "the bar offers the three choices", "assert": {"contains": "Look in \\(Tab\\):\\s+This folder ▾\\s+What \\(\\^K\\):\\s+Files and folders ▾\\s+By \\(\\^N\\):\\s+Name ▾"}},
     {"desc": "only the match is left", "assert": {"not_contains": "data\\.xlsx"}},
     {"desc": "clear the query first: the system index is never asked from a test", "keys": ["ctrl+u", "tab", "tab"]},
-    {"desc": "two Tabs reach the whole system", "assert": {"contains": "\\[System\\]"}},
+    {"desc": "two Tabs reach the whole system", "assert": {"contains": "System ▾"}},
     {"keys": ["tab", "ctrl+k"]},
-    {"desc": "kinds moved on to files", "assert": {"contains": "\\[Files\\]"}},
+    {"desc": "kinds moved on to files", "assert": {"contains": "Files ▾"}},
     {"keys": ["esc"]},
     {"desc": "closing brings the folder back", "assert": {"contains": "data\\.xlsx"}}
   ]
