@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/alecthomas/chroma/v2"
 	"github.com/alecthomas/chroma/v2/formatters"
 	"github.com/alecthomas/chroma/v2/lexers"
@@ -107,7 +108,7 @@ func Load(ctx context.Context, path string, opts Options) Result {
 	head = head[:n]
 	if cfg, _, err := image.DecodeConfig(bytes.NewReader(head)); err == nil && info.Size() <= imageMaxBytes {
 		res.Kind, res.ImageW, res.ImageH = KindImage, cfg.Width, cfg.Height
-		res.Facts = append(res.Facts, fmt.Sprintf("Dimensions: %d x %d", cfg.Width, cfg.Height))
+		res.Facts = append(res.Facts, fmt.Sprintf(i18n.T("Dimensiones: %d x %d", "Dimensions: %d x %d"), cfg.Width, cfg.Height))
 		return res
 	}
 	if bytes.IndexByte(head, 0) >= 0 {
@@ -162,12 +163,12 @@ func facts(path string, info os.FileInfo) []string {
 		isLink = li.Mode()&os.ModeSymlink != 0
 	}
 	f := []string{
-		"Kind: " + fsmodel.KindOf(filepath.Base(path), info.IsDir(), isLink),
+		i18n.T("Clase: ", "Kind: ") + fsmodel.KindOf(filepath.Base(path), info.IsDir(), isLink),
 	}
 	if !info.IsDir() {
-		f = append(f, "Size: "+fsmodel.HumanSize(info.Size()))
+		f = append(f, i18n.T("Tamaño: ", "Size: ")+fsmodel.HumanSize(info.Size()))
 	}
-	return append(f, "Modified: "+fsmodel.FormatDate(info.ModTime(), time.Now()))
+	return append(f, i18n.T("Modificado: ", "Modified: ")+fsmodel.FormatDate(info.ModTime(), time.Now()))
 }
 
 func loadDir(ctx context.Context, res Result, path string) Result {

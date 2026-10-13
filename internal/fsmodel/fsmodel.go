@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
 
 // Column identifies a sortable, displayable column.
@@ -194,11 +196,11 @@ func naturalLess(a, b string) bool {
 func HumanSize(n int64) string {
 	switch {
 	case n == 0:
-		return "Zero bytes"
+		return i18n.T("Cero bytes", "Zero bytes")
 	case n == 1:
-		return "1 byte"
+		return i18n.T("1 byte", "1 byte")
 	case n < 1000:
-		return fmt.Sprintf("%d bytes", n)
+		return fmt.Sprintf(i18n.T("%d bytes", "%d bytes"), n)
 	}
 	units := []string{"KB", "MB", "GB", "TB", "PB"}
 	v := float64(n)
@@ -224,9 +226,9 @@ func FormatDate(t, now time.Time) string {
 	today := time.Date(ny, nm, nd, 0, 0, 0, 0, now.Location())
 	switch {
 	case ty == ny && tm == nm && td == nd:
-		return "Today at " + t.Format("15:04")
+		return i18n.T("Hoy a las ", "Today at ") + t.Format("15:04")
 	case ty == today.AddDate(0, 0, -1).Year() && tm == today.AddDate(0, 0, -1).Month() && td == today.AddDate(0, 0, -1).Day():
-		return "Yesterday at " + t.Format("15:04")
+		return i18n.T("Ayer a las ", "Yesterday at ") + t.Format("15:04")
 	}
-	return t.Format("2 Jan 2006")
+	return t.Format(i18n.T("02/01/2006", "2 Jan 2006")) // the pair is a Go time layout
 }

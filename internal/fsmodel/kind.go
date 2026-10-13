@@ -3,6 +3,8 @@ package fsmodel
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
 
 // kinds maps lowercase extensions to the Finder-style kind name. A table keeps Kind deterministic and free of
@@ -35,16 +37,16 @@ var kinds = map[string]string{
 func KindOf(name string, isDir, isLink bool) string {
 	switch {
 	case isLink:
-		return "Alias"
+		return i18n.T("Alias", "Alias")
 	case isDir:
-		return "Folder"
+		return i18n.T("Carpeta", "Folder")
 	}
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(name), "."))
 	if ext == "" {
-		return "Document"
+		return i18n.T("Documento", "Document")
 	}
 	if k, ok := kinds[ext]; ok {
 		return k
 	}
-	return strings.ToUpper(ext) + " File"
+	return strings.ToUpper(ext) + i18n.T(" (archivo)", " File")
 }
