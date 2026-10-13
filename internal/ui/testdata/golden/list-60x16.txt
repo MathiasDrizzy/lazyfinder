@@ -3,10 +3,10 @@
 │  Recents      ││    Name ▲                              │
 │  Home         ││▸ >   alpha                            │
 │  Projects     ││  >   beta                             │
-╰────────────────╯│      data.xlsx                        │
-╭─ Locations ────╮│      main.go                          │
-│  Disk         ││      notes.txt                        │
-│                ││                                        │
+│                ││      data.xlsx                        │
+╰────────────────╯│      main.go                          │
+╭─ Locations ────╮│      notes.txt                        │
+│  Disk         ││                                        │
 │                ││                                        │
 │                ││                                        │
 │                ││                                        │

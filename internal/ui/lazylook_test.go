@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -271,5 +272,65 @@ func TestPlainTextTakesTheThemeTextColorOnALightTheme(t *testing.T) {
 	e.m.restyle()
 	if !strings.Contains(rawLine(e, "notes.txt"), "\x1b[38;2;76;79;105m") { // latte text #4c4f69
 		t.Fatalf("a row of a light theme must set its own text color: %q", rawLine(e, "notes.txt"))
+	}
+}
+
+// Mathias: the boxes start at half of the sidebar each, and Favorites stretches by itself as folders are added.
+func (e *env) boxHeights() (fav, loc int) {
+	e.t.Helper()
+	l := e.m.sidebarBoxLayout()
+	if len(l) != 2 {
+		e.t.Fatalf("want two boxes, got %d", len(l))
+	}
+	return l[0].h, l[1].h
+}
+
+func (e *env) withFavorites(n int) {
+	favs := make([]config.Place, n)
+	for i := range favs {
+		favs[i] = config.Place{Name: fmt.Sprintf("fav%02d", i), Path: e.root}
+	}
+	e.m.setFavorites(favs)
+}
+
+func TestTheBoxesStartAtHalfAndFavoritesGrowsWithItsFolders(t *testing.T) {
+	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 120, Height: 24})
+	total := e.m.panelH()
+	e.withFavorites(2)
+	fav, loc := e.boxHeights()
+	if fav != total/2 || fav+loc != total {
+		t.Fatalf("2 favorites: boxes %d and %d of %d, want half and half", fav, loc, total)
+	}
+	e.withFavorites(10)
+	if fav2, loc2 := e.boxHeights(); fav2 <= loc2 || fav2 <= fav || fav2+loc2 != total {
+		t.Fatalf("10 favorites: Favorites %d must be taller than Locations %d and than before (%d)", fav2, loc2, fav)
+	}
+	e.withFavorites(2)
+	if back, _ := e.boxHeights(); back != fav {
+		t.Fatalf("removing favorites must give the space back: %d, want %d", back, fav)
+	}
+}
+
+func TestLocationsKeepsAVisibleMinimumAndFavoritesScrolls(t *testing.T) {
+	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 120, Height: 24})
+	e.withFavorites(40)
+	fav, loc := e.boxHeights()
+	if loc < 4 || fav+loc != e.m.panelH() {
+		t.Fatalf("Locations %d must keep at least 4 rows (Favorites %d)", loc, fav)
+	}
+	e.key("tab")
+	for i := 0; i < 30; i++ {
+		e.key("down")
+	}
+	p, _ := e.m.selectedPlace()
+	if !e.has(p.name) {
+		t.Fatalf("the selected favorite %s must scroll into view:\n%s", p.name, e.text())
+	}
+	x, y := e.find(p.name)
+	e.click(x, y)
+	if q, _ := e.m.selectedPlace(); q.name != p.name {
+		t.Fatalf("a click on the scrolled box hit %s, want %s", q.name, p.name)
 	}
 }

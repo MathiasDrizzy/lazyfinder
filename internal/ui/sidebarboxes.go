@@ -14,7 +14,11 @@ type sbBox struct {
 	title string
 	items []int // indexes into places()
 	y, h  int   // first row inside the sidebar column, and height with the borders
+	off   int   // the first item shown, when there are more items than lines
 }
+
+// visible is the number of item lines inside the box.
+func (b sbBox) visible() int { return max(0, b.h-2) }
 
 // sidebarSections splits places() into the items of Favorites (with Recents) and of Locations.
 func (m *Model) sidebarSections() (favs, locs []int) {
@@ -31,26 +35,56 @@ func (m *Model) sidebarSections() (favs, locs []int) {
 	return favs, locs
 }
 
-// sidebarBoxLayout stacks the two boxes in the panel height: Favorites takes what its items need and Locations the
-// rest. When the window is too short for both, Favorites alone fills the column.
+// minLocationsH is the least Locations keeps while Favorites grows: its borders and two lines.
+const minLocationsH = 4
+
+// sidebarBoxLayout stacks the two boxes in the panel height. Each starts at half; Favorites stretches by itself when
+// it has more folders than fit in its half, and Locations gives the space up down to a visible minimum. What still
+// does not fit scrolls inside its box. When the window is too short for both, Favorites alone fills the column.
 func (m *Model) sidebarBoxLayout() []sbBox {
 	favs, locs := m.sidebarSections()
 	total := m.panelH()
+	fav := sbBox{title: i18n.T("Favoritos", "Favorites"), items: favs}
 	if total < 2*minBoxH {
-		return []sbBox{{title: i18n.T("Favoritos", "Favorites"), items: favs, y: 0, h: total}}
+		fav.h = total
+		fav.off = m.boxOffset(fav)
+		return []sbBox{fav}
 	}
-	hFav := max(minBoxH, min(len(favs)+2, total-minBoxH))
-	return []sbBox{
-		{title: i18n.T("Favoritos", "Favorites"), items: favs, y: 0, h: hFav},
-		{title: i18n.T("Ubicaciones", "Locations"), items: locs, y: hFav, h: total - hFav},
+	hFav := max(total/2, min(len(favs)+2, total-minLocationsH))
+	hFav = min(hFav, total-minBoxH)
+	fav.h = hFav
+	loc := sbBox{title: i18n.T("Ubicaciones", "Locations"), items: locs, y: hFav, h: total - hFav}
+	fav.off, loc.off = m.boxOffset(fav), m.boxOffset(loc)
+	return []sbBox{fav, loc}
+}
+
+// boxOffset is the first item a box shows: the selection is kept in view when it is in this box.
+func (m *Model) boxOffset(b sbBox) int {
+	over := len(b.items) - b.visible()
+	if over <= 0 {
+		return 0
 	}
+	if m.focus != focusSidebar {
+		return 0
+	}
+	dests := destinations(m.places())
+	if len(dests) == 0 {
+		return 0
+	}
+	sel := dests[min(m.sideSel, len(dests)-1)]
+	for k, pi := range b.items {
+		if pi == sel {
+			return max(0, min(over, k-b.visible()+1))
+		}
+	}
+	return 0
 }
 
 // sidebarItemAt returns the place on a row of the sidebar column (0 is the top border); borders and empty space
 // have none.
 func (m *Model) sidebarItemAt(row int) (int, bool) {
 	for _, b := range m.sidebarBoxLayout() {
-		if k := row - b.y - 1; row > b.y && row < b.y+b.h-1 && k < len(b.items) {
+		if k := row - b.y - 1 + b.off; row > b.y && row < b.y+b.h-1 && k < len(b.items) {
 			return b.items[k], true
 		}
 	}
@@ -71,7 +105,7 @@ func (m *Model) sidebarBoxes() []string {
 	for _, b := range m.sidebarBoxLayout() {
 		lines := make([]string, 0, len(b.items))
 		active := false
-		for _, pi := range b.items {
+		for _, pi := range b.items[min(b.off, len(b.items)):] {
 			lines = append(lines, m.placeLine(ps[pi], pi == selected && m.focus == focusSidebar, w))
 			active = active || (pi == selected && m.focus == focusSidebar)
 		}

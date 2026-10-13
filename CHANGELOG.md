@@ -9,7 +9,9 @@ All notable changes to this project are documented here. The format follows
 ### Added
 
 - Favorites and Locations are two boxes in the sidebar, each with its own border and title (the one holding the
-  selection takes the focus color), like Folders, Tasks and Tags in lazymark.
+  selection takes the focus color), like Folders, Tasks and Tags in lazymark. Each starts at half the sidebar;
+  Favorites stretches by itself as folders are added (Locations keeps four rows) and shrinks back when they are
+  removed; what does not fit scrolls inside its box.
 - A `│` between the column names in the header, like Finder (not down the rows); `column_separators` and a Settings row
   switch it off, and dragging it still resizes the column.
 - `icon_size` (`small`, `medium`, `large`) in Settings and `config.json`: more air around the icons and icons in the
