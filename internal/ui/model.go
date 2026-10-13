@@ -385,6 +385,7 @@ func (m *Model) openSelected() tea.Cmd {
 		}
 		return m.enter(e.Path, "")
 	}
+	m.noteVisit(e.Path)
 	return m.run(m.resolve.Resolve(e.Path))
 }
 

@@ -3,6 +3,7 @@ package ui
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
@@ -16,7 +17,7 @@ func TestRecentsListVisitedFoldersNewestFirstAndOpenOne(t *testing.T) {
 	e.clickText("beta")
 	e.key("enter") // now in beta; recents: beta, proj, alpha
 	e.key("E")
-	e.mustHave("Recent folders")
+	e.mustHave("Recent files and folders")
 	if got := e.m.picker.items[0].label; got != "beta" {
 		t.Fatalf("first = %q, want the newest folder", got)
 	}
@@ -25,7 +26,7 @@ func TestRecentsListVisitedFoldersNewestFirstAndOpenOne(t *testing.T) {
 	if filepath.Base(e.m.dir()) != "proj" {
 		t.Fatalf("enter must open the chosen folder, in %s", e.m.dir())
 	}
-	e.mustNotHave("Recent folders")
+	e.mustNotHave("Recent files and folders")
 }
 
 func TestRecentsAreCappedAndDeduplicated(t *testing.T) {
@@ -74,4 +75,32 @@ func TestRecentsDropFoldersThatNoLongerExist(t *testing.T) {
 	e.key("E")
 	e.mustNotHave("gone")
 	e.mustHave("beta")
+}
+
+func TestRecentsAlsoListTheFilesYouOpenAndRevealThem(t *testing.T) {
+	e := newEnv(t)
+	e.clickText("notes.txt")
+	e.key("enter") // opens the file with the configured program
+	e.clickText("alpha")
+	e.key("enter")
+	e.key("E")
+	var labels []string
+	for _, it := range e.m.picker.items {
+		labels = append(labels, it.label)
+	}
+	if !slices.Contains(labels, "notes.txt") {
+		t.Fatalf("the opened file is not in the recents: %v", labels)
+	}
+	for i, it := range e.m.picker.items {
+		if it.label == "notes.txt" {
+			e.m.picker.sel = i
+		}
+	}
+	e.key("enter")
+	if e.m.dir() != e.root {
+		t.Fatalf("choosing a file shows its folder, in %s", e.m.dir())
+	}
+	if en, ok := e.m.selected(); !ok || en.Name != "notes.txt" {
+		t.Fatalf("the file should be selected, got %+v", en)
+	}
 }

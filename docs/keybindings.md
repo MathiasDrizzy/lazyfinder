@@ -38,7 +38,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `ctrl+t`, `ctrl+w` | New tab (a copy of this one), close the tab; the last tab stays | `new_tab` `close_tab` |
 | `}`, `{` | Next and previous tab (wraps around) | `next_tab` `prev_tab` |
 | `b` | Bookmark: add the selected folder (or this one) to Favorites, or remove it. Saved in `config.json` | `bookmark` |
-| `E` | Recent folders (the last 20, kept in `recents.json` next to the config) | `recents` |
+| `E` | Recent files and folders (the last 20 you went to or opened, kept in `recents.json` next to the config) | `recents` |
 | `f` | Quick filter by name or glob (`*.go`); `Enter` keeps it, `Esc` drops it. Ends when you leave the folder | `filter` |
 | `F` | Saved searches; `Delete` removes one. Save the search being typed with `ctrl+s` | `saved_searches` |
 | `t`, `T` | Tag the marked rows (again to untag), list the tags in use and search for one | `tag` `tags` |
