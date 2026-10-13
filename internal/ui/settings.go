@@ -28,6 +28,8 @@ const (
 	setScreenBackground
 	setIcons
 	setKeys
+	setDateFormat
+	setDensity
 	setSearchScope
 	setSearchKinds
 	setSearchBy
@@ -53,6 +55,10 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Fondo de pantalla", "Screen background")
 	case setIcons:
 		return i18n.T("Iconos", "Icons")
+	case setDateFormat:
+		return i18n.T("Formato de fechas", "Date format")
+	case setDensity:
+		return i18n.T("Densidad de filas", "Row density")
 	case setKeys:
 		return i18n.T("Atajos", "Keybindings")
 	case setSearchScope:
@@ -96,6 +102,10 @@ func (m *Model) settingValue(i int) string {
 		return i18n.T("tema", "theme")
 	case setIcons:
 		return c.Icons
+	case setDateFormat:
+		return c.DateFormat
+	case setDensity:
+		return c.Density
 	case setKeys:
 		if c.KeybindingMode == keymap.ModeLazy {
 			return "Lazy"
@@ -165,6 +175,14 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons
 		m.icons.Style = icons.Style(m.deps.Cfg.Icons)
+	case setDateFormat:
+		m.deps.Cfg.DateFormat = cycle(config.DateFormats, m.deps.Cfg.DateFormat, dir)
+		key, val = "date_format", m.deps.Cfg.DateFormat
+		m.ensureVisible()
+	case setDensity:
+		m.deps.Cfg.Density = cycle(config.Densities, m.deps.Cfg.Density, dir)
+		key, val = "density", m.deps.Cfg.Density
+		m.ensureVisible()
 	case setKeys:
 		m.deps.Cfg.KeybindingMode = cycle([]string{keymap.ModeDual, keymap.ModeLazy}, m.deps.Cfg.KeybindingMode, dir)
 		key, val = "keybinding_mode", m.deps.Cfg.KeybindingMode

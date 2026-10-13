@@ -175,6 +175,9 @@ func (m *Model) openContext(z zone, x, y int) bool {
 		} else {
 			items = append(items, ctxItem{i18n.T("Añadir a Favoritos", "Add to Favorites"), func() tea.Cmd { return m.addFavorite(e.Path) }})
 		}
+	case zoneHeader, zoneColBorder:
+		items = m.columnMenu(z.col)
+		title = i18n.T("Columnas", "Columns")
 	default:
 		return false
 	}

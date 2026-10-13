@@ -35,14 +35,6 @@ func isResizeAction(a keymap.Action) bool {
 	return a == keymap.SidebarNarrow || a == keymap.SidebarWiden || a == keymap.ColumnNarrow || a == keymap.ColumnWiden
 }
 
-// colWidth is the width of an optional column: the one from config.json, else the default.
-func (m *Model) colWidth(c fsmodel.Column) int {
-	if w, ok := m.deps.Cfg.ColumnWidths[string(c)]; ok {
-		return w
-	}
-	return columnWidths[c]
-}
-
 // setSidebarWidth keeps the sidebar between its minimum and half the window.
 func (m *Model) setSidebarWidth(w int) {
 	m.deps.Cfg.SidebarWidth = max(config.MinSidebar, min(w, config.MaxSidebar, m.w/2))

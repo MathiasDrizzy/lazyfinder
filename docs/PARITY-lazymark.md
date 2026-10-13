@@ -137,6 +137,6 @@ Settings popup, the popups and `internal/app/mouse.go`.
 |---|---|---|
 | Search `/` over the notes with `lazymark search` | search bar at the bottom, `/`; visible Search field at the top right; scope (folder, subfolders, system via Spotlight), files/folders, name/content, saved in config.json and in Settings | done (block C) |
 | - | Favorites: `b` bookmarks the current folder | done (block F: right-click menu, remove `d`, rename `F2`, reorder `K` `J`, Trash location) |
-| - | Columns: fixed list, sort by click | missing (block G: choose, order, width, date format, header menu) |
+| - | Columns: choose, order (right click on the header), width (drag, `column_widths`), sort by any, date format, row density; Kind and dates fit their text | done (block G; Date Added and Location are n/a: Date Added needs a Spotlight query per file, Location is already shown after the name in search results) |
 | - | Places named in the interface language | done |
 | - | Recents place in the sidebar | done (block C) |

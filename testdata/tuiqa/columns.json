@@ -1,0 +1,24 @@
+{
+  "name": "lazyfinder-columns",
+  "criterio": "order 2026-10-13-05 block G (right click on the header chooses and moves columns, date format and density in Settings)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 140,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "the Kind column is not cut", "assert": {"contains": "Excel Spreadsheet"}},
+    {"desc": "right click on a header opens the columns menu", "click": {"at": "Size", "in": {"x": 23, "y": 2, "w": 110, "h": 1}, "button": "right"}},
+    {"assert": {"contains": "✓ Size"}},
+    {"assert": {"contains": "Move left"}},
+    {"desc": "choose Extension", "click": {"at": "Extension", "in": {"x": 0, "y": 3, "w": 140, "h": 30}}},
+    {"desc": "the new column shows the extension of each file", "assert": {"contains": "(?m)xlsx\\s"}},
+    {"desc": "rows are one line apart by default", "assert": {"contains": "alpha[^\\n]*\\n[^\\n]*beta"}},
+    {"desc": "Settings has the new rows", "keys": [","]},
+    {"assert": {"contains": "Date format"}},
+    {"assert": {"contains": "Row density"}},
+    {"desc": "move to Row density and make it comfortable", "keys": ["down", "down", "down", "down", "down", "down", "down", "down", "down", "right", "esc"]},
+    {"desc": "now a blank line separates the rows", "assert": {"contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"}}
+  ]
+}

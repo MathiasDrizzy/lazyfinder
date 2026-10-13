@@ -1,0 +1,53 @@
+package ui
+
+import (
+	"time"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/charmbracelet/x/ansi"
+)
+
+const maxAutoWidth = 34 // an automatic column never takes more than this
+
+// date writes a time in the date format of the config.
+func (m *Model) date(t time.Time) string {
+	return fsmodel.FormatDateAs(m.deps.Cfg.DateFormat, t, m.deps.Now())
+}
+
+// dateWidth is the widest a date can get in the current format and language.
+func (m *Model) dateWidth() int {
+	now := m.deps.Now()
+	w := 0
+	for _, t := range []time.Time{now, now.AddDate(0, 0, -1), now.AddDate(-1, 0, 0)} {
+		w = max(w, ansi.StringWidth(m.date(t)))
+	}
+	return w
+}
+
+// colWidth is the width of an optional column: the one in config.json, else what its title and its content need.
+func (m *Model) colWidth(c fsmodel.Column) int {
+	if w, ok := m.deps.Cfg.ColumnWidths[string(c)]; ok {
+		return w
+	}
+	return m.autoWidth(c)
+}
+
+// autoWidth fits a column to its title (with room for the sort arrow) and its widest cell, so "Kind" and "Date
+// Modified" are not cut while the window allows it.
+func (m *Model) autoWidth(c fsmodel.Column) int {
+	need := ansi.StringWidth(columnLabel(c)) + 2
+	switch c {
+	case fsmodel.ColModified, fsmodel.ColCreated, fsmodel.ColOpened:
+		need = max(need, m.dateWidth())
+	case fsmodel.ColPerms:
+		need = max(need, 10)
+	case fsmodel.ColSize:
+		need = max(need, columnWidths[c])
+	default:
+		for _, e := range m.entries() {
+			need = max(need, ansi.StringWidth(m.cell(e, c))+1) // one cell of air before the border
+		}
+	}
+	return max(config.MinColumn, min(need, maxAutoWidth))
+}

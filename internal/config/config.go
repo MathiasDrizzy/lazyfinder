@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -54,6 +55,8 @@ type Config struct {
 	Preview        Preview           `json:"preview"`
 	Icons          string            `json:"icons"`           // nerd (Nerd Font glyphs), ascii or off
 	IconMap        map[string]string `json:"icon_map"`        // extension -> glyph, overrides the built-in ones
+	DateFormat     string            `json:"date_format"`     // relative (Today at 09:05), finder (Today, 09:05) or numeric (2026-10-13 09:05)
+	Density        string            `json:"density"`         // compact (one line per row) or comfortable (two)
 	KeybindingMode string            `json:"keybinding_mode"` // dual (arrows and Vim letters) or lazy (arrows only)
 	Layout         string            `json:"layout"`          // list (detail columns) or columns (parent, folder, preview)
 	// SidebarWidth and PreviewWidth are cells (0 is automatic); ColumnWidths maps a column to its width in cells.
@@ -146,7 +149,13 @@ type Watch struct {
 	PollIntervalMS int `json:"poll_interval_ms"`
 }
 
-var validColumns = map[string]bool{"name": true, "modified": true, "created": true, "size": true, "kind": true}
+var validColumns = map[string]bool{"name": true, "modified": true, "created": true, "opened": true, "size": true, "kind": true, "extension": true, "permissions": true, "tags": true}
+
+// Valid values of the "date_format" and "density" settings.
+var (
+	DateFormats = []string{"relative", "finder", "numeric"}
+	Densities   = []string{"compact", "comfortable"}
+)
 
 // ResolvePath picks the config file: $LAZYFINDER_CONFIG, $XDG_CONFIG_HOME/lazyfinder/config.json,
 // then ~/.config/lazyfinder/config.json.
@@ -163,23 +172,23 @@ func ResolvePath(getenv func(string) string, home string) string {
 // Defaults returns the configuration used when there is no file.
 func Defaults(home string) Config {
 	return Config{
-		Version:        currentVersion,
-		Columns:        []string{"name", "modified", "created", "size", "kind"},
-		Sort:           SortConfig{By: "name", FoldersFirst: true},
-		Sidebar:        defaultSidebar(home),
-		Openers:        map[string]Opener{},
-		Commands:       map[string]Opener{},
-		OpenWith:       map[string]string{},
-		Preview:        Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
-		Icons:          "nerd",
-		IconMap:        map[string]string{},
-		KeybindingMode: "dual",
-		Layout:         "list",
-		Theme:          theme.Default,
-		Watch:          Watch{MaxDirs: 64, PollIntervalMS: 2000},
-		Git:            Git{Enabled: true},
-		Search:         Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
-		Ops:            Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
+		Version:    currentVersion,
+		Columns:    []string{"name", "modified", "created", "size", "kind"},
+		Sort:       SortConfig{By: "name", FoldersFirst: true},
+		Sidebar:    defaultSidebar(home),
+		Openers:    map[string]Opener{},
+		Commands:   map[string]Opener{},
+		OpenWith:   map[string]string{},
+		Preview:    Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
+		Icons:      "nerd",
+		IconMap:    map[string]string{},
+		DateFormat: "relative", Density: "compact", KeybindingMode: "dual",
+		Layout: "list",
+		Theme:  theme.Default,
+		Watch:  Watch{MaxDirs: 64, PollIntervalMS: 2000},
+		Git:    Git{Enabled: true},
+		Search: Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
+		Ops:    Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -314,6 +323,12 @@ func validate(cfg *Config, home string) error {
 		if w < MinColumn || w > MaxColumn {
 			return i18n.Errorf(`"column_widths.%s" debe ser de %d a %d (hay %d)`, `"column_widths.%s" must be from %d to %d (got %d)`, c, MinColumn, MaxColumn, w)
 		}
+	}
+	if !slices.Contains(DateFormats, cfg.DateFormat) {
+		return i18n.Errorf(`"date_format" %q no es válido (usa %s)`, `"date_format" %q is not valid (use %s)`, cfg.DateFormat, strings.Join(DateFormats, ", "))
+	}
+	if !slices.Contains(Densities, cfg.Density) {
+		return i18n.Errorf(`"density" %q no es válido (usa %s)`, `"density" %q is not valid (use %s)`, cfg.Density, strings.Join(Densities, ", "))
 	}
 	if cfg.KeybindingMode != keymap.ModeDual && cfg.KeybindingMode != keymap.ModeLazy {
 		return i18n.Errorf(`"keybinding_mode" %q no es válido (usa dual o lazy)`, `"keybinding_mode" %q is not valid (use dual or lazy)`, cfg.KeybindingMode)

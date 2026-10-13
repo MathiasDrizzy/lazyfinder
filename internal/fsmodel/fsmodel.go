@@ -26,10 +26,14 @@ const (
 	ColCreated  Column = "created"
 	ColSize     Column = "size"
 	ColKind     Column = "kind"
+	ColOpened   Column = "opened" // last opened
+	ColExt      Column = "extension"
+	ColPerms    Column = "permissions"
+	ColTags     Column = "tags"
 )
 
 // AllColumns lists the columns in their default order.
-var AllColumns = []Column{ColName, ColModified, ColCreated, ColSize, ColKind}
+var AllColumns = []Column{ColName, ColModified, ColCreated, ColOpened, ColSize, ColKind, ColExt, ColPerms, ColTags}
 
 // Entry is one row of a listing. It is a plain value.
 type Entry struct {
@@ -40,6 +44,7 @@ type Entry struct {
 	Size     int64
 	Modified time.Time
 	Created  time.Time
+	Opened   time.Time // last access
 	Kind     string
 	Mode     os.FileMode
 	Tags     []string // set by the UI from its tag store; ReadDir leaves it empty
@@ -129,6 +134,7 @@ func inspect(dir string, de os.DirEntry) Entry {
 	e.Mode = info.Mode()
 	e.Modified = info.ModTime()
 	e.Created = birthTime(info)
+	e.Opened = accessTime(info)
 	if !e.IsDir && !broken {
 		e.Size = info.Size()
 	}
@@ -165,6 +171,16 @@ func compare(a, b Entry, by Column) (less, equal bool) {
 		return a.Created.Before(b.Created), a.Created.Equal(b.Created)
 	case ColSize:
 		return a.Size < b.Size, a.Size == b.Size
+	case ColOpened:
+		return a.Opened.Before(b.Opened), a.Opened.Equal(b.Opened)
+	case ColExt:
+		ea, eb := ExtOf(a), ExtOf(b)
+		return ea < eb, ea == eb
+	case ColPerms:
+		return a.Mode.Perm() < b.Mode.Perm(), a.Mode.Perm() == b.Mode.Perm()
+	case ColTags:
+		ta, tb := strings.ToLower(strings.Join(a.Tags, ",")), strings.ToLower(strings.Join(b.Tags, ","))
+		return ta < tb, ta == tb
 	case ColKind:
 		ka, kb := strings.ToLower(a.Kind), strings.ToLower(b.Kind)
 		return ka < kb, ka == kb
@@ -225,6 +241,49 @@ func HumanSize(n int64) string {
 	s := fmt.Sprintf("%.1f", v)
 	s = strings.TrimSuffix(s, ".0")
 	return s + " " + units[u]
+}
+
+// ExtOf is the lowercase extension of a file without the dot; folders and dotfiles have none.
+func ExtOf(e Entry) string {
+	if e.IsDir || strings.HasPrefix(e.Name, ".") && strings.Count(e.Name, ".") == 1 {
+		return ""
+	}
+	return strings.ToLower(strings.TrimPrefix(filepath.Ext(e.Name), "."))
+}
+
+// PermsOf writes the permission bits like ls does: "-rw-r--r--".
+func PermsOf(e Entry) string {
+	kind := "-"
+	if e.IsDir {
+		kind = "d"
+	}
+	return kind + e.Mode.Perm().String()[1:]
+}
+
+// FormatDateAs formats t in one of the date formats of the config: "relative" (Today at 09:05), "finder"
+// (Today, 09:05) or "numeric" (2026-10-13 09:05). The zero time renders as "--".
+func FormatDateAs(format string, t, now time.Time) string {
+	switch format {
+	case "numeric":
+		if t.IsZero() {
+			return "--"
+		}
+		return t.In(now.Location()).Format("2006-01-02 15:04")
+	case "finder":
+		if t.IsZero() {
+			return "--"
+		}
+		t, now = t.In(now.Location()), now.In(now.Location())
+		day := func(x time.Time) time.Time { return time.Date(x.Year(), x.Month(), x.Day(), 0, 0, 0, 0, x.Location()) }
+		switch {
+		case day(t).Equal(day(now)):
+			return i18n.T("hoy, ", "Today, ") + t.Format("15:04")
+		case day(t).Equal(day(now).AddDate(0, 0, -1)):
+			return i18n.T("ayer, ", "Yesterday, ") + t.Format("15:04")
+		}
+		return t.Format(i18n.T("02/01/2006, 15:04", "2 Jan 2006, 15:04"))
+	}
+	return FormatDate(t, now)
 }
 
 // FormatDate formats t relative to now: "Today at 09:05", "Yesterday at 23:59" or "2 Mar 2026".

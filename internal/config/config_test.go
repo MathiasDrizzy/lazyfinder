@@ -266,3 +266,19 @@ func TestKeybindingModeValidation(t *testing.T) {
 		t.Fatal("emacs should be refused")
 	}
 }
+
+func TestMoreColumnsAndDateFormat(t *testing.T) {
+	cfg, err := Parse([]byte(`{"version":1,"columns":["name","opened","extension","permissions","tags","size"],"date_format":"numeric","density":"comfortable"}`), "/home/u")
+	if err != nil || cfg.DateFormat != "numeric" || cfg.Density != "comfortable" {
+		t.Fatalf("%v %+v", err, cfg)
+	}
+	d := Defaults("/home/u")
+	if d.DateFormat != "relative" || d.Density != "compact" {
+		t.Fatalf("defaults %q %q", d.DateFormat, d.Density)
+	}
+	for _, js := range []string{`{"version":1,"date_format":"iso"}`, `{"version":1,"density":"huge"}`, `{"version":1,"columns":["name","location"]}`} {
+		if _, err := Parse([]byte(js), "/home/u"); err == nil {
+			t.Errorf("%s should be refused", js)
+		}
+	}
+}

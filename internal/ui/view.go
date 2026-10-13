@@ -37,12 +37,22 @@ func columnLabel(c fsmodel.Column) string {
 		return i18n.T("Tamaño", "Size")
 	case fsmodel.ColKind:
 		return i18n.T("Clase", "Kind")
+	case fsmodel.ColOpened:
+		return i18n.T("Última apertura", "Date Last Opened")
+	case fsmodel.ColExt:
+		return i18n.T("Extensión", "Extension")
+	case fsmodel.ColPerms:
+		return i18n.T("Permisos", "Permissions")
+	case fsmodel.ColTags:
+		return i18n.T("Etiquetas", "Tags")
 	}
 	return i18n.T("Nombre", "Name")
 }
 
+// columnWidths are the widths a column has when nothing in config.json sets them and its content is shorter.
 var columnWidths = map[fsmodel.Column]int{
-	fsmodel.ColModified: 18, fsmodel.ColCreated: 18, fsmodel.ColSize: 10, fsmodel.ColKind: 18,
+	fsmodel.ColModified: 18, fsmodel.ColCreated: 18, fsmodel.ColOpened: 18, fsmodel.ColSize: 10, fsmodel.ColKind: 18,
+	fsmodel.ColExt: 9, fsmodel.ColPerms: 10, fsmodel.ColTags: 12,
 }
 
 type colSpec struct {
@@ -84,7 +94,7 @@ func (m *Model) prefix() int {
 func (m *Model) panelH() int { return m.h - 3 }
 
 // dropOrder says which optional columns go first when the window is narrow.
-var dropOrder = []fsmodel.Column{fsmodel.ColCreated, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
+var dropOrder = []fsmodel.Column{fsmodel.ColTags, fsmodel.ColPerms, fsmodel.ColOpened, fsmodel.ColCreated, fsmodel.ColExt, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
 
 // columns lays out the visible columns; optional ones are dropped by dropOrder until the name fits.
 func (m *Model) columns() []colSpec {
@@ -119,9 +129,9 @@ func (m *Model) columns() []colSpec {
 func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
 	switch c {
 	case fsmodel.ColModified:
-		return fsmodel.FormatDate(e.Modified, m.deps.Now())
+		return m.date(e.Modified)
 	case fsmodel.ColCreated:
-		return fsmodel.FormatDate(e.Created, m.deps.Now())
+		return m.date(e.Created)
 	case fsmodel.ColSize:
 		if e.IsDir {
 			return "--"
@@ -129,6 +139,14 @@ func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
 		return fsmodel.HumanSize(e.Size)
 	case fsmodel.ColKind:
 		return e.Kind
+	case fsmodel.ColOpened:
+		return m.date(e.Opened)
+	case fsmodel.ColExt:
+		return fsmodel.ExtOf(e)
+	case fsmodel.ColPerms:
+		return fsmodel.PermsOf(e)
+	case fsmodel.ColTags:
+		return strings.Join(e.Tags, ", ")
 	}
 	if m.searchOn() && m.search.deep() {
 		if w := m.where(e); w != "" {
@@ -446,8 +464,8 @@ func (m *Model) listLines() []string {
 	}
 	out[0] = m.styles.title(fit(hdr, m.listW()))
 	for r := 1; r < rows; r++ {
-		idx := m.top + r - 1
-		if idx >= len(m.entries()) {
+		idx := m.top + (r-1)/m.rowH()
+		if (r-1)%m.rowH() != 0 || idx >= len(m.entries()) {
 			out[r] = strings.Repeat(" ", m.listW())
 			continue
 		}

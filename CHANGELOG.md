@@ -19,10 +19,15 @@ All notable changes to this project are documented here. The format follows
   removes, `F2` renames and `K` `J` reorder; the Trash is a place in Locations.
 - `?` or `F1` opens a Help popup with the keys and gestures; Settings has a Keybindings row (Lazy / Lazy + Vim) and
   `keybinding_mode` saves it.
+- Columns like Finder's: Date Last Opened, Extension, Permissions and Tags join the old ones; a right click on the
+  header chooses and moves them; `date_format` and `density` (comfortable rows are two lines tall) are in Settings and
+  `config.json`.
 - **Recents** in the sidebar lists the last folders; `Ctrl+U` and `Ctrl+D` page like in lazymark.
 
 ### Changed
 
+- Columns that have no width in `column_widths` fit their title and their widest cell, so Kind and Date Modified are
+  no longer cut when the window has room.
 - Settings write yes and no like lazymark (they said on and off).
 
 ## [0.8.0] - 2026-10-13

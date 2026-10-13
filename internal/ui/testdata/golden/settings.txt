@@ -10,7 +10,6 @@
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
-│                    ││                                                                                                │
 │                    ││            ╭─ Settings ─────────────────────────────────────╮                                  │
 │                    ││            │   Theme                   ‹ catppuccin-mocha › │                                  │
 │                    ││            │   Language                            ‹ auto › │                                  │
@@ -20,12 +19,13 @@
 │                    ││            │   Screen background                  ‹ theme › │                                  │
 │                    ││            │   Icons                               ‹ nerd › │                                  │
 │                    ││            │   Keybindings            ‹ Lazy + Vim (hjkl) › │                                  │
+│                    ││            │   Date format                     ‹ relative › │                                  │
+│                    ││            │   Row density                      ‹ compact › │                                  │
 │                    ││            │   Search in                    ‹ This folder › │                                  │
 │                    ││            │   Search for             ‹ Files and folders › │                                  │
 │                    ││            │   Search by                           ‹ Name › │                                  │
 │                    ││            │   Mouse                                ‹ yes › │                                  │
 │                    ││            ╰────────────────────────────────────────────────╯                                  │
-│                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

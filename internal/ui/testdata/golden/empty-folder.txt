@@ -1,6 +1,6 @@
  ‹  ›   beta                                                                         0 items   ⌕ Search               ⚙
 ╭─ Places ───────────╮╭─ beta ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
+│ Favorites          ││    Name ▲                                                Date Modified       Size        Kind  │
 │  Recents           ││                                                                                                │
 │  Home              ││   This folder is empty                                                                         │
 │  Projects          ││                                                                                                │

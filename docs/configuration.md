@@ -12,7 +12,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | Key | Meaning | Default |
 | --- | --- | --- |
 | `version` | Config format; must be `1` | `1` |
-| `columns` | Visible columns, in order: `name`, `modified`, `created`, `size`, `kind` | all five |
+| `columns` | Visible columns, in order: `name`, `modified`, `created`, `opened`, `size`, `kind`, `extension`, `permissions`, `tags` | `name`, `modified`, `created`, `size`, `kind` |
 | `sort` | `{ "by": column, "descending": bool, "folders_first": bool }` | name, ascending, folders first |
 | `show_hidden` | Start with dotfiles visible | `false` |
 | `sidebar.favorites`, `sidebar.locations` | Lists of `{ "name", "path" }`; `~` is your home | Finder-like set |
@@ -26,6 +26,8 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `theme` | A built-in theme, a user theme (see below) or `terminal` | `catppuccin-mocha` |
 | `icons` | `nerd` draws a Nerd Font glyph per kind (folders open and closed, files by extension, apps, links), `ascii` a plain character, `off` nothing | `nerd` |
 | `keybinding_mode` | `dual` (arrows and Vim letters) or `lazy` (arrows only) | `dual` |
+| `date_format` | `relative` (Today at 09:05), `finder` (Today, 09:05) or `numeric` (2026-10-13 09:05) | `relative` |
+| `density` | `compact` (one line per row) or `comfortable` (two lines, like Finder's roomy rows) | `compact` |
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |
 | `preview_width` | cells of the preview in the column view, 12 to 200; `0` is automatic | `0` |
 | `column_widths` | cells of an optional column, 6 to 60, e.g. `{"kind": 24}` | `{}` |
@@ -48,7 +50,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
 | `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |
 
-On narrow windows the Date Created, Kind, Size and Date Modified columns are dropped, in that order, so the name
+On narrow windows the optional columns are dropped, the least useful first (Tags, Permissions, Last Opened, Date Created, Extension, Kind, Size and Date Modified), so the name
 stays readable.
 
 ## Openers
