@@ -7,38 +7,20 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 )
 
-// Icon sizes (config "icon_size"). A terminal cell cannot hold a bigger glyph, so the size is the room around it:
-// small is the glyph and a space, medium adds air and a framed gear, large puts the glyph on a tile with roomy rows
-// (docs/adr/0014-icon-size-setting.md).
-const (
-	iconSmall  = "small"
-	iconMedium = "medium"
-	iconLarge  = "large"
-)
+// There is no icon size: a terminal cell cannot hold a bigger glyph, and the boxes and blank lines that stood in for
+// one looked wrong (docs/adr/0015-no-icon-size.md). An icon is a glyph and a space on the plain background.
 
 // iconW is the cells an icon takes in front of a name, or 0 when icons are off.
 func (m *Model) iconW() int {
 	if m.icons.Width() == 0 {
 		return 0
 	}
-	switch m.deps.Cfg.IconSize {
-	case iconSmall:
-		return 2
-	case iconLarge:
-		return 4 // a tile of three cells and a space
-	}
-	return 3
+	return 2
 }
 
-// iconCell draws an icon with the room its size gives it; it is iconW cells wide.
+// iconCell draws an icon; it is iconW cells wide.
 func (m *Model) iconCell(ic icons.Icon) string {
-	switch m.deps.Cfg.IconSize {
-	case iconSmall:
-		return m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " "
-	case iconLarge:
-		return m.styles.iconTile(ic.Role, ic.Glyph, ic.Dim) + " "
-	}
-	return m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + "  "
+	return m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " "
 }
 
 // placeIcon is the icon of a sidebar line and the indent that goes before it. Like Finder, every entry has its own
@@ -85,30 +67,14 @@ func (m *Model) placeGlyph(p place) (string, bool) {
 
 // gearText is the glyph of the Settings button: the Nerd Font gear when the icons are Nerd Font, else the symbol.
 func (m *Model) gearText() string {
-	if m.icons.Style == icons.Nerd && m.deps.Cfg.IconSize != iconSmall {
-		return ""
+	if m.icons.Style == icons.Nerd {
+		return "\uf013"
 	}
 	return gear
 }
 
 // gearW is the cells the Settings button takes from the right edge, margin included: the whole of it is clickable.
-func (m *Model) gearW() int {
-	switch m.deps.Cfg.IconSize {
-	case iconSmall:
-		return 4
-	case iconLarge:
-		return 8
-	}
-	return 6
-}
+func (m *Model) gearW() int { return 4 }
 
-// gearButton draws the gear: bare when small, on a tile when bigger.
-func (m *Model) gearButton() string {
-	switch m.deps.Cfg.IconSize {
-	case iconSmall:
-		return m.styles.accent(m.gearText())
-	case iconLarge:
-		return m.styles.tile("  "+m.gearText()+"  ", true)
-	}
-	return m.styles.tile(" "+m.gearText()+" ", false)
-}
+// gearButton draws the gear, bare and in the accent color.
+func (m *Model) gearButton() string { return m.styles.accent(m.gearText()) }

@@ -1,11 +1,12 @@
- ‹  ›   proj                                                                       5 items   ⌕ Search                
+ ‹  ›   proj                                                                         5 items   ⌕ Search               
 ╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │  Recents          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
-│  Home             ││▸ >   alpha                                1 Sep 2026, 12:00    --           Folder            │
-│  Projects         ││  >   beta                                 1 Sep 2026, 12:00    --           Folder            │
-│                    ││      data.xlsx                            1 Sep 2026, 12:00    4 bytes      Excel Spreadsheet │
-│                    ││      main.go                              1 Sep 2026, 12:00    45 bytes     Go Source         │
-│                    ││      notes.txt                            1 Sep 2026, 12:00    38 bytes     Plain Text        │
+│  Home             ││▸ >  alpha                                 1 Sep 2026, 12:00    --           Folder            │
+│  Projects         ││  >  beta                                  1 Sep 2026, 12:00    --           Folder            │
+│                    ││     data.xlsx                             1 Sep 2026, 12:00    4 bytes      Excel Spreadsheet │
+│                    ││     main.go                               1 Sep 2026, 12:00    45 bytes     Go Source         │
+│                    ││     notes.txt                             1 Sep 2026, 12:00    38 bytes     Plain Text        │
+│                    ││                                                                                                │
 │                    ││                                                                                                │
 │                    ││        ╭─ Settings ─────────────────────────────────────────────╮                              │
 │                    ││        │   Theme                           ‹ catppuccin-mocha › │                              │
@@ -15,7 +16,6 @@
 │                    ││        │   Screen background                          ‹ theme › │                              │
 │                    ││        │   Popup background                           ‹ theme › │                              │
 │                    ││        │   Icons                                       ‹ nerd › │                              │
-│                    ││        │   Icon size                                 ‹ medium › │                              │
 ╰────────────────────╯│        │   Keybindings                    ‹ Lazy + Vim (hjkl) › │                              │
 ╭─ Locations ────────╮│        │   Date format                             ‹ absolute › │                              │
 │  Disk             ││        │   Row density                              ‹ compact › │                              │

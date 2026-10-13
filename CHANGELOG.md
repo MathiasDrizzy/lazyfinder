@@ -14,6 +14,12 @@ All notable changes to this project are documented here. The format follows
 - Settings no longer lists "Images (Kitty)" or "Mouse", like lazymark: the terminal is asked for Kitty support by
   itself (`preview.images` stays in the file to force it off) and the mouse is `mouse` in the file or `--no-mouse`.
 
+### Removed
+
+- `icon_size` and its Settings row: a glyph cannot grow inside a terminal cell, so the sizes only added blank lines and
+  a box around the icon and the gear ([ADR 0015](docs/adr/0015-no-icon-size.md)). The sidebar keeps its icons. Old
+  files that still have the key load as before.
+
 ### Fixed
 
 - A date that is empty or from before 1980 (a system folder whose birth time is 0, shown as `31/12/1969`) is now `--`.

@@ -35,7 +35,7 @@ func TestIconsCanBeSwitchedToAsciiOrOff(t *testing.T) {
 		if strings.ContainsAny(r, nerdFolder+"") {
 			t.Fatalf("%s: no Nerd Font glyph expected: %q", style, r)
 		}
-		if want != "" && !strings.Contains(r, want+"  beta") {
+		if want != "" && !strings.Contains(r, want+" beta") {
 			t.Fatalf("%s: row = %q", style, r)
 		}
 	}
@@ -47,7 +47,7 @@ func TestIconMapFromTheConfigOverridesAnExtension(t *testing.T) {
 	d.Cfg.IconMap = map[string]string{"txt": "T"}
 	e.m = New(d)
 	e.send(sizeMsg())
-	if r := e.row("notes.txt"); !strings.Contains(r, "T  notes.txt") {
+	if r := e.row("notes.txt"); !strings.Contains(r, "T notes.txt") {
 		t.Fatalf("row = %q", r)
 	}
 }

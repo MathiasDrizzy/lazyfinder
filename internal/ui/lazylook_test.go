@@ -150,60 +150,6 @@ func (e *env) pickSetting(label string) {
 	e.t.Fatalf("no setting called %q", label)
 }
 
-func TestIconSizeIsASettingThatSavesAndShowsItsValue(t *testing.T) {
-	e := newEnv(t)
-	path := e.withConfigFile()
-	e.key(",")
-	e.pickSetting("Icon size")
-	e.mustHave("‹ medium ›")
-	e.key("right")
-	if e.m.deps.Cfg.IconSize != "large" || e.savedConfig(path).IconSize != "large" {
-		t.Fatalf("icon size %q", e.m.deps.Cfg.IconSize)
-	}
-	e.key("right")
-	if e.m.deps.Cfg.IconSize != "small" {
-		t.Fatal("the value wraps around")
-	}
-}
-
-func TestGearGrowsWithTheIconSizeAndKeepsAComfortableClickZone(t *testing.T) {
-	width := map[string]int{}
-	for _, size := range config.IconSizes {
-		e := newEnv(t)
-		e.m.deps.Cfg.IconSize = size
-		e.send(sizeMsg())
-		w := e.m.gearW()
-		width[size] = w
-		for _, x := range []int{e.m.w - 1, e.m.w - w} {
-			e2 := e
-			e2.click(x, 0)
-			if !e2.m.set.open {
-				t.Fatalf("%s: a click on x=%d of the gear (width %d) must open Settings", size, x, w)
-			}
-			e2.key("esc")
-		}
-		e.click(e.m.w-w-1, 0)
-		if e.m.set.open {
-			t.Fatalf("%s: the zone is wider than the gear", size)
-		}
-	}
-	if !(width["small"] < width["medium"] && width["medium"] < width["large"]) {
-		t.Fatalf("the gear must grow with the size: %v", width)
-	}
-}
-
-func TestLargeIconsGetTwoLineRowsAndSmallOnesDoNot(t *testing.T) {
-	e := newEnv(t)
-	e.m.deps.Cfg.IconSize = "small"
-	if e.m.rowH() != 1 {
-		t.Fatal("small icons keep one-line rows")
-	}
-	e.m.deps.Cfg.IconSize = "large"
-	if e.m.rowH() != 2 {
-		t.Fatal("large icons need roomy rows")
-	}
-}
-
 // Point 5: fewer or more data per file.
 func TestColumnsSettingCyclesBasicFullAndCustom(t *testing.T) {
 	e := newEnv(t)

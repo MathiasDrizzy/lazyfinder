@@ -57,7 +57,8 @@ type Config struct {
 	IconMap    map[string]string `json:"icon_map"`    // extension -> glyph, overrides the built-in ones
 	DateFormat string            `json:"date_format"` // absolute (13 Oct 2026, 09:05), relative (6 h ago) or numeric (2026-10-13 09:05)
 	Density    string            `json:"density"`     // compact (one line per row) or comfortable (two)
-	// IconSize is small (a glyph), medium (a glyph with air and a framed gear) or large (a glyph on a tile, roomy rows).
+	// IconSize is ignored: there is no icon size any more (docs/adr/0015-no-icon-size.md). The key stays so a file
+	// written by 0.10 or 0.11 still loads.
 	IconSize string `json:"icon_size"`
 	// ColumnSeparators draws a │ between the columns of the list, like Finder.
 	ColumnSeparators bool   `json:"column_separators"`
@@ -163,7 +164,6 @@ var validColumns = map[string]bool{"name": true, "modified": true, "created": tr
 var (
 	DateFormats = []string{"absolute", "relative", "numeric"}
 	Densities   = []string{"compact", "comfortable"}
-	IconSizes   = []string{"small", "medium", "large"}
 )
 
 // ColumnPresets are the two ready-made sets of columns: basic is Finder's default, full shows every column.
@@ -208,13 +208,13 @@ func Defaults(home string) Config {
 		Icons:      "nerd",
 		IconMap:    map[string]string{},
 		DateFormat: "absolute", Density: "compact", KeybindingMode: "dual",
-		IconSize: "medium", ColumnSeparators: true,
-		Layout: "list",
-		Theme:  theme.Default,
-		Watch:  Watch{MaxDirs: 64, PollIntervalMS: 2000},
-		Git:    Git{Enabled: true},
-		Search: Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
-		Ops:    Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
+		ColumnSeparators: true,
+		Layout:           "list",
+		Theme:            theme.Default,
+		Watch:            Watch{MaxDirs: 64, PollIntervalMS: 2000},
+		Git:              Git{Enabled: true},
+		Search:           Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
+		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -413,9 +413,6 @@ func validate(cfg *Config, home string) error {
 	}
 	if !slices.Contains(Densities, cfg.Density) {
 		return i18n.Errorf(`"density" %q no es válido (usa %s)`, `"density" %q is not valid (use %s)`, cfg.Density, strings.Join(Densities, ", "))
-	}
-	if !slices.Contains(IconSizes, cfg.IconSize) {
-		return i18n.Errorf(`"icon_size" %q no es válido (usa %s)`, `"icon_size" %q is not valid (use %s)`, cfg.IconSize, strings.Join(IconSizes, ", "))
 	}
 	if cfg.KeybindingMode != keymap.ModeDual && cfg.KeybindingMode != keymap.ModeLazy {
 		return i18n.Errorf(`"keybinding_mode" %q no es válido (usa dual o lazy)`, `"keybinding_mode" %q is not valid (use dual or lazy)`, cfg.KeybindingMode)

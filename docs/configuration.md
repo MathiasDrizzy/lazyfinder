@@ -27,7 +27,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `icons` | `nerd` draws a Nerd Font glyph per kind (folders open and closed, files by extension, apps, links), `ascii` a plain character, `off` nothing | `nerd` |
 | `keybinding_mode` | `dual` (arrows and Vim letters) or `lazy` (arrows only) | `dual` |
 | `date_format` | `absolute` (13 Oct 2026, 09:05), `relative` (5 h ago) or `numeric` (2026-10-13 09:05). One format for the whole column; a missing date (empty or before 1980) is `--`. The old `finder` value reads as `absolute`. | `absolute` |
-| `icon_size` | `small` (a glyph and a space, as before), `medium` (more air, icons in the sidebar, the gear on a raised tile) or `large` (every icon on its own tile, two-line rows, a wider gear); see [ADR 0014](adr/0014-icon-size-setting.md) | `medium` |
+| `icon_size` | Ignored since 0.12 (there is no icon size, [ADR 0015](adr/0015-no-icon-size.md)); old files still load. | |
 | `column_separators` | `true` draws a `│` between the column names in the header (not down the rows), and the mouse can drag it to resize | `true` |
 | `density` | `compact` (one line per row) or `comfortable` (two lines, like Finder's roomy rows) | `compact` |
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |

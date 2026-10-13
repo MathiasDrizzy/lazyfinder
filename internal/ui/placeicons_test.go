@@ -40,12 +40,3 @@ func TestEverySidebarEntryHasItsOwnGlyph(t *testing.T) {
 		}
 	}
 }
-
-func TestSidebarIconsAlsoShowAtTheSmallSize(t *testing.T) {
-	e := newEnv(t)
-	e.m.icons = icons.Set{Style: icons.Nerd}
-	e.m.deps.Cfg.IconSize = "small"
-	if glyph, _ := e.m.placeIcon(place{name: "Home", path: e.m.deps.Home}); glyph == "" {
-		t.Fatal("Finder shows an icon on every entry, whatever the size")
-	}
-}

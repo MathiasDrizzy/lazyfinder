@@ -27,7 +27,6 @@ const (
 	setScreenBackground
 	setPopupBackground
 	setIcons
-	setIconSize
 	setKeys
 	setDateFormat
 	setDensity
@@ -60,8 +59,6 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Confirmar al borrar", "Confirm deletion")
 	case setIcons:
 		return i18n.T("Iconos", "Icons")
-	case setIconSize:
-		return i18n.T("Tamaño de iconos", "Icon size")
 	case setColumns:
 		return i18n.T("Columnas", "Columns")
 	case setColumnSeparators:
@@ -116,8 +113,6 @@ func (m *Model) settingValue(i int) string {
 		return onOff(c.ConfirmDelete)
 	case setIcons:
 		return c.Icons
-	case setIconSize:
-		return iconSizeName(c.IconSize)
 	case setColumns:
 		return columnPresetName(config.ColumnPreset(c.Columns))
 	case setColumnSeparators:
@@ -192,10 +187,6 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons
 		m.icons.Style = icons.Style(m.deps.Cfg.Icons)
-	case setIconSize:
-		m.deps.Cfg.IconSize = cycle(config.IconSizes, m.deps.Cfg.IconSize, dir)
-		key, val = "icon_size", m.deps.Cfg.IconSize
-		m.ensureVisible()
 	case setColumns:
 		next := "basic"
 		if config.ColumnPreset(m.deps.Cfg.Columns) == "basic" {
@@ -315,16 +306,6 @@ func densityName(d string) string {
 		return i18n.T("cómodas", "comfortable")
 	}
 	return i18n.T("compactas", "compact")
-}
-
-func iconSizeName(s string) string {
-	switch s {
-	case iconSmall:
-		return i18n.T("pequeño", "small")
-	case iconLarge:
-		return i18n.T("grande", "large")
-	}
-	return i18n.T("mediano", "medium")
 }
 
 func columnPresetName(p string) string {

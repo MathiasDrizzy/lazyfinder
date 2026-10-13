@@ -2,30 +2,27 @@ package config
 
 import (
 	"slices"
-	"strings"
 	"testing"
 )
 
-func TestDefaultsOfIconSizeAndColumnSeparators(t *testing.T) {
-	cfg := Defaults("/home/u")
-	if cfg.IconSize != "medium" || !cfg.ColumnSeparators {
-		t.Fatalf("defaults: icon_size %q, column_separators %v", cfg.IconSize, cfg.ColumnSeparators)
+func TestDefaultOfColumnSeparators(t *testing.T) {
+	if !Defaults("/home/u").ColumnSeparators {
+		t.Fatal("the column separators are on by default")
 	}
 }
 
-func TestParseIconSizeAndColumnSeparators(t *testing.T) {
-	cfg, err := Parse([]byte(`{"version":1,"icon_size":"large","column_separators":false}`), "/h")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if cfg.IconSize != "large" || cfg.ColumnSeparators {
-		t.Fatalf("parsed wrong: %q %v", cfg.IconSize, cfg.ColumnSeparators)
-	}
-	if _, err := Parse([]byte(`{"version":1,"icon_size":"huge"}`), "/h"); err == nil || !strings.Contains(err.Error(), `"icon_size"`) {
-		t.Fatalf("want an icon_size error, got %v", err)
+// icon_size is gone (docs/adr/0015-no-icon-size.md): a file from 0.10 or 0.11 still loads, whatever it says.
+func TestAnOldIconSizeStillLoadsAndColumnSeparatorsParse(t *testing.T) {
+	for _, v := range []string{"small", "medium", "large", "huge"} {
+		cfg, err := Parse([]byte(`{"version":1,"icon_size":"`+v+`","column_separators":false}`), "/h")
+		if err != nil {
+			t.Fatalf("icon_size %q: %v", v, err)
+		}
+		if cfg.ColumnSeparators {
+			t.Fatal("column_separators: false was not read")
+		}
 	}
 }
-
 func TestOwnerAndPathAreColumns(t *testing.T) {
 	if _, err := Parse([]byte(`{"version":1,"columns":["name","owner","path"]}`), "/h"); err != nil {
 		t.Fatal(err)
