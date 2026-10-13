@@ -103,6 +103,7 @@ type Model struct {
 	picker  pickerState
 	recents []string // visited folders, newest first
 	saved   []savedSearch
+	tags    map[string][]string // path -> tag names, kept in tags.json next to config.json
 
 	tabs []tabState // empty until a second tab is opened
 	cur  int
@@ -142,6 +143,10 @@ func New(d Deps) *Model {
 	loadState(m.stateFile(recentsFile), &m.recents)
 	m.recents = m.recents[:min(len(m.recents), maxRecents)]
 	loadState(m.stateFile(searchesFile), &m.saved)
+	loadState(m.stateFile(tagsFile), &m.tags)
+	if m.tags == nil {
+		m.tags = map[string][]string{}
+	}
 	m.restyle()
 	if d.Warning == "" && len(d.Cfg.Warnings) > 0 {
 		d.Warning = d.Cfg.Warnings[0]
@@ -194,6 +199,7 @@ func (m *Model) load(dir, name string) error {
 	l = m.filtered(l)
 	m.scanGit(dir)
 	m.listing = m.withChildren(l)
+	m.retag()
 	if name == "" {
 		name = m.lastSel[dir]
 	}

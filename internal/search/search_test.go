@@ -283,3 +283,42 @@ func equal(a, b []string) bool {
 	}
 	return true
 }
+
+func TestTagFilterMatchesAnyTagWithoutRegardToCase(t *testing.T) {
+	q := mustParse(t, "tag:Work")
+	tagged := file("a.txt", 1, now)
+	tagged.Tags = []string{"home", "WORK"}
+	if !q.Match(tagged) {
+		t.Fatal("tag:Work must match an entry tagged WORK")
+	}
+	if q.Match(file("b.txt", 1, now)) {
+		t.Fatal("an untagged entry must not match")
+	}
+	if _, err := Parse("tag:", now); err == nil {
+		t.Fatal("tag: needs a value")
+	}
+}
+
+func TestWalkLetsTheTagFilterSeeTheTagsOfEachPath(t *testing.T) {
+	root := t.TempDir()
+	for _, n := range []string{"a.txt", "b.txt"} {
+		if err := os.WriteFile(filepath.Join(root, n), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	tags := func(p string) []string {
+		if filepath.Base(p) == "a.txt" {
+			return []string{"work"}
+		}
+		return nil
+	}
+	var got []string
+	err := Walk(context.Background(), root, mustParse(t, "tag:work"), Options{Tags: tags}, func(b []fsmodel.Entry) {
+		for _, e := range b {
+			got = append(got, e.Name)
+		}
+	})
+	if err != nil || len(got) != 1 || got[0] != "a.txt" {
+		t.Fatalf("got %v, err %v", got, err)
+	}
+}

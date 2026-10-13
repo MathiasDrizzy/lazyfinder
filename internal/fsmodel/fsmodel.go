@@ -41,7 +41,8 @@ type Entry struct {
 	Created  time.Time
 	Kind     string
 	Mode     os.FileMode
-	Depth    int // levels below the listed folder, for entries shown by expanding a folder in place
+	Tags     []string // set by the UI from its tag store; ReadDir leaves it empty
+	Depth    int      // levels below the listed folder, for entries shown by expanding a folder in place
 }
 
 // Listing is the content of one directory. Methods return new values and never modify the receiver.

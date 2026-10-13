@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fileops"
@@ -16,6 +17,7 @@ type infoState struct {
 	open bool
 	d    fileops.Details
 	kind string
+	path string
 }
 
 func (m *Model) openInfo() tea.Cmd {
@@ -28,7 +30,7 @@ func (m *Model) openInfo() tea.Cmd {
 		m.setError(err)
 		return nil
 	}
-	m.info = infoState{open: true, d: d, kind: m.cell(e, fsmodel.ColKind)}
+	m.info = infoState{open: true, d: d, kind: m.cell(e, fsmodel.ColKind), path: e.Path}
 	return nil
 }
 
@@ -55,6 +57,9 @@ func (m *Model) infoLines() []string {
 		lines = append(lines, row(i18n.T("Contenido", "Contents"), text))
 	} else {
 		lines = append(lines, row(i18n.T("Tamaño", "Size"), fsmodel.HumanSize(d.Size)))
+	}
+	if ts := m.tags[m.info.path]; len(ts) > 0 {
+		lines = append(lines, row(i18n.T("Etiquetas", "Tags"), strings.Join(ts, ", ")))
 	}
 	lines = append(lines,
 		row(i18n.T("Modificado", "Modified"), d.Modified.Format("2006-01-02 15:04")),

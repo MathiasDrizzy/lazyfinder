@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"path/filepath"
 	"strings"
 
@@ -170,7 +171,8 @@ func (m *Model) startWalk(q search.Query) tea.Cmd {
 	ch := make(chan searchEvent, 4)
 	m.search.cancel, m.search.ch, m.search.running = cancel, ch, true
 	gen, root, max := m.search.gen, m.search.base.Dir, m.deps.Cfg.Search.MaxResults
-	opts := search.Options{Recursive: true, ShowHidden: m.hidden, Max: max}
+	tags := maps.Clone(m.tags) // the walk runs in its own goroutine
+	opts := search.Options{Recursive: true, ShowHidden: m.hidden, Max: max, Tags: func(p string) []string { return tags[p] }}
 	go func() {
 		err := search.Walk(ctx, root, q, opts, func(batch []fsmodel.Entry) {
 			select {
@@ -200,6 +202,7 @@ func (m *Model) onSearch(msg searchMsg) tea.Cmd {
 			keep = e.Name
 		}
 		m.search.results = append(m.search.results, msg.entries...)
+		m.retag()
 		m.listing = fsmodel.Listing{Dir: m.search.base.Dir, Entries: m.search.results}.Sorted(m.sort)
 		for i, e := range m.listing.Entries {
 			if e.Name == keep {

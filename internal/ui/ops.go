@@ -18,6 +18,7 @@ const (
 	promptNewFolder
 	promptTrash
 	promptFilter
+	promptTag
 )
 
 // promptState is the one-line question on the bottom row: a name to type, or a yes/no.
@@ -283,6 +284,9 @@ func (m *Model) promptSubmit() tea.Cmd {
 		made, err = m.ops.Rename(p.target, p.input)
 	case promptNewFolder:
 		made, err = m.ops.Mkdir(m.dir(), p.input)
+	case promptTag:
+		m.prompt = promptState{}
+		return m.toggleTag(p.input)
 	}
 	if err != nil {
 		m.setError(err) // the prompt stays open, so the name can be fixed
@@ -290,6 +294,7 @@ func (m *Model) promptSubmit() tea.Cmd {
 	}
 	m.prompt = promptState{}
 	if p.kind == promptRename {
+		m.moveTags(p.target, made)
 		m.setStatus(fmt.Sprintf(i18n.T("Renombrado a %s", "Renamed to %s"), filepath.Base(made)))
 	} else {
 		m.setStatus(fmt.Sprintf(i18n.T("Carpeta creada: %s", "Created folder %s"), filepath.Base(made)))
@@ -303,6 +308,8 @@ func (m *Model) promptBar() string {
 		return fit(m.styles.accent(" "+i18n.T("Renombrar: ", "Rename: "))+m.prompt.input+"▏", m.w)
 	case promptNewFolder:
 		return fit(m.styles.accent(" "+i18n.T("Carpeta nueva: ", "New folder: "))+m.prompt.input+"▏", m.w)
+	case promptTag:
+		return fit(m.styles.accent(" "+i18n.T("Etiqueta: ", "Tag: "))+m.prompt.input+"▏", m.w)
 	case promptFilter:
 		return fit(m.styles.accent(" "+i18n.T("Filtro: ", "Filter: "))+m.prompt.input+"▏", m.w)
 	}

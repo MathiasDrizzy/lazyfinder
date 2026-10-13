@@ -101,6 +101,10 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return m.expandSelected()
 	case keymap.Collapse:
 		return m.collapseSelected()
+	case keymap.TagKey:
+		return m.startTag()
+	case keymap.Tags:
+		return m.showTags()
 	case keymap.SavedSearches:
 		return m.showSaved()
 	case keymap.Filter:

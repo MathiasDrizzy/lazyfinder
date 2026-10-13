@@ -45,7 +45,7 @@ func Parse(s string, now time.Time) (Query, error) {
 		key = strings.ToLower(key)
 		if !isFilter || !filterKeys[key] {
 			if isFilter && looksLikeFilter(key) {
-				return Query{}, fmt.Errorf("unknown filter %q (use kind, ext, size, modified, created or name)", key)
+				return Query{}, fmt.Errorf("unknown filter %q (use kind, ext, size, modified, created, name or tag)", key)
 			}
 			q.preds = append(q.preds, wordMatcher(tok))
 			continue
@@ -62,11 +62,11 @@ func Parse(s string, now time.Time) (Query, error) {
 	return q, nil
 }
 
-var filterKeys = map[string]bool{"kind": true, "ext": true, "size": true, "modified": true, "created": true, "name": true}
+var filterKeys = map[string]bool{"kind": true, "ext": true, "size": true, "modified": true, "created": true, "name": true, "tag": true}
 
 var example = map[string]string{
 	"kind": "kind:image", "ext": "ext:go", "size": "size:>10MB",
-	"modified": "modified:week", "created": "created:2026-10-01", "name": "name:report",
+	"modified": "modified:week", "created": "created:2026-10-01", "name": "name:report", "tag": "tag:work",
 }
 
 // looksLikeFilter tells "color:red" (a mistyped filter) from "a:b" in a file name that has no meaning as a filter.
@@ -117,6 +117,16 @@ func filter(key, val string, now time.Time) (func(fsmodel.Entry) bool, error) {
 	case "ext":
 		want := strings.ToLower(strings.TrimPrefix(val, "."))
 		return func(e fsmodel.Entry) bool { return !e.IsDir && extOf(e.Name) == want }, nil
+	case "tag":
+		want := strings.ToLower(val)
+		return func(e fsmodel.Entry) bool {
+			for _, t := range e.Tags {
+				if strings.ToLower(t) == want {
+					return true
+				}
+			}
+			return false
+		}, nil
 	case "kind":
 		return kindMatcher(strings.ToLower(val)), nil
 	case "size":
@@ -247,8 +257,9 @@ func dateMatcher(val string, now time.Time, get func(fsmodel.Entry) time.Time) (
 type Options struct {
 	Recursive  bool
 	ShowHidden bool
-	Max        int                      // stop after this many results; 0 means no limit
-	Skip       func(fsmodel.Entry) bool // folders for which it returns true are not entered
+	Max        int                        // stop after this many results; 0 means no limit
+	Skip       func(fsmodel.Entry) bool   // folders for which it returns true are not entered
+	Tags       func(path string) []string // the tags of a path, for the tag: filter; nil means none
 }
 
 // Walk looks for matches under root and hands them to emit in batches. It stops on ctx, on Options.Max
@@ -274,6 +285,9 @@ func Walk(ctx context.Context, root string, q Query, o Options, emit func([]fsmo
 		for _, e := range l.Entries {
 			if err := ctx.Err(); err != nil {
 				return err
+			}
+			if o.Tags != nil {
+				e.Tags = o.Tags(e.Path)
 			}
 			if q.Match(e) {
 				batch = append(batch, e)

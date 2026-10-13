@@ -57,11 +57,11 @@ func TestOverrideReplacesTheKeysOfOneActionOnly(t *testing.T) {
 }
 
 func TestUnknownActionIsAWarningAndIgnored(t *testing.T) {
-	m, warns := New(map[string][]string{"teleport": {"t"}})
+	m, warns := New(map[string][]string{"teleport": {"ctrl+9"}})
 	if len(warns) != 1 || !strings.Contains(warns[0], `"teleport"`) {
 		t.Fatalf("want one warning naming the action, got %v", warns)
 	}
-	if _, ok := m.Lookup("t"); ok {
+	if _, ok := m.Lookup("ctrl+9"); ok {
 		t.Error("an unknown action must bind nothing")
 	}
 }
