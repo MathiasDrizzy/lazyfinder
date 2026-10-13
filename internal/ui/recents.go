@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"slices"
@@ -10,30 +9,10 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
 
-const maxRecents = 20
-
-// recentsPath is where the visited folders are kept: next to config.json, only when the app has one.
-func (m *Model) recentsPath() string {
-	if m.deps.ConfigPath == "" {
-		return ""
-	}
-	return filepath.Join(filepath.Dir(m.deps.ConfigPath), "recents.json")
-}
-
-func loadRecents(path string) []string {
-	if path == "" {
-		return nil
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
-	var out []string
-	if json.Unmarshal(data, &out) != nil {
-		return nil
-	}
-	return out[:min(len(out), maxRecents)]
-}
+const (
+	maxRecents  = 20
+	recentsFile = "recents.json"
+)
 
 // noteVisit moves dir to the front of the recent folders and saves the list. A failure to save is not worth
 // interrupting navigation for: the list still works for this session.
@@ -41,12 +20,7 @@ func (m *Model) noteVisit(dir string) {
 	m.recents = slices.DeleteFunc(m.recents, func(p string) bool { return p == dir })
 	m.recents = append([]string{dir}, m.recents...)
 	m.recents = m.recents[:min(len(m.recents), maxRecents)]
-	if p := m.recentsPath(); p != "" {
-		if data, err := json.Marshal(m.recents); err == nil {
-			_ = os.MkdirAll(filepath.Dir(p), 0o755)
-			_ = os.WriteFile(p, append(data, '\n'), 0o644)
-		}
-	}
+	saveState(m.stateFile(recentsFile), m.recents)
 }
 
 func (m *Model) showRecents() tea.Cmd {

@@ -10,6 +10,7 @@ import (
 type pickItem struct {
 	label, hint string
 	run         func() tea.Cmd
+	del         func() // removes the item for good; nil when it cannot be removed
 }
 
 // pickerState is a small list popup the features of milestone 6 share (recent folders, saved searches,
@@ -19,6 +20,8 @@ type pickerState struct {
 	title string
 	items []pickItem
 	sel   int
+
+	rebuild func() []pickItem // items again after one was removed
 }
 
 func (m *Model) openPicker(title string, items []pickItem) {
@@ -77,10 +80,27 @@ func (m *Model) pickerKey(key string, act keymap.Action) tea.Cmd {
 		m.picker.sel = 0
 	case act == keymap.Last:
 		m.picker.sel = n - 1
+	case key == "delete" || key == "ctrl+d":
+		m.removePick()
 	case key == "enter":
 		return m.choosePick(m.picker.sel)
 	}
 	return nil
+}
+
+func (m *Model) removePick() {
+	it := m.picker.items[m.picker.sel]
+	if it.del == nil || m.picker.rebuild == nil {
+		return
+	}
+	it.del()
+	rebuild := m.picker.rebuild
+	items := rebuild()
+	if len(items) == 0 {
+		m.picker = pickerState{}
+		return
+	}
+	m.picker.items, m.picker.sel = items, min(m.picker.sel, len(items)-1)
 }
 
 func (m *Model) choosePick(i int) tea.Cmd {

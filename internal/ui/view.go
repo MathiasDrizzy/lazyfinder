@@ -528,6 +528,9 @@ func (m *Model) footerBar() string {
 		if m.status != "" && m.statusErr {
 			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
 		}
+		if m.status != "" {
+			return fit(" "+m.status, m.w)
+		}
 		bar, _ := m.searchBar()
 		return bar
 	}

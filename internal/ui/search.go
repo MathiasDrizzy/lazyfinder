@@ -89,6 +89,8 @@ func (m *Model) searchKey(k tea.KeyPressMsg) tea.Cmd {
 	case "enter":
 		m.search.mode = searchResults
 		return nil
+	case "ctrl+s":
+		return m.saveSearch()
 	case "tab":
 		m.search.recursive = !m.search.recursive
 		return m.runSearch()
@@ -119,6 +121,8 @@ func (m *Model) resultsKey(key string) (tea.Cmd, bool) {
 	case "/", "ctrl+f":
 		m.search.mode = searchTyping
 		return nil, true
+	case "ctrl+s":
+		return m.saveSearch(), true
 	}
 	return nil, false
 }

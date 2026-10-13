@@ -102,6 +102,7 @@ type Model struct {
 	filter  string // quick filter on the names of this folder; empty means none
 	picker  pickerState
 	recents []string // visited folders, newest first
+	saved   []savedSearch
 
 	tabs []tabState // empty until a second tab is opened
 	cur  int
@@ -138,7 +139,9 @@ func New(d Deps) *Model {
 		hideIgnored:   d.Cfg.Git.HideIgnored,
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
 	}
-	m.recents = loadRecents(m.recentsPath())
+	loadState(m.stateFile(recentsFile), &m.recents)
+	m.recents = m.recents[:min(len(m.recents), maxRecents)]
+	loadState(m.stateFile(searchesFile), &m.saved)
 	m.restyle()
 	if d.Warning == "" && len(d.Cfg.Warnings) > 0 {
 		d.Warning = d.Cfg.Warnings[0]
