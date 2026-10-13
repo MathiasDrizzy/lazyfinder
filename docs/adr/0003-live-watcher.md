@@ -1,6 +1,6 @@
 # Live watcher design
 
-* Status: proposed (implemented in milestone 2; M1 ships only the interface)
+* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit) (implemented in milestone 2; M1 ships only the interface)
 * Date: 2026-10-13
 
 ## Context and problem statement

@@ -1,6 +1,6 @@
 # Open-with execution model
 
-* Status: proposed
+* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit)
 * Date: 2026-10-13
 
 ## Context and problem statement
@@ -14,8 +14,8 @@ usuario lo haya configurado".
 * Processes start with `exec.Command(argv[0], args...)`, never through `sh -c`.
 * `{file}` is substituted as one complete argv element, so spaces, quotes, `;` and `$(...)` stay data. A file name
   starting with `-` is passed as `./name` (or after `--` when the opener allows) to avoid option injection.
-* Only two sources may start a process: an opener defined in the user's `config.json`, and the built-in default
-  `open -- <file>` (macOS). Executable bits are ignored: lazyfinder never runs the file it is showing; `.app`
+* Only three sources may start a process: an opener defined in the user's `config.json`, the built-in default
+  `open -- <file>` (macOS), and Quick Look (`qlmanage -p -- <file>`, a fixed argv started only by the explicit `Q` key). Executable bits are ignored: lazyfinder never runs the file it is showing; `.app`
   bundles and scripts open with `open`, which asks LaunchServices, not the shell.
 * `mode: terminal` suspends the TUI (Bubble Tea `ExecProcess`), restores the terminal after.
 * A missing opener binary is an error in the status line, with no fallback to another program.

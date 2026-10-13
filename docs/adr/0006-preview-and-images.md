@@ -1,6 +1,6 @@
 # Preview pipeline and image protocol
 
-* Status: proposed
+* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit)
 * Date: 2026-10-13
 
 ## Context and problem statement
