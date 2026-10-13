@@ -100,6 +100,9 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	if m.set.open {
 		return m.settingsClick(mouse.X, mouse.Y)
 	}
+	if m.picker.open {
+		return m.pickerClick(mouse.X, mouse.Y)
+	}
 	if m.menu.open {
 		return m.menuClick(mouse.X, mouse.Y)
 	}

@@ -264,6 +264,10 @@ func (m *Model) screen() []string {
 	}
 	lines[m.h-2] = m.breadcrumb()
 	lines[m.h-1] = m.footerBar()
+	if m.picker.open {
+		x, y, bx := m.pickerBox()
+		lines = overlay(lines, bx, x, y)
+	}
 	if m.menu.open {
 		x, y, bx := m.menuBox()
 		lines = overlay(lines, bx, x, y)
@@ -317,6 +321,9 @@ func (m *Model) toolbar() string {
 		fwd = m.styles.dim(fwd)
 	}
 	left := back + fwd + "  " + m.styles.bold(m.folderTitle())
+	if l := m.tabLabel(); l != "" {
+		left += "  " + m.styles.accent(l)
+	}
 	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.styles.accent(lens) + "  " + m.styles.accent(gear) + " "
 	if b := m.branchLabel(); b != "" {
 		right = m.styles.accent(b) + "  " + right

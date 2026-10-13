@@ -99,6 +99,12 @@ type Model struct {
 	search      searchState
 	goto_       gotoState
 
+	picker  pickerState
+	recents []string // visited folders, newest first
+
+	tabs []tabState // empty until a second tab is opened
+	cur  int
+
 	ops    *fileops.Ops
 	marked map[string]bool // rows marked to act on together; cleared when the folder changes
 	clip   clipboard
@@ -131,6 +137,7 @@ func New(d Deps) *Model {
 		hideIgnored:   d.Cfg.Git.HideIgnored,
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
 	}
+	m.recents = loadRecents(m.recentsPath())
 	m.restyle()
 	if d.Warning == "" && len(d.Cfg.Warnings) > 0 {
 		d.Warning = d.Cfg.Warnings[0]
@@ -218,6 +225,7 @@ func (m *Model) enter(dir, name string) tea.Cmd {
 		return nil
 	}
 	m.hist = m.hist.Visit(dir)
+	m.noteVisit(dir)
 	m.fresh = map[string]bool{}
 	m.follow()
 	m.setStatus("")
@@ -243,6 +251,7 @@ func (m *Model) step(next history.History) tea.Cmd {
 		return nil
 	}
 	m.hist = next
+	m.noteVisit(next.Current())
 	m.fresh = map[string]bool{}
 	m.follow()
 	m.setStatus("")

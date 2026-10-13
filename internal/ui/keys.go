@@ -21,6 +21,8 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 	switch {
 	case m.set.open:
 		return m.settingsKey(key, act)
+	case m.picker.open:
+		return m.pickerKey(key, act)
 	case m.menu.open:
 		return m.menuKey(key, act)
 	case m.pv.open:
@@ -96,6 +98,18 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return m.expandSelected()
 	case keymap.Collapse:
 		return m.collapseSelected()
+	case keymap.Recents:
+		return m.showRecents()
+	case keymap.Bookmark:
+		return m.toggleBookmark()
+	case keymap.NewTab:
+		return m.newTab()
+	case keymap.CloseTab:
+		return m.closeTab()
+	case keymap.NextTab:
+		return m.switchTab(m.cur + 1)
+	case keymap.PrevTab:
+		return m.switchTab(m.cur - 1)
 	case keymap.Goto:
 		m.goto_ = gotoState{open: true}
 	case keymap.Search:
