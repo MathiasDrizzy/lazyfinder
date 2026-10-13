@@ -73,9 +73,9 @@ const (
 // prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
 func (m *Model) prefix() int {
 	if m.git.ok {
-		return prefixW + gitGutterW + m.icons.Width()
+		return prefixW + gitGutterW
 	}
-	return prefixW + m.icons.Width()
+	return prefixW
 }
 
 func (m *Model) panelH() int { return m.h - 3 }
@@ -439,15 +439,20 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		}
 		b.WriteString(code + " ")
 	}
-	if m.icons.Width() > 0 {
-		ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
-		b.WriteString(m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " ")
-	}
 	for i, s := range specs {
 		if i > 0 {
 			b.WriteString(strings.Repeat(" ", colGap))
 		}
-		text := fit(m.cell(e, s.col), s.w)
+		text, lead := m.cell(e, s.col), ""
+		if s.col == fsmodel.ColName && m.icons.Width() > 0 { // indent, then the icon, then the name
+			indent := min(2*e.Depth, max(0, s.w-m.icons.Width()-1))
+			ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
+			lead = strings.Repeat(" ", indent) + m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " "
+			text = strings.TrimPrefix(text, strings.Repeat("  ", e.Depth))
+			text = fit(text, s.w-indent-m.icons.Width())
+		} else {
+			text = fit(text, s.w)
+		}
 		switch {
 		case s.col != fsmodel.ColName || selected:
 		case m.isFresh(e.Path):
@@ -455,7 +460,7 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		case e.IsDir:
 			text = m.styles.folder(text)
 		}
-		b.WriteString(text)
+		b.WriteString(lead + text)
 	}
 	line := fit(b.String(), width)
 	switch {

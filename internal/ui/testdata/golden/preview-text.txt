@@ -1,6 +1,6 @@
  ‹  ›   proj                                                                                              5 items  ⌕  ⚙
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
-│ Favorites          ││      Name ▲                                  Date Modified       Size        Kind              │
+│ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
 │  Home              ││  >  alpha                                   1 Sep 2026          --          Folder            │
 │  Projects          ││  >  beta                                    1 Sep 2026          --          Folder            │
 │              ╭─ main.go ──────────────────────────────────────────────────────────────────────────────╮l Spreadsheet │

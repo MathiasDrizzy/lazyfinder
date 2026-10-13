@@ -11,7 +11,7 @@
     {"desc": "column headers", "assert": {"contains": "Name.*Date Modified.*Date Created.*Size.*Kind"}},
     {"desc": "sidebar sections", "assert": {"contains": "Favorites"}},
     {"assert": {"contains": "Locations"}},
-    {"desc": "folders carry the > marker and sort first", "assert": {"contains": ">\\s+alpha"}},
+    {"desc": "folders carry the > marker and sort first", "assert": {"contains": ">\\s+\\S\\s+alpha"}},
     {"desc": "kinds come from the built-in table", "assert": {"contains": "Plain Text"}},
     {"assert": {"contains": "PNG image"}},
     {"desc": "dotfiles are hidden", "assert": {"not_contains": "\\.secret"}},

@@ -9,8 +9,8 @@
   "steps": [
     {"desc": "starts inside the repository", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
     {"desc": "the branch is in the toolbar", "assert": {"contains": "⎇ trunk"}},
-    {"desc": "an edited file shows M", "assert": {"contains": "M\\s+notes\\.txt"}},
-    {"desc": "an untracked file shows ?", "assert": {"contains": "\\?\\s+loose\\.txt"}},
+    {"desc": "an edited file shows M", "assert": {"contains": "M\\s+\\S\\s+notes\\.txt"}},
+    {"desc": "an untracked file shows ?", "assert": {"contains": "\\?\\s+\\S\\s+loose\\.txt"}},
     {"desc": "an ignored file is listed", "assert": {"contains": "debug\\.log"}},
     {"desc": "I hides ignored files", "keys": ["I"]},
     {"assert": {"not_contains": "debug\\.log"}},

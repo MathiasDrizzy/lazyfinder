@@ -1,6 +1,6 @@
  ‹  ›   proj                                                      5 items  ⌕  ⚙
 ╭─ Places ───────╮╭─ proj ─────────────────────────────────────────────────────╮
-│ Favorites      ││      Name ▲                  Date Modified       Size      │
+│ Favorites      ││    Name ▲                    Date Modified       Size      │
 │  Home          ││▸ >  alpha                   1 Sep 2026          --        │
 │  Projects      ││  >  beta                    1 Sep 2026          --        │
 │                ││     data.xlsx               1 Sep 2026          4 bytes   │

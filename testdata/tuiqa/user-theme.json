@@ -9,7 +9,7 @@
   "env": {"LAZYFINDER_CONFIG": "${TUIQA_SCENARIO_DIR}/fixtures-themes/config.json"},
   "steps": [
     {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the selection bar uses the user theme's peach", "assert_color": {"region": {"line_with": "▸ >\\s+alpha"}, "bg": "#99c1dc", "mode": "any"}},
+    {"desc": "the selection bar uses the user theme's peach", "assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "bg": "#99c1dc", "mode": "any"}},
     {"assert_color": {"region": {"line_with": "beta"}, "bg": "#0a1014", "mode": "any"}},
     {"keys": ["q"]},
     {"wait_exit": {"timeout_ms": 3000, "code": 0}}

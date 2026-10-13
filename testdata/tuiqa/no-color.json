@@ -9,8 +9,8 @@
   "env": {"NO_COLOR": "1"},
   "steps": [
     {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the selected row has a pointer", "assert": {"contains": "▸ >\\s+alpha"}},
-    {"desc": "and reverse video", "assert_style": {"region": {"line_with": "▸ >\\s+alpha"}, "attr": "reverse", "mode": "any"}},
+    {"desc": "the selected row has a pointer", "assert": {"contains": "▸ >\\s+\\S\\s+alpha"}},
+    {"desc": "and reverse video", "assert_style": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "attr": "reverse", "mode": "any"}},
     {"desc": "NO_COLOR leaves no foreground colour on the folder name", "assert_color": {"region": {"line_with": "beta"}, "fg": "#0000ff", "mode": "none"}},
     {"keys": ["q"]},
     {"wait_exit": {"timeout_ms": 3000, "code": 0}}
