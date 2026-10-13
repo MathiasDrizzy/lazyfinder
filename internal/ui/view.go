@@ -372,6 +372,9 @@ func (m *Model) sidebarLines() []string {
 }
 
 func (m *Model) listLines() []string {
+	if m.columnsOn() {
+		return m.millerLines()
+	}
 	rows := m.panelH() - 2
 	out := make([]string, rows)
 	specs := m.columns()
@@ -405,7 +408,10 @@ func (m *Model) listLines() []string {
 	return out
 }
 
-func (m *Model) row(idx int, specs []colSpec) string {
+func (m *Model) row(idx int, specs []colSpec) string { return m.rowW(idx, specs, m.listW()) }
+
+// rowW draws row idx padded or cut to width cells.
+func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 	e := m.entries()[idx]
 	selected := idx == m.sel
 	pointer, marker, mark := " ", " ", " "
@@ -447,7 +453,7 @@ func (m *Model) row(idx int, specs []colSpec) string {
 		}
 		b.WriteString(text)
 	}
-	line := fit(b.String(), m.listW())
+	line := fit(b.String(), width)
 	switch {
 	case selected && m.focus == focusList:
 		return m.styles.selected(ansi.Strip(line))

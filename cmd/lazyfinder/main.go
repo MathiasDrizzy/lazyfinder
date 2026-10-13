@@ -201,6 +201,8 @@ func launch(o Options) error {
 	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
+	}
+	if o.Cfg.Search.ContentTool == "auto" {
 		d.ContentFind = search.SystemRg
 	}
 	m := ui.New(d)

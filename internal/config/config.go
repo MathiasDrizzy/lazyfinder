@@ -44,6 +44,7 @@ type Config struct {
 	Commands   map[string]Opener `json:"commands"`
 	OpenWith   map[string]string `json:"open_with"`
 	Preview    Preview           `json:"preview"`
+	Layout     string            `json:"layout"` // list (detail columns) or columns (parent, folder, preview)
 	Theme      string            `json:"theme"`
 	Watch      Watch             `json:"watch"`
 	Git        Git               `json:"git"`
@@ -102,7 +103,8 @@ type Preview struct {
 
 // Search configures the search bar.
 type Search struct {
-	MaxResults int `json:"max_results"`
+	MaxResults  int    `json:"max_results"`
+	ContentTool string `json:"content_tool"` // auto uses ripgrep for in: when installed; native never runs it
 }
 
 // Ops configures file operations.
@@ -150,10 +152,11 @@ func Defaults(home string) Config {
 		Commands: map[string]Opener{},
 		OpenWith: map[string]string{},
 		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto", Markdown: "render", HexBytes: 4096, ExternalTools: "auto"},
+		Layout:   "list",
 		Theme:    theme.Default,
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
 		Git:      Git{Enabled: true},
-		Search:   Search{MaxResults: 5000},
+		Search:   Search{MaxResults: 5000, ContentTool: "auto"},
 		Ops:      Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
 
 		Language:         "auto",
@@ -272,6 +275,12 @@ func validate(cfg *Config, home string) error {
 	}
 	if cfg.Preview.ExternalTools != "auto" && cfg.Preview.ExternalTools != "off" {
 		return fmt.Errorf(`"preview.external_tools" must be auto or off (got %q)`, cfg.Preview.ExternalTools)
+	}
+	if cfg.Layout != "list" && cfg.Layout != "columns" {
+		return fmt.Errorf(`"layout" must be list or columns (got %q)`, cfg.Layout)
+	}
+	if cfg.Search.ContentTool != "auto" && cfg.Search.ContentTool != "native" {
+		return fmt.Errorf(`"search.content_tool" must be auto or native (got %q)`, cfg.Search.ContentTool)
 	}
 	if cfg.Search.MaxResults <= 0 {
 		return errors.New(`"search.max_results" must be positive`)

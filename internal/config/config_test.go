@@ -176,3 +176,28 @@ func TestCommandsAreParsedAndValidated(t *testing.T) {
 		}
 	}
 }
+
+func TestSearchContentToolDefaultsAndValidation(t *testing.T) {
+	if got := Defaults("/home/u").Search.ContentTool; got != "auto" {
+		t.Fatalf("default = %q", got)
+	}
+	cfg, err := Load(write(t, t.TempDir(), `{"version":1,"search":{"content_tool":"native"}}`), "/home/u")
+	if err != nil || cfg.Search.ContentTool != "native" {
+		t.Fatalf("cfg = %+v err = %v", cfg.Search, err)
+	}
+	if _, err := Load(write(t, t.TempDir(), `{"version":1,"search":{"content_tool":"grep"}}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "search.content_tool") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestLayoutDefaultAndValidation(t *testing.T) {
+	if got := Defaults("/home/u").Layout; got != "list" {
+		t.Fatalf("default = %q", got)
+	}
+	if cfg, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"columns"}`), "/home/u"); err != nil || cfg.Layout != "columns" {
+		t.Fatalf("cfg = %q err = %v", cfg.Layout, err)
+	}
+	if _, err := Load(write(t, t.TempDir(), `{"version":1,"layout":"grid"}`), "/home/u"); err == nil || !strings.Contains(err.Error(), "layout") {
+		t.Fatalf("err = %v", err)
+	}
+}

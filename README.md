@@ -119,6 +119,15 @@ taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](doc
 
 Press `/` to search the folder or its subfolders by name, kind, size and date, with clickable filter chips. See [search](docs/search.md).
 
+## Tabs, bookmarks, tags and more
+
+`ctrl+t` opens a tab, `b` bookmarks a folder in the sidebar, `E` lists recent folders, `f` filters the folder by name,
+`t` tags files and `F` runs saved searches. `!` runs your own commands from `config.json`, `in:text` searches inside
+files (with ripgrep when installed) and `M` switches to a column view with the parent, the folder and a preview.
+See [keybindings](docs/keybindings.md) and [configuration](docs/configuration.md).
+
+<img src="docs/screenshots/columns.png" alt="The column layout: parent folder, current folder and a preview of the selection" width="100%">
+
 ## Live follow and git
 
 The open folder updates by itself and shows git state and the branch:

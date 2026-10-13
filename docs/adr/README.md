@@ -15,3 +15,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | 0009 | [Parity with Finder and with the Windows Explorer search](0009-finder-and-explorer-parity.md) | accepted |
 | 0010 | [File operations: Trash only, never overwrite, always undoable](0010-file-operations.md) | accepted |
 | 0011 | [Previews++: what ships, what waits](0011-previews-plus.md) | accepted |
+| 0012 | [Workspace features: tabs, bookmarks, tags, saved searches, column view](0012-workspace-features.md) | accepted |

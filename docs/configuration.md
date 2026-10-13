@@ -33,6 +33,9 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `search.max_results` | Most results a search collects before it stops and says so | `5000` |
 | `ops.confirm_trash_above` | Ask before trashing more than this many items at once; `0` asks always | `1` |
 | `ops.trash_dir` | Folder that receives trashed items (absolute or `~/…`) | `~/.Trash` |
+| `layout` | `list` (detail columns) or `columns` (parent, folder, preview); `M` toggles and saves it | `list` |
+| `commands` | Custom commands for the `!` menu, see below | none |
+| `search.content_tool` | `auto` uses ripgrep for `in:` when installed (falls back to a built-in scan), `native` never runs it | `auto` |
 | `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
 | `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |
 
@@ -60,6 +63,28 @@ stays readable.
 - These openers ship built in, so Open With is useful before any configuration, and `open_with` can name them without
   defining them: `textedit`, `preview`, `vscode` (these three are listed in the menu only when the application is
   installed) and `vim` (terminal). An opener of yours with the same name replaces the built-in one.
+
+## Custom commands
+
+```json
+{
+  "version": 1,
+  "commands": {
+    "git status": { "argv": ["git", "status"], "mode": "terminal" },
+    "word count": { "argv": ["wc", "-l", "{file}"], "mode": "terminal" },
+    "reveal":     { "argv": ["open", "-R", "{file}"], "mode": "gui" }
+  }
+}
+```
+
+`!` lists them; choosing one runs it in the current folder. `{file}` (the selected row) and `{dir}` (the current
+folder) are optional, each at most once and always a whole argument; nothing goes through a shell. A command with
+`{file}` needs a selection.
+
+## Things lazyfinder remembers
+
+Next to `config.json`: `recents.json` (visited folders), `searches.json` (saved searches) and `tags.json` (tags).
+They are plain JSON and safe to delete. Tags are lazyfinder's own, not Finder's colored tags (ADR 0012).
 
 ## Themes
 

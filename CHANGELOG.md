@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-13
+
+### Added
+
+- Tabs (`ctrl+t`, `ctrl+w`, `}`, `{`), bookmarks (`b`), recent folders (`E`), a quick filter by name or glob (`f`),
+  saved searches (`ctrl+s` in the search bar, `F`), tags (`t`, `T`, `tag:`) and custom commands (`!`, `commands`).
+- Content search with `in:`; it uses ripgrep when installed (`search.content_tool`) and a built-in scan otherwise.
+- A column layout (parent, folder, preview), toggled with `M` and set with `layout`.
+- ADR 0012. Settings `layout` and `search.content_tool`.
+
 ## [0.5.0] - 2026-10-13
 
 ### Added

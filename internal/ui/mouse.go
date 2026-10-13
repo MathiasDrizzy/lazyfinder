@@ -33,6 +33,9 @@ type zone struct {
 // hit resolves a screen position on the base layer (popups are handled before). Panel borders are not clickable.
 func (m *Model) hit(x, y int) zone {
 	lastRow := m.panelH() - 1 // last panel row (its bottom border)
+	if m.columnsOn() && y >= headerRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
+		return m.millerHit(x, y)
+	}
 	switch {
 	case y == 0:
 		switch {

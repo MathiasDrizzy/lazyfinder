@@ -103,6 +103,8 @@ type Model struct {
 	search      searchState
 	goto_       gotoState
 
+	layout  string // list or columns
+	mil     millerState
 	filter  string // quick filter on the names of this folder; empty means none
 	picker  pickerState
 	recents []string // visited folders, newest first
@@ -151,6 +153,7 @@ func New(d Deps) *Model {
 	if m.tags == nil {
 		m.tags = map[string][]string{}
 	}
+	m.layout = d.Cfg.Layout
 	m.restyle()
 	if d.Warning == "" && len(d.Cfg.Warnings) > 0 {
 		d.Warning = d.Cfg.Warnings[0]
@@ -166,6 +169,7 @@ func New(d Deps) *Model {
 		m.openFirstLevel()
 	}
 	m.follow()
+	m.syncMiller()
 	return m
 }
 
@@ -382,6 +386,12 @@ type execDoneMsg struct{ err error }
 
 // Update handles input and asynchronous results.
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	next, cmd := m.update(msg)
+	m.syncMiller()
+	return next, cmd
+}
+
+func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.w, m.h = msg.Width, msg.Height
