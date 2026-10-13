@@ -42,7 +42,7 @@ func Readable(fg, bg color.Color, min float64) color.Color {
 	mix := func(a, b uint32, t float64) uint8 {
 		return uint8(math.Round((float64(a) + (float64(b)-float64(a))*t) / 257))
 	}
-	var out color.Color = target
+	out := target
 	for step := 1; step <= 100; step++ {
 		t := float64(step) / 100
 		c := color.RGBA{R: mix(r0, r1, t), G: mix(g0, g1, t), B: mix(b0, b1, t), A: 255}
