@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"image/color"
 	"strings"
 
@@ -33,7 +34,7 @@ type styles struct {
 	errText, border           func(string) string
 	borderActive, titleActive func(string) string
 	title, footerKey, footer  func(string) string
-	icon                      func(role icons.Role, glyph string, dim bool) string
+	icon                      func(ic icons.Icon, dim bool) string
 	popupBorder, popupTitle   func(string) string
 	// gitLetter colors the git state next to a name
 	gitLetter func(code string) string
@@ -46,11 +47,11 @@ type styles struct {
 func newStyles(l look) styles {
 	r := func(s lipgloss.Style) func(string) string { return func(t string) string { return s.Render(t) } }
 	plain := func(s string) string { return s }
-	noIconColor := func(_ icons.Role, g string, dim bool) string {
+	noIconColor := func(ic icons.Icon, dim bool) string {
 		if dim {
-			return lipgloss.NewStyle().Faint(true).Render(g)
+			return lipgloss.NewStyle().Faint(true).Render(ic.Glyph)
 		}
-		return g
+		return ic.Glyph
 	}
 	mono := l.NoColor
 	if mono {
@@ -107,12 +108,22 @@ func newStyles(l look) styles {
 	}
 	roles := map[icons.Role]color.Color{icons.Folder: p.Blue, icons.Green: p.Green, icons.Peach: p.Peach, icons.Red: p.Red,
 		icons.Yellow: p.Yellow, icons.Mauve: p.Mauve, icons.Teal: p.Teal, icons.Blue: p.Blue, icons.Plain: p.Subtext0}
-	s.icon = func(role icons.Role, glyph string, dim bool) string {
-		c := p.Overlay0
-		if !dim {
-			c = roles[role]
+	s.icon = func(ic icons.Icon, dim bool) string {
+		if ic.IsEmoji {
+			if dim {
+				return lipgloss.NewStyle().Faint(true).Render(ic.Glyph)
+			}
+			return ic.Glyph // an emoji brings its own colors
 		}
-		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Render(glyph)
+		c := p.Overlay0
+		switch {
+		case dim:
+		case ic.HasRGB:
+			c = lipgloss.Color(fmt.Sprintf("#%06x", ic.RGB))
+		default:
+			c = roles[ic.Role]
+		}
+		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Render(ic.Glyph)
 	}
 	gitColors := map[string]color.Color{"M": p.Yellow, "U": p.Green, "A": p.Green, "D": p.Red, "R": p.Blue, "!": p.Red, "I": p.Overlay0}
 	s.gitLetter = func(code string) string {

@@ -53,8 +53,8 @@ type Config struct {
 	Commands   map[string]Opener `json:"commands"`
 	OpenWith   map[string]string `json:"open_with"`
 	Preview    Preview           `json:"preview"`
-	Icons      string            `json:"icons"`       // nerd (Nerd Font glyphs), ascii or off
-	IconMap    map[string]string `json:"icon_map"`    // extension -> glyph, overrides the built-in ones
+	Icons      string            `json:"icons"`       // nerd (Nerd Font glyphs), emoji, ascii or off
+	IconMap    map[string]string `json:"icon_map"`    // extension or whole file name -> glyph, overrides the built-in ones
 	DateFormat string            `json:"date_format"` // absolute (13 Oct 2026, 09:05), relative (6 h ago) or numeric (2026-10-13 09:05)
 	Density    string            `json:"density"`     // compact, normal or comfortable (see DensityCompact)
 	// IconSize is ignored: there is no icon size any more (docs/adr/0015-no-icon-size.md). The key stays so a file
@@ -399,8 +399,8 @@ func validate(cfg *Config, home string) error {
 	if cfg.Preview.ExternalTools != "auto" && cfg.Preview.ExternalTools != "off" {
 		return i18n.Errorf(`"preview.external_tools" debe ser auto u off (hay %q)`, `"preview.external_tools" must be auto or off (got %q)`, cfg.Preview.ExternalTools)
 	}
-	if cfg.Icons != "nerd" && cfg.Icons != "ascii" && cfg.Icons != "off" {
-		return i18n.Errorf(`"icons" debe ser nerd, ascii u off (hay %q)`, `"icons" must be nerd, ascii or off (got %q)`, cfg.Icons)
+	if cfg.Icons != "nerd" && cfg.Icons != "emoji" && cfg.Icons != "ascii" && cfg.Icons != "off" {
+		return i18n.Errorf(`"icons" debe ser nerd, emoji, ascii u off (hay %q)`, `"icons" must be nerd, emoji, ascii or off (got %q)`, cfg.Icons)
 	}
 	if w := cfg.SidebarWidth; w != 0 && (w < MinSidebar || w > MaxSidebar) {
 		return i18n.Errorf(`"sidebar_width" debe ser 0 o de %d a %d (hay %d)`, `"sidebar_width" must be 0 or from %d to %d (got %d)`, MinSidebar, MaxSidebar, w)

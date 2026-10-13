@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Icons follow the herdr sidebar table: a colored glyph per file kind (by whole name and extension), the same in the
+  list and the tree, an `emoji` icon style for fonts without Nerd Font glyphs, and `icon_map` accepts whole file names.
+  The table is MIT licensed (see `NOTICE`).
+
 ### Changed
 
 - The default row density is now wide, closer to Finder: two-line rows, a soft stripe on every second row and a

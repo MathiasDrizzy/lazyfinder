@@ -156,7 +156,7 @@ language, image protocol and more; changes apply at once and are saved. For one 
 
 <img src="docs/screenshots/settings.png" alt="The settings popup over the list" width="100%">
 
-Icons are Nerd Font glyphs (`icons` in Settings: `nerd`, `ascii` or `off`). There is no icon size: a glyph cannot grow inside a terminal cell ([ADR 0015](docs/adr/0015-no-icon-size.md)). A `│` separates the column names in the header like in
+Icons are colored Nerd Font glyphs, classified like the [herdr sidebar](https://github.com/alexarthurs/herdr-sidebar) plugin does (`icons` in Settings: `nerd`, `emoji`, `ascii` or `off`; `icon_map` overrides an extension or a file name). There is no icon size: a glyph cannot grow inside a terminal cell ([ADR 0015](docs/adr/0015-no-icon-size.md)). A `│` separates the column names in the header like in
 Finder (`column_separators`), and **Columns** in Settings or a right click on the header shows fewer or more data per
 file, with a *Basic* and a *Full* preset.
 

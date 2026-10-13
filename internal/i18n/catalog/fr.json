@@ -6,7 +6,7 @@
  "\"columns\" must not be empty": "« columns » ne doit pas être vide",
  "\"date_format\" %q is not valid (use %s)": "« date_format » %q n’est pas valide (utilisez %s)",
  "\"density\" %q is not valid (use %s)": "« density » %q n’est pas valide (utilisez %s)",
- "\"icons\" must be nerd, ascii or off (got %q)": "« icons » doit être nerd, ascii ou off (reçu %q)",
+ "\"icons\" must be nerd, emoji, ascii or off (got %q)": "« icons » doit être nerd, emoji, ascii ou off (reçu %q)",
  "\"keybinding_mode\" %q is not valid (use dual or lazy)": "« keybinding_mode » %q n’est pas valide (utilisez dual ou lazy)",
  "\"language\" must be auto, en, es, pt, fr, de, it, ja or zh (got %q)": "« language » doit être auto, en, es, pt, fr, de, it, ja ou zh (reçu %q)",
  "\"layout\" must be list or columns (got %q)": "« layout » doit être list ou columns (reçu %q)",

@@ -6,7 +6,7 @@
  "\"columns\" must not be empty": "\"columns\" 不能为空",
  "\"date_format\" %q is not valid (use %s)": "\"date_format\" %q 无效(请用 %s)",
  "\"density\" %q is not valid (use %s)": "\"density\" %q 无效(请用 %s)",
- "\"icons\" must be nerd, ascii or off (got %q)": "\"icons\" 必须是 nerd、ascii 或 off(当前为 %q)",
+ "\"icons\" must be nerd, emoji, ascii or off (got %q)": "\"icons\" 必须是 nerd、emoji、ascii 或 off(当前为 %q)",
  "\"keybinding_mode\" %q is not valid (use dual or lazy)": "\"keybinding_mode\" %q 无效(请用 dual 或 lazy)",
  "\"language\" must be auto, en, es, pt, fr, de, it, ja or zh (got %q)": "\"language\" 必须是 auto、en、es、pt、fr、de、it、ja 或 zh(当前为 %q)",
  "\"layout\" must be list or columns (got %q)": "\"layout\" 必须是 list 或 columns(当前为 %q)",

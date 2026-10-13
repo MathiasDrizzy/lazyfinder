@@ -24,7 +24,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `preview.hex_bytes` | Bytes of a binary file shown as a hex dump | `4096` |
 | `preview.external_tools` | `auto` lets previews run `mdls`, `pdftoppm` or `sips` (media facts, PDF first page); `off` never runs them | `auto` |
 | `theme` | A built-in theme, a user theme (see below) or `terminal` | `catppuccin-mocha` |
-| `icons` | `nerd` draws a Nerd Font glyph per kind (folders open and closed, files by extension, apps, links), `ascii` a plain character, `off` nothing | `nerd` |
+| `icons` | `nerd` draws a colored Nerd Font glyph per kind (the herdr-sidebar table: folders open and closed, files by name and extension, apps, links), `emoji` one emoji per kind for fonts without Nerd Font glyphs, `ascii` a plain character, `off` nothing | `nerd` |
 | `keybinding_mode` | `dual` (arrows and Vim letters) or `lazy` (arrows only) | `dual` |
 | `date_format` | `absolute` (13 Oct 2026, 09:05), `relative` (5 h ago) or `numeric` (2026-10-13 09:05). One format for the whole column; a missing date (empty or before 1980) is `--`. The old `finder` value reads as `absolute`. | `absolute` |
 | `icon_size` | Ignored since 0.12 (there is no icon size, [ADR 0015](adr/0015-no-icon-size.md)); old files still load. | |
@@ -34,7 +34,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `sidebar_width` | cells of the sidebar, 12 to 60; `0` is automatic | `0` |
 | `preview_width` | cells of the preview in the column view, 12 to 200; `0` is automatic | `0` |
 | `column_widths` | cells of an optional column, 6 to 60, e.g. `{"kind": 24}` | `{}` |
-| `icon_map` | extension → glyph overrides, e.g. `{"go": "G"}` | `{}` |
+| `icon_map` | extension or whole file name → glyph overrides, e.g. `{"go": "G", "Makefile": "M"}` | `{}` |
 | `screen_background` | `theme` paints the whole screen with the theme background; `terminal` keeps the terminal's own | `theme` |
 | `popup_background` | `theme` paints popups with the theme background; `terminal` leaves the terminal's own behind them (a translucent terminal stays translucent) | `theme` |
 | `confirm_delete` | `false` never asks before moving to the Trash (`u` undoes it); `true` asks as `ops.confirm_trash_above` says | `true` |

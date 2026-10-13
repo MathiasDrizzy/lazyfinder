@@ -12,15 +12,12 @@ import (
 
 // iconW is the cells an icon takes in front of a name, or 0 when icons are off.
 func (m *Model) iconW() int {
-	if m.icons.Width() == 0 {
-		return 0
-	}
-	return 2
+	return m.icons.Width()
 }
 
 // iconCell draws an icon; it is iconW cells wide.
 func (m *Model) iconCell(ic icons.Icon) string {
-	return m.styles.icon(ic.Role, ic.Glyph, ic.Dim) + " "
+	return m.styles.icon(ic, ic.Dim) + " "
 }
 
 // placeIcon is the icon of a sidebar line and the indent that goes before it. Like Finder, every entry has its own
@@ -36,7 +33,7 @@ func (m *Model) placeIcon(p place) (glyph, lead string) {
 			ic.Glyph, ic.Role = g, icons.Blue
 		}
 	}
-	return m.styles.icon(ic.Role, ic.Glyph, p.missing), lead
+	return m.styles.icon(ic, p.missing), lead
 }
 
 // userFolderGlyphs are the glyphs of the standard folders of a home, found by their place on disk and not by the name

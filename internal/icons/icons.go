@@ -11,7 +11,8 @@ import (
 type Style string
 
 const (
-	Nerd  Style = "nerd"  // Nerd Font glyphs, one cell each
+	Nerd  Style = "nerd"  // Nerd Font glyphs, one cell each, colored by kind (the herdr-sidebar table, see NOTICE)
+	Emoji Style = "emoji" // one emoji per kind, for terminals without a Nerd Font
 	ASCII Style = "ascii" // a plain character per kind, for terminals without a Nerd Font
 	Off   Style = "off"
 )
@@ -36,6 +37,11 @@ type Icon struct {
 	Glyph string
 	Role  Role
 	Dim   bool
+	// RGB (0xRRGGBB) is the color of the kind when it has its own, instead of a palette Role; the UI lifts it where
+	// a theme would make it unreadable.
+	RGB     uint32
+	HasRGB  bool
+	IsEmoji bool // drawn with its own colors, two cells wide
 }
 
 // Item is what the icon is picked for.
@@ -54,8 +60,11 @@ type Set struct {
 
 // Width is the cells the icon takes with its trailing space: 0 when off.
 func (s Set) Width() int {
-	if s.Style == Off || s.Style == "" {
+	switch s.Style {
+	case Off, "":
 		return 0
+	case Emoji:
+		return 3 // an emoji is two cells wide
 	}
 	return 2
 }
@@ -70,21 +79,44 @@ func (s Set) Pick(it Item) Icon {
 		return Icon{Glyph: asciiGlyph(it), Role: roleFor(it), Dim: hidden}
 	}
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(it.Name), "."))
-	if g, ok := s.override(ext); ok && !it.IsDir {
-		return Icon{Glyph: g, Role: roleFor(it), Dim: hidden}
+	if !it.IsDir {
+		if g, ok := s.override(it.Name, ext); ok {
+			return Icon{Glyph: g, Role: roleFor(it), Dim: hidden}
+		}
+	}
+	if s.Style == Emoji {
+		return Icon{Glyph: emojiOf(it), Role: roleFor(it), Dim: hidden, IsEmoji: true}
 	}
 	ic := nerd(it, ext)
 	ic.Dim = hidden
 	return ic
 }
 
-func (s Set) override(ext string) (string, bool) {
+// override finds the user's glyph for a file: by its whole name (Makefile, .gitignore) or by its extension.
+func (s Set) override(name, ext string) (string, bool) {
+	lowerName := strings.ToLower(name)
 	for k, g := range s.Map {
-		if strings.ToLower(strings.TrimPrefix(k, ".")) == ext && ext != "" {
+		key := strings.ToLower(k)
+		if key == lowerName || (ext != "" && strings.TrimPrefix(key, ".") == ext) {
 			return g, true
 		}
 	}
 	return "", false
+}
+
+func emojiOf(it Item) string {
+	switch {
+	case it.IsLink:
+		return "🔗"
+	case it.IsDir && it.Open:
+		return kindEmoji[kDirOpen]
+	case it.IsDir:
+		return kindEmoji[kDir]
+	}
+	if k, ok := kindOf(it.Name); ok {
+		return kindEmoji[k]
+	}
+	return kindEmoji[kFile]
 }
 
 func asciiGlyph(it Item) string {
@@ -154,19 +186,24 @@ var byName = map[string]kind{
 func nerd(it Item, ext string) Icon {
 	switch {
 	case it.IsLink:
-		return Icon{glyphLink, Teal, false}
+		return Icon{Glyph: glyphLink, Role: Teal}
 	case it.IsDir && ext == "app":
-		return Icon{glyphApp, Peach, false}
+		return Icon{Glyph: glyphApp, Role: Peach}
 	case it.IsDir && it.Open:
-		return Icon{glyphFolderOpen, Folder, false}
+		return Icon{Glyph: glyphFolderOpen, Role: Folder}
 	case it.IsDir:
-		return Icon{glyphFolder, Folder, false}
+		return Icon{Glyph: glyphFolder, Role: Folder}
+	}
+	if k, ok := kindOf(it.Name); ok {
+		g := kindGlyphs[k]
+		return Icon{Glyph: g.glyph, RGB: g.rgb, HasRGB: true}
 	}
 	if k, ok := byName[strings.ToLower(it.Name)]; ok {
-		return Icon{k.glyph, k.role, false}
+		return Icon{Glyph: k.glyph, Role: k.role}
 	}
 	if k, ok := byExt[ext]; ok {
-		return Icon{k.glyph, k.role, false}
+		return Icon{Glyph: k.glyph, Role: k.role}
 	}
-	return Icon{glyphFile, Plain, false}
+	g := kindGlyphs[kFile]
+	return Icon{Glyph: g.glyph, RGB: g.rgb, HasRGB: true}
 }

@@ -62,11 +62,27 @@ func TestSettingsCanSwitchTheIconStyle(t *testing.T) {
 		t.Fatalf("default = %q", got)
 	}
 	e.key("right")
+	if e.m.icons.Style != "emoji" {
+		t.Fatalf("style = %q", e.m.icons.Style)
+	}
+	e.key("right")
 	if e.m.icons.Style != "ascii" {
 		t.Fatalf("style = %q", e.m.icons.Style)
 	}
 	e.key("esc")
 	if r := e.row("alpha"); strings.Contains(r, nerdFolder) {
 		t.Fatalf("the Nerd glyph should be gone: %q", r)
+	}
+}
+
+func TestEmojiIconsFillThreeCellsAndKeepNamesAligned(t *testing.T) {
+	e := newEnv(t)
+	e.m.icons.Style = "emoji"
+	r := e.row("notes.txt")
+	if !strings.Contains(r, "📄 notes.txt") {
+		t.Fatalf("row = %q", r)
+	}
+	if got := e.m.iconW(); got != 3 {
+		t.Fatalf("iconW = %d, want 3", got)
 	}
 }

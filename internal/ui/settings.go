@@ -184,7 +184,7 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.ConfirmDelete = !m.deps.Cfg.ConfirmDelete
 		key, val = "confirm_delete", m.deps.Cfg.ConfirmDelete
 	case setIcons:
-		m.deps.Cfg.Icons = cycle([]string{"nerd", "ascii", "off"}, m.deps.Cfg.Icons, dir)
+		m.deps.Cfg.Icons = cycle([]string{"nerd", "emoji", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons
 		m.icons.Style = icons.Style(m.deps.Cfg.Icons)
 	case setColumns:
