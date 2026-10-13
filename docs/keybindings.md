@@ -8,6 +8,8 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | Key | Action | Name |
 | --- | --- | --- |
 | `↑` `↓`, `k` `j` | Move the selection | `up` `down` |
+| `<` `>` | Narrow / widen the sidebar | `sidebar_narrow` `sidebar_widen` |
+| `ctrl+left` `ctrl+right` | Narrow / widen the column the list is sorted by | `column_narrow` `column_widen` |
 | `PgUp` `ctrl+u`, `PgDn` `ctrl+d` | Move a page | `page_up` `page_down` |
 | `Home` `g`, `End` `G` | First and last row | `first` `last` |
 | `Enter`, `→`, `l` | Enter a folder, or open a file with its configured program | `open` |

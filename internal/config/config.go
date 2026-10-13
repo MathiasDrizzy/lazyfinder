@@ -29,6 +29,13 @@ const (
 	ModeTerminal = "terminal"
 )
 
+// Limits of the sizes the mouse and the keys can set, in cells.
+const (
+	MinSidebar, MaxSidebar = 12, 60
+	MinPreview, MaxPreview = 12, 200
+	MinColumn, MaxColumn   = 6, 60
+)
+
 const (
 	currentVersion      = 1
 	defaultMaxTextBytes = 512 << 10
@@ -48,11 +55,16 @@ type Config struct {
 	Icons      string            `json:"icons"`    // nerd (Nerd Font glyphs), ascii or off
 	IconMap    map[string]string `json:"icon_map"` // extension -> glyph, overrides the built-in ones
 	Layout     string            `json:"layout"`   // list (detail columns) or columns (parent, folder, preview)
-	Theme      string            `json:"theme"`
-	Watch      Watch             `json:"watch"`
-	Git        Git               `json:"git"`
-	Search     Search            `json:"search"`
-	Ops        Ops               `json:"ops"`
+	// SidebarWidth and PreviewWidth are cells (0 is automatic); ColumnWidths maps a column to its width in cells.
+	// Dragging a border with the mouse, or < > and ctrl+left ctrl+right, saves them.
+	SidebarWidth int            `json:"sidebar_width"`
+	PreviewWidth int            `json:"preview_width"`
+	ColumnWidths map[string]int `json:"column_widths"`
+	Theme        string         `json:"theme"`
+	Watch        Watch          `json:"watch"`
+	Git          Git            `json:"git"`
+	Search       Search         `json:"search"`
+	Ops          Ops            `json:"ops"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
 	Language         string              `json:"language"`
@@ -286,6 +298,20 @@ func validate(cfg *Config, home string) error {
 	}
 	if cfg.Icons != "nerd" && cfg.Icons != "ascii" && cfg.Icons != "off" {
 		return i18n.Errorf(`"icons" debe ser nerd, ascii u off (hay %q)`, `"icons" must be nerd, ascii or off (got %q)`, cfg.Icons)
+	}
+	if w := cfg.SidebarWidth; w != 0 && (w < MinSidebar || w > MaxSidebar) {
+		return i18n.Errorf(`"sidebar_width" debe ser 0 o de %d a %d (hay %d)`, `"sidebar_width" must be 0 or from %d to %d (got %d)`, MinSidebar, MaxSidebar, w)
+	}
+	if w := cfg.PreviewWidth; w != 0 && (w < MinPreview || w > MaxPreview) {
+		return i18n.Errorf(`"preview_width" debe ser 0 o de %d a %d (hay %d)`, `"preview_width" must be 0 or from %d to %d (got %d)`, MinPreview, MaxPreview, w)
+	}
+	for c, w := range cfg.ColumnWidths {
+		if !validColumns[c] || c == "name" {
+			return i18n.Errorf(`"column_widths" no admite la columna %q (el nombre ocupa el resto)`, `"column_widths" does not take the column %q (the name takes what is left)`, c)
+		}
+		if w < MinColumn || w > MaxColumn {
+			return i18n.Errorf(`"column_widths.%s" debe ser de %d a %d (hay %d)`, `"column_widths.%s" must be from %d to %d (got %d)`, c, MinColumn, MaxColumn, w)
+		}
 	}
 	if cfg.Layout != "list" && cfg.Layout != "columns" {
 		return i18n.Errorf(`"layout" debe ser list o columns (hay %q)`, `"layout" must be list or columns (got %q)`, cfg.Layout)

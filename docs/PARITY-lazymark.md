@@ -22,7 +22,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | `Tab` / `Shift+Tab` next / previous panel | `tab` (two panels, so one key is enough) | done |
 | `w` Zoom panel | `space` previews full screen, `M` column view | n/a: Space already zooms |
 | `W` Kanban board | - | n/a: no tasks |
-| `[` `]` Narrow / widen column | `[` `]` are Back / Forward in history | missing (block E: `<` `>` resize, the history keys keep their Finder meaning) |
+| `[` `]` Narrow / widen column | `[` `]` are Back / Forward in history | done (block E: `<` `>` resize the sidebar, `ctrl+left` `ctrl+right` the sorted column; the history keys keep their Finder meaning) |
 | `Esc` Clear filter | `esc` ends the filter and the search | done |
 
 ## Keys: navigation
@@ -62,8 +62,8 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | lazymark | lazyfinder | Status |
 |---|---|---|
 | Click a row, tag, popup row or footer hint selects or runs it | rows, sidebar, crumbs, header, chips; footer hints are text | missing (block H: clickable key hints) |
-| Drag the divider between the two columns | not draggable | missing (block E: sidebar and preview borders, each column header) |
-| Double click the divider | - | missing (block E: fit to content, an addition over lazymark) |
+| Drag the divider between the two columns | not draggable | done (block E: sidebar border, preview border of the column view, each column header) |
+| Double click the divider | - | done (block E: fit to content, an addition over lazymark) |
 | Scroll wheel scrolls the panel under the pointer | wheel scrolls the list or the preview | done |
 | Settings: first click selects, second click changes | one click changes | missing (block H) |
 | Click on the mascot | - | n/a: no mascot |
@@ -99,7 +99,7 @@ Settings popup, the popups and `internal/app/mouse.go`.
 | `confirm_delete` | `ops.confirm_trash_above` | missing (block H: a boolean row, same name semantics) |
 | `keybinding_mode` (`dual`, `lazy`) | - | missing (block F) |
 | `keybindings` (one key per action) | `keys` (a list of keys per action, conflicts reported) | done |
-| `sidebar_ratio` 0.15 to 0.75 | fixed 22 columns | missing (block E: `sidebar_width`, saved on drag) |
+| `sidebar_ratio` 0.15 to 0.75 | fixed 22 columns | done (block E: `sidebar_width`, `preview_width`, `column_widths`, saved on drag) |
 | `nerd_font` | `icons` nerd / ascii / off, `icon_map` | done |
 | Per-key tolerant parsing: a wrong value goes back to its default, a warning says which, the rest is kept; unknown keys are preserved on save; an invalid file is saved as `config.json.bak` first | one invalid key makes the whole file fall back to the defaults; unknown keys are an error | missing (block H) |
 | User themes in `themes/` next to config.json | same | done |

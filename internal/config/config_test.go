@@ -234,3 +234,22 @@ func TestSearchScopeKindsAndByDefaultAndValidation(t *testing.T) {
 		}
 	}
 }
+
+func TestLayoutSizesDefaultAndValidation(t *testing.T) {
+	d := Defaults("/home/u")
+	if d.SidebarWidth != 0 || d.PreviewWidth != 0 || len(d.ColumnWidths) != 0 {
+		t.Fatalf("0 means automatic: %+v", d)
+	}
+	cfg, err := Parse([]byte(`{"version":1,"sidebar_width":30,"preview_width":50,"column_widths":{"size":12,"kind":24}}`), "/home/u")
+	if err != nil || cfg.SidebarWidth != 30 || cfg.PreviewWidth != 50 || cfg.ColumnWidths["kind"] != 24 {
+		t.Fatalf("%v %+v", err, cfg)
+	}
+	for _, js := range []string{
+		`{"version":1,"sidebar_width":5}`, `{"version":1,"sidebar_width":99}`, `{"version":1,"preview_width":3}`,
+		`{"version":1,"column_widths":{"name":20}}`, `{"version":1,"column_widths":{"size":1}}`, `{"version":1,"column_widths":{"nope":10}}`,
+	} {
+		if _, err := Parse([]byte(js), "/home/u"); err == nil {
+			t.Errorf("%s should be refused", js)
+		}
+	}
+}

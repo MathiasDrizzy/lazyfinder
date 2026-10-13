@@ -54,6 +54,9 @@ func (m *Model) sidebarW() int {
 	if m.deps.Follow {
 		return 0
 	}
+	if w := m.deps.Cfg.SidebarWidth; w > 0 {
+		return max(config.MinSidebar, min(w, m.w/2))
+	}
 	if m.w >= 90 {
 		return sidebarWide
 	}
@@ -94,7 +97,7 @@ func (m *Model) columns() []colSpec {
 	nameW := func() int {
 		w := m.listW() - m.prefix()
 		for _, c := range extra {
-			w -= columnWidths[c] + colGap
+			w -= m.colWidth(c) + colGap
 		}
 		return w
 	}
@@ -107,8 +110,8 @@ func (m *Model) columns() []colSpec {
 	specs := []colSpec{{col: fsmodel.ColName, x: m.prefix(), w: max(1, nameW())}}
 	x := m.prefix() + specs[0].w + colGap
 	for _, c := range extra {
-		specs = append(specs, colSpec{col: c, x: x, w: columnWidths[c]})
-		x += columnWidths[c] + colGap
+		specs = append(specs, colSpec{col: c, x: x, w: m.colWidth(c)})
+		x += m.colWidth(c) + colGap
 	}
 	return specs
 }

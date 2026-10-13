@@ -40,8 +40,13 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		if cmd, ok := m.resultsKey(key); ok {
 			return cmd
 		}
+	case isResizeAction(act) && m.search.mode != searchResults:
+		return m.resizeKey(act)
 	case m.focus == focusSidebar:
 		return m.sidebarKey(key, act)
+	}
+	if isResizeAction(act) {
+		return m.resizeKey(act)
 	}
 	if key == "esc" && m.markCount() > 0 {
 		clear(m.marked)

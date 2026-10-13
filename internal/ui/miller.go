@@ -127,6 +127,9 @@ type millerGeom struct{ parentW, centerW, rightW int }
 func (m *Model) millerGeom() millerGeom {
 	w := m.listW()
 	g := millerGeom{parentW: max(8, w/5), rightW: max(12, w*2/5)}
+	if p := m.deps.Cfg.PreviewWidth; p > 0 {
+		g.rightW = max(12, min(p, w-g.parentW-12))
+	}
 	g.centerW = max(10, w-g.parentW-g.rightW-2)
 	return g
 }

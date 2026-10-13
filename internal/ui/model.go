@@ -107,14 +107,16 @@ type Model struct {
 	search      searchState
 	goto_       gotoState
 
-	layout  string // list or columns
-	icons   icons.Set
-	mil     millerState
-	filter  string // quick filter on the names of this folder; empty means none
-	picker  pickerState
-	recents []string // visited folders, newest first
-	saved   []savedSearch
-	tags    map[string][]string // path -> tag names, kept in tags.json next to config.json
+	layout   string // list or columns
+	drag     dragState
+	pointerX int // column of the last click, for dragging a border
+	icons    icons.Set
+	mil      millerState
+	filter   string // quick filter on the names of this folder; empty means none
+	picker   pickerState
+	recents  []string // visited folders, newest first
+	saved    []savedSearch
+	tags     map[string][]string // path -> tag names, kept in tags.json next to config.json
 
 	tabs []tabState // empty until a second tab is opened
 	cur  int
@@ -409,6 +411,10 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.onClick(msg)
 	case tea.MouseWheelMsg:
 		return m, m.onWheel(msg)
+	case tea.MouseMotionMsg:
+		return m, m.onMotion(msg)
+	case tea.MouseReleaseMsg:
+		return m, m.onRelease(msg)
 	case uv.KittyGraphicsEvent:
 		if termimg.IsSupportReply(msg) && m.deps.Cfg.Preview.Images != "off" {
 			m.imagesAllowed = true

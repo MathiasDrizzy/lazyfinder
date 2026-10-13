@@ -12,6 +12,9 @@ All notable changes to this project are documented here. The format follows
 - Search choices: where (this folder, subfolders, the whole system through the Spotlight index), what (files and
   folders, files, folders) and how (by name or by content), on `Tab`, `Ctrl+K` and `Ctrl+N`, as chips, in Settings
   and in `search.scope`, `search.kinds` and `search.by`; they are remembered.
+- Resize with the mouse: drag the sidebar border, the preview border of the column view or the right edge of a
+  column header; a double click fits the content. `<` `>` and `Ctrl+←` `Ctrl+→` do the same from the keyboard, and
+  `sidebar_width`, `preview_width` and `column_widths` remember the sizes.
 - **Recents** in the sidebar lists the last folders; `Ctrl+U` and `Ctrl+D` page like in lazymark.
 
 ### Changed

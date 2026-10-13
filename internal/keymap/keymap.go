@@ -58,6 +58,10 @@ const (
 	CloseTab      Action = "close_tab"
 	NextTab       Action = "next_tab"
 	PrevTab       Action = "prev_tab"
+	SidebarNarrow Action = "sidebar_narrow"
+	SidebarWiden  Action = "sidebar_widen"
+	ColumnNarrow  Action = "column_narrow"
+	ColumnWiden   Action = "column_widen"
 	Focus         Action = "focus"
 	Settings      Action = "settings"
 	Quit          Action = "quit"
@@ -66,7 +70,7 @@ const (
 // Actions lists every action.
 var Actions = []Action{
 	Up, Down, PageUp, PageDown, First, Last, Open, Parent, Back, Forward, Preview, OpenWith, QuickLook,
-	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, NewTab, CloseTab, NextTab, PrevTab, Focus, Settings, Quit,
+	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, Focus, Settings, Quit,
 }
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
@@ -77,7 +81,7 @@ var Defaults = map[Action][]string{
 	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"},
 	Mark: {"v"}, MarkAll: {"ctrl+a"}, Copy: {"c"}, Cut: {"x"}, Paste: {"p", "ctrl+v"}, Duplicate: {"D"},
 	Rename: {"f2", "R"}, NewFolder: {"N", "ctrl+n"}, Trash: {"d", "delete"}, Undo: {"u", "ctrl+z"}, Info: {"i"},
-	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
+	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, SidebarNarrow: {"<"}, SidebarWiden: {">"}, ColumnNarrow: {"ctrl+left"}, ColumnWiden: {"ctrl+right"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
 }
 
 // Map is the effective binding. Build it with New; it is read-only afterwards.

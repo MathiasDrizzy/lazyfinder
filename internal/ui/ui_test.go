@@ -146,6 +146,10 @@ func keyMsg(k string) tea.KeyPressMsg {
 		return tea.KeyPressMsg{Code: tea.KeyLeft, Mod: tea.ModAlt}
 	case "alt+right":
 		return tea.KeyPressMsg{Code: tea.KeyRight, Mod: tea.ModAlt}
+	case "ctrl+left":
+		return tea.KeyPressMsg{Code: tea.KeyLeft, Mod: tea.ModCtrl}
+	case "ctrl+right":
+		return tea.KeyPressMsg{Code: tea.KeyRight, Mod: tea.ModCtrl}
 	case "f2":
 		return tea.KeyPressMsg{Code: tea.KeyF2}
 	case "delete":

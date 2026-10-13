@@ -1,0 +1,22 @@
+{
+  "name": "lazyfinder-resize-panels",
+  "criterio": "order 2026-10-13-05 block E (drag the sidebar border and a column border, double click fits, keys < >)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "the list starts 27 cells from the left", "assert": {"contains": "(?m)^.{27}Name"}},
+    {"desc": "drag the sidebar border 8 cells right", "drag": {"from": {"x": 21, "y": 10}, "to": {"x": 29, "y": 10}}},
+    {"desc": "the list now starts at 35", "assert": {"contains": "(?m)^.{35}Name"}},
+    {"desc": "> widens by two", "keys": [">"]},
+    {"assert": {"contains": "(?m)^.{37}Name"}},
+    {"keys": ["<", "<", "<"]},
+    {"desc": "< narrows by two", "assert": {"contains": "(?m)^.{31}Name"}},
+    {"desc": "dragging the border of the Size column does not sort", "drag": {"from_at": "Size", "dx": 10, "to": {"x": 90, "y": 2}}},
+    {"desc": "still sorted by Name", "assert": {"contains": "Name ▲"}},
+    {"assert": {"not_contains": "Size [▲▼]"}}
+  ]
+}

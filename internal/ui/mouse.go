@@ -20,6 +20,9 @@ const (
 	zoneSearch
 	zoneChip
 	zoneToggle
+	zoneSideBorder    // the border between the sidebar and the list: drag to resize
+	zoneColBorder     // the gap right of a column header
+	zonePreviewBorder // the border in front of the preview in the column view
 )
 
 // zone is what lies under a screen cell.
@@ -33,8 +36,21 @@ type zone struct {
 // hit resolves a screen position on the base layer (popups are handled before). Panel borders are not clickable.
 func (m *Model) hit(x, y int) zone {
 	lastRow := m.panelH() - 1 // last panel row (its bottom border)
+	if m.columnsOn() && y >= headerRow && y < lastRow && x == m.listX()+m.millerGeom().parentW+1+m.millerGeom().centerW {
+		return zone{kind: zonePreviewBorder}
+	}
 	if m.columnsOn() && y >= headerRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
 		return m.millerHit(x, y)
+	}
+	if y >= 1 && y <= lastRow && m.sidebarW() > 0 && (x == m.sidebarW()-1 || x == m.sidebarW()) {
+		return zone{kind: zoneSideBorder}
+	}
+	if !m.columnsOn() && y == headerRow {
+		for _, s := range m.columns() {
+			if rel := x - m.listX(); rel >= s.x+s.w && rel < s.x+s.w+colGap {
+				return zone{kind: zoneColBorder, col: s.col}
+			}
+		}
 	}
 	switch {
 	case y == 0:
@@ -119,6 +135,7 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 		}
 		return nil
 	}
+	m.pointerX = mouse.X
 	z := m.hit(mouse.X, mouse.Y)
 	if mouse.Button == tea.MouseRight && z.kind == zoneRow {
 		m.focus = focusList
@@ -140,6 +157,14 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 	prev := m.lastClick
 	m.lastClick = click{zone: z, at: m.deps.Now()}
 	switch z.kind {
+	case zoneSideBorder, zoneColBorder, zonePreviewBorder:
+		if prev.zone == z && m.deps.Now().Sub(prev.at) <= doubleClickWindow {
+			m.lastClick = click{}
+			m.drag = dragState{}
+			return m.fitBorder(z)
+		}
+		m.beginDrag(z, m.pointerX)
+		return nil
 	case zoneBack:
 		return m.step(m.hist.Back())
 	case zoneForward:
