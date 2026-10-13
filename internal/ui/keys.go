@@ -77,9 +77,9 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Quit:
 		return tea.Quit
 	case keymap.Up:
-		return m.setSelection(m.sel - 1)
+		return m.setSelection(wrap(m.sel-1, len(m.entries())))
 	case keymap.Down:
-		return m.setSelection(m.sel + 1)
+		return m.setSelection(wrap(m.sel+1, len(m.entries())))
 	case keymap.PageUp:
 		return m.setSelection(m.sel - page)
 	case keymap.PageDown:
@@ -184,9 +184,13 @@ func (m *Model) sidebarKey(key string, act keymap.Action) tea.Cmd {
 	case act == keymap.Quit:
 		return tea.Quit
 	case act == keymap.Up:
-		m.sideSel = max(0, m.sideSel-1)
+		m.sideSel = wrap(m.sideSel-1, len(dests))
 	case act == keymap.Down:
-		m.sideSel = min(len(dests)-1, m.sideSel+1)
+		m.sideSel = wrap(m.sideSel+1, len(dests))
+	case act == keymap.First:
+		m.sideSel = 0
+	case act == keymap.Last:
+		m.sideSel = max(0, len(dests)-1)
 	case act == keymap.Focus || key == "esc":
 		m.focus = focusList
 	case act == keymap.Settings:

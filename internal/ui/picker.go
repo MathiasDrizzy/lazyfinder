@@ -73,9 +73,9 @@ func (m *Model) pickerKey(key string, act keymap.Action) tea.Cmd {
 	case key == "esc":
 		m.picker = pickerState{}
 	case act == keymap.Up:
-		m.picker.sel = max(0, m.picker.sel-1)
+		m.picker.sel = wrap(m.picker.sel-1, n)
 	case act == keymap.Down:
-		m.picker.sel = min(n-1, m.picker.sel+1)
+		m.picker.sel = wrap(m.picker.sel+1, n)
 	case act == keymap.First:
 		m.picker.sel = 0
 	case act == keymap.Last:

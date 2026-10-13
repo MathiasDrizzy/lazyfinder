@@ -216,9 +216,13 @@ func (m *Model) ctxKey(key string, act keymap.Action) tea.Cmd {
 	case key == "esc":
 		m.ctx = ctxState{}
 	case act == keymap.Up:
-		m.ctx.sel = max(0, m.ctx.sel-1)
+		m.ctx.sel = wrap(m.ctx.sel-1, n)
 	case act == keymap.Down:
-		m.ctx.sel = min(n-1, m.ctx.sel+1)
+		m.ctx.sel = wrap(m.ctx.sel+1, n)
+	case act == keymap.First:
+		m.ctx.sel = 0
+	case act == keymap.Last:
+		m.ctx.sel = max(0, n-1)
 	case key == "enter":
 		return m.ctxRun(m.ctx.sel)
 	}

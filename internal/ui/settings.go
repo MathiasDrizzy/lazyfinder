@@ -248,9 +248,13 @@ func (m *Model) settingsKey(key string, act keymap.Action) tea.Cmd {
 	case key == "esc" || act == keymap.Settings:
 		m.set = settingsState{}
 	case act == keymap.Up:
-		m.set.sel = max(0, m.set.sel-1)
+		m.set.sel = wrap(m.set.sel-1, settingCount)
 	case act == keymap.Down:
-		m.set.sel = min(settingCount-1, m.set.sel+1)
+		m.set.sel = wrap(m.set.sel+1, settingCount)
+	case act == keymap.First:
+		m.set.sel = 0
+	case act == keymap.Last:
+		m.set.sel = settingCount - 1
 	case key == "left" || key == "h":
 		return m.change(m.set.sel, -1)
 	case key == "right" || key == "l" || key == "enter" || key == "space":

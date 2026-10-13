@@ -317,9 +317,13 @@ func (m *Model) menuKey(key string, act keymap.Action) tea.Cmd {
 	case key == "esc" || act == keymap.OpenWith:
 		m.menu = menuState{}
 	case act == keymap.Up:
-		m.menu.sel = max(0, m.menu.sel-1)
+		m.menu.sel = wrap(m.menu.sel-1, n)
 	case act == keymap.Down:
-		m.menu.sel = min(n-1, m.menu.sel+1)
+		m.menu.sel = wrap(m.menu.sel+1, n)
+	case act == keymap.First:
+		m.menu.sel = 0
+	case act == keymap.Last:
+		m.menu.sel = max(0, n-1)
 	case key == "enter":
 		return m.chooseOpener(m.menu.sel)
 	}
