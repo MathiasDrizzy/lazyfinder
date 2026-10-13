@@ -1,4 +1,4 @@
- ‹  ›   proj                                     5 items  ⚙
+ ‹  ›   proj                                  5 items  ⌕  ⚙
 ╭─ Places ───────╮╭─ proj ─────────────────────────────────╮
 │ Favorites      ││    Name ▲            Date Modified     │
 │  Home          ││▸ > alpha             1 Sep 2026        │
@@ -13,4 +13,4 @@
 │                ││                                        │
 ╰────────────────╯╰─────────────────────────────── 1 of 5 ─╯
 <breadcrumb>
- Open: ⏎ | Preview: Space | Open with: O | Sort: s | Quit: q
+ Open: ⏎ | Preview: Space | Open with: O | Quit: q

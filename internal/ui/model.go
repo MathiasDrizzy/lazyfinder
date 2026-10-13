@@ -83,6 +83,7 @@ type Model struct {
 	fresh       map[string]bool // names that appeared while we looked at this folder
 	git         gitState
 	hideIgnored bool
+	search      searchState
 }
 
 type click struct {
@@ -176,6 +177,12 @@ func (m *Model) remember() {
 
 // enter navigates to dir as a new history step. On failure nothing changes and the error is shown.
 func (m *Model) enter(dir, name string) tea.Cmd {
+	if m.search.mode != searchOff {
+		if m.search.cancel != nil {
+			m.search.cancel()
+		}
+		m.search = searchState{}
+	}
 	prev := m.listing
 	m.remember()
 	if err := m.load(dir, name); err != nil {
@@ -194,6 +201,12 @@ func (m *Model) enter(dir, name string) tea.Cmd {
 func (m *Model) step(next history.History) tea.Cmd {
 	if next.Current() == m.dir() {
 		return nil
+	}
+	if m.search.mode != searchOff {
+		if m.search.cancel != nil {
+			m.search.cancel()
+		}
+		m.search = searchState{}
 	}
 	prev := m.listing
 	m.remember()
@@ -315,6 +328,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if termimg.IsSupportReply(msg) && m.deps.Cfg.Preview.Images != "off" {
 			m.imagesAllowed = true
 		}
+	case searchMsg:
+		return m, m.onSearch(msg)
 	case dirChangedMsg:
 		return m, m.onDirChanged(msg)
 	case previewMsg:

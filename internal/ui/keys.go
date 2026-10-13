@@ -25,6 +25,12 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		return m.menuKey(key, act)
 	case m.pv.open:
 		return m.previewKey(key, act)
+	case m.search.mode == searchTyping:
+		return m.searchKey(k)
+	case m.search.mode == searchResults:
+		if cmd, ok := m.resultsKey(key); ok {
+			return cmd
+		}
 	case m.focus == focusSidebar:
 		return m.sidebarKey(key, act)
 	}
@@ -33,6 +39,9 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 
 func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	page := m.listRows()
+	if m.searchOn() && (act == keymap.Hidden || act == keymap.Ignored || act == keymap.Reload) {
+		return nil // the list holds search results, not the folder
+	}
 	switch act {
 	case keymap.Quit:
 		return tea.Quit
@@ -66,6 +75,8 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Ignored:
 		m.hideIgnored = !m.hideIgnored
 		return m.reload()
+	case keymap.Search:
+		m.openSearch()
 	case keymap.Reload:
 		return m.reload()
 	case keymap.Focus:

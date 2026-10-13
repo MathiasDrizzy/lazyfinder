@@ -51,7 +51,7 @@ func (m *Model) follow() {
 // onDirChanged re-reads the folder that changed, keeping the selection by name and marking what is new.
 func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 	next := waitEvent(m.deps.Watcher)
-	if msg.dir != m.dir() {
+	if msg.dir != m.dir() || m.search.mode != searchOff {
 		return next
 	}
 	if _, err := os.Stat(m.dir()); err != nil {

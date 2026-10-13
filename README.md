@@ -95,6 +95,10 @@ The config is one JSON file: `$LAZYFINDER_CONFIG`, else `$XDG_CONFIG_HOME/lazyfi
 `~/.config/lazyfinder/config.json`. Without a file the defaults apply. An invalid file starts the app with the
 defaults and shows what is wrong. See [docs/configuration.md](docs/configuration.md).
 
+## Search
+
+Press `/` to search the folder or its subfolders by name, kind, size and date, with clickable filter chips. See [search](docs/search.md).
+
 ## Live follow and git
 
 The open folder updates by itself and shows git state and the branch:

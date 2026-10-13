@@ -1,4 +1,4 @@
- ‹  ›   beta                                                                                                 0 items  ⚙
+ ‹  ›   beta                                                                                              0 items  ⌕  ⚙
 ╭─ Places ───────────╮╭─ beta ─────────────────────────────────────────────────────────────────────────────────────────╮
 │ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
 │  Home              ││                                                                                                │
@@ -37,4 +37,4 @@
 │                    ││                                                                                                │
 ╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 0 of 0 ─╯
 <breadcrumb>
- Open: ⏎ | Preview: Space | Open with: O | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q
+ Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q

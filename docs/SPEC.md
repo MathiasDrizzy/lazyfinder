@@ -161,14 +161,14 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
 - **R-32 Project sidebar mode (M2/M3)** (Q5). `lazyfinder --follow <dir>` runs a narrow tree view of one project,
   like the VS Code explorer, highlighting what is new. PROPOSAL for the exact UX.
 - **R-33 Disclosure triangles (M3, PROPOSAL)** from the reference screenshot: expand folders in place with `>`.
-- **R-34 Search (M3, PROPOSAL)**: the screenshot's Search field; name filter first, content search later.
+- **R-34 Search (M3, done)**: the screenshot's Search field; name filter first, content search later.
 - **R-35 File operations (M4, PROPOSAL)**: copy, move, rename, trash (never `rm`), new folder, with undo.
 
 ## Parity with Finder and Explorer search (ADR 0009)
 
 Mathias, 2026-10-13: "debe tener las mismas funcionalidades que finder y el buscador de archivos de windows".
 
-- **R-50 Search bar (M3).** `/` opens a search bar with the grammar of ADR 0009: words for the name; `kind:`,
+- **R-50 Search bar (M3, done).** `/` opens a search bar with the grammar of ADR 0009: words for the name; `kind:`,
   `modified:`, `size:` filters; chips that can be clicked; scope current folder or recursive; results appear while
   typing and can be cancelled with `esc`. AC: unit tests of the parser and the matcher; a tuiqa scenario types a
   query and clicks a chip.

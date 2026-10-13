@@ -123,6 +123,11 @@ func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
 	case fsmodel.ColKind:
 		return e.Kind
 	}
+	if m.searchOn() && m.search.recursive {
+		if w := m.where(e); w != "" {
+			return e.Name + "  ‹ " + w
+		}
+	}
 	return e.Name
 }
 
@@ -281,7 +286,10 @@ func (m *Model) counter() string {
 	return fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), m.sel+1, n)
 }
 
-const gear = "⚙"
+const (
+	gear = "⚙"
+	lens = "⌕"
+)
 
 func (m *Model) toolbar() string {
 	back, fwd := " ‹ ", " › "
@@ -292,7 +300,7 @@ func (m *Model) toolbar() string {
 		fwd = m.styles.dim(fwd)
 	}
 	left := back + fwd + "  " + m.styles.bold(m.folderTitle())
-	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.styles.accent(gear) + " "
+	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.styles.accent(lens) + "  " + m.styles.accent(gear) + " "
 	if b := m.branchLabel(); b != "" {
 		right = m.styles.accent(b) + "  " + right
 	}
@@ -445,6 +453,7 @@ var footerItems = []struct {
 	{keymap.Open, func() string { return i18n.T("Abrir", "Open") }},
 	{keymap.Preview, func() string { return i18n.T("Vista previa", "Preview") }},
 	{keymap.OpenWith, func() string { return i18n.T("Abrir con", "Open with") }},
+	{keymap.Search, func() string { return i18n.T("Buscar", "Search") }},
 	{keymap.Sort, func() string { return i18n.T("Ordenar", "Sort") }},
 	{keymap.Hidden, func() string { return i18n.T("Ocultos", "Hidden") }},
 	{keymap.Focus, func() string { return i18n.T("Barra lateral", "Sidebar") }},
@@ -470,6 +479,13 @@ func keyLabel(k string) string {
 }
 
 func (m *Model) footerBar() string {
+	if m.searchOn() {
+		if m.status != "" && m.statusErr {
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+		}
+		bar, _ := m.searchBar()
+		return bar
+	}
 	if m.status != "" {
 		if m.statusErr {
 			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))

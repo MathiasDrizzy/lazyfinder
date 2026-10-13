@@ -10,6 +10,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Search bar (`/`, `ctrl+f`, or the lens in the toolbar): words match the name (substrings or `*`/`?` globs, quotes
+  for phrases) and `kind:`, `ext:`, `size:`, `modified:`, `created:` filters narrow it, with clickable chips for
+  images, text, folders, today and this week. Results appear while typing, in the folder or in its subfolders
+  (`Tab`, streamed in the background, `esc` cancels, `search.max_results` caps it). Each result shows where it lives.
 - Live follow: the folder you are looking at updates on its own when files appear, change or vanish (fsnotify on the
   visible folder, polling as a fallback, 50 ms debounce). New files carry a `+` and a green name until you leave the
   folder.

@@ -43,6 +43,7 @@ type Config struct {
 	Theme      string            `json:"theme"`
 	Watch      Watch             `json:"watch"`
 	Git        Git               `json:"git"`
+	Search     Search            `json:"search"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
 	Language         string              `json:"language"`
@@ -91,6 +92,11 @@ type Preview struct {
 	Images       string `json:"images"`
 }
 
+// Search configures the search bar.
+type Search struct {
+	MaxResults int `json:"max_results"`
+}
+
 // Git configures the status markers and the branch name.
 type Git struct {
 	Enabled     bool `json:"enabled"`
@@ -130,6 +136,7 @@ func Defaults(home string) Config {
 		Theme:    theme.Default,
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
 		Git:      Git{Enabled: true},
+		Search:   Search{MaxResults: 5000},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -238,6 +245,9 @@ func validate(cfg *Config, home string) error {
 	case "auto", "kitty", "off":
 	default:
 		return fmt.Errorf(`"preview.images" must be auto, kitty or off (got %q)`, cfg.Preview.Images)
+	}
+	if cfg.Search.MaxResults <= 0 {
+		return errors.New(`"search.max_results" must be positive`)
 	}
 	if cfg.Preview.MaxTextBytes <= 0 {
 		return errors.New(`"preview.max_text_bytes" must be positive`)

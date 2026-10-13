@@ -27,6 +27,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |
 | `watch.max_dirs` | Folders followed with the operating system's notifications; more are polled | `64` |
 | `watch.poll_interval_ms` | Polling period for folders beyond `watch.max_dirs` or that the system cannot watch | `2000` |
+| `search.max_results` | Most results a search collects before it stops and says so | `5000` |
 | `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
 | `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |
 

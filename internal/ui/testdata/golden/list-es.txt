@@ -1,4 +1,4 @@
- ‹  ›   proj                                                                                             5 elementos  ⚙
+ ‹  ›   proj                                                                                          5 elementos  ⌕  ⚙
 ╭─ Sitios ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │ Favoritos          ││    Nombre ▲                                  Fecha de modifica…  Tamaño      Clase             │
 │  Home              ││▸ > alpha                                     01/09/2026          --          Carpeta           │
@@ -37,4 +37,4 @@
 │                    ││                                                                                                │
 ╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 1 de 5 ─╯
 <breadcrumb>
- Abrir: ⏎ | Vista previa: Space | Abrir con: O | Ordenar: s | Ocultos: . | Barra lateral: Tab | Ajustes: , | Salir: q
+ Abrir: ⏎ | Vista previa: Space | Abrir con: O | Buscar: / | Ordenar: s | Ocultos: . | Barra lateral: Tab | Salir: q

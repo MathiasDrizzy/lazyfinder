@@ -17,6 +17,8 @@ const (
 	zoneHeader
 	zoneCrumb
 	zoneSettings
+	zoneSearch
+	zoneChip
 )
 
 // zone is what lies under a screen cell.
@@ -39,6 +41,15 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneForward}
 		case x >= m.w-4:
 			return zone{kind: zoneSettings}
+		case x >= m.w-7 && x < m.w-4:
+			return zone{kind: zoneSearch}
+		}
+	case y == m.h-1 && m.searchOn():
+		_, spans := m.searchBar()
+		for i, s := range spans {
+			if x >= s.x && x < s.x+s.w {
+				return zone{kind: zoneChip, idx: i}
+			}
 		}
 	case y == m.h-2:
 		for _, c := range m.crumbs() {
@@ -117,6 +128,11 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 	case zoneSettings:
 		m.set = settingsState{open: true}
 		return nil
+	case zoneSearch:
+		m.openSearch()
+		return nil
+	case zoneChip:
+		return m.clickChip(z.idx)
 	case zoneCrumb:
 		if z.path == m.dir() {
 			return nil

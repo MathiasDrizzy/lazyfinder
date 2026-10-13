@@ -1,4 +1,4 @@
- ‹  ›   proj                                                                                                 5 items  ⚙
+ ‹  ›   proj                                                                                              5 items  ⌕  ⚙
 ╭─ Places ───────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │ Favorites          ││    Name ▲                                    Date Modified       Size        Kind              │
 │  Home              ││  > alpha                                     1 Sep 2026          --          Folder            │
@@ -37,4 +37,4 @@
 │                    ││                                                                                                │
 ╰────────────────────╯╰─────────────────────────────────────────────────────────────────────────────────────── 5 of 5 ─╯
 <breadcrumb>
- Open: ⏎ | Preview: Space | Open with: O | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q
+ Open: ⏎ | Preview: Space | Open with: O | Search: / | Sort: s | Hidden: . | Sidebar: Tab | Settings: , | Quit: q
