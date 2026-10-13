@@ -344,3 +344,13 @@ func TestOpsConfigIsRead(t *testing.T) {
 		t.Fatalf("the configured trash is used: %v", err)
 	}
 }
+
+func TestInfoUsesTheSingularForOneFile(t *testing.T) {
+	e := newEnv(t)
+	e.pick("alpha")
+	e.key("+")
+	e.pick("deep")
+	e.key("i")
+	e.mustHave("1 file,")
+	e.mustNotHave("1 files")
+}

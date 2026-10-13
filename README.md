@@ -101,6 +101,8 @@ Copy `c`, cut `x`, paste `p`, duplicate `D`, rename `F2`, new folder `N`, Trash 
 the rows you marked with `v`, `ctrl+a` or ctrl-click. Nothing deletes or overwrites for good: the Trash is a folder, a
 taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](docs/adr/0010-file-operations.md)). `i` shows Get Info.
 
+![Marked rows and the Trash confirmation](docs/screenshots/marks.png)
+
 ## Project sidebar
 
 ![The narrow project tree](docs/screenshots/follow.png)

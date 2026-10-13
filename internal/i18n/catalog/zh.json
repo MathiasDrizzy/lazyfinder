@@ -9,6 +9,7 @@
  "%s does not exist": "%s 不存在",
  "%s is not available: %s": "%s 不可用: %s",
  "1 byte": "1 字节",
+ "1 file, %s": "1 个文件，%s",
  "2 Jan 2006": "2006/01/02",
  "Alias": "替身",
  "Any key closes": "按任意键关闭",

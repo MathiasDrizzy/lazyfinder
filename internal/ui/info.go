@@ -48,8 +48,11 @@ func (m *Model) infoLines() []string {
 	}
 	lines = append(lines, row(i18n.T("Ubicación", "Where"), d.Where))
 	if d.IsDir {
-		lines = append(lines, row(i18n.T("Contenido", "Contents"),
-			fmt.Sprintf(i18n.T("%d archivos, %s", "%d files, %s"), d.Files, fsmodel.HumanSize(d.Total))))
+		text := fmt.Sprintf(i18n.T("%d archivos, %s", "%d files, %s"), d.Files, fsmodel.HumanSize(d.Total))
+		if d.Files == 1 {
+			text = fmt.Sprintf(i18n.T("1 archivo, %s", "1 file, %s"), fsmodel.HumanSize(d.Total))
+		}
+		lines = append(lines, row(i18n.T("Contenido", "Contents"), text))
 	} else {
 		lines = append(lines, row(i18n.T("Tamaño", "Size"), fsmodel.HumanSize(d.Size)))
 	}

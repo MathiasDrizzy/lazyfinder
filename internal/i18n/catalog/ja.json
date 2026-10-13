@@ -9,6 +9,7 @@
  "%s does not exist": "%s は存在しません",
  "%s is not available: %s": "%s は利用できません: %s",
  "1 byte": "1バイト",
+ "1 file, %s": "1 個のファイル、%s",
  "2 Jan 2006": "2006/01/02",
  "Alias": "エイリアス",
  "Any key closes": "任意のキーで閉じます",

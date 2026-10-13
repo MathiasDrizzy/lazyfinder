@@ -9,6 +9,7 @@
  "%s does not exist": "%s n’existe pas",
  "%s is not available: %s": "%s n’est pas disponible : %s",
  "1 byte": "1 octet",
+ "1 file, %s": "1 fichier, %s",
  "2 Jan 2006": "02/01/2006",
  "Alias": "Alias",
  "Any key closes": "N'importe quelle touche ferme",
