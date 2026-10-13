@@ -10,6 +10,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `lazyfinder --follow <dir>`: a narrow tree of one project for a side pane (works from 24x8 up): no sidebar, only
+  names, the first level open, `Enter` opens and closes folders instead of leaving the project, a folder that
+  appears is shown open, and everything new keeps its `+` and green name for the whole session.
 - Folders open in place like Finder's list view: `+` or a click on the `>` marker (it becomes `v`) shows the children
   indented under the folder, `-` closes it. Open folders are followed live and remembered while you move around.
 - Go to folder (`ctrl+g`): type a path (`~`, relative or absolute), `Tab` completes folder names, `Enter` goes there

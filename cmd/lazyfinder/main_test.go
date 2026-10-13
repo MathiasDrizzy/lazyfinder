@@ -72,3 +72,46 @@ func TestStartDirDefaultsToCwd(t *testing.T) {
 		t.Fatalf("code=%d start=%q want %q", code, got.Start, wd)
 	}
 }
+
+func runOptions(t *testing.T, env map[string]string, args ...string) (int, Options, string) {
+	t.Helper()
+	var got Options
+	var o, e bytes.Buffer
+	code := run(args, func(k string) string { return env[k] }, &o, &e, func(opt Options) error { got = opt; return nil })
+	return code, got, e.String()
+}
+
+func TestFollowStartsTheProjectSidebarMode(t *testing.T) {
+	proj := t.TempDir()
+	code, got, errOut := runOptions(t, map[string]string{"HOME": t.TempDir()}, "--follow", proj)
+	if code != 0 {
+		t.Fatalf("code=%d err=%q", code, errOut)
+	}
+	if !got.Follow || got.Start != proj {
+		t.Fatalf("follow=%v start=%q, want true and %q", got.Follow, got.Start, proj)
+	}
+	if len(got.Cfg.Columns) != 1 || got.Cfg.Columns[0] != "name" {
+		t.Fatalf("the narrow tree shows only names, got %v", got.Cfg.Columns)
+	}
+}
+
+func TestFollowAndADirectoryTogetherAreAUsageError(t *testing.T) {
+	code, _, errOut := runOptions(t, map[string]string{"HOME": t.TempDir()}, "--follow", t.TempDir(), t.TempDir())
+	if code != 2 || !strings.Contains(errOut, "--follow") {
+		t.Fatalf("code=%d err=%q", code, errOut)
+	}
+}
+
+func TestFollowNeedsAFolderThatExists(t *testing.T) {
+	code, _, errOut := runOptions(t, map[string]string{"HOME": t.TempDir()}, "--follow", filepath.Join(t.TempDir(), "gone"))
+	if code != 1 || !strings.Contains(errOut, "gone") {
+		t.Fatalf("code=%d err=%q", code, errOut)
+	}
+}
+
+func TestWithoutFollowTheFullViewIsUsed(t *testing.T) {
+	_, got, _ := runOptions(t, map[string]string{"HOME": t.TempDir()}, t.TempDir())
+	if got.Follow || len(got.Cfg.Columns) != 5 {
+		t.Fatalf("follow=%v columns=%v", got.Follow, got.Cfg.Columns)
+	}
+}

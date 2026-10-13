@@ -93,7 +93,7 @@ func (m *Model) sidebarHit(pi int) zone {
 
 func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	mouse := c.Mouse()
-	if m.w < minWidth || m.h < minHeight || !m.mouse {
+	if m.tooSmallNow() || !m.mouse {
 		return nil
 	}
 	m.setStatus("")

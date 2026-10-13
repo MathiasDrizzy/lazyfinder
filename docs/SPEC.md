@@ -158,7 +158,7 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
   AC: scenario creates files from another process and sees them within 1 s.
 - **R-31 Git consistency (M2, done)** (Q5). A status column or marker (modified, added, untracked, ignored, conflicted)
   and the branch name are shown, refreshed on the same events. Ignored files can be hidden. AC: fixture repo.
-- **R-32 Project sidebar mode (M2/M3)** (Q5). `lazyfinder --follow <dir>` runs a narrow tree view of one project,
+- **R-32 Project sidebar mode (M3, done)** (Q5). `lazyfinder --follow <dir>` runs a narrow tree view of one project,
   like the VS Code explorer, highlighting what is new. PROPOSAL for the exact UX.
 - **R-33 Disclosure triangles (M3, done)** from the reference screenshot: expand folders in place with `>`.
 - **R-34 Search (M3, done)**: the screenshot's Search field; name filter first, content search later.

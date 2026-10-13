@@ -50,6 +50,9 @@ type colSpec struct {
 }
 
 func (m *Model) sidebarW() int {
+	if m.deps.Follow {
+		return 0
+	}
 	if m.w >= 90 {
 		return sidebarWide
 	}
@@ -218,7 +221,7 @@ func (m *Model) crumbs() []crumb {
 // View renders the screen.
 func (m *Model) View() tea.View {
 	var content string
-	if m.w < minWidth || m.h < minHeight {
+	if m.tooSmallNow() {
 		content = m.tooSmall()
 	} else {
 		content = strings.Join(m.screen(), "\n")
@@ -240,7 +243,7 @@ func (m *Model) tooSmall() string {
 	w := max(m.w, 1)
 	lines[0] = ansi.Truncate(i18n.T("Terminal demasiado pequeña", "Terminal too small"), w, "")
 	if len(lines) > 1 {
-		lines[1] = ansi.Truncate(fmt.Sprintf(i18n.T("Hace falta %dx%d, hay %dx%d", "Need %dx%d, have %dx%d"), minWidth, minHeight, m.w, m.h), w, "")
+		lines[1] = ansi.Truncate(fmt.Sprintf(i18n.T("Hace falta %dx%d, hay %dx%d", "Need %dx%d, have %dx%d"), m.minSize()[0], m.minSize()[1], m.w, m.h), w, "")
 	}
 	return strings.Join(lines, "\n")
 }
@@ -248,10 +251,16 @@ func (m *Model) tooSmall() string {
 func (m *Model) screen() []string {
 	lines := make([]string, m.h)
 	lines[0] = m.toolbar()
-	side := m.panel(i18n.T("Sitios", "Places"), "", m.sidebarLines(), m.sidebarW(), m.panelH(), m.focus == focusSidebar)
 	list := m.panel(m.folderTitle(), m.counter(), m.listLines(), m.w-m.sidebarW(), m.panelH(), m.focus == focusList)
-	for y := 0; y < m.panelH(); y++ {
-		lines[y+1] = side[y] + list[y]
+	if m.sidebarW() == 0 {
+		for y := 0; y < m.panelH(); y++ {
+			lines[y+1] = list[y]
+		}
+	} else {
+		side := m.panel(i18n.T("Sitios", "Places"), "", m.sidebarLines(), m.sidebarW(), m.panelH(), m.focus == focusSidebar)
+		for y := 0; y < m.panelH(); y++ {
+			lines[y+1] = side[y] + list[y]
+		}
 	}
 	lines[m.h-2] = m.breadcrumb()
 	lines[m.h-1] = m.footerBar()
@@ -538,4 +547,11 @@ func (m *Model) branchLabel() string {
 		l += fmt.Sprintf(" ↓%d", m.git.st.Behind)
 	}
 	return l
+}
+
+func (m *Model) minSize() [2]int {
+	if m.deps.Follow {
+		return [2]int{followMinWidth, followMinHeight}
+	}
+	return [2]int{minWidth, minHeight}
 }

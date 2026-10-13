@@ -24,6 +24,8 @@ import (
 const (
 	minWidth          = 60
 	minHeight         = 16
+	followMinWidth    = 24
+	followMinHeight   = 8
 	doubleClickWindow = 400 * time.Millisecond
 	wheelStep         = 3
 )
@@ -37,7 +39,10 @@ type Deps struct {
 	Now     func() time.Time
 	NoColor bool
 	Watcher watch.Watcher // nil: nothing is followed
-	Warning string        // shown in the status line at start (for example an invalid config)
+
+	// Follow is the project sidebar mode (--follow): no sidebar, a tree of the start folder that stays on it.
+	Follow  bool
+	Warning string // shown in the status line at start (for example an invalid config)
 
 	// ConfigPath is where the settings popup saves; empty means it only changes the running session.
 	ConfigPath string
@@ -124,6 +129,9 @@ func New(d Deps) *Model {
 	}
 	if err := m.load(d.Start, ""); err != nil {
 		m.setError(err)
+	}
+	if d.Follow {
+		m.openFirstLevel()
 	}
 	m.follow()
 	return m
@@ -307,6 +315,9 @@ func (m *Model) openSelected() tea.Cmd {
 		return nil
 	}
 	if e.IsDir {
+		if m.deps.Follow {
+			return m.toggle(e.Path)
+		}
 		return m.enter(e.Path, "")
 	}
 	return m.run(m.resolve.Resolve(e.Path))
@@ -364,4 +375,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // restyle rebuilds the styles from the config and the environment.
 func (m *Model) restyle() {
 	m.styles = newStyles(look{Theme: m.deps.Cfg.Theme, NoColor: m.deps.NoColor, ScreenBackground: m.deps.Cfg.ScreenBackground})
+}
+
+// tooSmallNow says whether the window is below the minimum for the current mode.
+func (m *Model) tooSmallNow() bool {
+	if m.deps.Follow {
+		return m.w < followMinWidth || m.h < followMinHeight
+	}
+	return m.w < minWidth || m.h < minHeight
 }

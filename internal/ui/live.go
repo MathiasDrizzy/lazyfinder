@@ -73,9 +73,23 @@ func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 		before[e.Path] = true
 	}
 	cmd := m.reload()
+	opened := false
 	for _, e := range m.entries() {
-		if !before[e.Path] {
-			m.fresh[e.Path] = true
+		if before[e.Path] {
+			continue
+		}
+		m.fresh[e.Path] = true
+		if m.deps.Follow && e.IsDir && !e.IsLink && !m.expanded[e.Path] {
+			m.expanded[e.Path] = true // a folder an agent just made is shown open
+			opened = true
+		}
+	}
+	if opened {
+		cmd = tea.Batch(cmd, m.reload())
+		for _, e := range m.entries() { // what was inside the new folder is new as well
+			if !before[e.Path] {
+				m.fresh[e.Path] = true
+			}
 		}
 	}
 	return tea.Batch(next, cmd)
@@ -192,4 +206,14 @@ func (m *Model) collapseSelected() tea.Cmd {
 	m.sel = 0
 	m.selectPath(parent)
 	return m.toggle(parent)
+}
+
+// openFirstLevel opens every folder of the project root; follow mode starts like that.
+func (m *Model) openFirstLevel() {
+	for _, e := range m.entries() {
+		if e.IsDir && !e.IsLink {
+			m.expanded[e.Path] = true
+		}
+	}
+	_ = m.load(m.dir(), "")
 }

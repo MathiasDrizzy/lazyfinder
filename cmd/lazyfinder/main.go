@@ -36,6 +36,7 @@ type Options struct {
 	Cfg     config.Config
 	Warning string
 	NoColor bool
+	Follow  bool // --follow: the narrow project tree
 	Logger  *slog.Logger
 
 	ConfigPath string
@@ -54,9 +55,10 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	logPaths := fs.Bool("log-paths", false, "include file names in the log")
 	langFlag := fs.String("lang", "", "interface language for this run: auto, en, es, pt, fr, de, it, ja or zh")
 	themeFlag := fs.String("theme", "", "theme for this run: a built-in or user theme name, or terminal")
+	followDir := fs.String("follow", "", "follow a project in a narrow tree with live updates and git state: `directory`")
 	noMouse := fs.Bool("no-mouse", false, "ignore the mouse for this run")
 	fs.Usage = func() {
-		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n\nFlags:\n")
+		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n       lazyfinder --follow directory\n\nFlags:\n")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
@@ -80,12 +82,20 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 		return exitOK
 	}
 
-	startDir, err := startDirectory(fs.Args())
+	args = fs.Args()
+	if *followDir != "" {
+		if len(args) > 0 {
+			fmt.Fprintln(stderr, "lazyfinder: --follow takes its folder as its own value; drop the extra argument")
+			return exitUsage
+		}
+		args = []string{*followDir}
+	}
+	startDir, err := startDirectory(args)
 	if err != nil {
 		fmt.Fprintln(stderr, "lazyfinder:", err)
 		return exitRuntime
 	}
-	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != ""}
+	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != "", Follow: *followDir != ""}
 	opts.ConfigPath = config.ResolvePath(getenv, home)
 	cfg, err := config.Load(opts.ConfigPath, home)
 	if err != nil {
@@ -109,6 +119,9 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	}
 	if *noMouse {
 		cfg.Mouse = false
+	}
+	if opts.Follow {
+		cfg.Columns = []string{"name"}
 	}
 	i18n.SetLanguage(cfg.Language)
 	opts.Cfg = cfg
@@ -183,7 +196,7 @@ func launch(o Options) error {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	m := ui.New(ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w})
+	m := ui.New(ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow})
 	_, err := tea.NewProgram(m).Run()
 	return err
 }

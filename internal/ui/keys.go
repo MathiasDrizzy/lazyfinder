@@ -62,6 +62,9 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Open:
 		return m.openSelected()
 	case keymap.Parent:
+		if m.deps.Follow {
+			return m.collapseSelected()
+		}
 		return m.parent()
 	case keymap.Back:
 		return m.step(m.hist.Back())
