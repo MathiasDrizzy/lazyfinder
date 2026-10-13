@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Live follow: the folder you are looking at updates on its own when files appear, change or vanish (fsnotify on the
+  visible folder, polling as a fallback, 50 ms debounce). New files carry a `+` and a green name until you leave the
+  folder.
+- Git: a state letter next to each file inside a repository (`M` modified, `A` added, `R` renamed, `D` deleted,
+  `U` conflicted, `?` untracked, `!` ignored; a folder shows the strongest state inside it), the branch with its
+  ahead/behind counts in the toolbar, and `I` to hide ignored files. Configurable under `git` and `watch`.
+
 ## [0.1.0] - 2026-10-13
 
 ### Added

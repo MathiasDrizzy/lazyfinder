@@ -154,9 +154,9 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
 
 ## Requirements for later milestones (summarized, detail in ROADMAP)
 
-- **R-30 Live follow (M2)** (Q5). Directory listings update without refresh when files appear, change or vanish.
+- **R-30 Live follow (M2, done)** (Q5). Directory listings update without refresh when files appear, change or vanish.
   AC: scenario creates files from another process and sees them within 1 s.
-- **R-31 Git consistency (M2)** (Q5). A status column or marker (modified, added, untracked, ignored, conflicted)
+- **R-31 Git consistency (M2, done)** (Q5). A status column or marker (modified, added, untracked, ignored, conflicted)
   and the branch name are shown, refreshed on the same events. Ignored files can be hidden. AC: fixture repo.
 - **R-32 Project sidebar mode (M2/M3)** (Q5). `lazyfinder --follow <dir>` runs a narrow tree view of one project,
   like the VS Code explorer, highlighting what is new. PROPOSAL for the exact UX.

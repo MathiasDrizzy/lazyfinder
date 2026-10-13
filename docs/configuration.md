@@ -25,7 +25,10 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
 | `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |
 | `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |
-| `watch` | Reserved for live follow (milestone 2) | see the defaults |
+| `watch.max_dirs` | Folders followed with the operating system's notifications; more are polled | `64` |
+| `watch.poll_interval_ms` | Polling period for folders beyond `watch.max_dirs` or that the system cannot watch | `2000` |
+| `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
+| `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |
 
 On narrow windows the Date Created, Kind, Size and Date Modified columns are dropped, in that order, so the name
 stays readable.

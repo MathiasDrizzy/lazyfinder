@@ -17,6 +17,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `s` | Sort by the next column | `sort` |
 | `S` | Reverse the sort order | `sort_reverse` |
 | `.` | Show or hide dotfiles | `hidden` |
+| `I` | Show or hide files ignored by git | `ignored` |
 | `r` | Reload the folder | `reload` |
 | `Tab` | Move focus between the sidebar and the list | `focus` |
 | `Space` | Preview popup | `preview` |
