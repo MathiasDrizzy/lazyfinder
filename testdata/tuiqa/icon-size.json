@@ -1,0 +1,33 @@
+{
+  "name": "lazyfinder-icon-size",
+  "criterio": "order 2026-10-13-06 points 2 and 3 (icon size and gear size are a setting; the gear is bigger and easy to click)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "medium (the default): the gear sits on a raised tile 3 cells wide", "assert_color": {"region": {"line_with": "Search", "x": 112, "y": 0, "w": 3}, "bg": "#313244", "mode": "any"}},
+    {"desc": "the sidebar has icons from medium on", "assert": {"contains": "(?m)^│ [^\\n ] Recents"}},
+    {"desc": "a click on the far edge of the gear opens Settings", "click": {"at": "\uf013", "in": {"x": 100, "y": 0, "w": 20, "h": 1}}},
+    {"wait": {"regex": "Icon size"}},
+    {"keys": ["down", "down", "down", "down", "down", "down", "down", "down"]},
+    {"assert": {"contains": "Icon size +‹ medium ›"}},
+    {"keys": ["right"]},
+    {"desc": "large: the gear tile is 5 cells wide and brighter", "assert": {"contains": "Icon size +‹ large ›"}},
+    {"keys": ["esc"]},
+    {"assert_color": {"region": {"line_with": "Search", "x": 110, "y": 0, "w": 5}, "bg": "#45475a", "mode": "any"}},
+    {"desc": "large icons come with roomy two-line rows", "assert": {"contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"}},
+    {"desc": "the icon of a row sits on its own tile", "assert_color": {"region": {"line_with": "beta", "x": 27, "w": 3}, "bg": "#313244", "mode": "any"}},
+    {"desc": "a click on the edge of the big gear still opens Settings", "click": {"x": 119, "y": 0}},
+    {"wait": {"regex": "Icon size"}},
+    {"keys": ["down", "down", "down", "down", "down", "down", "down", "down", "right"]},
+    {"wait": {"regex": "Icon size +‹ small ›"}},
+    {"keys": ["esc"]},
+    {"desc": "small: the plain gear symbol and one-line rows, as before", "wait": {"regex": "⚙"}},
+    {"assert": {"contains": "alpha[^\\n]*\\n[^\\n]*beta"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

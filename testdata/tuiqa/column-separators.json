@@ -1,0 +1,26 @@
+{
+  "name": "lazyfinder-column-separators",
+  "criterio": "order 2026-10-13-06 point 4 (a │ between the columns like Finder, configurable, still draggable)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "the header has a bar between every column", "assert": {"contains": "Name ▲[^\\n]*│ Date Modified[^\\n]*│ Size[^\\n]*│ Kind"}},
+    {"desc": "and so does every row", "assert": {"contains": "alpha[^\\n]*│ [^\\n]*│ --[^\\n]*│ Folder"}},
+    {"desc": "the bar goes on below the last row", "assert": {"contains": "(?m)^│[^\\n]*││ {20,}│ {10,}│"}},
+    {"desc": "the bar is drawn in the border color", "assert_color": {"region": {"line_with": "Name ▲", "x": 65, "w": 1}, "fg": "#6c7086", "mode": "any"}},
+    {"desc": "the bar before Size sits at x=86", "assert": {"contains": "(?m)^.{86}│ Size"}},
+    {"desc": "dragging that bar 4 cells left narrows Size and does not sort", "drag": {"from": {"x": 99, "y": 2}, "to": {"x": 95, "y": 2}}},
+    {"desc": "the name took the 4 cells Size gave up, so the bar before Size moved from 86 to 90", "assert": {"contains": "(?m)^.{90}│ Size"}},
+    {"assert": {"contains": "Name ▲"}},
+    {"desc": "Settings has the switch", "keys": [","]},
+    {"wait": {"regex": "Column separators"}},
+    {"keys": ["down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "right", "esc"]},
+    {"desc": "off: no bar between the columns", "assert": {"not_contains": "Name ▲[^\\n]*│ Date Modified"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

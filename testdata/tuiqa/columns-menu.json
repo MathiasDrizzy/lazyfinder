@@ -1,0 +1,31 @@
+{
+  "name": "lazyfinder-columns-menu",
+  "criterio": "order 2026-10-13-06 point 5 (show fewer or more data per file from the header menu and from Settings, with basic and full presets)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 220,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "right click on a header opens the column menu with the presets and the new columns", "click": {"at": "Kind", "in": {"x": 23, "y": 2, "w": 190, "h": 1}, "button": "right"}},
+    {"wait": {"regex": "Owner"}},
+    {"assert": {"contains": "Basic"}},
+    {"assert": {"contains": "Full"}},
+    {"assert": {"contains": "Path"}},
+    {"desc": "Full shows every column", "click": {"at": "Full", "in": {"x": 0, "y": 0, "w": 220, "h": 40}}},
+    {"assert": {"contains": "Owner +│"}},
+    {"assert": {"contains": "Permissions"}},
+    {"assert": {"contains": "Date Last Opened"}},
+    {"desc": "Settings says so", "keys": [","]},
+    {"wait": {"regex": "Columns +‹ full ›"}},
+    {"keys": ["esc"]},
+    {"desc": "Basic goes back to Finder's four", "click": {"at": "Kind", "in": {"x": 23, "y": 2, "w": 190, "h": 1}, "button": "right"}},
+    {"click": {"at": "Basic", "in": {"x": 0, "y": 0, "w": 220, "h": 40}}},
+    {"assert": {"not_contains": "Permissions"}},
+    {"assert": {"not_contains": "Date Created"}},
+    {"assert": {"contains": "Date Modified[^\\n]*│ Size[^\\n]*│ Kind"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}

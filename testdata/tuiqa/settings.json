@@ -8,7 +8,7 @@
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
     {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the gear opens the popup", "click": {"at": "⚙", "in": {"x": 100, "y": 0, "w": 20, "h": 1}}},
+    {"desc": "the gear opens the popup", "click": {"at": "\uf013", "in": {"x": 100, "y": 0, "w": 20, "h": 1}}},
     {"wait": {"regex": "Screen background"}},
     {"assert_box": {"box_with": "Settings", "center_in": {"x": 40, "y": 10, "w": 40, "h": 20}, "within": {"x": 0, "y": 0, "w": 120, "h": 40}}},
     {"desc": "Right changes the theme at once", "keys": ["right"]},

@@ -18,7 +18,7 @@
     {"desc": "Settings has the new rows", "keys": [","]},
     {"assert": {"contains": "Date format"}},
     {"assert": {"contains": "Row density"}},
-    {"desc": "move to Row density and make it comfortable", "keys": ["down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "right", "esc"]},
+    {"desc": "move to Row density and make it comfortable", "keys": ["down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "right", "esc"]},
     {"desc": "now a blank line separates the rows", "assert": {"contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"}}
   ]
 }

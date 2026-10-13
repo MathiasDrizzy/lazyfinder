@@ -1,0 +1,16 @@
+{
+  "name": "lazyfinder-sidebar-divider",
+  "criterio": "order 2026-10-13-06 point 1 (a divider line between Favorites and Locations, like lazymark)",
+  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
+    {"desc": "a line of dashes sits between the last favorite and the Locations title", "assert": {"contains": "(?m)^│ ─{10,} ?│[^\\n]*\\n│ Locations"}},
+    {"desc": "the divider has the border color of the theme, not the text color", "assert_color": {"region": {"line_with": "^│ ─{10,}", "x": 2, "w": 10}, "fg": "#6c7086", "mode": "any"}},
+    {"keys": ["q"]},
+    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+  ]
+}
