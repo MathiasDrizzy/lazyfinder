@@ -231,6 +231,14 @@ type crumb struct {
 	x, w        int
 }
 
+// crumbIconW is the cells of the folder icon in front of a path segment: 2 with Nerd Font icons, else none.
+func (m *Model) crumbIconW() int {
+	if m.icons.Style == icons.Nerd {
+		return 2
+	}
+	return 0
+}
+
 // crumbs lays out the breadcrumb for the bottom bar, dropping leading segments (shown as "…") when it is too long.
 func (m *Model) crumbs() []crumb {
 	dir := m.dir()
@@ -253,7 +261,7 @@ func (m *Model) crumbs() []crumb {
 			if i > 0 {
 				w += ansi.StringWidth(crumbSep)
 			}
-			w += ansi.StringWidth(p.label)
+			w += ansi.StringWidth(p.label) + m.crumbIconW()
 		}
 		return w
 	}
@@ -269,7 +277,7 @@ func (m *Model) crumbs() []crumb {
 		if i > 0 {
 			x += ansi.StringWidth(crumbSep)
 		}
-		parts[i].x, parts[i].w = x, ansi.StringWidth(parts[i].label)
+		parts[i].x, parts[i].w = x, ansi.StringWidth(parts[i].label)+m.crumbIconW()
 		x += parts[i].w
 	}
 	return parts
@@ -639,6 +647,9 @@ func (m *Model) breadcrumb() string {
 	for i, c := range cs {
 		if i > 0 {
 			b.WriteString(m.styles.dim(crumbSep))
+		}
+		if m.crumbIconW() > 0 {
+			b.WriteString(m.iconCell(m.icons.Pick(icons.Item{Name: c.label, IsDir: true, Open: i == len(cs)-1})))
 		}
 		if i == len(cs)-1 {
 			b.WriteString(m.styles.bold(c.label))

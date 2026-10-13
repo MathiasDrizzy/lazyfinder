@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -84,5 +85,23 @@ func TestEmojiIconsFillThreeCellsAndKeepNamesAligned(t *testing.T) {
 	}
 	if got := e.m.iconW(); got != 3 {
 		t.Fatalf("iconW = %d, want 3", got)
+	}
+}
+
+func TestThePathBarDrawsAFolderIconBeforeEachSegmentAndKeepsItsClicks(t *testing.T) {
+	e := newEnv(t)
+	bar := e.screen()[e.m.h-2]
+	if got := strings.Count(bar, nerdFolder); got < 2 {
+		t.Fatalf("every segment of the path has a folder icon, found %d in %q", got, bar)
+	}
+	// the click on the name of the parent folder still goes there
+	home := filepath.Base(e.home)
+	x := strings.Index(bar, home)
+	if x < 0 {
+		t.Fatalf("%s is not in %q", home, bar)
+	}
+	e.click(len([]rune(bar[:x])), e.m.h-2)
+	if e.m.dir() != e.home {
+		t.Fatalf("dir = %s, want %s", e.m.dir(), e.home)
 	}
 }
