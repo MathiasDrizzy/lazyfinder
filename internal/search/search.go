@@ -21,11 +21,15 @@ const batchSize = 64
 
 // Query is a parsed search. The zero value matches everything.
 type Query struct {
-	preds []func(fsmodel.Entry) bool
+	preds   []func(fsmodel.Entry) bool
+	content string // the in: text, checked against file contents apart from preds
 }
 
+// Content is the text a file must contain (the in: filter), or empty.
+func (q Query) Content() string { return q.content }
+
 // Empty reports whether the query has no terms.
-func (q Query) Empty() bool { return len(q.preds) == 0 }
+func (q Query) Empty() bool { return len(q.preds) == 0 && q.content == "" }
 
 // Match reports whether e satisfies every term.
 func (q Query) Match(e fsmodel.Entry) bool {
@@ -45,13 +49,17 @@ func Parse(s string, now time.Time) (Query, error) {
 		key = strings.ToLower(key)
 		if !isFilter || !filterKeys[key] {
 			if isFilter && looksLikeFilter(key) {
-				return Query{}, fmt.Errorf("unknown filter %q (use kind, ext, size, modified, created, name or tag)", key)
+				return Query{}, fmt.Errorf("unknown filter %q (use kind, ext, size, modified, created, name, tag or in)", key)
 			}
 			q.preds = append(q.preds, wordMatcher(tok))
 			continue
 		}
 		if val == "" {
 			return Query{}, fmt.Errorf("the %s filter needs a value, for example %s", key, example[key])
+		}
+		if key == "in" {
+			q.content = val
+			continue
 		}
 		p, err := filter(key, val, now)
 		if err != nil {
@@ -62,11 +70,11 @@ func Parse(s string, now time.Time) (Query, error) {
 	return q, nil
 }
 
-var filterKeys = map[string]bool{"kind": true, "ext": true, "size": true, "modified": true, "created": true, "name": true, "tag": true}
+var filterKeys = map[string]bool{"kind": true, "ext": true, "size": true, "modified": true, "created": true, "name": true, "tag": true, "in": true}
 
 var example = map[string]string{
 	"kind": "kind:image", "ext": "ext:go", "size": "size:>10MB",
-	"modified": "modified:week", "created": "created:2026-10-01", "name": "name:report", "tag": "tag:work",
+	"modified": "modified:week", "created": "created:2026-10-01", "name": "name:report", "tag": "tag:work", "in": "in:invoice",
 }
 
 // looksLikeFilter tells "color:red" (a mistyped filter) from "a:b" in a file name that has no meaning as a filter.
@@ -259,6 +267,7 @@ type Options struct {
 	ShowHidden bool
 	Max        int                        // stop after this many results; 0 means no limit
 	Skip       func(fsmodel.Entry) bool   // folders for which it returns true are not entered
+	Allowed    func(path string) bool     // when set, only files it accepts are results (content search)
 	Tags       func(path string) []string // the tags of a path, for the tag: filter; nil means none
 }
 
@@ -289,7 +298,7 @@ func Walk(ctx context.Context, root string, q Query, o Options, emit func([]fsmo
 			if o.Tags != nil {
 				e.Tags = o.Tags(e.Path)
 			}
-			if q.Match(e) {
+			if q.Match(e) && (o.Allowed == nil || (!e.IsDir && o.Allowed(e.Path))) {
 				batch = append(batch, e)
 				found++
 				if len(batch) >= batchSize {
