@@ -185,3 +185,20 @@ func TestCloseClosesTheEventsChannel(t *testing.T) {
 		t.Fatalf("a second Close must be harmless: %v", err)
 	}
 }
+
+// Close racing the debounce timer used to close Events while flush was sending on it (found by -race in CI).
+func TestCloseWhileAnEventIsBeingFlushedIsRaceFree(t *testing.T) {
+	for i := 0; i < 200; i++ {
+		dir := t.TempDir()
+		w, err := NewFS(Options{MaxDirs: 8, Poll: time.Second, Debounce: time.Millisecond})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := w.Watch(dir); err != nil {
+			t.Fatal(err)
+		}
+		write(t, filepath.Join(dir, "a"))
+		time.Sleep(time.Duration(i%4) * time.Millisecond) // lands the flush around Close
+		_ = w.Close()
+	}
+}

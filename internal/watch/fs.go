@@ -33,6 +33,7 @@ type FS struct {
 	native  map[string]bool     // directories watched by fsnotify
 	polled  map[string]string   // directory -> listing signature
 	pending map[string]struct{} // directories waiting for the debounce
+	flushes sync.WaitGroup      // flush calls in flight: Close waits for them before closing out
 	timer   *time.Timer
 	done    chan struct{}
 	closed  bool
@@ -138,6 +139,7 @@ func (w *FS) Close() error {
 	w.mu.Unlock()
 	err := w.fsn.Close()
 	w.wg.Wait()
+	w.flushes.Wait()
 	close(w.out)
 	return err
 }
@@ -226,6 +228,8 @@ func (w *FS) flush() {
 		w.mu.Unlock()
 		return
 	}
+	w.flushes.Add(1) // under mu and before closed is set, so Close's Wait sees it
+	defer w.flushes.Done()
 	dirs := make([]string, 0, len(w.pending))
 	for d := range w.pending {
 		dirs = append(dirs, d)
