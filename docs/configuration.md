@@ -52,6 +52,9 @@ stays readable.
   is replaced by the selected path; a path that starts with `-` is passed as `./path`.
 - `mode` is `gui` (started in the background) or `terminal` (lazyfinder hands the terminal over until it exits).
 - An extension without an entry opens with `open -- <path>`. Nothing else is ever run.
+- These openers ship built in, so Open With is useful before any configuration, and `open_with` can name them without
+  defining them: `textedit`, `preview`, `vscode` (these three are listed in the menu only when the application is
+  installed) and `vim` (terminal). An opener of yours with the same name replaces the built-in one.
 
 ## Themes
 

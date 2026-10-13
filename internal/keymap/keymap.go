@@ -32,6 +32,7 @@ const (
 	Reload      Action = "reload"
 	Ignored     Action = "ignored"
 	Search      Action = "search"
+	Goto        Action = "goto"
 	Focus       Action = "focus"
 	Settings    Action = "settings"
 	Quit        Action = "quit"
@@ -40,7 +41,7 @@ const (
 // Actions lists every action.
 var Actions = []Action{
 	Up, Down, PageUp, PageDown, First, Last, Open, Parent, Back, Forward, Preview, OpenWith, QuickLook,
-	Sort, SortReverse, Hidden, Ignored, Search, Reload, Focus, Settings, Quit,
+	Sort, SortReverse, Hidden, Ignored, Search, Goto, Reload, Focus, Settings, Quit,
 }
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
@@ -48,7 +49,7 @@ var Defaults = map[Action][]string{
 	Up: {"up", "k"}, Down: {"down", "j"}, PageUp: {"pgup"}, PageDown: {"pgdown"}, First: {"home", "g"},
 	Last: {"end", "G"}, Open: {"enter", "right", "l"}, Parent: {"backspace", "left", "h"},
 	Back: {"alt+left", "["}, Forward: {"alt+right", "]"}, Preview: {"space"}, OpenWith: {"O"}, QuickLook: {"Q"},
-	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Reload: {"r"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
+	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Reload: {"r"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
 }
 
 // Map is the effective binding. Build it with New; it is read-only afterwards.

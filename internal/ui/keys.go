@@ -25,6 +25,8 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		return m.menuKey(key, act)
 	case m.pv.open:
 		return m.previewKey(key, act)
+	case m.goto_.open:
+		return m.gotoKey(k)
 	case m.search.mode == searchTyping:
 		return m.searchKey(k)
 	case m.search.mode == searchResults:
@@ -75,6 +77,8 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Ignored:
 		m.hideIgnored = !m.hideIgnored
 		return m.reload()
+	case keymap.Goto:
+		m.goto_ = gotoState{open: true}
 	case keymap.Search:
 		m.openSearch()
 	case keymap.Reload:

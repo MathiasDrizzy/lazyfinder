@@ -84,6 +84,7 @@ type Model struct {
 	git         gitState
 	hideIgnored bool
 	search      searchState
+	goto_       gotoState
 }
 
 type click struct {

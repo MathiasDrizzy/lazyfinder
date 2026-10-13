@@ -174,9 +174,9 @@ Mathias, 2026-10-13: "debe tener las mismas funcionalidades que finder y el busc
   query and clicks a chip.
 - **R-51 Operations parity (M4).** Copy, cut, paste, duplicate, rename, new folder, move to Trash, select many,
   Get Info popup. AC: fixture tests for each; Trash never deletes for good.
-- **R-52 Go to folder (M3).** `ctrl+g` prompts for a path (with `~` and completion). AC: scenario.
+- **R-52 Go to folder (M3, done).** `ctrl+g` prompts for a path (with `~` and completion). AC: scenario.
 - **R-53 Tabs, tags, saved searches, recents (M6).** AC: per feature in the milestone.
-- **R-54 Default openers (M1, extended M3).** A built-in table of defaults per extension that the config replaces
+- **R-54 Default openers (M1, extended M3, done).** A built-in table of defaults per extension that the config replaces
   (never run anything unconfigured stays true: defaults call `open`). AC: test of the table and an override.
 
 ## Out of scope for M1

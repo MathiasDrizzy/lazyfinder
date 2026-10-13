@@ -10,6 +10,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Go to folder (`ctrl+g`): type a path (`~`, relative or absolute), `Tab` completes folder names, `Enter` goes there
+  (a file path goes to its folder and selects it).
+- Built-in openers for Open With: TextEdit, Preview, Visual Studio Code (when installed) and Vim. They can be mapped
+  to extensions in `open_with` without defining them, and a user opener with the same name replaces them.
 - Search bar (`/`, `ctrl+f`, or the lens in the toolbar): words match the name (substrings or `*`/`?` globs, quotes
   for phrases) and `kind:`, `ext:`, `size:`, `modified:`, `created:` filters narrow it, with clickable chips for
   images, text, folders, today and this week. Results appear while typing, in the folder or in its subfolders

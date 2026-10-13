@@ -18,7 +18,8 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `S` | Reverse the sort order | `sort_reverse` |
 | `.` | Show or hide dotfiles | `hidden` |
 | `I` | Show or hide files ignored by git | `ignored` |
-| `/` or `ctrl+f` | Open the search bar | `search` |
+| `/` or `ctrl+f` | Open the search bar (see [search](search.md)) | `search` |
+| `ctrl+g` | Go to a folder: type a path (`~`, relative or absolute), `Tab` completes, `Enter` goes | `goto` |
 | `r` | Reload the folder | `reload` |
 | `Tab` | Move focus between the sidebar and the list | `focus` |
 | `Space` | Preview popup | `preview` |

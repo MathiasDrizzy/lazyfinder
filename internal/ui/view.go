@@ -479,6 +479,12 @@ func keyLabel(k string) string {
 }
 
 func (m *Model) footerBar() string {
+	if m.goto_.open {
+		if m.status != "" && m.statusErr {
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+		}
+		return m.gotoBar()
+	}
 	if m.searchOn() {
 		if m.status != "" && m.statusErr {
 			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
