@@ -30,10 +30,12 @@ const (
 	ColExt      Column = "extension"
 	ColPerms    Column = "permissions"
 	ColTags     Column = "tags"
+	ColOwner    Column = "owner"
+	ColPath     Column = "path" // the folder that holds the item, useful in search results
 )
 
 // AllColumns lists the columns in their default order.
-var AllColumns = []Column{ColName, ColModified, ColCreated, ColOpened, ColSize, ColKind, ColExt, ColPerms, ColTags}
+var AllColumns = []Column{ColName, ColModified, ColCreated, ColOpened, ColSize, ColKind, ColExt, ColPerms, ColOwner, ColPath, ColTags}
 
 // Entry is one row of a listing. It is a plain value.
 type Entry struct {
@@ -47,6 +49,7 @@ type Entry struct {
 	Opened   time.Time // last access
 	Kind     string
 	Mode     os.FileMode
+	Owner    string   // user name of the owner, empty where the system does not say
 	Tags     []string // set by the UI from its tag store; ReadDir leaves it empty
 	Depth    int      // levels below the listed folder, for entries shown by expanding a folder in place
 }
@@ -135,6 +138,7 @@ func inspect(dir string, de os.DirEntry) Entry {
 	e.Modified = info.ModTime()
 	e.Created = birthTime(info)
 	e.Opened = accessTime(info)
+	e.Owner = ownerOf(info)
 	if !e.IsDir && !broken {
 		e.Size = info.Size()
 	}
@@ -181,6 +185,12 @@ func compare(a, b Entry, by Column) (less, equal bool) {
 	case ColTags:
 		ta, tb := strings.ToLower(strings.Join(a.Tags, ",")), strings.ToLower(strings.Join(b.Tags, ","))
 		return ta < tb, ta == tb
+	case ColOwner:
+		oa, ob := strings.ToLower(a.Owner), strings.ToLower(b.Owner)
+		return oa < ob, oa == ob
+	case ColPath:
+		pa, pb := strings.ToLower(filepath.Dir(a.Path)), strings.ToLower(filepath.Dir(b.Path))
+		return pa < pb, pa == pb
 	case ColKind:
 		ka, kb := strings.ToLower(a.Kind), strings.ToLower(b.Kind)
 		return ka < kb, ka == kb

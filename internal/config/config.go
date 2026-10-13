@@ -44,21 +44,25 @@ const (
 
 // Config is the validated configuration. Treat it as read-only.
 type Config struct {
-	Version        int               `json:"version"`
-	Columns        []string          `json:"columns"`
-	Sort           SortConfig        `json:"sort"`
-	ShowHidden     bool              `json:"show_hidden"`
-	Sidebar        Sidebar           `json:"sidebar"`
-	Openers        map[string]Opener `json:"openers"`
-	Commands       map[string]Opener `json:"commands"`
-	OpenWith       map[string]string `json:"open_with"`
-	Preview        Preview           `json:"preview"`
-	Icons          string            `json:"icons"`           // nerd (Nerd Font glyphs), ascii or off
-	IconMap        map[string]string `json:"icon_map"`        // extension -> glyph, overrides the built-in ones
-	DateFormat     string            `json:"date_format"`     // relative (Today at 09:05), finder (Today, 09:05) or numeric (2026-10-13 09:05)
-	Density        string            `json:"density"`         // compact (one line per row) or comfortable (two)
-	KeybindingMode string            `json:"keybinding_mode"` // dual (arrows and Vim letters) or lazy (arrows only)
-	Layout         string            `json:"layout"`          // list (detail columns) or columns (parent, folder, preview)
+	Version    int               `json:"version"`
+	Columns    []string          `json:"columns"`
+	Sort       SortConfig        `json:"sort"`
+	ShowHidden bool              `json:"show_hidden"`
+	Sidebar    Sidebar           `json:"sidebar"`
+	Openers    map[string]Opener `json:"openers"`
+	Commands   map[string]Opener `json:"commands"`
+	OpenWith   map[string]string `json:"open_with"`
+	Preview    Preview           `json:"preview"`
+	Icons      string            `json:"icons"`       // nerd (Nerd Font glyphs), ascii or off
+	IconMap    map[string]string `json:"icon_map"`    // extension -> glyph, overrides the built-in ones
+	DateFormat string            `json:"date_format"` // relative (Today at 09:05), finder (Today, 09:05) or numeric (2026-10-13 09:05)
+	Density    string            `json:"density"`     // compact (one line per row) or comfortable (two)
+	// IconSize is small (a glyph), medium (a glyph with air and a framed gear) or large (a glyph on a tile, roomy rows).
+	IconSize string `json:"icon_size"`
+	// ColumnSeparators draws a │ between the columns of the list, like Finder.
+	ColumnSeparators bool   `json:"column_separators"`
+	KeybindingMode   string `json:"keybinding_mode"` // dual (arrows and Vim letters) or lazy (arrows only)
+	Layout           string `json:"layout"`          // list (detail columns) or columns (parent, folder, preview)
 	// SidebarWidth and PreviewWidth are cells (0 is automatic); ColumnWidths maps a column to its width in cells.
 	// Dragging a border with the mouse, or < > and ctrl+left ctrl+right, saves them.
 	SidebarWidth int            `json:"sidebar_width"`
@@ -153,13 +157,30 @@ type Watch struct {
 	PollIntervalMS int `json:"poll_interval_ms"`
 }
 
-var validColumns = map[string]bool{"name": true, "modified": true, "created": true, "opened": true, "size": true, "kind": true, "extension": true, "permissions": true, "tags": true}
+var validColumns = map[string]bool{"name": true, "modified": true, "created": true, "opened": true, "size": true, "kind": true, "extension": true, "permissions": true, "owner": true, "path": true, "tags": true}
 
 // Valid values of the "date_format" and "density" settings.
 var (
 	DateFormats = []string{"relative", "finder", "numeric"}
 	Densities   = []string{"compact", "comfortable"}
+	IconSizes   = []string{"small", "medium", "large"}
 )
+
+// ColumnPresets are the two ready-made sets of columns: basic is Finder's default, full shows every column.
+var ColumnPresets = map[string][]string{
+	"basic": {"name", "modified", "size", "kind"},
+	"full":  {"name", "modified", "created", "opened", "size", "kind", "extension", "permissions", "owner", "path", "tags"},
+}
+
+// ColumnPreset names the preset a list of columns equals ("custom" when it is none of them).
+func ColumnPreset(cols []string) string {
+	for _, name := range []string{"basic", "full"} {
+		if slices.Equal(cols, ColumnPresets[name]) {
+			return name
+		}
+	}
+	return "custom"
+}
 
 // ResolvePath picks the config file: $LAZYFINDER_CONFIG, $XDG_CONFIG_HOME/lazyfinder/config.json,
 // then ~/.config/lazyfinder/config.json.
@@ -187,6 +208,7 @@ func Defaults(home string) Config {
 		Icons:      "nerd",
 		IconMap:    map[string]string{},
 		DateFormat: "relative", Density: "compact", KeybindingMode: "dual",
+		IconSize: "medium", ColumnSeparators: true,
 		Layout: "list",
 		Theme:  theme.Default,
 		Watch:  Watch{MaxDirs: 64, PollIntervalMS: 2000},
@@ -388,6 +410,9 @@ func validate(cfg *Config, home string) error {
 	}
 	if !slices.Contains(Densities, cfg.Density) {
 		return i18n.Errorf(`"density" %q no es válido (usa %s)`, `"density" %q is not valid (use %s)`, cfg.Density, strings.Join(Densities, ", "))
+	}
+	if !slices.Contains(IconSizes, cfg.IconSize) {
+		return i18n.Errorf(`"icon_size" %q no es válido (usa %s)`, `"icon_size" %q is not valid (use %s)`, cfg.IconSize, strings.Join(IconSizes, ", "))
 	}
 	if cfg.KeybindingMode != keymap.ModeDual && cfg.KeybindingMode != keymap.ModeLazy {
 		return i18n.Errorf(`"keybinding_mode" %q no es válido (usa dual o lazy)`, `"keybinding_mode" %q is not valid (use dual or lazy)`, cfg.KeybindingMode)
