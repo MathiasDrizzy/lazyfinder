@@ -144,9 +144,7 @@ func TestSettingsToggleHiddenReloads(t *testing.T) {
 	e := newEnv(t)
 	withConfigFile(t, e)
 	e.key(",")
-	for range 3 {
-		e.key("down")
-	}
+	e.pickSetting("Hidden files")
 	e.key("enter")
 	e.key("esc")
 	e.mustHave(".secret")

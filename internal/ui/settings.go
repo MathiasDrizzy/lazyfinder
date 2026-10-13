@@ -22,7 +22,6 @@ type settingsState struct {
 const (
 	setTheme = iota
 	setLanguage
-	setImages
 	setHidden
 	setFoldersFirst
 	setScreenBackground
@@ -38,7 +37,6 @@ const (
 	setSearchKinds
 	setSearchBy
 	setConfirmDelete
-	setMouse
 	settingCount
 )
 
@@ -50,8 +48,6 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Tema", "Theme")
 	case setLanguage:
 		return i18n.T("Idioma", "Language")
-	case setImages:
-		return i18n.T("Imágenes (Kitty)", "Images (Kitty)")
 	case setHidden:
 		return i18n.T("Archivos ocultos", "Hidden files")
 	case setFoldersFirst:
@@ -80,10 +76,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Buscar en", "Search in")
 	case setSearchKinds:
 		return i18n.T("Buscar", "Search for")
-	case setSearchBy:
-		return i18n.T("Buscar por", "Search by")
 	}
-	return i18n.T("Ratón", "Mouse")
+	return i18n.T("Buscar por", "Search by")
 }
 
 func onOff(b bool) string {
@@ -104,8 +98,6 @@ func (m *Model) settingValue(i int) string {
 		}
 		l, _ := i18n.Parse(c.Language)
 		return l.Name()
-	case setImages:
-		return c.Preview.Images
 	case setHidden:
 		return onOff(m.hidden)
 	case setFoldersFirst:
@@ -143,10 +135,8 @@ func (m *Model) settingValue(i int) string {
 		return scopeName(orDefault(c.Search.Scope, searchScopes))
 	case setSearchKinds:
 		return kindsName(orDefault(c.Search.Kinds, searchKinds))
-	case setSearchBy:
-		return byName(orDefault(c.Search.By, searchBys))
 	}
-	return onOff(m.mouse)
+	return byName(orDefault(c.Search.By, searchBys))
 }
 
 // cycle returns the item after (dir 1) or before (dir -1) cur in list, wrapping around.
@@ -177,13 +167,6 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.Language = cycle(languageCodes(), m.deps.Cfg.Language, dir)
 		key, val = "language", m.deps.Cfg.Language
 		i18n.SetLanguage(m.deps.Cfg.Language)
-	case setImages:
-		m.deps.Cfg.Preview.Images = cycle([]string{"auto", "kitty", "off"}, m.deps.Cfg.Preview.Images, dir)
-		key, val = "preview.images", m.deps.Cfg.Preview.Images
-		m.imagesAllowed = m.deps.Cfg.Preview.Images == "kitty"
-		if m.deps.Cfg.Preview.Images == "auto" {
-			cmd = m.Init()
-		}
 	case setHidden:
 		m.hidden = !m.hidden
 		key, val = "show_hidden", m.hidden
@@ -250,10 +233,6 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		}
 		key = "search." + what
 		val = map[string]string{"scope": m.deps.Cfg.Search.Scope, "kinds": m.deps.Cfg.Search.Kinds, "by": m.deps.Cfg.Search.By}[what]
-	case setMouse:
-		m.mouse = !m.mouse
-		m.deps.Cfg.Mouse = m.mouse
-		key, val = "mouse", m.mouse
 	}
 	if m.deps.ConfigPath != "" {
 		if err := config.Update(m.deps.ConfigPath, map[string]any{key: val}); err != nil {
