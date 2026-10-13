@@ -1,0 +1,172 @@
+package theme
+
+import (
+	"encoding/json"
+	"errors"
+	"image/color"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
+	"unicode"
+
+	"charm.land/lipgloss/v2"
+)
+
+// Temas del usuario: un archivo JSON por tema en la carpeta themes, junto a config.json. El nombre del tema es el
+// del archivo sin ".json". Lleva los 14 colores de Palette con sus nombres en minúsculas, todos como "#rrggbb", y
+// "source" si se quiere. Salen en la lista después de los incluidos, en orden alfabético.
+
+// maxThemeBytes: un tema son 15 líneas; nada razonable pasa de esto.
+const maxThemeBytes = 64 << 10
+
+// UserThemeProblem es un tema que no se cargó. Va en español y en inglés con sus argumentos, como los avisos de
+// config.json, para traducirlo cuando se muestra.
+type UserThemeProblem struct {
+	ES, EN string // Spanish and English texts with printf verbs; Args fill them
+	Args   []any
+}
+
+// userNames son los temas del usuario cargados, en el orden de la lista.
+var userNames []string
+
+var hexColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
+
+// themeNameRe: el nombre del archivo es el del tema y sale en la ayuda de --theme y en la barra de estado. Con comas o espacios parecería
+// más de un tema, y con caracteres de control o de dirección podría escribir secuencias de escape en la terminal.
+var themeNameRe = regexp.MustCompile(`^[a-z0-9._-]+$`)
+
+type paletteSlot struct {
+	key string
+	dst *color.Color
+}
+
+// paletteSlots relaciona cada clave del archivo con su color en p.
+func paletteSlots(p *Palette) []paletteSlot {
+	return []paletteSlot{
+		{"base", &p.Base}, {"mantle", &p.Mantle}, {"surface0", &p.Surface0}, {"surface1", &p.Surface1},
+		{"overlay0", &p.Overlay0}, {"text", &p.Text}, {"subtext0", &p.Subtext0}, {"peach", &p.Peach},
+		{"mauve", &p.Mauve}, {"teal", &p.Teal}, {"green", &p.Green}, {"red", &p.Red},
+		{"blue", &p.Blue}, {"yellow", &p.Yellow},
+	}
+}
+
+// LoadUserThemes carga los temas de dir en lugar de los de la carga anterior. Si la carpeta no existe no pasa
+// nada; un archivo que no vale se salta con un aviso y los demás se cargan igual.
+func LoadUserThemes(dir string) []UserThemeProblem {
+	for _, n := range userNames {
+		delete(AvailableThemes, n)
+	}
+	userNames = nil
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
+		return []UserThemeProblem{{"no se pudo leer la carpeta de temas %s: %v", "could not read the themes folder %s: %v", []any{dir, err}}}
+	}
+	var problems []UserThemeProblem
+	for _, e := range entries { // ReadDir los da ordenados por nombre
+		name, isTheme := strings.CutSuffix(e.Name(), ".json")
+		if !isTheme || name == "" || strings.HasPrefix(name, ".") {
+			continue
+		}
+		if !themeNameRe.MatchString(name) {
+			problems = append(problems, UserThemeProblem{"el tema %q no se cargó: el nombre solo admite a-z, 0-9, punto, guion y guion bajo", "theme %q was not loaded: the name only allows a-z, 0-9, dot, dash and underscore", []any{name}})
+			continue
+		}
+		p, problem := readUserTheme(filepath.Join(dir, e.Name()), name)
+		if problem != nil {
+			problems = append(problems, *problem)
+			continue
+		}
+		AvailableThemes[name] = p
+		userNames = append(userNames, name)
+	}
+	return problems
+}
+
+// safeText es s tal cual si todo es imprimible; si lleva caracteres de control, C1 o de dirección (U+202E...), va escapado, para que un
+// archivo de tema no escriba secuencias en la terminal a través del aviso.
+func safeText(s string) string {
+	for _, r := range s {
+		if !unicode.IsPrint(r) {
+			return strconv.Quote(s)
+		}
+	}
+	return s
+}
+
+// readUserTheme lee un archivo de tema o dice por qué no vale.
+func readUserTheme(path, name string) (Palette, *UserThemeProblem) {
+	fail := func(es, en string, args ...any) (Palette, *UserThemeProblem) {
+		return Palette{}, &UserThemeProblem{"el tema %s no se cargó: " + es, "theme %s was not loaded: " + en, append([]any{name}, args...)}
+	}
+	if _, builtin := AvailableThemes[name]; builtin {
+		return fail("ya hay un tema incluido con ese nombre", "a built-in theme has that name")
+	}
+	data, err := readRegular(path, maxThemeBytes)
+	if err != nil {
+		return fail("%v", "%v", err)
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil || raw == nil {
+		return fail("no es un objeto JSON válido", "it is not a valid JSON object")
+	}
+
+	p := Palette{Name: name}
+	slots := paletteSlots(&p)
+	known := map[string]bool{"source": true}
+	for _, slot := range slots {
+		known[slot.key] = true
+	}
+	var unknown []string
+	for k := range raw {
+		if !known[k] {
+			unknown = append(unknown, k)
+		}
+	}
+	if len(unknown) > 0 { // se mira antes que los colores que faltan, así una errata como "bse" sale con su nombre
+		sort.Strings(unknown)
+		return fail("clave desconocida %q", "unknown key %q", unknown[0])
+	}
+	for _, slot := range slots {
+		v, ok := raw[slot.key]
+		if !ok {
+			return fail("falta el color %q", "the color %q is missing", slot.key)
+		}
+		var s string
+		if json.Unmarshal(v, &s) != nil || !hexColor.MatchString(s) {
+			return fail("el color %q vale %s y no es #rrggbb", "the color %q is %s, not #rrggbb", slot.key, safeText(string(v)))
+		}
+		*slot.dst = lipgloss.Color(s)
+	}
+	if v, ok := raw["source"]; ok && json.Unmarshal(v, &p.Source) != nil {
+		return fail("\"source\" no es texto", "\"source\" is not a string")
+	}
+	return p, nil
+}
+
+// readRegular reads a regular file of at most max bytes. Anything else (a FIFO, a device, a symlink loop) is refused
+// before it is opened, so a file called x.json that is a FIFO cannot hang the start.
+func readRegular(path string, max int64) ([]byte, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		var pe *fs.PathError
+		if errors.As(err, &pe) {
+			err = pe.Err
+		}
+		return nil, err
+	}
+	if !fi.Mode().IsRegular() {
+		return nil, errors.New("not a regular file")
+	}
+	if fi.Size() > max {
+		return nil, errors.New("file too large")
+	}
+	return os.ReadFile(path)
+}
