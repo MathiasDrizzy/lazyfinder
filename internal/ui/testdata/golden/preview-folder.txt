@@ -3,7 +3,7 @@
  Favorites           │▸ > alpha                                       1 Sep 2026          --          Folder
   Home               │  > beta                                        1 Sep 2026          --          Folder
   Projects           │    data.xlsx                                   1 Sep 2026          4 bytes     Excel Spreadsheet
-               ┌ alpha ─────────────────────────────────────────────────────────────────────────────────┐Source
+               ┌─ alpha ────────────────────────────────────────────────────────────────────────────────┐Source
  Locations     │ deep/                                                                                  │in Text
   Disk         │ inner.txt                                                                              │
                │                                                                                        │

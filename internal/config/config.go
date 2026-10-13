@@ -136,7 +136,7 @@ func Load(path, home string) (Config, error) {
 	}
 	cfg, err := Parse(data, home)
 	if err != nil {
-		return Config{}, fmt.Errorf("config %s: %w", path, err)
+		return Config{}, fmt.Errorf("invalid config: %w (file %s)", err, path)
 	}
 	return cfg, nil
 }

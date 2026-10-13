@@ -40,8 +40,8 @@ func overlay(base []string, box []string, x, y int) []string {
 
 // box wraps content lines (each already inner wide) in a border with a title in the top edge.
 func box(title string, content []string, inner int, style func(string) string) []string {
-	title = " " + ansi.Truncate(title, inner-2, "…") + " "
-	top := "┌" + title + strings.Repeat("─", max(0, inner+2-ansi.StringWidth(title))) + "┐"
+	title = " " + ansi.Truncate(title, inner-4, "…") + " "
+	top := "┌─" + title + strings.Repeat("─", max(0, inner+1-ansi.StringWidth(title))) + "┐"
 	out := []string{style(top)}
 	for _, l := range content {
 		out = append(out, style("│")+" "+fit(l, inner)+" "+style("│"))
