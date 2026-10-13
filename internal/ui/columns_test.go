@@ -16,7 +16,8 @@ func TestSpanishTitlesAreNotCut(t *testing.T) {
 	e := newEnv(t)
 	e.mustHave("Fecha de modificación")
 	e.mustHave("Hoja de cálculo de Excel")
-	if strings.Contains(e.text(), "…") {
+	// the path bar (second to last line) may start with "…" when the temp folder path is long; only the panels count
+	if panels := strings.Join(e.screen()[:e.m.h-2], "\n"); strings.Contains(panels, "…") {
 		t.Fatalf("a column is still cut:\n%s", e.text())
 	}
 }
