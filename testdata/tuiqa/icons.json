@@ -14,7 +14,7 @@
     {"keys": ["+"]},
     {"desc": "an expanded folder shows the open glyph", "assert": {"contains": " +alpha"}},
     {"keys": [","]},
-    {"keys": ["j", "j", "j", "j", "j", "j", "right"]},
+    {"keys": ["j", "j", "j", "j", "j", "j", "j", "right"]},
     {"desc": "Settings shows the Icons row and switched to ascii", "assert": {"contains": "‹ ascii ›"}},
     {"keys": ["esc"]},
     {"desc": "no Nerd Font glyph is left", "assert": {"not_contains": "\uf07b"}}
