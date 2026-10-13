@@ -58,6 +58,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	langFlag := fs.String("lang", "", "interface language for this run: auto, en, es, pt, fr, de, it, ja or zh")
 	themeFlag := fs.String("theme", "", "theme for this run: a built-in or user theme name, or terminal")
 	followDir := fs.String("follow", "", "follow a project in a narrow tree with live updates and git state: `directory`")
+	shellFlag := fs.String("completions", "", "print the completion script of `shell` (bash, zsh or fish) and exit")
 	noMouse := fs.Bool("no-mouse", false, "ignore the mouse for this run")
 	fs.Usage = func() {
 		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n       lazyfinder --follow directory\n\nFlags:\n")
@@ -76,6 +77,14 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 		}
 	}
 	switch {
+	case *shellFlag != "":
+		script, ok := completion(*shellFlag)
+		if !ok {
+			fmt.Fprintf(stderr, "lazyfinder: unknown shell %q (use bash, zsh or fish)\n", *shellFlag)
+			return exitUsage
+		}
+		fmt.Fprint(stdout, script)
+		return exitOK
 	case *showVersion:
 		fmt.Fprintf(stdout, "lazyfinder %s\n", version)
 		return exitOK

@@ -115,3 +115,36 @@ func TestWithoutFollowTheFullViewIsUsed(t *testing.T) {
 		t.Fatalf("follow=%v columns=%v", got.Follow, got.Cfg.Columns)
 	}
 }
+
+func TestCompletionsPrintAScriptPerShell(t *testing.T) {
+	for shell, want := range map[string]string{"bash": "complete -F", "zsh": "#compdef lazyfinder", "fish": "complete -c lazyfinder"} {
+		code, out, _ := runCLI(t, nil, "--completions", shell)
+		if code != 0 || !strings.Contains(out, want) {
+			t.Fatalf("%s: code=%d out=%q", shell, code, out)
+		}
+		for _, flag := range []string{"follow", "theme", "lang", "no-mouse", "print-default-config", "version", "completions"} {
+			if !strings.Contains(out, flag) {
+				t.Errorf("%s completion lacks --%s", shell, flag)
+			}
+		}
+	}
+}
+
+func TestCompletionsRejectAnUnknownShell(t *testing.T) {
+	code, _, errOut := runCLI(t, nil, "--completions", "powershell")
+	if code != exitUsage || !strings.Contains(errOut, "bash, zsh or fish") {
+		t.Fatalf("code=%d err=%q", code, errOut)
+	}
+}
+
+func TestManPageMentionsEveryFlag(t *testing.T) {
+	page, err := os.ReadFile("../../docs/lazyfinder.1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, flag := range []string{"version", "print-default-config", "log", "log-paths", "lang", "theme", "follow", "no-mouse", "completions"} {
+		if !strings.Contains(strings.ReplaceAll(string(page), `\-`, "-"), "--"+flag) {
+			t.Errorf("man page lacks --%s", flag)
+		}
+	}
+}

@@ -12,7 +12,7 @@ cerebro with real Ghostty captures.
 | **M4** | File operations | R-35, R-51: copy, move, rename, new folder, move to Trash with undo, selection of many, confirmation rules | Write operations come after the read paths are trusted; every operation gets a dry-run and fixture tests |
 | **M5** | Previews++ (done, 0.5.0; Sixel and iTerm2 deferred, ADR 0011) | Sixel and iTerm2 protocols, PDF first page, video/audio metadata, archive listing, Markdown rendering, hex view | Value but each is optional and terminal-dependent |
 | **M6** | Productivity (done, 0.6.0) | Tabs, bookmarks UI, column view (Miller) as an alternate layout, tags, quick filters, `fd`/`rg` integration, custom commands in config | Convenience features; layout alternates once the core is stable |
-| **M7** | Release polish | Homebrew tap, signed releases, completions, man page, i18n of UI strings | Distribution |
+| **M7** | Release polish (done, 0.7.0; signing waits, see ESTADO) | Homebrew tap, signed releases, completions, man page, i18n of UI strings | Distribution |
 
 Rules for all milestones: test first (rojo, then verde), one ADR per design decision, ED-9 versioning (`0.y.z`), CHANGELOG
 entry per user-visible change.

@@ -64,6 +64,15 @@ Or build from a clone:
 go build -o bin/lazyfinder ./cmd/lazyfinder
 ```
 
+Shell completions and the manual page:
+
+```sh
+lazyfinder --completions zsh > "${fpath[1]}/_lazyfinder"   # or bash, or fish
+man ./docs/lazyfinder.1
+```
+
+A Homebrew formula for a tap is in [packaging/homebrew](packaging/homebrew/lazyfinder.rb).
+
 ## Quick start
 
 ```sh

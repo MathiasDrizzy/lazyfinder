@@ -1,0 +1,56 @@
+.TH LAZYFINDER 1 "2026-10-13" "lazyfinder" "User Commands"
+.SH NAME
+lazyfinder \- a Finder-like file manager for the terminal
+.SH SYNOPSIS
+.B lazyfinder
+[\fIflags\fR] [\fIdirectory\fR]
+.br
+.B lazyfinder \-\-follow
+\fIdirectory\fR
+.SH DESCRIPTION
+lazyfinder shows a folder as a list or as columns (parent, folder, preview), with a sidebar, tabs, previews,
+search, tags, an Open With menu and mouse support. It starts in \fIdirectory\fR, or in the current folder.
+Everything is configurable in \fIconfig.json\fR; press \fB,\fR inside the program for the settings.
+.SH OPTIONS
+.TP
+.B \-\-version
+Print the version and exit.
+.TP
+.B \-\-print\-default\-config
+Print the default config.json and exit.
+.TP
+.BI \-\-log " file"
+Write a JSON log to \fIfile\fR (off by default).
+.TP
+.B \-\-log\-paths
+Include file names in the log.
+.TP
+.BI \-\-lang " language"
+Interface language for this run: auto, en, es, pt, fr, de, it, ja or zh.
+.TP
+.BI \-\-theme " name"
+Theme for this run: a built-in or user theme, or \fBterminal\fR.
+.TP
+.BI \-\-follow " directory"
+Follow a project in a narrow tree with live updates and git state.
+.TP
+.B \-\-no\-mouse
+Ignore the mouse for this run.
+.TP
+.BI \-\-completions " shell"
+Print the completion script of \fIshell\fR (bash, zsh or fish) and exit.
+.SH FILES
+.TP
+.I ~/.config/lazyfinder/config.json
+Settings, keys, openers and custom commands. \fBLAZYFINDER_CONFIG\fR overrides the path.
+.TP
+.I recents.json, searches.json, tags.json
+Kept next to config.json.
+.SH ENVIRONMENT
+.TP
+.B NO_COLOR
+Turns colors off.
+.SH EXIT STATUS
+0 on success, 1 on a runtime error, 2 on a usage error.
+.SH SEE ALSO
+Keys: docs/keybindings.md. Settings: docs/configuration.md.

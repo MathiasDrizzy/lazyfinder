@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-13
+
+### Added
+
+- `--completions bash|zsh|fish` prints a completion script.
+- A manual page (`docs/lazyfinder.1`), shipped in the release archives.
+- A Homebrew formula in `packaging/homebrew/`, ready for a tap.
+- A test that moves a folder between two real volumes (a disk image) and undoes it.
+
 ## [0.6.0] - 2026-10-13
 
 ### Added

@@ -21,6 +21,7 @@ archives:
     files:
       - README.md
       - LICENSE*
+      - docs/lazyfinder.1
 
 checksum:
   name_template: "checksums.txt"
