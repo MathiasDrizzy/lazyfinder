@@ -14,8 +14,11 @@
  "\"preview.markdown\" must be render or raw (got %q)": "\"preview.markdown\" 必须是 render 或 raw(当前为 %q)",
  "\"preview.max_text_bytes\" must be positive": "\"preview.max_text_bytes\" 必须为正数",
  "\"screen_background\" must be theme or terminal (got %q)": "\"screen_background\" 必须是 theme 或 terminal(当前为 %q)",
+ "\"search.by\" must be name or content (got %q)": "\"search.by\" 必须是 name 或 content(当前为 %q)",
  "\"search.content_tool\" must be auto or native (got %q)": "\"search.content_tool\" 必须是 auto 或 native(当前为 %q)",
+ "\"search.kinds\" must be both, files or folders (got %q)": "\"search.kinds\" 必须是 both、files 或 folders(当前为 %q)",
  "\"search.max_results\" must be positive": "\"search.max_results\" 必须为正数",
+ "\"search.scope\" must be folder, subfolders or system (got %q)": "\"search.scope\" 必须是 folder、subfolders 或 system(当前为 %q)",
  "\"theme\" %q is not a theme (use %s, or put %s.json in the themes folder)": "\"theme\" %q 不是主题(请使用 %s,或把 %s.json 放进主题文件夹)",
  "\"version\" must be %d (got %d)": "\"version\" 必须是 %d(当前为 %d)",
  "%d bytes": "%d 字节",
@@ -228,8 +231,6 @@
  "limit reached": "已达上限",
  "more than %d entries": "超过 %d 个条目",
  "not saving: %s is not valid JSON, fix it first": "未保存:%s 不是有效的 JSON,请先修正",
- "off": "关",
- "on": "开",
  "opener %q: \"argv\" must contain %s exactly once": "程序 %q:\"argv\" 必须恰好包含一次 %s",
  "opener %q: \"argv\" must have at least the program name": "程序 %q:\"argv\" 至少要有程序名",
  "opener %q: \"mode\" must be %q or %q (got %q)": "程序 %q:\"mode\" 必须是 %q 或 %q(当前为 %q)",
@@ -244,5 +245,6 @@
  "unknown column %q in \"columns\"": "\"columns\" 中有未知的列 %q",
  "untitled folder": "未命名文件夹",
  "with subfolders": "包含子文件夹",
+ "yes": "是",
  "… truncated": "… 已截断"
 }

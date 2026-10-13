@@ -4,6 +4,7 @@ package fsmodel
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -95,6 +96,15 @@ func underlying(err error) error {
 		return pe.Err
 	}
 	return err
+}
+
+// Stat describes one path as a list row, without reading its folder.
+func Stat(path string) (Entry, error) {
+	li, err := os.Lstat(path)
+	if err != nil {
+		return Entry{}, err
+	}
+	return inspect(filepath.Dir(path), fs.FileInfoToDirEntry(li)), nil
 }
 
 func inspect(dir string, de os.DirEntry) Entry {

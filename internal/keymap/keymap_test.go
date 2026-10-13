@@ -107,3 +107,15 @@ func TestSwappingTwoActionsIsNotAConflict(t *testing.T) {
 		t.Errorf("j = %q, want up", a)
 	}
 }
+
+func TestVimPagingKeysArePartOfTheDefaults(t *testing.T) {
+	m, warns := New(nil)
+	if len(warns) > 0 {
+		t.Fatal(warns)
+	}
+	for key, want := range map[string]Action{"ctrl+u": PageUp, "ctrl+d": PageDown} {
+		if got, ok := m.Lookup(key); !ok || got != want {
+			t.Errorf("%s = %v %v, want %v", key, got, ok, want)
+		}
+	}
+}

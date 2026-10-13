@@ -215,3 +215,22 @@ func TestValidationErrorsSpeakTheInterfaceLanguage(t *testing.T) {
 		}
 	}
 }
+
+func TestSearchScopeKindsAndByDefaultAndValidation(t *testing.T) {
+	s := Defaults("/home/u").Search
+	if s.Scope != "folder" || s.Kinds != "both" || s.By != "name" {
+		t.Fatalf("defaults = %+v", s)
+	}
+	for _, js := range []string{`{"version":1,"search":{"scope":"system","kinds":"files","by":"content"}}`} {
+		cfg, err := Parse([]byte(js), "/home/u")
+		if err != nil || cfg.Search.Scope != "system" || cfg.Search.Kinds != "files" || cfg.Search.By != "content" {
+			t.Fatalf("%v %+v", err, cfg.Search)
+		}
+	}
+	for _, key := range []string{"scope", "kinds", "by"} {
+		_, err := Parse([]byte(`{"version":1,"search":{"`+key+`":"nope"}}`), "/home/u")
+		if err == nil || !strings.Contains(err.Error(), "search."+key) {
+			t.Errorf("%s: err = %v", key, err)
+		}
+	}
+}

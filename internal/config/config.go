@@ -108,6 +108,9 @@ type Preview struct {
 type Search struct {
 	MaxResults  int    `json:"max_results"`
 	ContentTool string `json:"content_tool"` // auto uses ripgrep for in: when installed; native never runs it
+	Scope       string `json:"scope"`        // folder, subfolders or system (the Spotlight index)
+	Kinds       string `json:"kinds"`        // both, files or folders
+	By          string `json:"by"`           // name or content
 }
 
 // Ops configures file operations.
@@ -161,7 +164,7 @@ func Defaults(home string) Config {
 		Theme:    theme.Default,
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
 		Git:      Git{Enabled: true},
-		Search:   Search{MaxResults: 5000, ContentTool: "auto"},
+		Search:   Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
 		Ops:      Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
 
 		Language:         "auto",
@@ -289,6 +292,15 @@ func validate(cfg *Config, home string) error {
 	}
 	if cfg.Search.ContentTool != "auto" && cfg.Search.ContentTool != "native" {
 		return i18n.Errorf(`"search.content_tool" debe ser auto o native (hay %q)`, `"search.content_tool" must be auto or native (got %q)`, cfg.Search.ContentTool)
+	}
+	if cfg.Search.Scope != "folder" && cfg.Search.Scope != "subfolders" && cfg.Search.Scope != "system" {
+		return i18n.Errorf(`"search.scope" debe ser folder, subfolders o system (hay %q)`, `"search.scope" must be folder, subfolders or system (got %q)`, cfg.Search.Scope)
+	}
+	if cfg.Search.Kinds != "both" && cfg.Search.Kinds != "files" && cfg.Search.Kinds != "folders" {
+		return i18n.Errorf(`"search.kinds" debe ser both, files o folders (hay %q)`, `"search.kinds" must be both, files or folders (got %q)`, cfg.Search.Kinds)
+	}
+	if cfg.Search.By != "name" && cfg.Search.By != "content" {
+		return i18n.Errorf(`"search.by" debe ser name o content (hay %q)`, `"search.by" must be name or content (got %q)`, cfg.Search.By)
 	}
 	if cfg.Search.MaxResults <= 0 {
 		return i18n.NewError(`"search.max_results" debe ser positivo`, `"search.max_results" must be positive`)

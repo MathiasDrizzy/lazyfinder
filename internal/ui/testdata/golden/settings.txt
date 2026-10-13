@@ -17,11 +17,11 @@
 │                    ││            │   Theme                   ‹ catppuccin-mocha › │                                  │
 │                    ││            │   Language                            ‹ auto › │                                  │
 │                    ││            │   Images (Kitty)                      ‹ auto › │                                  │
-│                    ││            │   Hidden files                         ‹ off › │                                  │
-│                    ││            │   Folders first                         ‹ on › │                                  │
+│                    ││            │   Hidden files                          ‹ no › │                                  │
+│                    ││            │   Folders first                        ‹ yes › │                                  │
 │                    ││            │   Screen background                  ‹ theme › │                                  │
 │                    ││            │   Icons                               ‹ nerd › │                                  │
-│                    ││            │   Mouse                                 ‹ on › │                                  │
+│                    ││            │   Mouse                                ‹ yes › │                                  │
 │                    ││            ╰────────────────────────────────────────────────╯                                  │
 │                    ││                                                                                                │
 │                    ││                                                                                                │

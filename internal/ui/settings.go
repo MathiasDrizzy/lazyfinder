@@ -55,9 +55,9 @@ func (m *Model) settingLabel(i int) string {
 
 func onOff(b bool) string {
 	if b {
-		return i18n.T("sí", "on")
+		return i18n.T("sí", "yes")
 	}
-	return i18n.T("no", "off")
+	return "no" // lazymark leaves it as is in every language
 }
 
 func (m *Model) settingValue(i int) string {

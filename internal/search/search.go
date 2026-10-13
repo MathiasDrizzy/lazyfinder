@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -22,7 +23,8 @@ const batchSize = 64
 // Query is a parsed search. The zero value matches everything.
 type Query struct {
 	preds   []func(fsmodel.Entry) bool
-	content string // the in: text, checked against file contents apart from preds
+	words   []string // the bare words, which match names
+	content string   // the in: text, checked against file contents apart from preds
 }
 
 // Content is the text a file must contain (the in: filter), or empty.
@@ -42,8 +44,25 @@ func (q Query) Match(e fsmodel.Entry) bool {
 }
 
 // Parse reads a query: words match the name, key:value tokens filter. now fixes what "today" means.
-func Parse(s string, now time.Time) (Query, error) {
+func Parse(s string, now time.Time) (Query, error) { return ParseBy(s, now, "name") }
+
+// Words are the bare words of the query, the text a system index is asked for.
+func (q Query) Words() []string { return q.words }
+
+// Only keeps files ("files"), folders ("folders") or both ("both", the default for any other value).
+func (q Query) Only(kinds string) Query {
+	out := q
+	out.preds = append(slices.Clone(q.preds), func(e fsmodel.Entry) bool {
+		return kinds == "both" || (kinds == "folders") == e.IsDir
+	})
+	return out
+}
+
+// ParseBy is Parse where by says what the bare words look at: "name" (the file name) or "content" (what is inside
+// the files, like the in: filter). Filters keep their own meaning either way.
+func ParseBy(s string, now time.Time, by string) (Query, error) {
 	var q Query
+	var content []string
 	for _, tok := range tokens(s) {
 		key, val, isFilter := strings.Cut(tok, ":")
 		key = strings.ToLower(key)
@@ -51,7 +70,12 @@ func Parse(s string, now time.Time) (Query, error) {
 			if isFilter && looksLikeFilter(key) {
 				return Query{}, fmt.Errorf("unknown filter %q (use kind, ext, size, modified, created, name, tag or in)", key)
 			}
-			q.preds = append(q.preds, wordMatcher(tok))
+			q.words = append(q.words, tok)
+			if by == "content" {
+				content = append(content, tok)
+			} else {
+				q.preds = append(q.preds, wordMatcher(tok))
+			}
 			continue
 		}
 		if val == "" {
@@ -66,6 +90,9 @@ func Parse(s string, now time.Time) (Query, error) {
 			return Query{}, err
 		}
 		q.preds = append(q.preds, p)
+	}
+	if len(content) > 0 && q.content == "" {
+		q.content = strings.Join(content, " ")
 	}
 	return q, nil
 }

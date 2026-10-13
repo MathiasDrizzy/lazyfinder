@@ -14,8 +14,11 @@
  "\"preview.markdown\" must be render or raw (got %q)": "„preview.markdown“ muss render oder raw sein (gefunden: %q)",
  "\"preview.max_text_bytes\" must be positive": "„preview.max_text_bytes“ muss positiv sein",
  "\"screen_background\" must be theme or terminal (got %q)": "„screen_background“ muss theme oder terminal sein (gefunden: %q)",
+ "\"search.by\" must be name or content (got %q)": "„search.by“ muss name oder content sein (gefunden: %q)",
  "\"search.content_tool\" must be auto or native (got %q)": "„search.content_tool“ muss auto oder native sein (gefunden: %q)",
+ "\"search.kinds\" must be both, files or folders (got %q)": "„search.kinds“ muss both, files oder folders sein (gefunden: %q)",
  "\"search.max_results\" must be positive": "„search.max_results“ muss positiv sein",
+ "\"search.scope\" must be folder, subfolders or system (got %q)": "„search.scope“ muss folder, subfolders oder system sein (gefunden: %q)",
  "\"theme\" %q is not a theme (use %s, or put %s.json in the themes folder)": "„theme“ %q ist kein Theme (verwende %s oder lege %s.json im Themenordner ab)",
  "\"version\" must be %d (got %d)": "„version“ muss %d sein (gefunden: %d)",
  "%d bytes": "%d Byte",
@@ -228,8 +231,6 @@
  "limit reached": "Limit erreicht",
  "more than %d entries": "mehr als %d Einträge",
  "not saving: %s is not valid JSON, fix it first": "nicht gespeichert: %s ist kein gültiges JSON, bitte zuerst korrigieren",
- "off": "aus",
- "on": "an",
  "opener %q: \"argv\" must contain %s exactly once": "Programm %q: „argv“ muss %s genau einmal enthalten",
  "opener %q: \"argv\" must have at least the program name": "Programm %q: „argv“ muss mindestens den Programmnamen enthalten",
  "opener %q: \"mode\" must be %q or %q (got %q)": "Programm %q: „mode“ muss %q oder %q sein (gefunden: %q)",
@@ -244,5 +245,6 @@
  "unknown column %q in \"columns\"": "unbekannte Spalte %q in „columns“",
  "untitled folder": "Ordner ohne Titel",
  "with subfolders": "mit Unterordnern",
+ "yes": "ja",
  "… truncated": "… gekürzt"
 }

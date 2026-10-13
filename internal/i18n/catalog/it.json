@@ -14,8 +14,11 @@
  "\"preview.markdown\" must be render or raw (got %q)": "\"preview.markdown\" deve essere render o raw (trovato %q)",
  "\"preview.max_text_bytes\" must be positive": "\"preview.max_text_bytes\" deve essere positivo",
  "\"screen_background\" must be theme or terminal (got %q)": "\"screen_background\" deve essere theme o terminal (trovato %q)",
+ "\"search.by\" must be name or content (got %q)": "\"search.by\" deve essere name o content (trovato %q)",
  "\"search.content_tool\" must be auto or native (got %q)": "\"search.content_tool\" deve essere auto o native (trovato %q)",
+ "\"search.kinds\" must be both, files or folders (got %q)": "\"search.kinds\" deve essere both, files o folders (trovato %q)",
  "\"search.max_results\" must be positive": "\"search.max_results\" deve essere positivo",
+ "\"search.scope\" must be folder, subfolders or system (got %q)": "\"search.scope\" deve essere folder, subfolders o system (trovato %q)",
  "\"theme\" %q is not a theme (use %s, or put %s.json in the themes folder)": "\"theme\" %q non è un tema (usa %s, oppure metti %s.json nella cartella dei temi)",
  "\"version\" must be %d (got %d)": "\"version\" deve essere %d (trovato %d)",
  "%d bytes": "%d byte",
@@ -228,8 +231,6 @@
  "limit reached": "limite raggiunto",
  "more than %d entries": "più di %d voci",
  "not saving: %s is not valid JSON, fix it first": "non salvato: %s non è un JSON valido, correggilo prima",
- "off": "disattivato",
- "on": "attivato",
  "opener %q: \"argv\" must contain %s exactly once": "programma %q: \"argv\" deve contenere %s esattamente una volta",
  "opener %q: \"argv\" must have at least the program name": "programma %q: \"argv\" deve contenere almeno il nome del programma",
  "opener %q: \"mode\" must be %q or %q (got %q)": "programma %q: \"mode\" deve essere %q o %q (trovato %q)",
@@ -244,5 +245,6 @@
  "unknown column %q in \"columns\"": "colonna sconosciuta %q in \"columns\"",
  "untitled folder": "cartella senza nome",
  "with subfolders": "con sottocartelle",
+ "yes": "sì",
  "… truncated": "… troncato"
 }

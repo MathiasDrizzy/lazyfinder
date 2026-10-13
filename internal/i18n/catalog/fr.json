@@ -14,8 +14,11 @@
  "\"preview.markdown\" must be render or raw (got %q)": "« preview.markdown » doit être render ou raw (reçu %q)",
  "\"preview.max_text_bytes\" must be positive": "« preview.max_text_bytes » doit être positif",
  "\"screen_background\" must be theme or terminal (got %q)": "« screen_background » doit être theme ou terminal (reçu %q)",
+ "\"search.by\" must be name or content (got %q)": "« search.by » doit être name ou content (reçu %q)",
  "\"search.content_tool\" must be auto or native (got %q)": "« search.content_tool » doit être auto ou native (reçu %q)",
+ "\"search.kinds\" must be both, files or folders (got %q)": "« search.kinds » doit être both, files ou folders (reçu %q)",
  "\"search.max_results\" must be positive": "« search.max_results » doit être positif",
+ "\"search.scope\" must be folder, subfolders or system (got %q)": "« search.scope » doit être folder, subfolders ou system (reçu %q)",
  "\"theme\" %q is not a theme (use %s, or put %s.json in the themes folder)": "« theme » %q n'est pas un thème (utilisez %s, ou placez %s.json dans le dossier des thèmes)",
  "\"version\" must be %d (got %d)": "« version » doit valoir %d (reçu %d)",
  "%d bytes": "%d octets",
@@ -228,8 +231,6 @@
  "limit reached": "limite atteinte",
  "more than %d entries": "plus de %d entrées",
  "not saving: %s is not valid JSON, fix it first": "non enregistré : %s n'est pas un JSON valide, corrigez-le d'abord",
- "off": "désactivé",
- "on": "activé",
  "opener %q: \"argv\" must contain %s exactly once": "programme %q : « argv » doit contenir %s exactement une fois",
  "opener %q: \"argv\" must have at least the program name": "programme %q : « argv » doit contenir au moins le nom du programme",
  "opener %q: \"mode\" must be %q or %q (got %q)": "programme %q : « mode » doit être %q ou %q (reçu %q)",
@@ -244,5 +245,6 @@
  "unknown column %q in \"columns\"": "colonne inconnue %q dans « columns »",
  "untitled folder": "dossier sans titre",
  "with subfolders": "avec sous-dossiers",
+ "yes": "oui",
  "… truncated": "… tronqué"
 }

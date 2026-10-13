@@ -14,8 +14,11 @@
  "\"preview.markdown\" must be render or raw (got %q)": "\"preview.markdown\" は render か raw です (現在 %q)",
  "\"preview.max_text_bytes\" must be positive": "\"preview.max_text_bytes\" は正の値にしてください",
  "\"screen_background\" must be theme or terminal (got %q)": "\"screen_background\" は theme か terminal です (現在 %q)",
+ "\"search.by\" must be name or content (got %q)": "\"search.by\" は name か content です (現在 %q)",
  "\"search.content_tool\" must be auto or native (got %q)": "\"search.content_tool\" は auto か native です (現在 %q)",
+ "\"search.kinds\" must be both, files or folders (got %q)": "\"search.kinds\" は both、files、folders のいずれかです (現在 %q)",
  "\"search.max_results\" must be positive": "\"search.max_results\" は正の値にしてください",
+ "\"search.scope\" must be folder, subfolders or system (got %q)": "\"search.scope\" は folder、subfolders、system のいずれかです (現在 %q)",
  "\"theme\" %q is not a theme (use %s, or put %s.json in the themes folder)": "\"theme\" %q はテーマではありません (%s を使うか、テーマフォルダに %s.json を置いてください)",
  "\"version\" must be %d (got %d)": "\"version\" は %d である必要があります (現在 %d)",
  "%d bytes": "%dバイト",
@@ -228,8 +231,6 @@
  "limit reached": "上限に達しました",
  "more than %d entries": "%d 件以上のエントリ",
  "not saving: %s is not valid JSON, fix it first": "保存しません: %s は有効な JSON ではありません。先に修正してください",
- "off": "オフ",
- "on": "オン",
  "opener %q: \"argv\" must contain %s exactly once": "プログラム %q: \"argv\" には %s をちょうど 1 回含めてください",
  "opener %q: \"argv\" must have at least the program name": "プログラム %q: \"argv\" には少なくともプログラム名が必要です",
  "opener %q: \"mode\" must be %q or %q (got %q)": "プログラム %q: \"mode\" は %q か %q です (現在 %q)",
@@ -244,5 +245,6 @@
  "unknown column %q in \"columns\"": "\"columns\" に未知の列 %q があります",
  "untitled folder": "名称未設定フォルダ",
  "with subfolders": "サブフォルダを含む",
+ "yes": "はい",
  "… truncated": "… 省略"
 }

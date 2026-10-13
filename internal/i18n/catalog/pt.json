@@ -14,8 +14,11 @@
  "\"preview.markdown\" must be render or raw (got %q)": "\"preview.markdown\" deve ser render ou raw (recebido %q)",
  "\"preview.max_text_bytes\" must be positive": "\"preview.max_text_bytes\" deve ser positivo",
  "\"screen_background\" must be theme or terminal (got %q)": "\"screen_background\" deve ser theme ou terminal (recebido %q)",
+ "\"search.by\" must be name or content (got %q)": "\"search.by\" deve ser name ou content (recebido %q)",
  "\"search.content_tool\" must be auto or native (got %q)": "\"search.content_tool\" deve ser auto ou native (recebido %q)",
+ "\"search.kinds\" must be both, files or folders (got %q)": "\"search.kinds\" deve ser both, files ou folders (recebido %q)",
  "\"search.max_results\" must be positive": "\"search.max_results\" deve ser positivo",
+ "\"search.scope\" must be folder, subfolders or system (got %q)": "\"search.scope\" deve ser folder, subfolders ou system (recebido %q)",
  "\"theme\" %q is not a theme (use %s, or put %s.json in the themes folder)": "\"theme\" %q não é um tema (use %s, ou coloque %s.json na pasta de temas)",
  "\"version\" must be %d (got %d)": "\"version\" deve ser %d (recebido %d)",
  "%d bytes": "%d bytes",
@@ -228,8 +231,6 @@
  "limit reached": "limite atingido",
  "more than %d entries": "mais de %d entradas",
  "not saving: %s is not valid JSON, fix it first": "não foi salvo: %s não é um JSON válido, corrija-o primeiro",
- "off": "desligado",
- "on": "ligado",
  "opener %q: \"argv\" must contain %s exactly once": "programa %q: \"argv\" deve conter %s exatamente uma vez",
  "opener %q: \"argv\" must have at least the program name": "programa %q: \"argv\" deve ter pelo menos o nome do programa",
  "opener %q: \"mode\" must be %q or %q (got %q)": "programa %q: \"mode\" deve ser %q ou %q (recebido %q)",
@@ -244,5 +245,6 @@
  "unknown column %q in \"columns\"": "coluna desconhecida %q em \"columns\"",
  "untitled folder": "pasta sem título",
  "with subfolders": "com subpastas",
+ "yes": "sim",
  "… truncated": "… truncado"
 }

@@ -71,7 +71,7 @@ var Actions = []Action{
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
 var Defaults = map[Action][]string{
-	Up: {"up", "k"}, Down: {"down", "j"}, PageUp: {"pgup"}, PageDown: {"pgdown"}, First: {"home", "g"},
+	Up: {"up", "k"}, Down: {"down", "j"}, PageUp: {"pgup", "ctrl+u"}, PageDown: {"pgdown", "ctrl+d"}, First: {"home", "g"},
 	Last: {"end", "G"}, Open: {"enter", "right", "l"}, Parent: {"backspace", "left", "h"},
 	Back: {"alt+left", "["}, Forward: {"alt+right", "]"}, Preview: {"space"}, OpenWith: {"O"}, QuickLook: {"Q"},
 	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"},
