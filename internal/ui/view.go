@@ -581,7 +581,7 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		if code == "" {
 			code = " "
 		}
-		b.WriteString(code + " ")
+		b.WriteString(m.styles.gitLetter(code) + " ")
 	}
 	for i, s := range specs {
 		if i > 0 {

@@ -65,13 +65,14 @@ const (
 	Help          Action = "help"
 	Focus         Action = "focus"
 	Settings      Action = "settings"
+	Project       Action = "project"
 	Quit          Action = "quit"
 )
 
 // Actions lists every action.
 var Actions = []Action{
 	Up, Down, PageUp, PageDown, First, Last, Open, Parent, Back, Forward, Preview, OpenWith, QuickLook,
-	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, Help, Focus, Settings, Quit,
+	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, Rename, NewFolder, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, Help, Focus, Settings, Project, Quit,
 }
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
@@ -82,7 +83,7 @@ var Defaults = map[Action][]string{
 	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"},
 	Mark: {"v"}, MarkAll: {"ctrl+a"}, Copy: {"c"}, Cut: {"x"}, Paste: {"p", "ctrl+v"}, Duplicate: {"D"},
 	Rename: {"f2", "R"}, NewFolder: {"N", "ctrl+n"}, Trash: {"d", "delete"}, Undo: {"u", "ctrl+z"}, Info: {"i"},
-	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, SidebarNarrow: {"<"}, SidebarWiden: {">"}, ColumnNarrow: {"ctrl+left"}, ColumnWiden: {"ctrl+right"}, Help: {"?", "f1"}, Focus: {"tab"}, Settings: {","}, Quit: {"q"},
+	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, SidebarNarrow: {"<"}, SidebarWiden: {">"}, ColumnNarrow: {"ctrl+left"}, ColumnWiden: {"ctrl+right"}, Help: {"?", "f1"}, Focus: {"tab"}, Settings: {","}, Project: {"ctrl+b"}, Quit: {"q"},
 }
 
 // The two keybinding modes: dual keeps the Vim letters next to the arrows, lazy leaves only the arrows and the

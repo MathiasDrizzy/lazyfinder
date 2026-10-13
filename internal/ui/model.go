@@ -98,14 +98,15 @@ type Model struct {
 	imagesAllowed bool // the terminal answered the Kitty query (or config forces it)
 	nextImgID     int
 
-	watchSet    map[string]bool // the folders the watcher follows
-	expanded    map[string]bool // folders opened in place with +; kept while you move around
-	treeDirs    []string        // the expanded folders that are on screen now
-	fresh       map[string]bool // names that appeared while we looked at this folder
-	git         gitState
-	hideIgnored bool
-	search      searchState
-	goto_       gotoState
+	watchSet     map[string]bool // the folders the watcher follows
+	savedColumns []string        // the window columns, kept while the project mode shows names only
+	expanded     map[string]bool // folders opened in place with +; kept while you move around
+	treeDirs     []string        // the expanded folders that are on screen now
+	fresh        map[string]bool // names that appeared while we looked at this folder
+	git          gitState
+	hideIgnored  bool
+	search       searchState
+	goto_        gotoState
 
 	layout   string // list or columns
 	drag     dragState

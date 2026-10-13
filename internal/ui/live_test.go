@@ -176,10 +176,10 @@ func TestGitStateAndBranchAreShown(t *testing.T) {
 	if r := e.row("notes.txt"); !strings.Contains(r, "M") {
 		t.Fatalf("notes.txt must show M:\n%s", r)
 	}
-	if r := e.row("loose.txt"); !strings.Contains(r, "?") {
-		t.Fatalf("loose.txt must show ?:\n%s", r)
+	if r := e.row("loose.txt"); !strings.Contains(r, "U") {
+		t.Fatalf("loose.txt must show U:\n%s", r)
 	}
-	if r := e.row("data.xlsx"); strings.Contains(r, " M ") || strings.Contains(r, " ? ") {
+	if r := e.row("data.xlsx"); strings.Contains(r, " M ") || strings.Contains(r, " U ") {
 		t.Fatalf("a clean file shows no state:\n%s", r)
 	}
 }

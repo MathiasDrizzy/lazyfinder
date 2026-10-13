@@ -16,6 +16,15 @@ All notable changes to this project are documented here. The format follows
   that grows with it, with a click zone as wide as the tile ([ADR 0014](docs/adr/0014-icon-size-setting.md)).
 - Owner and Path columns; **Basic** (Finder's four columns) and **Full** presets in the header menu and in a Settings
   row, saved in `columns`.
+- Project mode from inside the app: `Ctrl+B` turns the window into the `--follow` tree and back, keeping your columns.
+- Git letters like the VS Code explorer, in color: `M` modified, `U` untracked, `A` added, `D` deleted, `R` renamed,
+  `!` in conflict, `I` ignored. They used to be `?` for untracked and `!` for ignored.
+- Git state now refreshes by itself when another program stages, commits or switches branch (the `.git` folder is
+  watched). A new file shows up in about 100 ms even in a folder of 5000 files (tuiqa `sidebar-git`).
+
+### Changed
+
+- Project mode no longer opens ignored folders such as `node_modules` by itself.
 
 ### Fixed
 

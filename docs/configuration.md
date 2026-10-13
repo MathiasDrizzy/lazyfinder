@@ -148,4 +148,4 @@ saved unless you change that same setting in the popup.
 | `--theme NAME` | Use that theme |
 | `--lang CODE` | Use that language |
 | `--no-mouse` | Ignore the mouse |
-| `--follow DIR` | Project sidebar mode: a narrow tree of `DIR` with live updates and git state, for a side pane |
+| `--follow DIR` | Project sidebar mode (`Ctrl+B` toggles it inside the app): a narrow tree of `DIR` with live updates and git state, for a side pane |

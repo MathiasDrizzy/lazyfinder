@@ -120,7 +120,9 @@ taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](doc
 
 ![The narrow project tree](docs/screenshots/follow.png)
 
-`lazyfinder --follow <dir>` shows one project as a narrow tree that updates by itself, like the VS Code explorer: new files and folders appear marked with `+`, with their git state.
+![Project mode with git letters](docs/screenshots/project-mode.png)
+
+Press `Ctrl+B` in any window to switch to this tree and back. `lazyfinder --follow <dir>` starts in it and shows one project as a narrow tree that updates by itself, like the VS Code explorer: new files and folders appear marked with `+`, with their git state.
 
 ## Search
 

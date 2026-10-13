@@ -48,6 +48,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `Space` | Preview popup | `preview` |
 | `O` | Open With menu | `open_with` |
 | `Q` | Quick Look for the selection | `quick_look` |
+| `Ctrl+B` | Project mode: the folder as a tree with git state, like the VS Code explorer (again to leave) | `project` |
 | `,` | Settings popup | `settings` |
 | `q` | Quit | `quit` |
 

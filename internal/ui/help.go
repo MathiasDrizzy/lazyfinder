@@ -54,6 +54,7 @@ func (m *Model) helpRows() []helpRow {
 		{k(keymap.Undo), i18n.T("Deshacer", "Undo")},
 		{k(keymap.Preview) + " " + k(keymap.Info), i18n.T("Vista previa / información", "Preview / info")},
 		{k(keymap.Sort) + " " + k(keymap.Hidden) + " " + k(keymap.Layout), i18n.T("Ordenar / ocultos / vista de columnas", "Sort / hidden / column view")},
+		{k(keymap.Project), i18n.T("Modo proyecto: árbol con estado de git", "Project mode: a tree with git state")},
 		{k(keymap.Settings) + " " + k(keymap.Help) + " " + k(keymap.Quit), i18n.T("Ajustes / esta ayuda / salir", "Settings / this help / quit")},
 	}
 }

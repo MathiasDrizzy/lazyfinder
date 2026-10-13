@@ -31,8 +31,10 @@ type styles struct {
 	icon                       func(role icons.Role, glyph string, dim bool) string
 	popupBorder, popupTitle    func(string) string
 	// tile frames an icon or the gear on a raised background (strong: the brighter one); iconTile does it for a colored icon.
-	tile     func(text string, strong bool) string
-	iconTile func(role icons.Role, glyph string, dim bool) string
+	// gitLetter colors the git state next to a name
+	gitLetter func(code string) string
+	tile      func(text string, strong bool) string
+	iconTile  func(role icons.Role, glyph string, dim bool) string
 	// bg is painted behind the whole screen (nil: the terminal's own background)
 	bg color.Color
 	// text is the color of text that has none of its own, painted with bg so a light theme is readable on a dark terminal
@@ -59,6 +61,7 @@ func newStyles(l look) styles {
 			footerKey: r(lipgloss.NewStyle().Bold(true)), footer: r(lipgloss.NewStyle().Faint(true)),
 			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)), icon: noIconColor,
 			tile: plainTile, iconTile: func(role icons.Role, g string, dim bool) string { return " " + noIconColor(role, g, dim) + " " },
+			gitLetter: plain,
 		}
 	}
 	p, ok := theme.Lookup(l.Theme)
@@ -74,6 +77,7 @@ func newStyles(l look) styles {
 			footer: r(lipgloss.NewStyle().Faint(true)), popupBorder: r(lipgloss.NewStyle().Foreground(blue)),
 			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), icon: noIconColor,
 			tile: plainTile, iconTile: func(role icons.Role, g string, dim bool) string { return " " + noIconColor(role, g, dim) + " " },
+			gitLetter: plain,
 		}
 	}
 	// Every text color is lifted when the palette leaves it under minReadable on the background it is drawn on.
@@ -98,6 +102,14 @@ func newStyles(l look) styles {
 			c = roles[role]
 		}
 		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Render(glyph)
+	}
+	gitColors := map[string]color.Color{"M": p.Yellow, "U": p.Green, "A": p.Green, "D": p.Red, "R": p.Blue, "!": p.Red, "I": p.Overlay0}
+	s.gitLetter = func(code string) string {
+		c, ok := gitColors[code]
+		if !ok {
+			return code
+		}
+		return lipgloss.NewStyle().Foreground(theme.Readable(c, p.Base, minReadable)).Bold(code == "!").Render(code)
 	}
 	s.iconTile = func(role icons.Role, glyph string, dim bool) string {
 		c := p.Overlay0

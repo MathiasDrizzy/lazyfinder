@@ -13,19 +13,20 @@ import (
 	"time"
 )
 
-// Code is the one-letter state shown next to a file.
+// Code is the one-letter state shown next to a file, the letters of the VS Code explorer: M modified, U untracked,
+// A added, D deleted, R renamed, ! in conflict and I ignored.
 type Code string
 
 // States, from the weakest to the strongest.
 const (
 	None       Code = ""
-	Ignored    Code = "!"
-	Untracked  Code = "?"
+	Ignored    Code = "I"
+	Untracked  Code = "U"
 	Added      Code = "A"
 	Renamed    Code = "R"
 	Deleted    Code = "D"
 	Modified   Code = "M"
-	Conflicted Code = "U"
+	Conflicted Code = "!"
 )
 
 var rank = map[Code]int{None: 0, Ignored: 1, Untracked: 2, Added: 3, Renamed: 4, Deleted: 5, Modified: 6, Conflicted: 7}

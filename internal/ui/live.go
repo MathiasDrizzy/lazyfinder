@@ -37,6 +37,9 @@ func waitEvent(w watch.Watcher) tea.Cmd {
 // follow keeps the watcher on the current folder and on every folder expanded in place.
 func (m *Model) follow() {
 	want := map[string]bool{m.dir(): true}
+	if gd := m.gitDir(); gd != "" {
+		want[gd] = true // stage, commit and checkout change files in here, not in the folder
+	}
 	for _, d := range m.treeDirs {
 		want[d] = true
 	}
@@ -61,6 +64,9 @@ func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 	next := waitEvent(m.deps.Watcher)
 	if !m.watchSet[msg.dir] || m.search.mode != searchOff {
 		return next
+	}
+	if msg.dir != "" && msg.dir == m.gitDir() { // git itself changed: the letters and the branch, not the list
+		return tea.Batch(next, m.reload()) // reading the list again scans git again
 	}
 	if _, err := os.Stat(msg.dir); err != nil {
 		if msg.dir == m.dir() {
@@ -211,9 +217,37 @@ func (m *Model) collapseSelected() tea.Cmd {
 // openFirstLevel opens every folder of the project root; follow mode starts like that.
 func (m *Model) openFirstLevel() {
 	for _, e := range m.entries() {
-		if e.IsDir && !e.IsLink {
+		if e.IsDir && !e.IsLink && m.gitCode(e) != git.Ignored { // an ignored folder (node_modules) can hold thousands of files
 			m.expanded[e.Path] = true
 		}
 	}
 	_ = m.load(m.dir(), "")
+}
+
+// gitDir is the .git folder of the repository being shown, empty outside one (a worktree's .git file is not watched).
+func (m *Model) gitDir() string {
+	if !m.git.ok {
+		return ""
+	}
+	gd := filepath.Join(m.git.st.Root, ".git")
+	if fi, err := os.Stat(gd); err != nil || !fi.IsDir() {
+		return ""
+	}
+	return gd
+}
+
+// toggleProject enters or leaves the project sidebar mode (the same one --follow starts): a tree of the current
+// folder with names only, no places sidebar. The columns of the window come back when it is left.
+func (m *Model) toggleProject() {
+	if m.deps.Follow {
+		m.deps.Follow = false
+		m.deps.Cfg.Columns = m.savedColumns
+		clear(m.expanded)
+		_ = m.load(m.dir(), "")
+		return
+	}
+	m.deps.Follow = true
+	m.savedColumns = m.deps.Cfg.Columns
+	m.deps.Cfg.Columns = []string{"name"}
+	m.openFirstLevel()
 }
