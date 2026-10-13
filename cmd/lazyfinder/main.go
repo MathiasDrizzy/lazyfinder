@@ -9,12 +9,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/MathiasDrizzy/lazyfinder/internal/ui"
+	"github.com/MathiasDrizzy/lazyfinder/internal/watch"
 )
 
 // version is set at build time with -ldflags "-X main.version=...".
@@ -173,7 +175,15 @@ func newLogger(path string, withPaths bool, _ io.Writer) (*slog.Logger, func(), 
 }
 
 func launch(o Options) error {
-	m := ui.New(ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath})
+	opt := watch.DefaultOptions()
+	opt.MaxDirs = o.Cfg.Watch.MaxDirs
+	opt.Poll = time.Duration(o.Cfg.Watch.PollIntervalMS) * time.Millisecond
+	var w watch.Watcher = watch.Noop{}
+	if fw, err := watch.NewFS(opt); err == nil { // without a watcher the app still works, it just does not follow
+		defer func() { _ = fw.Close() }()
+		w = fw
+	}
+	m := ui.New(ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w})
 	_, err := tea.NewProgram(m).Run()
 	return err
 }

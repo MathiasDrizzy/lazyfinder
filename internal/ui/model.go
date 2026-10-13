@@ -17,6 +17,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	"github.com/MathiasDrizzy/lazyfinder/internal/termimg"
+	"github.com/MathiasDrizzy/lazyfinder/internal/watch"
 	uv "github.com/charmbracelet/ultraviolet"
 )
 
@@ -35,7 +36,8 @@ type Deps struct {
 	Runner  opener.Runner
 	Now     func() time.Time
 	NoColor bool
-	Warning string // shown in the status line at start (for example an invalid config)
+	Watcher watch.Watcher // nil: nothing is followed
+	Warning string        // shown in the status line at start (for example an invalid config)
 
 	// ConfigPath is where the settings popup saves; empty means it only changes the running session.
 	ConfigPath string
@@ -76,6 +78,11 @@ type Model struct {
 	menu          menuState
 	imagesAllowed bool // the terminal answered the Kitty query (or config forces it)
 	nextImgID     int
+
+	watched     string          // the folder the watcher follows
+	fresh       map[string]bool // names that appeared while we looked at this folder
+	git         gitState
+	hideIgnored bool
 }
 
 type click struct {
@@ -88,6 +95,9 @@ func New(d Deps) *Model {
 	if d.Now == nil {
 		d.Now = time.Now
 	}
+	if d.Watcher == nil {
+		d.Watcher = watch.Noop{}
+	}
 	if d.Runner == nil {
 		d.Runner = opener.ExecRunner{}
 	}
@@ -96,7 +106,8 @@ func New(d Deps) *Model {
 	m := &Model{
 		deps: d, resolve: opener.New(d.Cfg), keys: km, mouse: d.Cfg.Mouse,
 		hist: history.New(d.Start), sort: s, hidden: d.Cfg.ShowHidden,
-		lastSel: map[string]string{}, nextImgID: 1000,
+		lastSel: map[string]string{}, nextImgID: 1000, fresh: map[string]bool{},
+		hideIgnored:   d.Cfg.Git.HideIgnored,
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
 	}
 	m.restyle()
@@ -110,15 +121,16 @@ func New(d Deps) *Model {
 	if err := m.load(d.Start, ""); err != nil {
 		m.setError(err)
 	}
+	m.follow()
 	return m
 }
 
 // Init asks the terminal whether it can show images, unless the config decides.
 func (m *Model) Init() tea.Cmd {
 	if m.deps.Cfg.Preview.Images == "auto" {
-		return tea.Raw(termimg.QuerySequence())
+		return tea.Batch(tea.Raw(termimg.QuerySequence()), waitEvent(m.deps.Watcher))
 	}
-	return nil
+	return waitEvent(m.deps.Watcher)
 }
 
 func (m *Model) dir() string { return m.hist.Current() }
@@ -140,7 +152,7 @@ func (m *Model) load(dir, name string) error {
 	if err != nil {
 		return err
 	}
-	m.listing = l
+	m.listing = m.readGit(l)
 	if name == "" {
 		name = m.lastSel[dir]
 	}
@@ -172,6 +184,8 @@ func (m *Model) enter(dir, name string) tea.Cmd {
 		return nil
 	}
 	m.hist = m.hist.Visit(dir)
+	m.fresh = map[string]bool{}
+	m.follow()
 	m.setStatus("")
 	return m.refreshPreview()
 }
@@ -189,6 +203,8 @@ func (m *Model) step(next history.History) tea.Cmd {
 		return nil
 	}
 	m.hist = next
+	m.fresh = map[string]bool{}
+	m.follow()
 	m.setStatus("")
 	return m.refreshPreview()
 }
@@ -299,6 +315,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if termimg.IsSupportReply(msg) && m.deps.Cfg.Preview.Images != "off" {
 			m.imagesAllowed = true
 		}
+	case dirChangedMsg:
+		return m, m.onDirChanged(msg)
 	case previewMsg:
 		return m, m.onPreview(msg)
 	case imageMsg:

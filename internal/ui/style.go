@@ -20,6 +20,7 @@ type look struct {
 type styles struct {
 	selected, selectedInactive func(string) string
 	dim, bold, folder, accent  func(string) string
+	fresh                      func(string) string
 	errText, border            func(string) string
 	borderActive, titleActive  func(string) string
 	title, footerKey, footer   func(string) string
@@ -36,7 +37,7 @@ func newStyles(l look) styles {
 		return styles{
 			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
 			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)), folder: r(lipgloss.NewStyle().Bold(true)),
-			accent: plain, errText: r(lipgloss.NewStyle().Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
+			accent: plain, fresh: r(lipgloss.NewStyle().Bold(true)), errText: r(lipgloss.NewStyle().Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
 			borderActive: plain, titleActive: r(lipgloss.NewStyle().Bold(true)), title: r(lipgloss.NewStyle().Faint(true)),
 			footerKey: r(lipgloss.NewStyle().Bold(true)), footer: r(lipgloss.NewStyle().Faint(true)),
 			popupBorder: plain, popupTitle: r(lipgloss.NewStyle().Bold(true)),
@@ -48,7 +49,7 @@ func newStyles(l look) styles {
 		return styles{
 			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
 			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)),
-			folder: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), accent: r(lipgloss.NewStyle().Foreground(blue)),
+			folder: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), accent: r(lipgloss.NewStyle().Foreground(blue)), fresh: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
 			errText: r(lipgloss.NewStyle().Foreground(red).Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
 			borderActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2"))), titleActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
 			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Bold(true)),
@@ -62,7 +63,7 @@ func newStyles(l look) styles {
 	s := styles{
 		selected:         r(lipgloss.NewStyle().Background(p.Peach).Foreground(p.Base).Bold(true)),
 		selectedInactive: r(lipgloss.NewStyle().Background(p.Surface1).Foreground(p.Text)),
-		dim:              fg(p.Overlay0, false), bold: fg(p.Text, true), folder: fg(p.Blue, true), accent: fg(p.Peach, false),
+		dim:              fg(p.Overlay0, false), bold: fg(p.Text, true), folder: fg(p.Blue, true), accent: fg(p.Peach, false), fresh: fg(p.Green, true),
 		errText: fg(p.Red, true), border: fg(p.Overlay0, false),
 		borderActive: fg(p.Green, false), titleActive: fg(p.Green, true), title: fg(p.Subtext0, false),
 		footerKey: fg(p.Mauve, true), footer: fg(p.Blue, false),

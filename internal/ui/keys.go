@@ -63,6 +63,9 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Hidden:
 		m.hidden = !m.hidden
 		return m.reload()
+	case keymap.Ignored:
+		m.hideIgnored = !m.hideIgnored
+		return m.reload()
 	case keymap.Reload:
 		return m.reload()
 	case keymap.Focus:

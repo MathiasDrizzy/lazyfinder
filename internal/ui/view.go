@@ -21,6 +21,7 @@ const (
 	sidebarNarrow = 18
 	colGap        = 2
 	prefixW       = 4 // pointer, space, folder marker, space
+	gitGutterW    = 2 // git state and a space, only inside a repository
 	minNameW      = 16
 	crumbSep      = " › "
 )
@@ -65,6 +66,14 @@ const (
 	firstRow  = 3 // first entry
 )
 
+// prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
+func (m *Model) prefix() int {
+	if m.git.ok {
+		return prefixW + gitGutterW
+	}
+	return prefixW
+}
+
 func (m *Model) panelH() int { return m.h - 3 }
 
 // dropOrder says which optional columns go first when the window is narrow.
@@ -79,7 +88,7 @@ func (m *Model) columns() []colSpec {
 		}
 	}
 	nameW := func() int {
-		w := m.listW() - prefixW
+		w := m.listW() - m.prefix()
 		for _, c := range extra {
 			w -= columnWidths[c] + colGap
 		}
@@ -91,8 +100,8 @@ func (m *Model) columns() []colSpec {
 		}
 		extra = slices.DeleteFunc(extra, func(c fsmodel.Column) bool { return c == drop })
 	}
-	specs := []colSpec{{col: fsmodel.ColName, x: prefixW, w: max(1, nameW())}}
-	x := prefixW + specs[0].w + colGap
+	specs := []colSpec{{col: fsmodel.ColName, x: m.prefix(), w: max(1, nameW())}}
+	x := m.prefix() + specs[0].w + colGap
 	for _, c := range extra {
 		specs = append(specs, colSpec{col: c, x: x, w: columnWidths[c]})
 		x += columnWidths[c] + colGap
@@ -284,6 +293,9 @@ func (m *Model) toolbar() string {
 	}
 	left := back + fwd + "  " + m.styles.bold(m.folderTitle())
 	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.styles.accent(gear) + " "
+	if b := m.branchLabel(); b != "" {
+		right = m.styles.accent(b) + "  " + right
+	}
 	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
 	if pad < 1 {
 		return fit(left, m.w-4) + " " + m.styles.accent(gear) + " "
@@ -328,7 +340,7 @@ func (m *Model) listLines() []string {
 	rows := m.panelH() - 2
 	out := make([]string, rows)
 	specs := m.columns()
-	hdr := strings.Repeat(" ", prefixW)
+	hdr := strings.Repeat(" ", m.prefix())
 	for i, s := range specs {
 		label := columnLabel(s.col)
 		if s.col == m.sort.By {
@@ -362,20 +374,34 @@ func (m *Model) row(idx int, specs []colSpec) string {
 	e := m.entries()[idx]
 	selected := idx == m.sel
 	pointer, marker := " ", " "
-	if selected {
+	switch {
+	case selected:
 		pointer = "▸"
+	case m.isFresh(e.Name):
+		pointer = "+"
 	}
 	if e.IsDir {
 		marker = ">"
 	}
 	var b strings.Builder
 	b.WriteString(pointer + " " + marker + " ")
+	if m.git.ok {
+		code := string(m.gitCode(e))
+		if code == "" {
+			code = " "
+		}
+		b.WriteString(code + " ")
+	}
 	for i, s := range specs {
 		if i > 0 {
 			b.WriteString(strings.Repeat(" ", colGap))
 		}
 		text := fit(m.cell(e, s.col), s.w)
-		if s.col == fsmodel.ColName && e.IsDir && !selected {
+		switch {
+		case s.col != fsmodel.ColName || selected:
+		case m.isFresh(e.Name):
+			text = m.styles.fresh(text)
+		case e.IsDir:
 			text = m.styles.folder(text)
 		}
 		b.WriteString(text)
@@ -472,4 +498,19 @@ func (m *Model) footerBar() string {
 	}
 	line, _ := build(len(footerItems))
 	return fit(line, m.w)
+}
+
+// branchLabel is the git branch with its distance from the upstream, empty outside a repository.
+func (m *Model) branchLabel() string {
+	if !m.git.ok || m.git.st.Branch == "" {
+		return ""
+	}
+	l := "⎇ " + m.git.st.Branch
+	if m.git.st.Ahead > 0 {
+		l += fmt.Sprintf(" ↑%d", m.git.st.Ahead)
+	}
+	if m.git.st.Behind > 0 {
+		l += fmt.Sprintf(" ↓%d", m.git.st.Behind)
+	}
+	return l
 }

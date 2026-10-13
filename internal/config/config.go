@@ -42,6 +42,7 @@ type Config struct {
 	Preview    Preview           `json:"preview"`
 	Theme      string            `json:"theme"`
 	Watch      Watch             `json:"watch"`
+	Git        Git               `json:"git"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
 	Language         string              `json:"language"`
@@ -90,7 +91,13 @@ type Preview struct {
 	Images       string `json:"images"`
 }
 
-// Watch configures live follow (used from milestone 2).
+// Git configures the status markers and the branch name.
+type Git struct {
+	Enabled     bool `json:"enabled"`
+	HideIgnored bool `json:"hide_ignored"`
+}
+
+// Watch configures live follow.
 type Watch struct {
 	MaxDirs        int `json:"max_dirs"`
 	PollIntervalMS int `json:"poll_interval_ms"`
@@ -122,6 +129,7 @@ func Defaults(home string) Config {
 		Preview:  Preview{MaxTextBytes: defaultMaxTextBytes, Images: "auto"},
 		Theme:    theme.Default,
 		Watch:    Watch{MaxDirs: 64, PollIntervalMS: 2000},
+		Git:      Git{Enabled: true},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
