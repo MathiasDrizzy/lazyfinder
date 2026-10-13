@@ -178,7 +178,7 @@ func copyFile(src, dst string, fi fs.FileInfo) (err error) {
 	if err != nil {
 		return err
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }() // read only: nothing to lose
 	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, fi.Mode().Perm()|0o600)
 	if err != nil {
 		return err

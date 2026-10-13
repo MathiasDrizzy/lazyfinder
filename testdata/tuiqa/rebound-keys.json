@@ -9,14 +9,14 @@
   "env": {"LAZYFINDER_CONFIG": "${TUIQA_SCENARIO_DIR}/fixtures-keys/config.json"},
   "steps": [
     {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"assert": {"contains": "Quit: x"}},
+    {"assert": {"contains": "Quit: Z"}},
     {"desc": "n is down now", "keys": ["n"]},
     {"wait": {"regex": "2 of 6"}},
     {"desc": "j is not bound any more", "keys": ["j"]},
     {"assert": {"contains": "2 of 6"}},
     {"desc": "q does not quit", "keys": ["q"]},
     {"assert": {"contains": "2 of 6"}},
-    {"desc": "x quits", "keys": ["x"]},
+    {"desc": "Z quits", "keys": ["Z"]},
     {"wait_exit": {"timeout_ms": 3000, "code": 0}}
   ]
 }

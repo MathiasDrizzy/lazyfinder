@@ -1,4 +1,4 @@
 {
   "version": 1,
-  "keys": {"quit": ["x"], "down": ["n"]}
+  "keys": {"quit": ["Z"], "down": ["n"]}
 }
