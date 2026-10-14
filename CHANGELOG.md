@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-14
+
 _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Added
