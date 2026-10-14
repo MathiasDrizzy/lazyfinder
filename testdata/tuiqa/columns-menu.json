@@ -83,6 +83,14 @@
       }
     },
     {
+      "desc": "Full leaves out the extension, the name shows it (Mathias, 2026-10-14)",
+      "wait": {
+        "regex": "Extension",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
       "desc": "Settings says so",
       "keys": [
         ","
@@ -99,7 +107,7 @@
       ]
     },
     {
-      "desc": "Basic goes back to Finder's four",
+      "desc": "Basic goes back to the default five, the date created among them (Mathias, 2026-10-14)",
       "click": {
         "at": "Kind",
         "in": {
@@ -132,13 +140,12 @@
     {
       "wait": {
         "regex": "Date Created",
-        "timeout_ms": 5000,
-        "absent": true
+        "timeout_ms": 5000
       }
     },
     {
       "wait": {
-        "regex": "Date Modified[^\\n]*│ Size[^\\n]*│ Kind",
+        "regex": "Date Modified[^\\n]*│ Date Created[^\\n]*│ Size[^\\n]*│ Kind",
         "timeout_ms": 5000
       }
     },
