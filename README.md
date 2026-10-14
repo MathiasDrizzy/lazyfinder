@@ -124,10 +124,16 @@ A narrow panel meant to sit next to another terminal, like the VS Code explorer 
 `lazyfinder --sidebar [dir]` (`--follow <dir>` is the same), with `Ctrl+B` in any window, or from Settings (Side mode).
 It works from 24 columns:
 
-- clickable tabs **Files**, **Search** and **Git** (the Git tab lists only the changed files, in their folders);
+- clickable tabs **Files**, **Search** and **Git**; at 24 columns only the glyphs of the tabs that are not open are left;
+- action icons at the right of the project name: new file, new folder, refresh, collapse all. Every icon has a
+  tooltip in the bottom row, and the row or button under the pointer is painted;
 - the project name in capitals, the tree with the git letter and color at the right edge (`M` modified, `U` new, `A`
   added, `D` deleted, `R` renamed, `!` conflict) and, at the bottom, the branch with how far it is from its upstream;
-- it updates by itself: files created, changed or removed by another program appear at once, marked with `+`.
+- it updates by itself: files created, changed or removed by another program appear at once, marked with `+`;
+- the **Git tab** works like the source control view of the herdr sidebar: staged and unstaged changes with their
+  counts, stage, unstage and discard (asking first) by key or button, the diff of a file, stashes with pop and drop,
+  fetch, pull and push with how far you are from the upstream, and a branch menu with search, create and a warning
+  about changes you have not saved. It never commits, rebases or merges: `L` opens lazygit for that.
 
 ![Project mode with git letters](docs/screenshots/project-mode.png)
 
@@ -148,7 +154,9 @@ See [keybindings](docs/keybindings.md) and [configuration](docs/configuration.md
 
 ## Live follow and git
 
-The open folder updates by itself and shows git state and the branch:
+The open folder updates by itself and shows git state and the branch. In the normal window the branch is in the toolbar
+and the footer; click it, or press `B`, to switch branches, and right click a changed file to see, stage, unstage or
+discard its changes. Moving past the last row goes to the first.
 
 ![Live follow and git state](docs/screenshots/live-git.png)
 

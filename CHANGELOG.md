@@ -8,6 +8,18 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The Git tab of the sidebar mode, modelled on the herdr sidebar: Staged Changes, Changes and Stashes sections with
+  counts; stage, unstage and discard (with a confirmation) by key or by the buttons of the row; the diff of a file in a
+  popup; pop and drop for stashes; fetch, pull (fast-forward only) and push with ahead and behind; conflicts marked
+  and protected; a branch menu with search, create and a warning about unsaved changes (`B`, or click the branch in
+  the toolbar or the footer); `L` opens lazygit. Commit, rebase and merge are left out on purpose.
+- Right click on a changed file in the normal window: Show changes, Stage, Unstage, Discard changes.
+- Buttons that appear on the selected row and on the row under the pointer, hover painting and a tooltip in the bottom
+  row for every icon and button; navigation wraps around at the first and last row.
+- `docs/qa-matriz.md`, the QA matrix: every function with the test or scenario that proves it, checked by
+  `TestQAMatrixNamesExist`; a random sweep of keys, clicks, hover and resizes in both modes (`LAZYFINDER_SWEEP=<n>`
+  widens it) and exploratory tests for odd names, broken links, unreadable folders and a repository in each state.
+
 - Sidebar mode is a mode of its own: `--sidebar [dir]`, a Settings row and `Ctrl+B`, clickable Files, Search and Git tabs
   (the Git tab lists the changed files), the project name in capitals, the git letter at the right edge and the branch
   with ↓behind ↑ahead at the bottom, one line per row whatever the density.
@@ -33,6 +45,13 @@ All notable changes to this project are documented here. The format follows
   value reads as `absolute`.
 - Settings no longer lists "Images (Kitty)" or "Mouse", like lazymark: the terminal is asked for Kitty support by
   itself (`preview.images` stays in the file to force it off) and the mouse is `mouse` in the file or `--no-mouse`.
+
+### Fixed
+
+- Get Info and other popups were 58 cells wide even on a 20-column terminal.
+- The hover area of a search chip that a narrow terminal cuts off ran past the edge of the screen.
+- A popup drawn over a line with wide characters (Chinese, Japanese) pushed the line one cell past the terminal.
+- The row counter of the Git tab counted the files of the Files tab.
 
 ### Removed
 
