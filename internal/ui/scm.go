@@ -26,6 +26,7 @@ const (
 	scmStashHdr
 	scmFile
 	scmStash
+	scmNone // the line that says there is nothing to show
 )
 
 type scmRow struct {
@@ -81,6 +82,9 @@ func (m *Model) scmRows() []scmRow {
 		for _, c := range list {
 			rows = append(rows, scmRow{kind: scmFile, ch: c, staged: staged})
 		}
+	}
+	if len(m.git.st.Staged) == 0 && len(m.git.st.Unstaged) == 0 {
+		rows = append(rows, scmRow{kind: scmNone})
 	}
 	section(scmStagedHdr, m.git.st.Staged, true)
 	section(scmChangesHdr, m.git.st.Unstaged, false)
@@ -150,7 +154,7 @@ func scmActs(r scmRow) []scmAct {
 	switch {
 	case r.kind == scmStash:
 		return []scmAct{scmActPop, scmActDrop}
-	case r.kind == scmStashHdr:
+	case r.kind == scmStashHdr, r.kind == scmNone:
 		return nil
 	case r.kind == scmStagedHdr:
 		return []scmAct{scmActUnstageAll}
@@ -231,8 +235,6 @@ func (m *Model) scmLines() []string {
 	switch {
 	case !m.git.ok && h > 2:
 		out[2] = m.styles.dim(fit("  "+i18n.T("No es un repositorio git", "Not a git repository"), w))
-	case len(rows) == 0 && h > 2:
-		out[2] = m.styles.dim(fit("  "+i18n.T("Sin cambios", "No changes"), w))
 	}
 	return out
 }
@@ -246,6 +248,8 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 	}
 	var line string
 	switch {
+	case r.kind == scmNone:
+		line = m.styles.dim(fit("  "+i18n.T("Sin cambios", "No changes"), room))
 	case r.kind == scmStash:
 		line = fit(" ⇩ "+r.ch.Path, room)
 		if i != m.scm.sel {
@@ -421,7 +425,7 @@ func (m *Model) scmAsk(a scmAct) tea.Cmd {
 				func(root string) error { return git.StashDropAt(root, n) })
 		})
 		return nil
-	case r.kind == scmStagedHdr, r.kind == scmStashHdr:
+	case r.kind == scmStagedHdr, r.kind == scmStashHdr, r.kind == scmNone:
 		return nil
 	case r.kind == scmChangesHdr:
 		a = scmActDiscardAll
