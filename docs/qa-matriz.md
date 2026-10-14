@@ -91,6 +91,8 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Function | Proof |
 |---|---|
 | Every button is herdr's chip ` g ` with the glyph in the middle, the actions side by side, one free cell between groups, the same dimmed color in both modes; the pointer lights it with the theme's surface | T TheButtonBoxesAreHerdrChipsWithTheGlyphInTheMiddle, T TheLitBoxIsCenteredOnTheInkOfANerdGlyphAndAllBoxesAreAlike, T TheTallChipOfTheSidebarHasStraightSides, T TheButtonsHaveTheSameColorInBothModes, S chips, S chips-sidebar |
+| Quitting leaves the shell in the folder lazyfinder ends in (`--shell-init` function and `--cwd-file`), and Settings turns it off (`cd_on_exit`) | T TheCwdFileGetsTheFolderTheAppEndsIn, T TheCwdFileStaysEmptyWhenCdOnExitIsOff, T TheShellFunctionMovesTheShellToTheLastFolder, T TheCdOnExitSettingTurnsItOffAndSavesIt, T ExitDirIsTheFolderShownUnlessCdOnExitIsOff, S cd-on-exit |
+| The Basic columns are the default ones with the date created; Full leaves out the extension, which goes first on a narrow window | T ColumnPresets, T TheExtensionGoesBeforeTheDateCreatedOnANarrowWindow |
 | Row height comes from the density, not from git: inside a repository `normal` rows sit on consecutive lines and the default `comfortable` rows are two lines apart | S rows-git-normal, S rows-git-comfortable, T TheDefaultDensityIsWideLikeFinder |
 | Hover and click on every action icon of the window toolbar (the new folder and new file icons open their prompt) | S chips |
 | Every part follows the theme (file icons, folders, selection, border, branch, hover); no color is written outside the theme package | T EveryPartChangesColorWithTheTheme, T NoColorIsWrittenOutsideTheThemePackage, S chips-catppuccin-latte, S chips-nord |

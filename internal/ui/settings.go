@@ -38,6 +38,7 @@ const (
 	setSearchKinds
 	setSearchBy
 	setConfirmDelete
+	setCdOnExit
 	setSidebarMode
 	settingCount
 )
@@ -60,6 +61,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Fondo de popups", "Popup background")
 	case setConfirmDelete:
 		return i18n.T("Confirmar al borrar", "Confirm deletion")
+	case setCdOnExit:
+		return i18n.T("Quedarse en la carpeta al salir", "Stay in the folder on exit")
 	case setSidebarMode:
 		return i18n.T("Modo lateral (proyecto)", "Side mode (project)")
 	case setIcons:
@@ -116,6 +119,8 @@ func (m *Model) settingValue(i int) string {
 		return i18n.T("tema", "theme")
 	case setConfirmDelete:
 		return onOff(c.ConfirmDelete)
+	case setCdOnExit:
+		return onOff(c.CdOnExit)
 	case setSidebarMode:
 		return onOff(m.projectMode())
 	case setIcons:
@@ -190,6 +195,9 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setConfirmDelete:
 		m.deps.Cfg.ConfirmDelete = !m.deps.Cfg.ConfirmDelete
 		key, val = "confirm_delete", m.deps.Cfg.ConfirmDelete
+	case setCdOnExit:
+		m.deps.Cfg.CdOnExit = !m.deps.Cfg.CdOnExit
+		key, val = "cd_on_exit", m.deps.Cfg.CdOnExit
 	case setSidebarMode:
 		m.toggleProject()
 		return nil // a mode of this run, not a saved setting

@@ -307,3 +307,30 @@ func TestLocationsKeepsAVisibleMinimumAndFavoritesScrolls(t *testing.T) {
 		t.Fatalf("a click on the scrolled box hit %s, want %s", q.name, p.name)
 	}
 }
+
+// Mathias, 2026-10-14: leaving lazyfinder leaves the shell in its folder, "se puede desactivar en configuración".
+func TestTheCdOnExitSettingTurnsItOffAndSavesIt(t *testing.T) {
+	e := newEnv(t)
+	path := e.withConfigFile()
+	e.key(",")
+	e.pickSetting("Stay in the folder on exit")
+	e.mustHave("‹ yes ›")
+	e.key("right")
+	if e.m.deps.Cfg.CdOnExit || e.savedConfig(path).CdOnExit {
+		t.Fatal("the setting turns cd_on_exit off and saves it")
+	}
+}
+
+// The folder the app ends in is the one it shows, and none once the setting is turned off during the run.
+func TestExitDirIsTheFolderShownUnlessCdOnExitIsOff(t *testing.T) {
+	e := newEnv(t)
+	if e.m.ExitDir() != e.m.dir() {
+		t.Fatalf("ExitDir %q, shown %q", e.m.ExitDir(), e.m.dir())
+	}
+	e.key(",")
+	e.pickSetting("Stay in the folder on exit")
+	e.key("right")
+	if got := e.m.ExitDir(); got != "" {
+		t.Fatalf("with the setting off the app ends in no folder, got %q", got)
+	}
+}

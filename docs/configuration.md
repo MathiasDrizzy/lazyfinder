@@ -38,6 +38,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `screen_background` | `theme` paints the whole screen with the theme background; `terminal` keeps the terminal's own | `theme` |
 | `popup_background` | `theme` paints popups with the theme background; `terminal` leaves the terminal's own behind them (a translucent terminal stays translucent) | `theme` |
 | `confirm_delete` | `false` never asks before moving to the Trash (`u` undoes it); `true` asks as `ops.confirm_trash_above` says | `true` |
+| `cd_on_exit` | With the function of `--shell-init` in the shell, quitting leaves the shell in the folder lazyfinder ends in; `false` leaves it where it was (Settings: "Stay in the folder on exit") | `true` |
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
 | `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |
 | `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |
@@ -149,4 +150,6 @@ saved unless you change that same setting in the popup.
 | `--theme NAME` | Use that theme |
 | `--lang CODE` | Use that language |
 | `--no-mouse` | Ignore the mouse |
+| `--cwd-file FILE` | On exit, write the folder lazyfinder ends in to `FILE` (nothing when `cd_on_exit` is `false`) |
+| `--shell-init SHELL` | Print the shell function (`bash`, `zsh` or `fish`) that runs lazyfinder with `--cwd-file` and moves the shell to that folder: `eval "$(lazyfinder --shell-init zsh)"` in `~/.zshrc` |
 | `--follow DIR` | Project sidebar mode (`Ctrl+B` toggles it inside the app): a narrow tree of `DIR` with live updates and git state, for a side pane |

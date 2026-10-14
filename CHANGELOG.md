@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Quitting leaves the shell in the folder lazyfinder ends in: `eval "$(lazyfinder --shell-init zsh)"` in `~/.zshrc`
+  (or bash, or fish) makes `lazyfinder` a shell function that runs it with the new `--cwd-file` flag and moves to
+  that folder. Settings → "Stay in the folder on exit" (`cd_on_exit`) turns it off.
+
 ### Changed
 
 - The buttons of the top rows are the three-cell chips of the herdr sidebar (` g `), the action buttons side by side

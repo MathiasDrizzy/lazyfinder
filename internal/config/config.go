@@ -84,9 +84,12 @@ type Config struct {
 	// PopupBackground is "theme" or "terminal" like ScreenBackground: terminal leaves the terminal's own background behind popups.
 	PopupBackground string `json:"popup_background"`
 	// ConfirmDelete asks before moving files to the Trash (ops.confirm_trash_above says from how many); false never asks.
-	ConfirmDelete bool                `json:"confirm_delete"`
-	Mouse         bool                `json:"mouse"`
-	Keys          map[string][]string `json:"keys"`
+	ConfirmDelete bool `json:"confirm_delete"`
+	// CdOnExit writes the folder lazyfinder ends in to the file of --cwd-file, so the shell function of --shell-init
+	// moves the shell there; false leaves the shell where it was.
+	CdOnExit bool                `json:"cd_on_exit"`
+	Mouse    bool                `json:"mouse"`
+	Keys     map[string][]string `json:"keys"`
 
 	// Warnings are problems that do not stop the app (a broken user theme, a clashing key). Not part of the file.
 	Warnings []string `json:"-"`
@@ -232,6 +235,7 @@ func Defaults(home string) Config {
 		ScreenBackground: ScreenBackgroundTheme,
 		PopupBackground:  ScreenBackgroundTheme,
 		ConfirmDelete:    true,
+		CdOnExit:         true,
 		Mouse:            true,
 		Keys:             map[string][]string{},
 	}

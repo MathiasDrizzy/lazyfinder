@@ -50,3 +50,14 @@ func TestColumnPresets(t *testing.T) {
 		t.Fatal("ColumnPreset names the preset a list matches")
 	}
 }
+
+// Mathias, 2026-10-14: leaving lazyfinder leaves the shell in its folder, and Settings can turn it off.
+func TestCdOnExitIsOnByDefaultAndCanBeTurnedOff(t *testing.T) {
+	if !Defaults("/home/u").CdOnExit {
+		t.Fatal("cd_on_exit is on by default")
+	}
+	cfg, err := Parse([]byte(`{"version":1,"cd_on_exit":false}`), "/home/u")
+	if err != nil || cfg.CdOnExit {
+		t.Fatalf("cd_on_exit false must turn it off: %v %v", cfg.CdOnExit, err)
+	}
+}

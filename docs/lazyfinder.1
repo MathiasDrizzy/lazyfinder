@@ -39,6 +39,13 @@ Ignore the mouse for this run.
 .TP
 .BI \-\-completions " shell"
 Print the completion script of \fIshell\fR (bash, zsh or fish) and exit.
+.TP
+.BI \-\-cwd\-file " file"
+On exit, write the folder lazyfinder ends in to \fIfile\fR, unless \fBcd_on_exit\fR is false.
+.TP
+.BI \-\-shell\-init " shell"
+Print the function of \fIshell\fR (bash, zsh or fish) that runs lazyfinder with \fB\-\-cwd\-file\fR and leaves
+the shell in that folder, and exit: \fBeval "$(lazyfinder \-\-shell\-init zsh)"\fR in \fI~/.zshrc\fR.
 .SH FILES
 .TP
 .I ~/.config/lazyfinder/config.json

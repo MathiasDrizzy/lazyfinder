@@ -48,7 +48,8 @@ func main() {
 	os.Exit(run(os.Args[1:], os.Getenv, os.Stdout, os.Stderr, launch))
 }
 
-func run(args []string, getenv func(string) string, stdout, stderr io.Writer, start func(Options) error) int {
+// run parses the arguments and starts the UI with start, which returns the folder the app ends in.
+func run(args []string, getenv func(string) string, stdout, stderr io.Writer, start func(Options) (string, error)) int {
 	fs := flag.NewFlagSet("lazyfinder", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	showVersion := fs.Bool("version", false, "print the version and exit")
@@ -61,6 +62,8 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	sidebarFlag := fs.Bool("sidebar", false, "start in the narrow project sidebar of the directory (default: the current one); --follow is the same with its directory as the value")
 	shellFlag := fs.String("completions", "", "print the completion script of `shell` (bash, zsh or fish) and exit")
 	noMouse := fs.Bool("no-mouse", false, "ignore the mouse for this run")
+	cwdFile := fs.String("cwd-file", "", "on exit, write the folder lazyfinder ends in to `file` (unless cd_on_exit is false)")
+	initShell := fs.String("shell-init", "", "print the function of `shell` (bash, zsh or fish) that leaves the shell in the last folder on exit, and exit")
 	fs.Usage = func() {
 		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n       lazyfinder --sidebar [directory]\n\nFlags:\n")
 		fs.PrintDefaults()
@@ -82,6 +85,14 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 		script, ok := completion(*shellFlag)
 		if !ok {
 			fmt.Fprintf(stderr, "lazyfinder: unknown shell %q (use bash, zsh or fish)\n", *shellFlag)
+			return exitUsage
+		}
+		fmt.Fprint(stdout, script)
+		return exitOK
+	case *initShell != "":
+		script, ok := shellInit(*initShell)
+		if !ok {
+			fmt.Fprintf(stderr, "lazyfinder: unknown shell %q (use bash, zsh or fish)\n", *initShell)
 			return exitUsage
 		}
 		fmt.Fprint(stdout, script)
@@ -148,10 +159,17 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	defer closeLog()
 	opts.Logger = logger
 	logger.Info("start", "version", version)
-	if err := start(opts); err != nil {
+	last, err := start(opts)
+	if err != nil {
 		logger.Error("exit", "error", err.Error())
 		fmt.Fprintln(stderr, "lazyfinder:", err)
 		return exitRuntime
+	}
+	if *cwdFile != "" && cfg.CdOnExit && last != "" {
+		if err := os.WriteFile(*cwdFile, []byte(last), 0o600); err != nil {
+			fmt.Fprintln(stderr, "lazyfinder: cannot write the last folder:", unwrap(err))
+			return exitRuntime
+		}
 	}
 	logger.Info("exit")
 	return exitOK
@@ -202,7 +220,7 @@ func newLogger(path string, withPaths bool, _ io.Writer) (*slog.Logger, func(), 
 	return slog.New(h), func() { _ = f.Close() }, nil
 }
 
-func launch(o Options) error {
+func launch(o Options) (string, error) {
 	opt := watch.DefaultOptions()
 	opt.MaxDirs = o.Cfg.Watch.MaxDirs
 	opt.Poll = time.Duration(o.Cfg.Watch.PollIntervalMS) * time.Millisecond
@@ -220,6 +238,8 @@ func launch(o Options) error {
 	}
 	d.Index = search.Spotlight
 	m := ui.New(d)
-	_, err := tea.NewProgram(m).Run()
-	return err
+	if _, err := tea.NewProgram(m).Run(); err != nil {
+		return "", err
+	}
+	return m.ExitDir(), nil
 }

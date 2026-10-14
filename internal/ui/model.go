@@ -203,6 +203,15 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) dir() string { return m.hist.Current() }
 
+// ExitDir is the folder the shell moves to when the app quits (--cwd-file): the one shown, or none when cd_on_exit
+// is off, also if it was turned off in Settings during the run.
+func (m *Model) ExitDir() string {
+	if !m.deps.Cfg.CdOnExit {
+		return ""
+	}
+	return m.dir()
+}
+
 func (m *Model) setStatus(s string)       { m.status, m.statusErr = oneLine(s), false }
 func (m *Model) setError(err error)       { m.status, m.statusErr = oneLine(err.Error()), true }
 func (m *Model) entries() []fsmodel.Entry { return m.listing.Entries }

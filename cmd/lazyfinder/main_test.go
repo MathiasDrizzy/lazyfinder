@@ -11,7 +11,7 @@ import (
 func runCLI(t *testing.T, env map[string]string, args ...string) (code int, out, errOut string) {
 	t.Helper()
 	var o, e bytes.Buffer
-	code = run(args, func(k string) string { return env[k] }, &o, &e, func(Options) error { return nil })
+	code = run(args, func(k string) string { return env[k] }, &o, &e, func(Options) (string, error) { return "", nil })
 	return code, o.String(), e.String()
 }
 
@@ -50,7 +50,7 @@ func TestInvalidConfigStartsWithDefaultsAndWarns(t *testing.T) {
 	var got Options
 	var o, e bytes.Buffer
 	env := map[string]string{"HOME": dir, "LAZYFINDER_CONFIG": cfg}
-	code := run([]string{dir}, func(k string) string { return env[k] }, &o, &e, func(opt Options) error { got = opt; return nil })
+	code := run([]string{dir}, func(k string) string { return env[k] }, &o, &e, func(opt Options) (string, error) { got = opt; return "", nil })
 	if code != 0 {
 		t.Fatalf("code = %d, err=%q", code, e.String())
 	}
@@ -66,7 +66,7 @@ func TestStartDirDefaultsToCwd(t *testing.T) {
 	var got Options
 	var o, e bytes.Buffer
 	env := map[string]string{"HOME": t.TempDir()}
-	code := run(nil, func(k string) string { return env[k] }, &o, &e, func(opt Options) error { got = opt; return nil })
+	code := run(nil, func(k string) string { return env[k] }, &o, &e, func(opt Options) (string, error) { got = opt; return "", nil })
 	wd, _ := os.Getwd()
 	if code != 0 || got.Start != wd {
 		t.Fatalf("code=%d start=%q want %q", code, got.Start, wd)
@@ -77,7 +77,7 @@ func runOptions(t *testing.T, env map[string]string, args ...string) (int, Optio
 	t.Helper()
 	var got Options
 	var o, e bytes.Buffer
-	code := run(args, func(k string) string { return env[k] }, &o, &e, func(opt Options) error { got = opt; return nil })
+	code := run(args, func(k string) string { return env[k] }, &o, &e, func(opt Options) (string, error) { got = opt; return "", nil })
 	return code, got, e.String()
 }
 
@@ -122,7 +122,7 @@ func TestCompletionsPrintAScriptPerShell(t *testing.T) {
 		if code != 0 || !strings.Contains(out, want) {
 			t.Fatalf("%s: code=%d out=%q", shell, code, out)
 		}
-		for _, flag := range []string{"follow", "theme", "lang", "no-mouse", "print-default-config", "version", "completions"} {
+		for _, flag := range []string{"follow", "theme", "lang", "no-mouse", "print-default-config", "version", "completions", "cwd-file", "shell-init"} {
 			if !strings.Contains(out, flag) {
 				t.Errorf("%s completion lacks --%s", shell, flag)
 			}

@@ -24,11 +24,11 @@
                       │        │   Search for                     ‹ Files and folders › │                              │
                       │        │   Search by                                   ‹ Name › │                              │
                       │        │   Confirm deletion                             ‹ yes › │                              │
+                      │        │   Stay in the folder on exit                   ‹ yes › │                              │
                       │        │   Side mode (project)                           ‹ no › │                              │
                       │        │                                                        │                              │
                       │        │ ←/→ change · click: select, 2nd click: change          │                              │
                       │        ╰──────────────────────────────────────────────────[Esc]─╯                              │
-                      │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │

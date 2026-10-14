@@ -21,12 +21,13 @@ _lazyfinder() {
   case "$prev" in
     --lang) COMPREPLY=($(compgen -W "%s" -- "$cur")); return ;;
     --theme) COMPREPLY=($(compgen -W "%s terminal" -- "$cur")); return ;;
-    --completions) COMPREPLY=($(compgen -W "bash zsh fish" -- "$cur")); return ;;
+    --completions|--shell-init) COMPREPLY=($(compgen -W "bash zsh fish" -- "$cur")); return ;;
+    --cwd-file) COMPREPLY=($(compgen -f -- "$cur")); return ;;
     --follow) COMPREPLY=($(compgen -d -- "$cur")); return ;;
     --log) COMPREPLY=($(compgen -f -- "$cur")); return ;;
   esac
   if [[ "$cur" == -* ]]; then
-    COMPREPLY=($(compgen -W "--version --print-default-config --log --log-paths --lang --theme --follow --sidebar --no-mouse --completions" -- "$cur"))
+    COMPREPLY=($(compgen -W "--version --print-default-config --log --log-paths --lang --theme --follow --sidebar --no-mouse --completions --cwd-file --shell-init" -- "$cur"))
   else
     COMPREPLY=($(compgen -d -- "$cur"))
   fi
@@ -47,6 +48,8 @@ _arguments \
   '--sidebar[start in the narrow project sidebar]' \
   '--no-mouse[ignore the mouse for this run]' \
   '--completions=[print a completion script]:shell:(bash zsh fish)' \
+  '--cwd-file=[on exit, write the last folder to a file]:file:_files' \
+  '--shell-init=[print the shell function that stays in the last folder]:shell:(bash zsh fish)' \
   '1:directory:_files -/'
 `, langs, themes), true
 	case "fish":
@@ -61,6 +64,8 @@ complete -c lazyfinder -l follow -r -a '(__fish_complete_directories)' -d 'Follo
 complete -c lazyfinder -l sidebar -d 'Start in the narrow project sidebar'
 complete -c lazyfinder -l no-mouse -d 'Ignore the mouse for this run'
 complete -c lazyfinder -l completions -x -a 'bash zsh fish' -d 'Print a completion script'
+complete -c lazyfinder -l cwd-file -r -F -d 'On exit, write the last folder to a file'
+complete -c lazyfinder -l shell-init -x -a 'bash zsh fish' -d 'Print the shell function that stays in the last folder'
 `, langs, themes), true
 	}
 	return "", false

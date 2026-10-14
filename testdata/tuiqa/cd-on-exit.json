@@ -1,0 +1,46 @@
+{
+  "fixtures": "fixtures",
+  "name": "cd-on-exit",
+  "criterio": "Mathias, 2026-10-14: quitting leaves the shell in the folder lazyfinder ends in. The function of --shell-init runs the real binary in bash: it starts in proj, opens alpha and quits; the shell is then in proj/alpha",
+  "cmd": [
+    "/bin/bash",
+    "--norc",
+    "--noprofile",
+    "-c",
+    "bin=\"${LAZYFINDER_BIN}\"; export PATH=\"${bin%/*}:$PATH\"; cd \"${TUIQA_HOME}/proj\" && eval \"$(command lazyfinder --shell-init bash)\" && lazyfinder; echo \"SHELL_IS_IN ${PWD#\"${TUIQA_HOME}\"/}\"; sleep 3"
+  ],
+  "cols": 120,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "open alpha, the first row",
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "proj.*alpha",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "desc": "the shell is in the folder lazyfinder ended in",
+      "wait": {
+        "regex": "SHELL_IS_IN proj/alpha",
+        "timeout_ms": 5000
+      }
+    }
+  ]
+}

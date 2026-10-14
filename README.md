@@ -71,6 +71,16 @@ lazyfinder --completions zsh > "${fpath[1]}/_lazyfinder"   # or bash, or fish
 man ./docs/lazyfinder.1
 ```
 
+To leave the shell in the folder lazyfinder ends in when you quit, add this line to `~/.zshrc` (or `bash`, or
+`fish` with `| source`); Settings → "Stay in the folder on exit" turns it off:
+
+```sh
+eval "$(lazyfinder --shell-init zsh)"
+```
+
+A program cannot change the folder of the shell that started it, so `lazyfinder` becomes a shell function that runs
+the program with `--cwd-file` and moves to the folder it wrote, as yazi and lf do.
+
 A Homebrew formula for a tap is in [packaging/homebrew](packaging/homebrew/lazyfinder.rb).
 
 ## Quick start
