@@ -1,7 +1,7 @@
 name: CI macOS
 
 # A macOS runner costs ten Linux minutes, so the macOS tests run only before a release (the push of a v* tag, next to
-# release.yml) and by hand; every push runs them locally in .claude/harness/verificar.sh, and ci.yml runs Linux.
+# release.yml) and by hand; the maintainer runs them on a Mac before each push, and ci.yml runs Linux.
 # See docs/adr/0016-ci-minutes.md.
 on:
   push:

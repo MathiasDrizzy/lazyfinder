@@ -236,7 +236,6 @@ Issues and pull requests are welcome. Run these before sending a change:
 ```sh
 go vet ./...
 go test -race ./...
-scripts/tuiqa.sh   # end-to-end scenarios against the real binary in a pty
 ```
 
 Design decisions are in [docs/adr](docs/adr) and the requirements in [docs/SPEC.md](docs/SPEC.md). The GIFs are made

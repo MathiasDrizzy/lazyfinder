@@ -141,7 +141,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Repository in each state (clean, no commits, modified, staged + untracked, detached, conflict, ahead and behind) at 3 sizes | T TheGitTabInEachRepositoryState |
 | Git operations (package `git`) | git: TestStashPushListPopRoundTrip, git: TestChangesOfFindsBothSidesOfAFileByAbsolutePath |
 | Right-click git actions in the normal window; the branch in the bar | T RightClickOnAChangedFileOffersTheGitActions, T GitStateAndBranchAreShown |
-| Not offered on purpose | commit, rebase, merge (open lazygit with `L`) — see PARITY |
+| Not offered on purpose | commit, rebase, merge (open lazygit with `L`) |
 
 ## Whole-screen exploration
 

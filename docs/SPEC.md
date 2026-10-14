@@ -1,17 +1,15 @@
 # lazyfinder specification
 
-Status: draft for approval, 2026-10-13. Owner: lazyfinder agent. Auditor: cerebro.
-
 lazyfinder is a lazy file manager for the terminal: a Finder-like TUI with columns, preview, open-with and live
 follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener todo lo que necesito en una app tui").
 
 ## How to read this document
 
-- **Quote** blocks are Mathias's words, verbatim (2026-10-13, Spanish). They are requirements.
-- **PROPOSAL** items are my deductions; they are not requirements until cerebro approves them.
+- **Quote** blocks are the author's words, verbatim (2026-10-13, Spanish). They are requirements.
+- **PROPOSAL** items were deductions from those words, kept to show where a requirement came from.
 - Every requirement `R-nn` has an acceptance criterion `AC` that a test or a `tuiqa` scenario checks. Rule of work:
   the test is written first and seen failing against the previous commit (ED-22, ED-25).
-- Milestone tags: `M1` first usable release, `M2` live follow and git, `M3+` see `ROADMAP.md`.
+- Milestone tags: `M1` first usable release, `M2` live follow and git, `M3+` later milestones.
 - The reference screenshot (a Finder window) shows: Favorites/Locations sidebar, columns Name, Date Modified,
   Date Created, Size, Kind, folders with a `>` disclosure, a breadcrumb path at the bottom, back/forward buttons and
   a Search field.
@@ -154,7 +152,7 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
 - **R-46 Kitty protocol configuration (M1).** Already R-17: `preview.images` is `auto`, `kitty` or `off`, with
   Quick Look as the fallback; the setting is part of the Settings popup (R-43).
 
-## Requirements for later milestones (summarized, detail in ROADMAP)
+## Requirements for later milestones (summarized)
 
 - **R-30 Live follow (M2, done)** (Q5). Directory listings update without refresh when files appear, change or vanish.
   AC: scenario creates files from another process and sees them within 1 s.
@@ -192,10 +190,3 @@ tests pass" (macOS is the target; Linux CI runs the portable tests, ED-23).
 
 Versioning is `0.y.z` until declared stable. The public surface is: CLI flags, the `config.json` format, and the
 exit codes (0 normal, 1 runtime error, 2 usage error). Changes to them are listed in `CHANGELOG.md`.
-
-## Open questions for cerebro
-
-1. Is the read-only M1 (R-24) acceptable, with file operations deferred to M4?
-2. Disclosure triangles (R-33) are in the screenshot; I place them in M3 because M1 is already large. Move up?
-3. Go module path: `github.com/MathiasDrizzy/lazyfinder` (same owner as lazymark). Confirm the repo name/visibility
-   (public like lazymark?) before the first push.

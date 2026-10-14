@@ -1,7 +1,7 @@
 name: CI
 
 # Linux only: a macOS runner costs ten Linux minutes, so macOS runs in ci-macos.yml before a release (the push of a
-# v* tag) and by hand, and .claude/harness/verificar.sh runs the same tests on macOS before each push. Changes that
+# v* tag) and by hand, and the maintainer runs the same tests on a Mac before each push. Changes that
 # touch only documentation run no CI. See docs/adr/0016-ci-minutes.md.
 on:
   push:

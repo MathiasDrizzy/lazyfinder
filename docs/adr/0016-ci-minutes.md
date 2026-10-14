@@ -18,7 +18,7 @@ stops all CI until the next month.
 * `ci-macos.yml` runs `gofmt`, `go vet` and `go test -race` on macOS on the push of a `v*` tag (next to
   `release.yml`) and by hand (`workflow_dispatch`). It does not use the Go cache: a tag build reads nothing other runs
   wrote.
-* macOS is still tested on every change: `.claude/harness/verificar.sh` runs the whole suite on a Mac before each push.
+* macOS is still tested on every change: the maintainer's local check runs the whole suite on a Mac before each push.
 
 ## Consequences
 
