@@ -14,8 +14,8 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 | Activity bar three rows tall, active chip extended with `▄`/`▀` half blocks, hover with the same geometry | same, rows 0–2; every row of a chip takes the click | done |
 | Chips `" G  "` (FA glyphs are two cells wide), one space apart, gear at the right edge | same chips; the mode button sits left of the gear | done |
 | Header: ` NAME` bold in the accent blue, title buttons right-aligned, dimmed, shown on mouse activity for 3 s | same (no refresh button: the list updates by itself) | done |
-| Row: indent of two cells a level, dimmed `▸`/`▾`, icon, plain name, git letter or `●` two cells from the edge, ignored names dimmed | same | done |
-| Blue-grey folder icon `#90a4ae` | same | done |
+| Row: indent of two cells a level, dimmed `▸`/`▾`, icon, plain name, git letter or `●` two cells from the edge, ignored names dimmed | same layout; `>`/`v` and the colors of the normal window (Mathias, 2026-10-14: both modes must look like one program) | done, colors different on purpose |
+| Blue-grey folder icon `#90a4ae` | the blue folder icon and name of the normal window | different on purpose |
 | Selection sets only the background (bold), icons keep their color | same | done |
 | Footer: git status and the `«` collapse button | branch and distance from upstream, key hints; no `«` (herdr's own pane control) | partial |
 

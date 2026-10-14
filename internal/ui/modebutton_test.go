@@ -181,13 +181,10 @@ func TestTheModeChangesByItselfWhenTheWindowIsResizedAcrossTheLimits(t *testing.
 	if !e.m.projectMode() {
 		t.Fatal("below 60 columns the window becomes the sidebar")
 	}
-	e.send(tea.WindowSizeMsg{Width: 70, Height: 30})
-	if !e.m.projectMode() {
-		t.Fatal("between 60 and 80 the sidebar stays: no flipping on every cell of a drag")
-	}
-	e.send(tea.WindowSizeMsg{Width: 100, Height: 30})
+	// Mathias, 2026-10-14: "bien pequeño tiene que cambiar hacia sidebar y hacia finder": one small limit both ways.
+	e.send(tea.WindowSizeMsg{Width: 62, Height: 30})
 	if e.m.projectMode() {
-		t.Fatal("from 80 columns up it is the normal window again")
+		t.Fatal("as soon as the columns fit again it is the normal window: 62 columns")
 	}
 }
 

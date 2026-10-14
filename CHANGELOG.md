@@ -13,16 +13,16 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 - The sidebar mode is drawn like the herdr sidebar (Mathias compared both, 2026-10-13): no frame of its own, a tab
   bar three rows tall whose active and hovered chips reach the rows above and below with half blocks (each row takes
   the click), four-cell tab chips that center the wide Nerd Font glyphs, dimmed tree buttons, the project name in
-  blue, and tree rows of `▸`/`▾` triangles, blue-grey folder icons and plain names with the git letter (or a dot for
-  a folder) two cells from the edge. The selected row keeps the colors of its icon and name.
+  blue, and tree rows with the git letter (or a dot for a folder) two cells from the edge. The rows wear the colors
+  of the normal window, `>`/`v` before a folder, blue folder icons and names, so both modes look like one program. The selected row keeps the colors of its icon and name.
 
 - The tree buttons of the sidebar mode (new file, new folder, collapse all) show while the pointer moves over the pane
   and fade three seconds after it stops, like the title bar buttons of the herdr sidebar; the border of the panel no
   longer repeats the project name that heads the tree.
 
 - The window and the sidebar mode switch by themselves when the terminal is resized: narrower than 60 columns the
-  window becomes the sidebar, and from 80 columns up the sidebar becomes the window again (the gap keeps it from
-  flipping on every cell of a drag). The mode the program started in stays until the first resize across a limit.
+  window becomes the sidebar, and from 62 columns up the sidebar becomes the window again (the two-cell gap keeps
+  a drag along the limit from flipping it on every cell). The mode the program started in stays until the first resize across a limit.
 
 - The Git tab of the sidebar mode, modelled on the herdr sidebar: Staged Changes, Changes and Stashes sections with
   counts; stage, unstage and discard (with a confirmation) by key or by the buttons of the row; the diff of a file in a

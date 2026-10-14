@@ -125,11 +125,11 @@ taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](doc
 A narrow panel meant to sit next to another terminal, like the VS Code explorer and the herdr sidebar. Start it with
 `lazyfinder --sidebar [dir]` (`--follow <dir>` is the same), with `Ctrl+B` in any window, or from Settings (Side mode).
 The window and the sidebar mode also switch by themselves when you resize the terminal: below 60 columns the window
-becomes the sidebar, from 80 columns up the sidebar becomes the window again. It works from 24 columns:
+becomes the sidebar, from 62 columns up the sidebar becomes the window again. It works from 24 columns:
 
 - it is drawn like the herdr sidebar: no frame of its own (herdr frames the pane), a tab bar three rows tall with
   icon-only tabs **Files**, **Search** and **Git** (a tooltip names each; the chip of the active tab and of the one
-  under the pointer is a tall square), and a tree of `▸`/`▾` triangles, blue-grey folders and plain names;
+  under the pointer is a tall square), and a tree in the colors of the normal window (`>`/`v` before a folder, blue folders);
 - action icons at the right of the project name: new file, new folder, collapse all (the list updates by itself, so
   there is no refresh button). Like herdr, they show while the pointer moves over the pane and fade three seconds
   after it stops. Every icon has a tooltip in the bottom row, and the row or button under the pointer is painted;

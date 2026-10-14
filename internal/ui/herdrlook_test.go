@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -58,24 +59,19 @@ func TestTheSidebarRowsAreTheIndentTheTriangleTheIconAndTheName(t *testing.T) {
 	e := projectEnv(t, 40)
 	x, y := e.find("alpha")
 	line := e.screen()[y]
-	if !strings.HasPrefix(line, "▸ ") {
-		t.Fatalf("a closed folder starts with ▸ at the first column: %q", line)
+	if !strings.HasPrefix(line, "> ") {
+		t.Fatalf("a closed folder starts with > at the first column, as in the window: %q", line)
 	}
 	if x != 4 {
 		t.Fatalf("the name of a top-level entry starts after the triangle and the icon (x=4), got %d: %q", x, line)
 	}
 	e.click(x, y)
-	if !strings.HasPrefix(e.screen()[y], "▾ ") {
-		t.Fatalf("an open folder starts with ▾: %q", e.screen()[y])
+	if !strings.HasPrefix(e.screen()[y], "v ") {
+		t.Fatalf("an open folder starts with v, as in the window: %q", e.screen()[y])
 	}
 	_, dy := e.find("deep")
-	if l := e.screen()[dy]; !strings.HasPrefix(l, "  ▸ ") {
+	if l := e.screen()[dy]; !strings.HasPrefix(l, "  > ") {
 		t.Fatalf("a nested folder is indented two cells per level: %q", l)
-	}
-	for _, l := range e.screen()[4:] {
-		if strings.HasPrefix(l, "> ") || strings.Contains(l, " > ") {
-			t.Fatalf("no > marker in the sidebar tree: %q", l)
-		}
 	}
 }
 
@@ -125,5 +121,25 @@ func TestEveryHeaderButtonIsDrawnInsideItsZone(t *testing.T) {
 				t.Fatalf("tab %d: button %d drawn %q in the middle of its zone, want %q: %q", tab, a.idx, got, want, e.screen()[a.y])
 			}
 		}
+	}
+}
+
+// Mathias, 2026-10-14: "parecen dos programas distintos, tienes que homologar … más parecido al finder": a folder in
+// the sidebar wears the colors of the normal window, the icon in its own color and the name in the folder style.
+func TestTheSidebarFoldersWearTheColorsOfTheWindow(t *testing.T) {
+	e := projectEnv(t, 40)
+	e.git("add", "-A")
+	e.git("commit", "-q", "-m", "clean") // without changes a folder wears no git color
+	e.key("r")
+	e.key("j") // the selection off alpha, so its row shows its plain colors
+	_, y := e.find("alpha")
+	raw := strings.Split(e.m.View().Content, "\n")[y]
+	icon, _, _ := strings.Cut(e.m.iconCell(e.m.icons.Pick(icons.Item{Name: "alpha", IsDir: true})), "\x1b[m")
+	if !strings.Contains(raw, icon) {
+		t.Fatalf("the folder icon has the color of the window %q: %q", icon, raw)
+	}
+	folder := e.m.styles.folder("alpha")
+	if open := folder[:strings.Index(folder, "alpha")]; open == "" || !strings.Contains(raw, open+"alpha") {
+		t.Fatalf("the folder name has the folder style %q: %q", folder, raw)
 	}
 }

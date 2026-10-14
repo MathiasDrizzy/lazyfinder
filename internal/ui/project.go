@@ -192,29 +192,24 @@ var projectFooterItems = []struct {
 	{keymap.Quit, func() string { return i18n.T("Salir", "Quit") }},
 }
 
-// folderIconRGB is the blue-grey of the folders of the herdr sidebar, softer than the blue of the normal window.
-const folderIconRGB = 0x90a4ae
-
-// treeRow draws row idx of the sidebar mode like a row of the herdr sidebar: the indent (two cells a level), a dimmed
-// triangle for folders, the icon and the name in the plain color (a git state recolors it), and at the right edge the
+// treeRow draws row idx of the sidebar mode with the layout of a row of the herdr sidebar and the colors of the normal
+// window (Mathias, 2026-10-14: the two modes must not look like two programs): the indent (two cells a level), the
+// > or v of a folder, the icon and the name in the folder style (a git state recolors it), and at the right edge the
 // git letter, or a dot for a folder with changes inside, with two cells after it. The selection only sets the
 // background, so the icon keeps its color.
 func (m *Model) treeRow(idx, width int) string {
 	e := m.entries()[idx]
 	chevron := "  "
 	if e.IsDir {
-		chevron = "▸ "
+		chevron = "> "
 		if m.expanded[e.Path] {
-			chevron = "▾ "
+			chevron = "v "
 		}
 	}
-	lead := m.styles.dim(strings.Repeat("  ", e.Depth) + chevron)
+	lead := strings.Repeat("  ", e.Depth) + chevron
 	used := 2*e.Depth + 2
 	if m.iconW() > 0 {
 		ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
-		if ic.Role == icons.Folder && !ic.HasRGB {
-			ic.HasRGB, ic.RGB = true, folderIconRGB
-		}
 		lead += m.iconCell(ic)
 		used += m.iconW()
 	}
@@ -241,6 +236,8 @@ func (m *Model) treeRow(idx, width int) string {
 		name = m.styles.dim(name)
 	case m.git.ok && code != git.None:
 		name = m.styles.gitPaint(string(code), name)
+	case e.IsDir:
+		name = m.styles.folder(name)
 	}
 	line := lead + name
 	if marker != "" {

@@ -101,7 +101,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Function | Proof |
 |---|---|
 | Enter and leave (ctrl+b, the mode button, `--follow`) | T CtrlBTurnsTheProjectSidebarOnAndOff, T TheModeButtonSwitchesToTheSidebarModeAndBack, S mode-button, S follow-mode |
-| Window and sidebar switch by themselves when resized (below 60 columns, from 80 up) | T TheModeChangesByItselfWhenTheWindowIsResizedAcrossTheLimits, T TheModeTheProgramStartedInStaysUntilTheFirstResizeAcrossALimit |
+| Window and sidebar switch by themselves when resized (below 60 columns, from 62 up) | T TheModeChangesByItselfWhenTheWindowIsResizedAcrossTheLimits, T TheModeTheProgramStartedInStaysUntilTheFirstResizeAcrossALimit |
 | Buttons of equal width, every cell clickable; no refresh button; icon-only tabs with tooltips; click on a folder row opens it | T EveryCellOfAnActionButtonRunsIt, T ThereIsNoRefreshButtonBecauseTheListUpdatesByItself, T TheTabsShowOnlyTheirIconAndEachHasATooltip, T AClickAnywhereOnAFolderRowOpensAndClosesItInTheTree |
 | Every top-row glyph lies inside its own click and hover zone, in both modes and 14 widths | T EveryTopRowGlyphLiesInsideItsOwnZone, T EachGlyphIsDrawnInTheMiddleCellOfItsButton |
 | Tree buttons show with the pointer and fade; the name is not repeated; a narrow start is the sidebar | T TheTreeButtonsAppearWithThePointerAndFadeAfterItStops, T TheWindowToolbarKeepsItsButtonsAlways, T TheTreeHeaderAndTheBorderDoNotRepeatTheProjectName, T AWindowThatStartsNarrowerThanTheLimitIsTheSidebar |

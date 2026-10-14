@@ -470,11 +470,12 @@ func (m *Model) restyle() {
 }
 
 // The window changes mode by itself when it is resized across these widths: below autoSidebarW it would be too small
-// for the columns, so it becomes the sidebar; from autoWindowW up it is wide enough for the columns again. The gap
-// between them keeps a window that sits near the limit from flipping on every cell of a drag.
+// for the columns, so it becomes the sidebar; from autoWindowW up the columns fit again. Mathias, 2026-10-14, wanted
+// the switch only when the pane is really small, both ways, so the gap is the two cells that keep a drag along the
+// limit from flipping on every cell.
 const (
 	autoSidebarW = minWidth
-	autoWindowW  = 80
+	autoWindowW  = minWidth + 2
 )
 
 // autoMode switches between the normal window and the sidebar mode when the width crosses a limit; prevW is the
