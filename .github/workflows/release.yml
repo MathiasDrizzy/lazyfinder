@@ -40,6 +40,9 @@ jobs:
           # a fine-grained token that can write only to MathiasDrizzy/homebrew-tap, for the cask
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
       - name: Build provenance for the archives and the SBOMs
+        # also when a later GoReleaser step (the cask in the tap) failed after the archives were published: dist/ holds
+        # the same files the release has
+        if: ${{ !cancelled() && hashFiles('dist/checksums.txt') != '' }}
         # checksums.txt lists every archive and SBOM that GoReleaser published, so one attestation covers them all
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
