@@ -1,13 +1,13 @@
 {
   "fixtures": "fixtures",
   "name": "cd-on-exit",
-  "criterio": "Mathias, 2026-10-14: quitting leaves the shell in the folder lazyfinder ends in. The function of --shell-init runs the real binary in bash: it starts in proj, opens alpha and quits; the shell is then in proj/alpha",
+  "criterio": "Mathias, 2026-10-14: quitting leaves the shell in the folder lazyfinder ends in. The function of --shell-init runs the real binary in bash: it starts in proj, opens alpha and quits; the shell is then in proj/alpha. The shell function calls the program as lazyfinder, so the scenario links ${LAZYFINDER_BIN} under that name in a folder of its own: it does not depend on how the binary is named",
   "cmd": [
     "/bin/bash",
     "--norc",
     "--noprofile",
     "-c",
-    "bin=\"${LAZYFINDER_BIN}\"; export PATH=\"${bin%/*}:$PATH\"; cd \"${TUIQA_HOME}/proj\" && eval \"$(command lazyfinder --shell-init bash)\" && lazyfinder; echo \"SHELL_IS_IN ${PWD#\"${TUIQA_HOME}\"/}\"; sleep 3"
+    "bin_dir=\"$(mktemp -d)\" && ln -s \"${LAZYFINDER_BIN}\" \"$bin_dir/lazyfinder\" || { echo \"SETUP_FAILED: cannot link ${LAZYFINDER_BIN} as lazyfinder\"; sleep 3; exit 1; }; export PATH=\"$bin_dir:$PATH\"; cd \"${TUIQA_HOME}/proj\" && eval \"$(command lazyfinder --shell-init bash)\" && lazyfinder; echo \"SHELL_IS_IN ${PWD#\"${TUIQA_HOME}\"/}\"; rm -f \"$bin_dir/lazyfinder\"; rmdir \"$bin_dir\"; sleep 3"
   ],
   "cols": 120,
   "rows": 30,
