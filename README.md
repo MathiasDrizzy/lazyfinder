@@ -119,6 +119,8 @@ taken name gets a `copy` suffix and every step can be undone (see [ADR 0010](doc
 ## Sidebar mode
 
 ![Sidebar mode at 36 columns](docs/screenshots/sidebar-mode.png)
+![The buttons of the tree show while the pointer is over the pane](docs/screenshots/sidebar-tree-buttons.png)
+![The toolbar of the normal window](docs/screenshots/toolbar-buttons.png)
 
 A narrow panel meant to sit next to another terminal, like the VS Code explorer and the herdr sidebar. Start it with
 `lazyfinder --sidebar [dir]` (`--follow <dir>` is the same), with `Ctrl+B` in any window, or from Settings (Side mode).

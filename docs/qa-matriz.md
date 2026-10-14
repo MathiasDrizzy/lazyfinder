@@ -103,6 +103,8 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Enter and leave (ctrl+b, the mode button, `--follow`) | T CtrlBTurnsTheProjectSidebarOnAndOff, T TheModeButtonSwitchesToTheSidebarModeAndBack, S mode-button, S follow-mode |
 | Window and sidebar switch by themselves when resized (below 60 columns, from 80 up) | T TheModeChangesByItselfWhenTheWindowIsResizedAcrossTheLimits, T TheModeTheProgramStartedInStaysUntilTheFirstResizeAcrossALimit |
 | Buttons of equal width, every cell clickable; no refresh button; icon-only tabs with tooltips; click on a folder row opens it | T EveryCellOfAnActionButtonRunsIt, T ThereIsNoRefreshButtonBecauseTheListUpdatesByItself, T TheTabsShowOnlyTheirIconAndEachHasATooltip, T AClickAnywhereOnAFolderRowOpensAndClosesItInTheTree |
+| Every top-row glyph lies inside its own click and hover zone, in both modes and 14 widths | T EveryTopRowGlyphLiesInsideItsOwnZone, T EachGlyphIsDrawnInTheMiddleCellOfItsButton |
+| Tree buttons show with the pointer and fade; the name is not repeated; a narrow start is the sidebar | T TheTreeButtonsAppearWithThePointerAndFadeAfterItStops, T TheWindowToolbarKeepsItsButtonsAlways, T TheTreeHeaderAndTheBorderDoNotRepeatTheProjectName, T AWindowThatStartsNarrowerThanTheLimitIsTheSidebar |
 | Hover keeps the line width over wide glyphs; `.gitignore` keeps its red | T HoverKeepsTheLineWidthOverWideGlyphs, icons: TestAHiddenGitFileKeepsItsRedColor |
 | Tabs Files / Search / Git, clickable, even with only glyphs | T ProjectModeHasClickableFilesSearchAndGitTabs, T TheGitTabInEachRepositoryState |
 | Tree with actions (new file, new folder, refresh, collapse) | T ActionIconsCreateFilesAndFoldersAndCollapse, S sidebar-actions |

@@ -10,6 +10,10 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Added
 
+- The tree buttons of the sidebar mode (new file, new folder, collapse all) show while the pointer moves over the pane
+  and fade three seconds after it stops, like the title bar buttons of the herdr sidebar; the border of the panel no
+  longer repeats the project name that heads the tree.
+
 - The window and the sidebar mode switch by themselves when the terminal is resized: narrower than 60 columns the
   window becomes the sidebar, and from 80 columns up the sidebar becomes the window again (the gap keeps it from
   flipping on every cell of a drag). The mode the program started in stays until the first resize across a limit.
@@ -58,6 +62,9 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
   the middle, so the hover and the click cover the cells they show; the sidebar tabs are icon-only square buttons with
   a tooltip, the refresh button is gone (the list updates by itself), the Search lens is the Nerd Font one, and the
   new file, new folder and collapse glyphs are the codicons of the herdr sidebar.
+- The Settings button, the mode button, the Search field and the tree buttons were drawn two cells away from the
+  cells that the click and the hover used (the gear took two cells on the screen and four in the zones); every zone of
+  the top row now covers exactly what is drawn, and a test checks it at 14 widths in both modes.
 - `.gitignore` and `.gitattributes` keep the red of the git icon instead of being dimmed; a click anywhere on a folder
   row of the sidebar tree opens or closes it.
 - Get Info and other popups were 58 cells wide even on a 20-column terminal.
