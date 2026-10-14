@@ -15,6 +15,8 @@ func TestQAMatrixNamesExist(t *testing.T) {
 	}
 	have := map[string]bool{}
 	files, _ := filepath.Glob(filepath.Join("..", "*", "*_test.go"))
+	cmdFiles, _ := filepath.Glob(filepath.Join("..", "..", "cmd", "*", "*_test.go")) // the command line's tests too
+	files = append(files, cmdFiles...)
 	for _, f := range files {
 		b, _ := os.ReadFile(f)
 		for _, m := range regexp.MustCompile(`(?m)^func Test(\w+)`).FindAllStringSubmatch(string(b), -1) {
