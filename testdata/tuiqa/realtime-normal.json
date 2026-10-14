@@ -1,0 +1,83 @@
+{
+  "name": "realtime-normal",
+  "criterio": "order 2026-10-13-07 point M2: what another program creates, renames or deletes shows within 1 second, with no key; each step presses a key that makes the helper act and waits at most 1000 ms",
+  "cmd": [
+    "sh",
+    "-c",
+    "P=\"${TUIQA_HOME}/proj\"; n() { find \"$P\" -name 'untitled*' | wc -l | tr -d ' '; }; (\n while [ \"$(n)\" -lt 1 ]; do sleep 0.05; done; echo \"package agent\" > \"$P/agent.go\";\n while [ \"$(n)\" -lt 2 ]; do sleep 0.05; done; mv \"$P/agent.go\" \"$P/renamed.go\";\n while [ \"$(n)\" -lt 3 ]; do sleep 0.05; done; rm \"$P/renamed.go\"; mkdir \"$P/madedir\"\n) & exec \"${LAZYFINDER_BIN}\"  \"$P\""
+  ],
+  "cols": 100,
+  "rows": 24,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "keys": [
+        "n",
+        "enter"
+      ]
+    },
+    {
+      "desc": "a file created by another program is on screen within 1 second, with no key",
+      "wait": {
+        "regex": "agent\\.go",
+        "timeout_ms": 1000
+      }
+    },
+    {
+      "keys": [
+        "n",
+        "enter"
+      ]
+    },
+    {
+      "desc": "a rename done from outside shows the new name within 1 second",
+      "wait": {
+        "regex": "renamed\\.go",
+        "timeout_ms": 1000
+      }
+    },
+    {
+      "desc": "and the old name is gone",
+      "assert": {
+        "not_contains": "agent\\.go"
+      }
+    },
+    {
+      "keys": [
+        "n",
+        "enter"
+      ]
+    },
+    {
+      "desc": "a folder made from outside and a delete show within 1 second",
+      "wait": {
+        "regex": "madedir",
+        "timeout_ms": 1000
+      }
+    },
+    {
+      "desc": "the deleted file left the list",
+      "assert": {
+        "not_contains": "renamed\\.go"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

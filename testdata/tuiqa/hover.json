@@ -1,0 +1,108 @@
+{
+  "name": "hover",
+  "criterio": "order 2026-10-13-07 point N: the clickable thing under the pointer gets a soft background; a key press takes it off",
+  "cmd": [
+    "sh",
+    "-c",
+    "printf '{\"version\":1,\"density\":\"compact\"}' > \"${TUIQA_HOME}/cfg.json\"; exec \"${LAZYFINDER_BIN}\" \"${TUIQA_HOME}/proj\""
+  ],
+  "env": {
+    "LAZYFINDER_CONFIG": "${TUIQA_HOME}/cfg.json"
+  },
+  "cols": 120,
+  "rows": 30,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "before the pointer moves, the row has the plain background",
+      "assert_color": {
+        "region": {
+          "line_with": "main\\.go",
+          "x": 23,
+          "w": 30
+        },
+        "bg": "#1e1e2e",
+        "mode": "all"
+      }
+    },
+    {
+      "text": "\u001b[<35;30;7M"
+    },
+    {
+      "desc": "the row under the pointer has the hover background",
+      "assert_color": {
+        "region": {
+          "line_with": "main\\.go",
+          "x": 23,
+          "w": 30
+        },
+        "bg": "#353748",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "and it is neither the selection nor a stripe",
+      "assert_color": {
+        "region": {
+          "line_with": "main\\.go",
+          "x": 23,
+          "w": 30
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "text": "\u001b[<35;3;1M"
+    },
+    {
+      "desc": "the Back button lights up too",
+      "assert_color": {
+        "region": {
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 1
+        },
+        "bg": "#353748",
+        "mode": "all"
+      }
+    },
+    {
+      "keys": [
+        "down"
+      ]
+    },
+    {
+      "desc": "a key press takes the hover off",
+      "assert_color": {
+        "region": {
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 1
+        },
+        "bg": "#353748",
+        "mode": "none"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

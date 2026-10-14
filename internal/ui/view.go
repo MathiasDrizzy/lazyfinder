@@ -303,7 +303,7 @@ func (m *Model) View() tea.View {
 	v := tea.NewView(content)
 	v.AltScreen = true
 	if m.mouse {
-		v.MouseMode = tea.MouseModeCellMotion
+		v.MouseMode = tea.MouseModeAllMotion // the hover needs the motion without a button
 	}
 	v.WindowTitle = "lazyfinder"
 	return v

@@ -1,0 +1,67 @@
+{
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "name": "mode-button",
+  "criterio": "order 07 point M1: a button switches to the sidebar mode and back, in both modes",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 100,
+  "rows": 24,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the normal window has Favorites",
+      "assert": {
+        "contains": "Favorites"
+      }
+    },
+    {
+      "desc": "click the mode button, left of the gear",
+      "click": {
+        "x": 94,
+        "y": 0
+      }
+    },
+    {
+      "desc": "the sidebar mode has no places and says how to leave",
+      "assert": {
+        "contains": "Exit mode: ctrl\\+b"
+      }
+    },
+    {
+      "assert": {
+        "not_contains": "Favorites"
+      }
+    },
+    {
+      "desc": "the same button leaves it",
+      "click": {
+        "x": 94,
+        "y": 0
+      }
+    },
+    {
+      "assert": {
+        "contains": "Favorites"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

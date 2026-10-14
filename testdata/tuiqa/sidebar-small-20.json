@@ -1,0 +1,66 @@
+{
+  "name": "sidebar-small-20",
+  "criterio": "order 07 point M6: at 20x10 the sidebar mode is not cut and Settings scrolls with a counter",
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--sidebar",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 20,
+  "rows": 10,
+  "steps": [
+    {
+      "wait": {
+        "regex": "PROJ",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "assert": {
+        "not_contains": "too small"
+      }
+    },
+    {
+      "desc": "the frame is whole: its corners are in place",
+      "assert": {
+        "contains": "\u2570.*\u256f"
+      }
+    },
+    {
+      "keys": [
+        ","
+      ]
+    },
+    {
+      "desc": "Settings fits the window and says where it is",
+      "assert": {
+        "contains": "1/17"
+      }
+    },
+    {
+      "keys": [
+        "end"
+      ]
+    },
+    {
+      "desc": "scrolling to the end shows the last row and its position",
+      "assert": {
+        "contains": "17/17"
+      }
+    },
+    {
+      "keys": [
+        "esc",
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

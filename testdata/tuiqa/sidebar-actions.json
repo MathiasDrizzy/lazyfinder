@@ -1,0 +1,72 @@
+{
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "name": "sidebar-actions",
+  "criterio": "order 07 point M5: the tree has new file, new folder, refresh and collapse icons that work with the mouse",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--sidebar",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 40,
+  "rows": 24,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the tree starts collapsed (point M3)",
+      "assert": {
+        "not_contains": "\\bv\\s"
+      }
+    },
+    {
+      "desc": "the second icon of the header asks for a folder name",
+      "click": {
+        "x": 33,
+        "y": 2
+      }
+    },
+    {
+      "assert": {
+        "contains": "New folder: untitled folder"
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "desc": "the first icon asks for a file name",
+      "click": {
+        "x": 31,
+        "y": 2
+      }
+    },
+    {
+      "assert": {
+        "contains": "New file: untitled file"
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}

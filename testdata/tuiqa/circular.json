@@ -1,0 +1,117 @@
+{
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "name": "circular",
+  "criterio": "order 07 point M7: up on the first row goes to the last and down on the last to the first, in the list and in Settings",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 100,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "keys": [
+        "up"
+      ]
+    },
+    {
+      "desc": "up on the first row selects the last one",
+      "assert_color": {
+        "region": {
+          "line_with": "photo\\.png",
+          "x": 23,
+          "w": 20
+        },
+        "bg": "#45475a",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        "down"
+      ]
+    },
+    {
+      "desc": "down on the last row selects the first one",
+      "assert_color": {
+        "region": {
+          "line_with": "alpha",
+          "x": 23,
+          "w": 20
+        },
+        "bg": "#45475a",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        ",",
+        "up"
+      ]
+    },
+    {
+      "desc": "up on the first Settings row goes to the last",
+      "assert_color": {
+        "region": {
+          "line_with": "Side mode",
+          "x": 23,
+          "w": 30
+        },
+        "bg": "#45475a",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        "down"
+      ]
+    },
+    {
+      "assert_color": {
+        "region": {
+          "line_with": "Theme",
+          "x": 23,
+          "w": 30
+        },
+        "bg": "#45475a",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        "end"
+      ]
+    },
+    {
+      "desc": "End goes to the last row of Settings",
+      "assert_color": {
+        "region": {
+          "line_with": "Side mode",
+          "x": 23,
+          "w": 30
+        },
+        "bg": "#45475a",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        "esc",
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}
