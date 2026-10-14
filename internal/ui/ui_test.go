@@ -65,7 +65,12 @@ const cfgJSON = `{
 
 func newEnv(t *testing.T) *env {
 	t.Helper()
-	home := t.TempDir()
+	return newEnvAt(t, t.TempDir())
+}
+
+// newEnvAt is newEnv with the home folder at home, for tests that need its name to be something in particular.
+func newEnvAt(t *testing.T, home string) *env {
+	t.Helper()
 	root := filepath.Join(home, "proj")
 	for _, d := range []string{"alpha", "beta", "alpha/deep"} {
 		if err := os.MkdirAll(filepath.Join(root, d), 0o755); err != nil {

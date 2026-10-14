@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -88,17 +89,28 @@ func TestEmojiIconsFillThreeCellsAndKeepNamesAligned(t *testing.T) {
 	}
 }
 
+// The click goes to the segment of the home folder even when a folder above it has the same digits in its name
+// (cerebro, 2026-10-14: t.TempDir is ".../TestX2470001387/001", and strings.Index found the "001" of the parent).
 func TestThePathBarDrawsAFolderIconBeforeEachSegmentAndKeepsItsClicks(t *testing.T) {
-	e := newEnv(t)
+	for _, home := range []string{t.TempDir(), filepath.Join(t.TempDir(), "x001y", "001")} {
+		thePathBarKeepsItsClicks(t, home)
+	}
+}
+
+func thePathBarKeepsItsClicks(t *testing.T, home string) {
+	if err := os.MkdirAll(home, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	e := newEnvAt(t, home)
 	bar := e.screen()[e.m.h-2]
 	if got := strings.Count(bar, nerdFolder); got < 2 {
 		t.Fatalf("every segment of the path has a folder icon, found %d in %q", got, bar)
 	}
 	// the click on the name of the parent folder still goes there
-	home := filepath.Base(e.home)
-	x := strings.Index(bar, home)
+	base := filepath.Base(e.home)
+	x := strings.LastIndex(bar[:max(0, strings.LastIndex(bar, filepath.Base(e.root)))], base) // the last segment before proj
 	if x < 0 {
-		t.Fatalf("%s is not in %q", home, bar)
+		t.Fatalf("%s is not in %q", base, bar)
 	}
 	e.click(len([]rune(bar[:x])), e.m.h-2)
 	if e.m.dir() != e.home {
