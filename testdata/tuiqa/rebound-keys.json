@@ -10,7 +10,7 @@
   "steps": [
     {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
     {"assert": {"contains": "Quit: Z"}},
-    {"desc": "n is down now", "keys": ["n"]},
+    {"desc": "w is down now", "keys": ["w"]},
     {"wait": {"regex": "2 of 6"}},
     {"desc": "j is not bound any more", "keys": ["j"]},
     {"assert": {"contains": "2 of 6"}},

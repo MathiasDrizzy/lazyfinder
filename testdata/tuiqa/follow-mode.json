@@ -1,22 +1,86 @@
 {
   "name": "lazyfinder-follow-mode",
   "criterio": "R-32",
-  "cmd": ["sh", "-c", "(sleep 2; mkdir \"${TUIQA_HOME}/proj/agent-made\" && echo 'fn main() {}' > \"${TUIQA_HOME}/proj/agent-made/main.rs\") & exec \"${LAZYFINDER_BIN}\" --follow \"${TUIQA_HOME}/proj\""],
+  "cmd": [
+    "sh",
+    "-c",
+    "(sleep 2; mkdir \"${TUIQA_HOME}/proj/agent-made\" && echo 'fn main() {}' > \"${TUIQA_HOME}/proj/agent-made/main.rs\") & exec \"${LAZYFINDER_BIN}\" --follow \"${TUIQA_HOME}/proj\""
+  ],
   "cols": 40,
   "rows": 20,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"desc": "the project shows as a narrow tree, folders open", "wait": {"regex": "inner\\.txt", "timeout_ms": 8000}},
-    {"desc": "no sidebar and no columns", "assert": {"not_contains": "Favorites"}},
-    {"assert": {"not_contains": "Date Modified"}},
-    {"assert": {"not_contains": "agent-made"}},
-    {"desc": "a folder created by another process appears open, with its file", "wait": {"regex": "main\\.rs", "timeout_ms": 8000}},
-    {"assert": {"contains": "\\+\\s+>?v?\\s*\\S?\\s*agent-made"}},
-    {"desc": "everything that is new is marked with +", "assert": {"contains": "\\+\\s+\\S\\s+main\\.rs"}},
-    {"snapshot": {"name": "follow-mode"}},
-    {"desc": "the keys keep working in the narrow view", "keys": ["up", "up", "up", "up"]},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "desc": "the project shows as a narrow tree, collapsed",
+      "wait": {
+        "regex": "alpha",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "assert": {
+        "not_contains": "inner\\.txt"
+      }
+    },
+    {
+      "desc": "no sidebar and no columns",
+      "assert": {
+        "not_contains": "Favorites"
+      }
+    },
+    {
+      "assert": {
+        "not_contains": "Date Modified"
+      }
+    },
+    {
+      "assert": {
+        "not_contains": "agent-made"
+      }
+    },
+    {
+      "desc": "a folder created by another process appears open, with its file",
+      "wait": {
+        "regex": "main\\.rs",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "assert": {
+        "contains": "\\+\\s+>?v?\\s*\\S?\\s*agent-made"
+      }
+    },
+    {
+      "desc": "everything that is new is marked with +",
+      "assert": {
+        "contains": "\\+\\s+\\S\\s+main\\.rs"
+      }
+    },
+    {
+      "snapshot": {
+        "name": "follow-mode"
+      }
+    },
+    {
+      "desc": "the keys keep working in the narrow view",
+      "keys": [
+        "up",
+        "up",
+        "up",
+        "up"
+      ]
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

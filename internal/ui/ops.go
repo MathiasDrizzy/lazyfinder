@@ -332,12 +332,13 @@ func (m *Model) promptSubmit() tea.Cmd {
 		return nil
 	}
 	m.prompt = promptState{}
-	if p.kind == promptRename {
+	switch p.kind {
+	case promptRename:
 		m.moveTags(p.target, made)
 		m.setStatus(fmt.Sprintf(i18n.T("Renombrado a %s", "Renamed to %s"), filepath.Base(made)))
-	} else if p.kind == promptNewFile {
+	case promptNewFile:
 		m.setStatus(fmt.Sprintf(i18n.T("Archivo creado: %s", "Created file %s"), filepath.Base(made)))
-	} else {
+	default:
 		m.setStatus(fmt.Sprintf(i18n.T("Carpeta creada: %s", "Created folder %s"), filepath.Base(made)))
 	}
 	return m.refresh(made)
