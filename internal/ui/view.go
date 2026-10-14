@@ -331,7 +331,7 @@ func (m *Model) View() tea.View {
 			content = m.paint(content)
 		}
 	}
-	v := tea.NewView(content)
+	v := tea.NewView(safeFrame(content))
 	v.AltScreen = true
 	if m.mouse {
 		v.MouseMode = tea.MouseModeAllMotion // the hover needs the motion without a button

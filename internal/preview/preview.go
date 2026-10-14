@@ -153,6 +153,7 @@ func Load(ctx context.Context, path string, opts Options) Result {
 		return res
 	}
 	res.Kind, res.Truncated = KindText, truncated
+	body = []byte(Visible(string(body)))
 	if ext := extOf(name); (ext == "md" || ext == "markdown") && !opts.MarkdownRaw && !truncated {
 		if lines, ok := renderMarkdown(string(body), opts.Width, opts.NoColor); ok {
 			res.Lines = lines
@@ -310,7 +311,7 @@ func loadDir(ctx context.Context, res Result, path string) Result {
 			res.Truncated = true
 			break
 		}
-		name := e.Name
+		name := VisibleLine(e.Name)
 		if e.IsDir {
 			name += "/"
 		}

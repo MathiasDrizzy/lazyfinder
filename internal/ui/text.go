@@ -11,6 +11,7 @@ func fit(s string, w int) string {
 	if w <= 0 {
 		return ""
 	}
+	s = showControls(s)
 	if ansi.StringWidth(s) > w {
 		s = ansi.Truncate(s, w, "…")
 	}
@@ -18,6 +19,65 @@ func fit(s string, w int) string {
 		s += strings.Repeat(" ", pad)
 	}
 	return s
+}
+
+// showControls turns the control characters of a cell's text into their pictures (a line break in a file name shows
+// as ␊), so a name cannot break the row or move the cursor. ESC stays: the cells carry lazyfinder's own colors, and
+// View drops any sequence a name could add with it.
+func showControls(s string) string {
+	return strings.Map(func(r rune) rune {
+		switch {
+		case r == '\x1b':
+			return r
+		case r < 0x20:
+			return 0x2400 + r
+		case r == 0x7f:
+			return '␡'
+		case r >= 0x80 && r < 0xa0:
+			return '�'
+		}
+		return r
+	}, s)
+}
+
+// safeFrame drops from the frame every string sequence (OSC, DCS, APC, PM and SOS) and every control character other
+// than the line break and ESC. lazyfinder draws none of them in the frame (images go out on their own with tea.Raw),
+// so any one there came from a file name or a file's text, and the renderer would pass an OSC 8 link on as it is.
+func safeFrame(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c == '\x1b' && i+1 < len(s) && strings.IndexByte("]P_^X", s[i+1]) >= 0 {
+			i = stringSequenceEnd(s, i+2)
+			continue
+		}
+		if c < 0x20 && c != '\n' && c != '\x1b' || c == 0x7f {
+			continue
+		}
+		if c == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] < 0xa0 { // a C1 control in UTF-8
+			i++
+			continue
+		}
+		b.WriteByte(c)
+	}
+	return b.String()
+}
+
+// stringSequenceEnd returns the index of the last byte of a string sequence whose body starts at i: its BEL or the
+// backslash of its ESC \. A sequence without an end runs to the end of the line.
+func stringSequenceEnd(s string, i int) int {
+	for ; i < len(s); i++ {
+		switch {
+		case s[i] == '\a':
+			return i
+		case s[i] == '\x1b' && i+1 < len(s) && s[i+1] == '\\':
+			return i + 1
+		case s[i] == '\n':
+			return i - 1
+		}
+	}
+	return len(s) - 1
 }
 
 // overlay draws box (lines of equal width bw) over base lines at column x, row y.

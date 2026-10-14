@@ -41,16 +41,6 @@ func archiveOf(name string) archiveKind {
 	return notArchive
 }
 
-// clean makes an archive's own text safe for the screen: control characters become "?".
-func clean(s string) string {
-	return strings.Map(func(r rune) rune {
-		if r < 0x20 || (r >= 0x7f && r < 0xa0) {
-			return '?'
-		}
-		return r
-	}, s)
-}
-
 // listArchive reads the table of contents of an archive and never extracts anything. Total is the number of
 // entries (exact unless more is true), Lines are the first maxArchiveEntries of them.
 func listArchive(ctx context.Context, path string, kind archiveKind) (lines []string, total int, more bool, err error) {
@@ -63,7 +53,7 @@ func listArchive(ctx context.Context, path string, kind archiveKind) (lines []st
 		if isDir {
 			sz = "--"
 		}
-		lines = append(lines, fmt.Sprintf("%10s  %s", sz, clean(name)))
+		lines = append(lines, fmt.Sprintf("%10s  %s", sz, VisibleLine(name)))
 	}
 	if kind == zipArchive {
 		zr, err := zip.OpenReader(path)

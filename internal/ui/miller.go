@@ -135,7 +135,7 @@ func (m *Model) millerGeom() millerGeom {
 }
 
 func padTo(s string, w int) string {
-	s = ansi.Truncate(s, w, "…")
+	s = ansi.Truncate(showControls(s), w, "…")
 	return s + strings.Repeat(" ", max(0, w-ansi.StringWidth(s)))
 }
 
