@@ -5,7 +5,7 @@
 
 ## Context and problem statement
 
-Mathias finds the icons "muy pequeños" next to Finder's. In a terminal a text icon is one cell wide and one cell
+The icons look too small next to Finder's. In a terminal a text icon is one cell wide and one cell
 tall. Finder draws real, large icons. The order asks to decide, measure and deliver a side-by-side capture, or
 explain in an ADR why a real icon is not viable.
 
@@ -28,11 +28,11 @@ Options 1 and 2 ship; option 3 is **not implemented**.
   and cached per type; each visible row then needs an image placement that must be moved or deleted on every scroll,
   resize, popup and redraw while Bubble Tea redraws cell by cell. Terminals without the protocol need the glyph
   fallback anyway, and the preview already draws images with the protocol, so the cost is only worth paying if
-  Mathias asks for it after seeing the roomy rows.
-* Side by side with Finder: only Mathias can put Finder in the capture (the agents never touch his windows). The
+  users ask for it after seeing the roomy rows.
+* Side by side with Finder: Finder is not part of this capture (the tests never drive other applications). The
   lazyfinder half of the comparison is the two captures above.
 
 ## Consequences
 
-* The glyph stays small by design. If Mathias wants bigger icons, the next step is a prototype of option 3 for the
-  folder and file-type icons only (a handful of cached PNGs), measured for flicker on scroll; decided by him.
+* The glyph stays small by design. If bigger icons are wanted, the next step is a prototype of option 3 for the
+  folder and file-type icons only (a handful of cached PNGs), measured for flicker on scroll; decided by the maintainer.

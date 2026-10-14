@@ -90,7 +90,7 @@ func TestEmojiIconsFillThreeCellsAndKeepNamesAligned(t *testing.T) {
 }
 
 // The click goes to the segment of the home folder even when a folder above it has the same digits in its name
-// (cerebro, 2026-10-14: t.TempDir is ".../TestX2470001387/001", and strings.Index found the "001" of the parent).
+// (2026-10-14: t.TempDir is ".../TestX2470001387/001", and strings.Index found the "001" of the parent).
 func TestThePathBarDrawsAFolderIconBeforeEachSegmentAndKeepsItsClicks(t *testing.T) {
 	for _, home := range []string{t.TempDir(), filepath.Join(t.TempDir(), "x001y", "001")} {
 		thePathBarKeepsItsClicks(t, home)

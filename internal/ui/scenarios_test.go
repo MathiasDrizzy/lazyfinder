@@ -12,7 +12,7 @@ import (
 var gitOpKeys = map[string]bool{"s": true, "u": true, "z": true, "f": true, "p": true, "P": true, "y": true, "enter": true}
 
 // An assert right after a git operation reads the screen before git finished: it passed on a quiet machine and failed
-// two runs in six with scenarios in parallel (cerebro's audit of 019e3e5, R1). After such a key a scenario must wait
+// two runs in six with scenarios in parallel (audit of 019e3e5, R1). After such a key a scenario must wait
 // for the result with a regex.
 func TestNoScenarioAssertsRightAfterAGitOperation(t *testing.T) {
 	files, err := filepath.Glob(filepath.Join("..", "..", "testdata", "tuiqa", "*.json"))

@@ -1,14 +1,12 @@
 # Parity with Finder and with the Windows Explorer search
 
-* Status: accepted (2026-10-13, order 2026-10-13-03 relayed by cerebro: "debe tener las mismas funcionalidades que
-  finder y el buscador de archivos de windows, tiene que tener protocolo kitty y se debe poder hacer click y
-  configurar con que programas abrir los archivos, deben venir unos por defectos obviamente, debe ser todo
-  configurable")
+* Status: accepted (2026-10-13: the same features as Finder and the Windows file search, the Kitty protocol,
+  clicks, configurable openers with sensible defaults, everything configurable)
 * Date: 2026-10-13
 
 ## Context and problem statement
 
-Milestones 1 and 2 cover browsing, preview, open-with, theming, live follow and git. Mathias now asks for feature
+Milestones 1 and 2 cover browsing, preview, open-with, theming, live follow and git. The next request is feature
 parity with Finder and with the file search of Windows Explorer, with the Kitty protocol, clicks, default openers
 that can all be replaced, and everything configurable. The ROADMAP needs a feature matrix so each item has a
 milestone and a test, instead of a vague "same as Finder".

@@ -1,18 +1,18 @@
 # Go and Bubble Tea v2
 
-* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit)
+* Status: accepted (2026-10-13)
 * Date: 2026-10-13
 
 ## Context and problem statement
 
 lazyfinder needs a language and TUI framework. It must handle mouse input, overlays (the preview popup), inline
 images, a file watcher, and be testable with the real binary in a pty (ED-25). It should share its nature with
-lazymark, Mathias's other TUI.
+lazymark, the author's other TUI.
 
 ## Decision drivers
 
 * Mouse as a first-class input.
-* Reuse of proven code and test tooling from lazymark and cerebro's `tuiqa` (Go).
+* Reuse of proven code and test tooling from lazymark and the `tuiqa` pty harness (Go).
 * Ecosystem for file watching, syntax highlighting, Kitty graphics.
 * Responsiveness on directories of 10 000+ entries.
 
@@ -46,6 +46,6 @@ Risks and mitigations:
 
 ### Consequences
 
-* Good: fastest path to a usable M1; one toolchain across Mathias's TUIs.
+* Good: fastest path to a usable M1; one toolchain across the author's TUIs.
 * Bad: Bubble Tea's string-based rendering needs care for overlays; image placement needs raw escape output outside
   the cell grid (ADR 0006).

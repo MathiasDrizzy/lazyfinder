@@ -1,6 +1,6 @@
 {
   "name": "lazyfinder-rows-git-comfortable",
-  "criterio": "cerebro S5 (order 07, revision 2): the row height comes from the density setting, not from git; with the default density (comfortable) rows are two lines apart on purpose, git or not",
+  "criterio": "S5 (order 07, revision 2): the row height comes from the density setting, not from git; with the default density (comfortable) rows are two lines apart on purpose, git or not",
   "cmd": [
     "sh",
     "-c",

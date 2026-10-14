@@ -1,6 +1,6 @@
 {
   "name": "lazyfinder-rows-git-normal",
-  "criterio": "cerebro S5 (order 07, revision 2): the row height comes from the density setting, not from git; with density normal consecutive rows sit on consecutive lines, inside a git repository",
+  "criterio": "S5 (order 07, revision 2): the row height comes from the density setting, not from git; with density normal consecutive rows sit on consecutive lines, inside a git repository",
   "cmd": [
     "sh",
     "-c",

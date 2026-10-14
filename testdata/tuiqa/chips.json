@@ -214,7 +214,7 @@
       }
     },
     {
-      "desc": "cerebro S6: the pointer on the new file icon of the window toolbar",
+      "desc": "S6: the pointer on the new file icon of the window toolbar",
       "text": "\u001b[<35;82;1M"
     },
     {
@@ -268,7 +268,7 @@
       }
     },
     {
-      "desc": "cerebro S6: the pointer on the collapse icon of the window toolbar",
+      "desc": "S6: the pointer on the collapse icon of the window toolbar",
       "text": "\u001b[<35;88;1M"
     },
     {
@@ -322,7 +322,7 @@
       }
     },
     {
-      "desc": "cerebro S6: a click on the new folder icon makes the folder and asks its name",
+      "desc": "S6: a click on the new folder icon makes the folder and asks its name",
       "click": {
         "x": 84,
         "y": 0

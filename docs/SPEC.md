@@ -1,12 +1,12 @@
 # lazyfinder specification
 
 lazyfinder is a lazy file manager for the terminal: a Finder-like TUI with columns, preview, open-with and live
-follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener todo lo que necesito en una app tui").
+follow mode, in the spirit of lazymark: stop using Finder and still have everything needed, in a terminal app.
 
 ## How to read this document
 
-- **Quote** blocks are the author's words, verbatim (2026-10-13, Spanish). They are requirements.
-- **PROPOSAL** items were deductions from those words, kept to show where a requirement came from.
+- **Source requirements** `Q1`–`Q8` summarize the original request (2026-10-13). They are requirements.
+- **PROPOSAL** items were deductions from them, kept to show where a requirement came from.
 - Every requirement `R-nn` has an acceptance criterion `AC` that a test or a `tuiqa` scenario checks. Rule of work:
   the test is written first and seen failing against the previous commit (ED-22, ED-25).
 - Milestone tags: `M1` first usable release, `M2` live follow and git, `M3+` later milestones.
@@ -14,18 +14,18 @@ follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener 
   Date Created, Size, Kind, folders with a `>` disclosure, a breadcrumb path at the bottom, back/forward buttons and
   a Search field.
 
-## Source quotes
+## Source requirements
 
-| Id | Quote |
+| Id | Requirement |
 |---|---|
-| Q1 | "un buscador de archivos perezoso, muy similar al finder de mac, o al de windows" |
-| Q2 | "donde pueda hacer click, pueda abrir archivos, por ejemplo configurar con que abrirlos, por ejemplo un txt, puede ser con el editor de texto de mac, o vscode o lo que sea yo elegir, un xlsx con excel o libre office etc... una foto con vista previa de mac" |
-| Q3 | "poder apretar espacio y que aparezca la vista previa como en mac como popup que es muy util" |
-| Q4 | "poder ir haciendo clics hasta llegar la carpeta" |
-| Q5 | "un modo de seguimiento en vivo tambien para poder utilizarlo como el sidebar de vscode, donde pueda ir siguiendo un proyecto y cuando un agente empiece un proyecto seguir en vivo lo que vaya creando y no tener que hacer refresh todo el tiempo para ver los archivos nuevos, que sea consistente con git y salgan las cosas nuevas" |
-| Q6 | "una app tui, con la misma naturaleza de lazymark, dejar de utilizar el finder pero tener todo lo que necesito en una app tui" |
-| Q7 | "y muchas cosas mas" |
-| Q8 | "recuerda la estetica tiene que ser parecido a finder de mac, pero con la estetica lazy como la tenemos en lazymark, ademas tiene qeu ser todo configurable, con clicks, con los temas, idiomas, configuracion, protocolo kitty etc.. ya la rueda la inventamos con lazymark" (relayed by cerebro, 2026-10-13) |
+| Q1 | A lazy file browser, very close to the macOS Finder or the Windows file explorer. |
+| Q2 | Click to open files, and choose what opens each type: a `.txt` with TextEdit, VS Code or any editor; an `.xlsx` with Excel or LibreOffice; a picture with Preview. |
+| Q3 | Press space for a Quick Look-like preview popup. |
+| Q4 | Reach a folder by clicking through the folders above it. |
+| Q5 | A live follow mode, like the VS Code sidebar, to watch a project while an agent creates files: new files appear without a refresh, consistent with git. |
+| Q6 | A terminal app with the nature of lazymark that replaces Finder for everyday use. |
+| Q7 | Room for much more. |
+| Q8 | The look of the macOS Finder with the lazy style of lazymark, and everything configurable: clicks, themes, languages, settings, the Kitty graphics protocol. Reuse what lazymark already solved. |
 
 ## Milestone 1 requirements
 
@@ -111,7 +111,7 @@ follow mode, in the spirit of lazymark ("dejar de utilizar el finder pero tener 
   an invalid file is reported with the line and field and the app still starts with defaults. AC: tests for each
   path and for malformed JSON. Schema in ADR 0004.
 - **R-23 Isolation (M1).** Tests and scenarios run with a temporary `HOME`, `LAZYFINDER_CONFIG` and fixture trees;
-  nothing reads Mathias's real files. AC: `verificar.sh` runs the suite with `HOME` pointed at a temp dir and a
+  nothing reads the user's real files. AC: `verificar.sh` runs the suite with `HOME` pointed at a temp dir and a
   check that fails if any test opens a path under the real home.
 - **R-24 Read-only (M1).** Milestone 1 never modifies, moves, renames or deletes files. AC: test that no write
   syscalls target the fixture tree (fixture is read-only; the suite passes with it mounted read-only mode `0555`).
@@ -166,7 +166,7 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
 
 ## Parity with Finder and Explorer search (ADR 0009)
 
-Mathias, 2026-10-13: "debe tener las mismas funcionalidades que finder y el buscador de archivos de windows".
+Requirement (2026-10-13): the same features as Finder and as the Windows file search.
 
 - **R-50 Search bar (M3, done).** `/` opens a search bar with the grammar of ADR 0009: words for the name; `kind:`,
   `modified:`, `size:` filters; chips that can be clicked; scope current folder or recursive; results appear while

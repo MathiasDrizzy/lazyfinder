@@ -1,6 +1,6 @@
 # Package layout and data flow
 
-* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit)
+* Status: accepted (2026-10-13)
 * Date: 2026-10-13
 
 ## Context and problem statement

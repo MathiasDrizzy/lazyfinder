@@ -11,7 +11,7 @@ done operation that cannot be reversed.
 
 ## Decision drivers
 
-* Mathias asked for the same functions as Finder (copy, move, rename, new folder, Trash, duplicate, Get Info).
+* The request is the same functions as Finder (copy, move, rename, new folder, Trash, duplicate, Get Info).
 * The rules of the project: tests run in temporary folders, never on real data; side effects behind a small seam.
 * Terminal reality: there is no drag and drop and no modifier-click on every terminal, so the keyboard reaches
   everything and the mouse reaches the common cases.

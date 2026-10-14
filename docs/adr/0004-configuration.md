@@ -1,11 +1,11 @@
 # `config.json` schema
 
-* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit)
+* Status: accepted (2026-10-13)
 * Date: 2026-10-13
 
 ## Context and problem statement
 
-Mathias must choose what opens each file type, plus columns and theme. JSON was asked for in the order
+The user must choose what opens each file type, plus columns and theme. JSON was asked for
 (`config.json`); it has no comments, so unknown keys are rejected with a clear message and a documented example ships
 in `docs/configuration.md`.
 

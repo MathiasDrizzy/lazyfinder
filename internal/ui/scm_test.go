@@ -286,7 +286,7 @@ func TestTheCounterOfTheGitTabCountsItsOwnRows(t *testing.T) {
 	}
 }
 
-// R2 of cerebro's review: a detached HEAD says where it is, like git and the herdr sidebar.
+// R2 of the review: a detached HEAD says where it is, like git and the herdr sidebar.
 func TestADetachedHeadShowsTheShortHash(t *testing.T) {
 	e := gitEnv(t, 60)
 	e.git("checkout", "-q", "--detach")

@@ -1,12 +1,12 @@
 # Live watcher design
 
-* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit) (implemented in milestone 2; M1 ships only the interface)
+* Status: accepted (2026-10-13) (implemented in milestone 2; M1 ships only the interface)
 * Date: 2026-10-13
 
 ## Context and problem statement
 
-Mathias wants to follow a project while an agent creates files, "que sea consistente con git y salgan las cosas
-nuevas", without manual refresh. Research 02 measured that fsnotify's kqueue backend on macOS opens one file
+The user wants to follow a project while an agent creates files, consistent with git and with new files showing
+up, without manual refresh. Research 02 measured that fsnotify's kqueue backend on macOS opens one file
 descriptor per entry of each watched directory (2001 fds for one directory of 2000 files) and has no recursion.
 
 ## Decision drivers

@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-// Mathias, 2026-10-14: "al momento de cerrar … que te deje en la terminal en la carpeta que estabas … se puede
-// desactivar en configuración". A program cannot change the folder of the shell that started it, so lazyfinder
+// Requirement (2026-10-14): quitting leaves the terminal in the folder lazyfinder was in, and a setting turns that
+// off. A program cannot change the folder of the shell that started it, so lazyfinder
 // writes the folder it ends in to the file of --cwd-file and a shell function (--shell-init) moves there, as yazi
 // and lf do.
 

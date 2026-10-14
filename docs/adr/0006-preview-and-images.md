@@ -1,12 +1,12 @@
 # Preview pipeline and image protocol
 
-* Status: accepted (2026-10-13, approved by cerebro with the phase 1 audit)
+* Status: accepted (2026-10-13)
 * Date: 2026-10-13
 
 ## Context and problem statement
 
 Space must show a Quick Look-like popup for text, images and folders without blocking the UI, in Ghostty (Kitty
-graphics) and degrade elsewhere. Mathias's session runs inside a multiplexer (`TERM_PROGRAM=herdr`), so environment
+graphics) and degrade elsewhere. The author's session runs inside a multiplexer (`TERM_PROGRAM=herdr`), so environment
 variables alone cannot identify the terminal.
 
 ## Decision outcome

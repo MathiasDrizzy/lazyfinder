@@ -1,8 +1,7 @@
 # Look, themes, languages and settings
 
-* Status: accepted (2026-10-13, order from Mathias relayed by cerebro: "la estetica tiene que ser parecido a finder
-  de mac, pero con la estetica lazy como la tenemos en lazymark, ademas tiene que ser todo configurable ... ya la
-  rueda la inventamos con lazymark")
+* Status: accepted (2026-10-13: the look of the macOS Finder with the lazy style of lazymark, everything
+  configurable, reusing what lazymark already solved)
 * Date: 2026-10-13
 
 ## Context and problem statement

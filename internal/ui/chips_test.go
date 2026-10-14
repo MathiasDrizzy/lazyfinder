@@ -104,7 +104,7 @@ func TestTheButtonBoxesAreHerdrChipsWithTheGlyphInTheMiddle(t *testing.T) {
 }
 
 // Mathias, 2026-10-14, zooming on the hover of the mode button: "no se puede centrar el icono con el recuadro gris …
-// el icono está más a la derecha y la izquierda está más grande". cerebro measured b46b985 in Ghostty (order 07,
+// el icono está más a la derecha y la izquierda está más grande". A measurement of b46b985 in Ghostty (order 07,
 // revision 3, S7): margins of 9 and 20 pixels. And then: "revisa también los tamaños de los recuadros gris … este es
 // mucho más grande que los otros" (the collapse box, 57 pixels against 43). The box is read back from the screen,
 // turned into pixels with the ink measured in Ghostty, and its two margins must differ by 2 pixels at most and every

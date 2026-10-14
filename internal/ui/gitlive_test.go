@@ -220,7 +220,7 @@ func TestGitTellsApartTwoNewFilesWhenOneIsCommitted(t *testing.T) {
 	}
 }
 
-// cerebro, 2026-10-14, after Mathias's test where git init left .git open in the tree: the sidebar hides .git as
+// 2026-10-14, after a test where git init left .git open in the tree: the sidebar hides .git as
 // herdr-sidebar does (tree.rs, visible: "`.git` is always hidden; other dotfiles only when `show_hidden` is off").
 func TestTheSidebarTreeAlwaysHidesDotGitLikeHerdr(t *testing.T) {
 	e := projectEnv(t, 40)

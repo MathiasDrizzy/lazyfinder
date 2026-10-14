@@ -35,8 +35,8 @@ var userNames []string
 
 var hexColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
 
-// themeNameRe: el nombre del archivo es el del tema y sale en la ayuda de --theme y en la barra de estado. Con comas o espacios parecería
-// más de un tema, y con caracteres de control o de dirección podría escribir secuencias de escape en la terminal.
+// themeNameRe: the file name is the theme's name and shows in the help of --theme and in the status bar. With commas
+// or spaces it would look like more than one theme, and control or direction characters could write escape sequences.
 var themeNameRe = regexp.MustCompile(`^[a-z0-9._-]+$`)
 
 type paletteSlot struct {

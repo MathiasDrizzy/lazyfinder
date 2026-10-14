@@ -31,8 +31,8 @@ installed. The preview popup must stay fast, must never run a shell, and must ne
   multiplexers. Kitty Unicode placeholders are text cells, so they compose with the popup and clear when it closes;
   Sixel and iTerm2 images are painted at the cursor and would need their own erase and compositing logic per
   terminal, which cannot be tested without those terminals. Where Kitty graphics are not available the popup offers
-  Quick Look (`Q`), as before. This is revisited if a Sixel-only terminal is a requirement; it is recorded as a
-  decision for the owner in `ESTADO.md`.
+  Quick Look (`Q`), as before. This is revisited if a Sixel-only terminal is a requirement; it is left as a
+  decision for the maintainer.
 
 ## Consequences
 

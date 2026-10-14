@@ -6,8 +6,8 @@
 
 ## Context and problem statement
 
-After 0.10.0 Mathias asked for "iconos más grandes" with a setting "para que los iconos sean más grandes o pequeños",
-and "lo mismo con el engranaje, se ve muy pequeño". ADR 0013 explained that a text icon cannot grow. The order asks
+After 0.10.0 the request was bigger icons, with a setting to make them bigger or smaller, and the same for the
+settings gear, which looked very small. ADR 0013 explained that a text icon cannot grow. The order asks
 to explore what is possible in a cell and to leave what was measured.
 
 ## Measurement
