@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-10-14
+
 ### Added
 
 - Quitting leaves the shell in the folder lazyfinder ends in: `eval "$(lazyfinder --shell-init zsh)"` in `~/.zshrc`
@@ -34,6 +36,8 @@ All notable changes to this project are documented here. The format follows
   is drawn with blocks in its own color, never with reversed colors.
 - In the sidebar, the tall box lit on the mode button and the gear had a notch on its left side: its rows above and
   below now start at the same half cell as the middle row.
+- A test of the path bar failed about one run in four, depending on the name of the temporary folder: it now finds
+  the segment by its position.
 
 ## [0.12.0] - 2026-10-14
 
