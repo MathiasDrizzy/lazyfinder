@@ -37,14 +37,6 @@ type promptState struct {
 	yes    func() tea.Cmd
 }
 
-// dirOr is the folder the prompt was started for, or fallback when it has none.
-func (p promptState) dirOr(fallback string) string {
-	if p.target != "" {
-		return p.target
-	}
-	return fallback
-}
-
 type clipboard struct {
 	paths []string
 	cut   bool
