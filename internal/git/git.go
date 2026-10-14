@@ -38,6 +38,8 @@ type Status struct {
 	Root            string // absolute, symlinks resolved
 	Branch          string // "HEAD" when detached
 	Ahead, Behind   int
+	Staged          []Change        // changes in the index, in path order
+	Unstaged        []Change        // changes in the work tree: modified, deleted, untracked and in conflict
 	files           map[string]Code // slash path relative to Root
 	viaDir, realDir string
 }
@@ -69,7 +71,7 @@ func Read(dir string) (Status, bool, error) {
 	if r, err := filepath.EvalSymlinks(root); err == nil {
 		root = r
 	}
-	out, err := git(ctx, root, "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "-z")
+	out, err := git(ctx, root, "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "-z")
 	if err != nil {
 		return Status{}, false, err
 	}
@@ -106,14 +108,25 @@ func parse(out []byte) Status {
 				s.Behind, _ = strconv.Atoi(strings.TrimPrefix(f[1], "-"))
 			}
 		case strings.HasPrefix(r, "1 "):
-			s.set(pathAfter(r, 8), classify(r[2:4]))
+			p := pathAfter(r, 8)
+			s.set(p, classify(r[2:4]))
+			s.split(p, "", r[2], r[3])
 		case strings.HasPrefix(r, "2 "):
-			s.set(pathAfter(r, 9), Renamed)
+			p := pathAfter(r, 9)
+			s.set(p, Renamed)
+			orig := ""
+			if i+1 < len(recs) {
+				orig = string(recs[i+1])
+			}
 			i++ // the original path follows as its own record
+			s.split(p, orig, r[2], r[3])
 		case strings.HasPrefix(r, "u "):
-			s.set(pathAfter(r, 10), Conflicted)
+			p := pathAfter(r, 10)
+			s.set(p, Conflicted)
+			s.Unstaged = append(s.Unstaged, Change{Path: p, Code: Conflicted})
 		case strings.HasPrefix(r, "? "):
 			s.set(r[2:], Untracked)
+			s.Unstaged = append(s.Unstaged, Change{Path: strings.TrimSuffix(r[2:], "/"), Code: Untracked})
 		case strings.HasPrefix(r, "! "):
 			s.set(r[2:], Ignored)
 		}
