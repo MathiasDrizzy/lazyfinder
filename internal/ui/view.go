@@ -324,7 +324,7 @@ func (m *Model) screen() []string {
 	for _, p := range m.popupBoxes() {
 		lines = put(lines, p.box, p.x, p.y)
 	}
-	return lines
+	return m.withTooltip(m.withHover(lines))
 }
 
 // popupsKeepTerminalBackground says whether the screen is painted with the theme while popups are not
@@ -432,13 +432,17 @@ func (m *Model) toolbar() string {
 	if l := m.tabLabel(); l != "" {
 		left += "  " + m.styles.accent(l)
 	}
-	right := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries()))) + "  " + m.searchField() + "  " + m.gearButton() + " "
+	count := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries())))
+	right := count + "  " + m.searchField() + m.modeButton() + m.gearButton() + " "
+	if m.actionsShown() > 0 { // the action icons sit one cell before the field
+		right = count + "  " + m.actionsText() + " " + m.searchField() + m.modeButton() + m.gearButton() + " "
+	}
 	if b := m.branchLabel(); b != "" {
 		right = m.styles.accent(b) + "  " + right
 	}
 	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
 	if pad < 1 {
-		return fit(left, m.w-m.gearW()) + "  " + m.gearButton() + " "
+		return fit(left, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton() + " "
 	}
 	return left + strings.Repeat(" ", pad) + right
 }

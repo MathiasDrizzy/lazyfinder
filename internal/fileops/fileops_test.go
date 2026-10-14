@@ -374,3 +374,21 @@ func TestInfoDescribesAFile(t *testing.T) {
 		t.Fatalf("folder info = %+v (files %d total %d)", dir, dir.Files, dir.Total)
 	}
 }
+
+func TestTouchCreatesAnEmptyFileRefusesTakenAndUndoes(t *testing.T) {
+	w := newWorld(t)
+	got, err := w.ops.Touch(w.path("src"), "fresh.txt")
+	w.must(err)
+	if fi, err := os.Stat(got); err != nil || fi.IsDir() || fi.Size() != 0 {
+		t.Fatalf("not an empty file: %v", err)
+	}
+	if _, err := w.ops.Touch(w.path("src"), "fresh.txt"); err == nil {
+		t.Fatal("an existing name must be refused")
+	}
+	if _, err := w.ops.Touch(w.path("src"), "a/b"); err == nil {
+		t.Fatal("a slash must be refused")
+	}
+	if _, err := w.ops.Undo(); err != nil || w.exists("src/fresh.txt") {
+		t.Fatalf("undo must remove the empty file: %v", err)
+	}
+}

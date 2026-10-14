@@ -156,7 +156,7 @@ func TestABadQueryShowsWhyAndKeepsTheFolder(t *testing.T) {
 
 func TestClickingTheSearchGlyphOpensTheBar(t *testing.T) {
 	e := newEnv(t)
-	e.click(e.m.w-e.m.gearW()-2, 0)
+	e.click(e.m.w-e.m.gearW()-modeBtnW-2, 0)
 	if e.m.search.mode != searchTyping {
 		t.Fatalf("mode = %v, want typing", e.m.search.mode)
 	}

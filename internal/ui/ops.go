@@ -16,6 +16,7 @@ const (
 	promptNone promptKind = iota
 	promptRename
 	promptNewFolder
+	promptNewFile
 	promptTrash
 	promptFilter
 	promptTag
@@ -26,8 +27,16 @@ const (
 type promptState struct {
 	kind   promptKind
 	input  string
-	target string   // the path being renamed
+	target string   // the path being renamed, or the folder a new file or folder goes in
 	paths  []string // the paths a trash confirmation is about
+}
+
+// dirOr is the folder the prompt was started for, or fallback when it has none.
+func (p promptState) dirOr(fallback string) string {
+	if p.target != "" {
+		return p.target
+	}
+	return fallback
 }
 
 type clipboard struct {
@@ -105,6 +114,8 @@ func (m *Model) opsKey(act keymap.Action) (tea.Cmd, bool) {
 		return m.startRename(), true
 	case keymap.NewFolder:
 		return m.startNewFolder(), true
+	case keymap.NewFile:
+		return m.startNewFile(), true
 	case keymap.Trash:
 		return m.startTrash(), true
 	case keymap.Undo:
@@ -195,11 +206,33 @@ func (m *Model) startRename() tea.Cmd {
 	return nil
 }
 
+// createDir is the folder a new file or folder goes in: in the tree of the sidebar mode the selected folder (or the
+// folder of the selected file), anywhere else the folder being shown.
+func (m *Model) createDir() string {
+	if e, ok := m.selected(); ok && m.deps.Follow {
+		if e.IsDir {
+			return e.Path
+		}
+		return filepath.Dir(e.Path)
+	}
+	return m.dir()
+}
+
 func (m *Model) startNewFolder() tea.Cmd {
 	if !m.canWrite() {
 		return nil
 	}
-	m.prompt = promptState{kind: promptNewFolder, input: fileops.UniqueName(m.dir(), i18n.T("carpeta sin título", "untitled folder"))}
+	dir := m.createDir()
+	m.prompt = promptState{kind: promptNewFolder, target: dir, input: fileops.UniqueName(dir, i18n.T("carpeta sin título", "untitled folder"))}
+	return nil
+}
+
+func (m *Model) startNewFile() tea.Cmd {
+	if !m.canWrite() {
+		return nil
+	}
+	dir := m.createDir()
+	m.prompt = promptState{kind: promptNewFile, target: dir, input: fileops.UniqueName(dir, i18n.T("archivo sin título", "untitled file"))}
 	return nil
 }
 
@@ -284,7 +317,9 @@ func (m *Model) promptSubmit() tea.Cmd {
 	case promptRename:
 		made, err = m.ops.Rename(p.target, p.input)
 	case promptNewFolder:
-		made, err = m.ops.Mkdir(m.dir(), p.input)
+		made, err = m.ops.Mkdir(p.dirOr(m.dir()), p.input)
+	case promptNewFile:
+		made, err = m.ops.Touch(p.dirOr(m.dir()), p.input)
 	case promptTag:
 		m.prompt = promptState{}
 		return m.toggleTag(p.input)
@@ -300,6 +335,8 @@ func (m *Model) promptSubmit() tea.Cmd {
 	if p.kind == promptRename {
 		m.moveTags(p.target, made)
 		m.setStatus(fmt.Sprintf(i18n.T("Renombrado a %s", "Renamed to %s"), filepath.Base(made)))
+	} else if p.kind == promptNewFile {
+		m.setStatus(fmt.Sprintf(i18n.T("Archivo creado: %s", "Created file %s"), filepath.Base(made)))
 	} else {
 		m.setStatus(fmt.Sprintf(i18n.T("Carpeta creada: %s", "Created folder %s"), filepath.Base(made)))
 	}
@@ -312,6 +349,8 @@ func (m *Model) promptBar() string {
 		return fit(m.styles.accent(" "+i18n.T("Renombrar: ", "Rename: "))+m.prompt.input+"▏", m.w)
 	case promptNewFolder:
 		return fit(m.styles.accent(" "+i18n.T("Carpeta nueva: ", "New folder: "))+m.prompt.input+"▏", m.w)
+	case promptNewFile:
+		return fit(m.styles.accent(" "+i18n.T("Archivo nuevo: ", "New file: "))+m.prompt.input+"▏", m.w)
 	case promptTag:
 		return fit(m.styles.accent(" "+i18n.T("Etiqueta: ", "Tag: "))+m.prompt.input+"▏", m.w)
 	case promptPlace:

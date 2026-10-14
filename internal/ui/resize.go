@@ -157,6 +157,9 @@ func (m *Model) beginDrag(z zone, x int) {
 }
 
 func (m *Model) onMotion(msg tea.MouseMotionMsg) tea.Cmd {
+	if m.mouse {
+		m.hover = hoverState{x: msg.Mouse().X, y: msg.Mouse().Y, on: true}
+	}
 	if !m.mouse || m.drag.kind == dragNone {
 		return nil
 	}

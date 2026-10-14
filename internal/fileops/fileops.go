@@ -308,6 +308,35 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 	return p, nil
 }
 
+// Touch creates the empty file name in dir and returns its path. Undoing it removes the file, or keeps it in the
+// trash when it gained content since.
+func (o *Ops) Touch(dir, name string) (string, error) {
+	if err := badName(name); err != nil {
+		return "", err
+	}
+	p := filepath.Join(dir, name)
+	if exists(p) {
+		return "", fmt.Errorf("%q already exists", name)
+	}
+	f, err := os.OpenFile(p, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
+	if err != nil {
+		return "", err
+	}
+	if err := f.Close(); err != nil {
+		return "", err
+	}
+	o.push(fmt.Sprintf("new file %q", name), func() error {
+		if fi, err := os.Stat(p); err == nil && fi.Size() > 0 {
+			return o.discard([]string{p})
+		}
+		if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
+		return o.discard([]string{p})
+	})
+	return p, nil
+}
+
 // Trash moves paths to the Trash folder, where nothing is lost: a name taken there gets a copy suffix.
 func (o *Ops) Trash(paths []string) error {
 	moved, err := o.toTrash(paths)

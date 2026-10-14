@@ -57,6 +57,7 @@ func (m *Model) helpRows() []helpRow {
 		{"", i18n.T("Archivos", "Files")},
 		{k(keymap.Copy) + " " + k(keymap.Cut) + " " + k(keymap.Paste), i18n.T("Copiar, cortar, pegar", "Copy, cut, paste")},
 		{k(keymap.Rename) + "  " + k(keymap.Trash), i18n.T("Renombrar / enviar a la Papelera", "Rename / move to the Trash")},
+		{k(keymap.NewFile) + "  " + k(keymap.NewFolder), i18n.T("Archivo nuevo / carpeta nueva", "New file / new folder")},
 		{k(keymap.Undo), i18n.T("Deshacer", "Undo")},
 		{k(keymap.Preview) + " " + k(keymap.Info), i18n.T("Vista previa / información", "Preview / info")},
 		{k(keymap.Sort) + " " + k(keymap.Hidden) + " " + k(keymap.Layout), i18n.T("Ordenar / ocultos / vista de columnas", "Sort / hidden / column view")},

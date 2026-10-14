@@ -1,0 +1,206 @@
+package ui
+
+import (
+	"image/color"
+	"strconv"
+	"strings"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
+	"github.com/charmbracelet/x/ansi"
+)
+
+// hoverState is where the pointer rests; it is off after a key press and with --no-mouse.
+type hoverState struct {
+	x, y int
+	on   bool
+}
+
+type hoverRect struct{ x, y, w, h int }
+
+// hoverBg is the soft background under the pointer: between the stripes and the selection, so it reads as neither.
+func hoverBg(p theme.Palette) color.Color { return theme.Mix(p.Base, p.Surface1, 0.6) }
+
+// hoverRect is the area of whatever is clickable under the pointer, if anything.
+func (m *Model) hoverRect() (hoverRect, bool) {
+	if !m.mouse || !m.hover.on || m.tooSmallNow() {
+		return hoverRect{}, false
+	}
+	x, y := m.hover.x, m.hover.y
+	switch {
+	case m.set.open:
+		mx, my, bx := m.settingsBox()
+		_, rows, _ := m.settingsView()
+		return popupRow(x, y, mx, my, bx, rows)
+	case m.menu.open:
+		mx, my, bx := m.menuBox()
+		return popupRow(x, y, mx, my, bx, len(m.menu.items))
+	case m.ctx.open:
+		mx, my, bx := m.ctxBox()
+		return popupRow(x, y, mx, my, bx, len(m.ctx.items))
+	case m.picker.open:
+		mx, my, bx := m.pickerBox()
+		return popupRow(x, y, mx, my, bx, m.pickerRows())
+	case m.help.open, m.info.open, m.pv.open:
+		return hoverRect{}, false
+	}
+	z := m.hit(x, y)
+	switch z.kind {
+	case zoneRow:
+		if z.idx == m.sel {
+			return hoverRect{}, false
+		}
+		return hoverRect{m.listX(), firstRow + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
+	case zoneToggle:
+		return hoverRect{m.listX(), firstRow + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
+	case zonePlace:
+		if z.idx == m.sideSel && m.focus == focusSidebar {
+			return hoverRect{}, false
+		}
+		return hoverRect{1, y, m.sidebarW() - 2, 1}, true
+	case zoneHeader:
+		for _, s := range m.columns() {
+			if z.col == s.col {
+				return hoverRect{m.listX() + s.x, headerRow, s.w, 1}, true
+			}
+		}
+	case zoneProjectTab:
+		_, spans := m.projectTabsLine()
+		s := spans[z.idx]
+		return hoverRect{s.x, 0, s.w, 1}, true
+	case zoneSettings:
+		return hoverRect{m.w - m.gearW(), 0, m.gearW() - 1, 1}, true
+	case zoneMode:
+		return hoverRect{m.w - m.gearW() - modeBtnW, 0, modeBtnW, 1}, true
+	case zoneSearch:
+		if y == 0 {
+			return hoverRect{m.w - m.gearW() - modeBtnW - m.fieldW(), 0, m.fieldW(), 1}, true
+		}
+	case zoneAction:
+		for _, a := range m.actionSpans() {
+			if a.idx == z.idx {
+				return hoverRect{a.x, a.y, a.w, 1}, true
+			}
+		}
+	case zoneBack:
+		return hoverRect{0, 0, 3, 1}, true
+	case zoneForward:
+		return hoverRect{3, 0, 3, 1}, true
+	case zoneCrumb:
+		for _, c := range m.crumbs() {
+			if c.path == z.path && x >= c.x && x < c.x+c.w {
+				return hoverRect{c.x, y, c.w, 1}, true
+			}
+		}
+	case zoneChip:
+		_, spans := m.filterBar()
+		s := spans[z.idx]
+		return hoverRect{s.x, y, s.w, 1}, true
+	case zoneHint:
+		_, spans := m.footerHints()
+		for _, s := range spans {
+			if x >= s.x && x < s.x+s.w {
+				return hoverRect{s.x, y, s.w, 1}, true
+			}
+		}
+	}
+	return hoverRect{}, false
+}
+
+// popupRow is the row of a popup under the pointer, inside its frame.
+func popupRow(x, y, bx, by int, box []string, rows int) (hoverRect, bool) {
+	if !inBox(x, y, bx, by, box) || y-by-1 < 0 || y-by-1 >= rows {
+		return hoverRect{}, false
+	}
+	return hoverRect{bx + 1, y, boxWidth(box) - 2, 1}, true
+}
+
+// withHover paints the hovered area with the hover background, keeping the colors of the text on it.
+func (m *Model) withHover(lines []string) []string {
+	r, ok := m.hoverRect()
+	if !ok {
+		return lines
+	}
+	seq := "\x1b[4m" // without a palette the pointer underlines what it is on
+	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
+		seq = theme.BackgroundSeq(hoverBg(p))
+	}
+	out := make([]string, len(lines))
+	copy(out, lines)
+	for y := r.y; y < r.y+r.h && y < len(out); y++ {
+		if y < 0 {
+			continue
+		}
+		line := out[y]
+		left := ansi.Truncate(line, r.x, "")
+		left += strings.Repeat(" ", max(0, r.x-ansi.StringWidth(left)))
+		mid := ansi.Cut(line, r.x, r.x+r.w)
+		mid += strings.Repeat(" ", max(0, r.w-ansi.StringWidth(mid)))
+		right := ansi.TruncateLeft(line, r.x+r.w, "")
+		out[y] = left + "\x1b[0m" + seq + dropBackgrounds(mid, seq) + "\x1b[0m" + right
+	}
+	return out
+}
+
+// dropBackgrounds removes the background colors set inside s and puts seq after every reset, so the hover color
+// reaches the whole area whatever stripe or selection was under it.
+func dropBackgrounds(s, seq string) string {
+	var b strings.Builder
+	for len(s) > 0 {
+		i := strings.Index(s, "\x1b[")
+		if i < 0 {
+			b.WriteString(s)
+			break
+		}
+		b.WriteString(s[:i])
+		s = s[i:]
+		end := strings.IndexByte(s, 'm')
+		if end < 0 || strings.ContainsAny(s[2:end], "ABCDEFGHJKSTfhlsu") {
+			b.WriteString(s[:2])
+			s = s[2:]
+			continue
+		}
+		params := s[2:end]
+		seqText := s[:end+1]
+		s = s[end+1:]
+		if params == "" || params == "0" {
+			b.WriteString(seqText + seq)
+			continue
+		}
+		if kept := stripBackground(params); kept != "" {
+			b.WriteString("\x1b[" + kept + "m")
+		}
+	}
+	return b.String()
+}
+
+// stripBackground drops the 40-49, 100-107 and 48;... parameters of an SGR sequence.
+func stripBackground(params string) string {
+	parts := strings.Split(params, ";")
+	var keep []string
+	for i := 0; i < len(parts); i++ {
+		n, err := strconv.Atoi(parts[i])
+		switch {
+		case err != nil:
+			keep = append(keep, parts[i])
+		case n == 38:
+			keep = append(keep, parts[i])
+			if i+1 < len(parts) && parts[i+1] == "2" {
+				keep = append(keep, parts[i+1:min(len(parts), i+5)]...)
+				i += 4
+			} else if i+1 < len(parts) && parts[i+1] == "5" {
+				keep = append(keep, parts[i+1:min(len(parts), i+3)]...)
+				i += 2
+			}
+		case n == 48:
+			if i+1 < len(parts) && parts[i+1] == "2" {
+				i += 4
+			} else {
+				i += 2
+			}
+		case (n >= 40 && n <= 49) || (n >= 100 && n <= 107):
+		default:
+			keep = append(keep, parts[i])
+		}
+	}
+	return strings.Join(keep, ";")
+}

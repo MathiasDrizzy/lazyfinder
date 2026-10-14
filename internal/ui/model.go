@@ -114,6 +114,7 @@ type Model struct {
 	ctx      ctxState
 	help     helpState
 	pointerX int // column of the last click, for dragging a border
+	hover    hoverState
 	pointerY int // row of the last click, for dragging the border between the sidebar boxes
 	icons    icons.Set
 	mil      millerState
@@ -417,6 +418,7 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ensureVisible()
 		return m, m.refreshPreview()
 	case tea.KeyPressMsg:
+		m.hover.on = false // the keyboard takes over from the pointer
 		return m, m.onKey(msg)
 	case tea.MouseClickMsg:
 		return m, m.onClick(msg)

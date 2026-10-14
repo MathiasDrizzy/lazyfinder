@@ -31,6 +31,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `D` | Duplicate in the same folder (`name copy.ext`) | `duplicate` |
 | `F2`, `R` | Rename the selected item | `rename` |
 | `N`, `ctrl+n` | New folder (the name is asked, `untitled folder` by default) | `new_folder` |
+| `n` | New empty file (the name is asked, `untitled file` by default) | `new_file` |
 | `d`, `Delete` | Move to the Trash (asks above `ops.confirm_trash_above` items) | `trash` |
 | `u`, `ctrl+z` | Undo the last operation | `undo` |
 | `i` | Get Info popup | `info` |

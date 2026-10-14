@@ -27,6 +27,8 @@ const (
 	zonePreviewBorder // the border in front of the preview in the column view
 	zoneBoxBorder     // the border between Favorites and Locations: drag to resize
 	zoneProjectTab    // a tab of the project mode
+	zoneAction        // an action icon of the tree (new file, new folder, refresh, collapse)
+	zoneMode          // the button that switches between the normal window and the sidebar mode
 )
 
 // zone is what lies under a screen cell.
@@ -40,6 +42,11 @@ type zone struct {
 // hit resolves a screen position on the base layer (popups are handled before). Panel borders are not clickable.
 func (m *Model) hit(x, y int) zone {
 	lastRow := m.panelH() - 1 // last panel row (its bottom border)
+	for _, a := range m.actionSpans() {
+		if y == a.y && x >= a.x && x < a.x+a.w {
+			return zone{kind: zoneAction, idx: a.idx}
+		}
+	}
 	if m.columnsOn() && y >= headerRow && y < lastRow && x == m.listX()+m.millerGeom().parentW+1+m.millerGeom().centerW {
 		return zone{kind: zonePreviewBorder}
 	}
@@ -67,6 +74,9 @@ func (m *Model) hit(x, y int) zone {
 		if x >= m.w-m.gearW() {
 			return zone{kind: zoneSettings}
 		}
+		if x >= m.w-m.gearW()-modeBtnW {
+			return zone{kind: zoneMode}
+		}
 	case y == 0:
 		switch {
 		case x < 3:
@@ -75,7 +85,9 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneForward}
 		case x >= m.w-m.gearW():
 			return zone{kind: zoneSettings}
-		case x >= m.w-m.gearW()-m.fieldW() && x < m.w-m.gearW():
+		case x >= m.w-m.gearW()-modeBtnW && x < m.w-m.gearW():
+			return zone{kind: zoneMode}
+		case x >= m.w-m.gearW()-modeBtnW-m.fieldW() && x < m.w-m.gearW()-modeBtnW:
 			return zone{kind: zoneSearch}
 		}
 	case y == m.h-1 && m.footerShowsHints():
@@ -202,6 +214,11 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 		return m.listKey(keymap.Action(z.path))
 	case zoneProjectTab:
 		m.clickProjectTab(projectTab(z.idx))
+		return nil
+	case zoneAction:
+		return m.runAction(z.idx)
+	case zoneMode:
+		m.toggleProject()
 		return nil
 	case zoneBack:
 		return m.step(m.hist.Back())

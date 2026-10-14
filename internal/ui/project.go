@@ -46,14 +46,17 @@ func (m *Model) projectTabsLine() (string, []tabSpan) {
 	case m.projTab == tabGit:
 		active = tabGit
 	}
-	build := func(labels bool) (string, []tabSpan) {
+	build := func(labels, tight bool) (string, []tabSpan) {
 		var b strings.Builder
 		var spans []tabSpan
 		x := 0
 		for i, t := range tabs {
 			text := " " + t.glyph + " "
 			if labels || projectTab(i) == active {
-				text += t.label + " "
+				text += t.label
+				if !tight {
+					text += " "
+				}
 			}
 			style := m.styles.dim
 			if projectTab(i) == active {
@@ -65,9 +68,12 @@ func (m *Model) projectTabsLine() (string, []tabSpan) {
 		}
 		return b.String(), spans
 	}
-	line, spans := build(true)
-	if ansi.StringWidth(line)+m.gearW() > m.w {
-		line, spans = build(false)
+	line, spans := build(true, false)
+	if ansi.StringWidth(line)+m.gearW()+modeBtnW > m.w {
+		line, spans = build(true, true) // no space after the labels
+	}
+	if ansi.StringWidth(line)+m.gearW()+modeBtnW > m.w {
+		line, spans = build(false, true)
 	}
 	return line, spans
 }
@@ -75,11 +81,11 @@ func (m *Model) projectTabsLine() (string, []tabSpan) {
 // projectToolbar is row 0 of the project mode: the tabs and, at the right edge, the Settings gear.
 func (m *Model) projectToolbar() string {
 	line, _ := m.projectTabsLine()
-	pad := m.w - ansi.StringWidth(line) - m.gearW()
+	pad := m.w - ansi.StringWidth(line) - m.gearW() - modeBtnW
 	if pad < 0 {
-		return fit(line, m.w-m.gearW()) + m.gearButton() + " "
+		return fit(line, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton() + " "
 	}
-	return line + strings.Repeat(" ", pad) + m.gearButton() + " "
+	return line + strings.Repeat(" ", pad) + m.modeButton() + m.gearButton() + " "
 }
 
 func (m *Model) projectTabAt(x int) (projectTab, bool) {
@@ -99,7 +105,11 @@ func (m *Model) projectName() string {
 
 // projectHeader is the line above the tree.
 func (m *Model) projectHeader() string {
-	return m.styles.accent(fit(" "+m.projectName(), m.listW()))
+	n := m.actionsShown()
+	if n == 0 {
+		return m.styles.accent(fit(" "+m.projectName(), m.listW()))
+	}
+	return m.styles.accent(fit(" "+m.projectName(), m.listW()-n*actionW-1)) + m.actionsText() + " "
 }
 
 // projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream.
