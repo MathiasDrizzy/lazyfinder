@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-10-14
+
+Completes the 0.13.0 release, whose workflow stopped before publishing the Homebrew cask and the build provenance
+attestation. The program is the same as 0.13.0.
+
+### Added
+
+- The Homebrew cask in the tap (`brew install mathiasdrizzy/tap/lazyfinder`) and the build provenance attestation of
+  every archive and SBOM, which 0.13.0 did not get.
+
+### Fixed
+
+- The release workflow attests the archives even when publishing the cask fails after the archives are uploaded.
+
 ## [0.13.0] - 2026-10-14
 
 The first public release.
