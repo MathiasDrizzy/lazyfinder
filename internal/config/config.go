@@ -177,10 +177,11 @@ var (
 	Densities   = []string{DensityCompact, DensityNormal, DensityComfortable}
 )
 
-// ColumnPresets are the two ready-made sets of columns: basic is Finder's default, full shows every column.
+// ColumnPresets are the two ready-made sets of columns: basic is the default one, full shows every column but the
+// extension, which the name already shows (Mathias, 2026-10-14); it can still be added from the header menu.
 var ColumnPresets = map[string][]string{
-	"basic": {"name", "modified", "size", "kind"},
-	"full":  {"name", "modified", "created", "opened", "size", "kind", "extension", "permissions", "owner", "path", "tags"},
+	"basic": {"name", "modified", "created", "size", "kind"},
+	"full":  {"name", "modified", "created", "opened", "size", "kind", "permissions", "owner", "path", "tags"},
 }
 
 // ColumnPreset names the preset a list of columns equals ("custom" when it is none of them).

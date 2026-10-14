@@ -3,6 +3,7 @@ package ui
 import (
 	tea "charm.land/bubbletea/v2"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -125,4 +126,23 @@ func TestSettingsHaveDateFormatAndDensityRows(t *testing.T) {
 		t.Fatalf("saved %q %q", cfg.DateFormat, cfg.Density)
 	}
 	_ = fsmodel.ColName
+}
+
+// Mathias, 2026-10-14, with every column on: the date created did not show and the extension did. On a narrow
+// window the extension, which the name already shows, goes first; the date created stays while there is room.
+func TestTheExtensionGoesBeforeTheDateCreatedOnANarrowWindow(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.Cfg.Columns = []string{"name", "modified", "created", "opened", "size", "kind", "extension", "permissions", "owner", "path", "tags"}
+	e.send(sizeMsg())
+	var shown []fsmodel.Column
+	for _, c := range e.m.columns() {
+		shown = append(shown, c.col)
+	}
+	has := func(c fsmodel.Column) bool { return slices.Contains(shown, c) }
+	if has(fsmodel.ColExt) && !has(fsmodel.ColCreated) {
+		t.Fatalf("the extension is shown and the date created is not: %v", shown)
+	}
+	if !has(fsmodel.ColCreated) {
+		t.Fatalf("at %d columns the date created must fit once the extension is gone: %v", e.m.w, shown)
+	}
 }

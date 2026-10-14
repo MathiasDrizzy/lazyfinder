@@ -29,13 +29,22 @@ func TestOwnerAndPathAreColumns(t *testing.T) {
 	}
 }
 
+// Mathias, 2026-10-14: "en configuraciones en columnas debería aparecer fecha de creación, extensión sobra porque
+// aparece por ejemplo readme.md en su nombre". Basic is the default columns, created included; full is every column
+// but the extension, which the name already shows (it can still be added from the header menu).
 func TestColumnPresets(t *testing.T) {
 	basic, full := ColumnPresets["basic"], ColumnPresets["full"]
-	if !slices.Equal(basic, []string{"name", "modified", "size", "kind"}) {
-		t.Fatalf("basic = %v", basic)
+	if !slices.Equal(basic, Defaults("/home/u").Columns) || !slices.Contains(basic, "created") {
+		t.Fatalf("basic must be the default columns, created included: %v", basic)
 	}
-	if len(full) != len(validColumns) || full[0] != "name" {
-		t.Fatalf("full must list every column, name first: %v", full)
+	if slices.Contains(full, "extension") {
+		t.Fatalf("full must not show the extension, the name shows it: %v", full)
+	}
+	if len(full) != len(validColumns)-1 || full[0] != "name" {
+		t.Fatalf("full must list every other column, name first: %v", full)
+	}
+	if !validColumns["extension"] {
+		t.Fatal("a saved config with the extension column stays valid")
 	}
 	if ColumnPreset(basic) != "basic" || ColumnPreset(full) != "full" || ColumnPreset([]string{"name", "size"}) != "custom" {
 		t.Fatal("ColumnPreset names the preset a list matches")

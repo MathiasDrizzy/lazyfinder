@@ -18,7 +18,7 @@
                       │        │   Keybindings                    ‹ Lazy + Vim (hjkl) › │                              │
                       │        │   Date format                             ‹ absolute › │                              │
                       │        │   Row density                                 ‹ wide › │                              │
-                      │        │   Columns                                    ‹ basic › │                              │
+                      │        │   Columns                                   ‹ custom › │                              │
                       │        │   Column separators                            ‹ yes › │                              │
                       │        │   Search in                            ‹ This folder › │                              │
                       │        │   Search for                     ‹ Files and folders › │                              │

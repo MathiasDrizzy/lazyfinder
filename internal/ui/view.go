@@ -143,8 +143,8 @@ func (m *Model) striped() bool {
 
 func (m *Model) panelH() int { return m.h - 3 }
 
-// dropOrder says which optional columns go first when the window is narrow.
-var dropOrder = []fsmodel.Column{fsmodel.ColPath, fsmodel.ColTags, fsmodel.ColOwner, fsmodel.ColPerms, fsmodel.ColOpened, fsmodel.ColCreated, fsmodel.ColExt, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
+// dropOrder says which optional columns go first when the window is narrow: the extension first, the name shows it.
+var dropOrder = []fsmodel.Column{fsmodel.ColExt, fsmodel.ColPath, fsmodel.ColTags, fsmodel.ColOwner, fsmodel.ColPerms, fsmodel.ColOpened, fsmodel.ColCreated, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
 
 // columns lays out the visible columns; optional ones are dropped by dropOrder until the name fits.
 func (m *Model) columns() []colSpec {

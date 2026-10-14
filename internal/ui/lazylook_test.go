@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -156,16 +157,16 @@ func TestColumnsSettingCyclesBasicFullAndCustom(t *testing.T) {
 	path := e.withConfigFile()
 	e.key(",")
 	e.pickSetting("Columns")
-	e.mustHave("‹ custom ›")
-	e.key("right")
-	e.mustHave("‹ basic ›")
-	if got := e.savedConfig(path).Columns; len(got) != 4 {
-		t.Fatalf("basic saves four columns: %v", got)
-	}
+	e.mustHave("‹ basic ›") // the default columns are the basic preset (Mathias, 2026-10-14: the date created in it)
 	e.key("right")
 	e.mustHave("‹ full ›")
 	if got := e.savedConfig(path).Columns; len(got) != len(config.ColumnPresets["full"]) {
 		t.Fatalf("full saves every column: %v", got)
+	}
+	e.key("right")
+	e.mustHave("‹ basic ›")
+	if got := e.savedConfig(path).Columns; !slices.Contains(got, "created") || len(got) != 5 {
+		t.Fatalf("basic saves its five columns, the date created among them: %v", got)
 	}
 }
 

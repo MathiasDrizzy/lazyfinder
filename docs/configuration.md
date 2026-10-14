@@ -55,9 +55,9 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `git.enabled` | Show git state next to each file and the branch in the toolbar | `true` |
 | `git.hide_ignored` | Start with files ignored by git hidden (`I` toggles) | `false` |
 
-The Columns row of Settings and the right-click menu of the header offer two presets: **Basic** (Name, Date Modified, Size, Kind, as in Finder) and **Full** (every column). What you choose is saved in `columns`.
+The Columns row of Settings and the right-click menu of the header offer two presets: **Basic** (Name, Date Modified, Date Created, Size, Kind, the default) and **Full** (every column but Extension, which the name already shows; it can be added from the header menu). What you choose is saved in `columns`.
 
-On narrow windows the optional columns are dropped, the least useful first (Path, Tags, Owner, Permissions, Last Opened, Date Created, Extension, Kind, Size and Date Modified), so the name
+On narrow windows the optional columns are dropped, the least useful first (Extension, Path, Tags, Owner, Permissions, Last Opened, Date Created, Kind, Size and Date Modified), so the name
 stays readable.
 
 ## Openers
