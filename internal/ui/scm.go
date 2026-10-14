@@ -23,7 +23,9 @@ type scmKind int
 const (
 	scmStagedHdr scmKind = iota
 	scmChangesHdr
+	scmStashHdr
 	scmFile
+	scmStash
 )
 
 type scmRow struct {
@@ -45,6 +47,8 @@ const (
 	scmActUnstageAll
 	scmActDiscardAll
 	scmActStash
+	scmActPop
+	scmActDrop
 )
 
 type scmBtn struct {
@@ -54,7 +58,7 @@ type scmBtn struct {
 
 type scmState struct {
 	sel, top int
-	folded   [2]bool // the staged section, the changes section
+	folded   [3]bool // the staged section, the changes section, the stashes (folded until opened)
 }
 
 const scmBtnW = 2 // a space and the glyph
@@ -80,6 +84,15 @@ func (m *Model) scmRows() []scmRow {
 	}
 	section(scmStagedHdr, m.git.st.Staged, true)
 	section(scmChangesHdr, m.git.st.Unstaged, false)
+	if len(m.git.stashes) > 0 {
+		rows = append(rows, scmRow{kind: scmStashHdr, n: len(m.git.stashes)})
+		if !m.scm.folded[scmStashHdr] {
+			for i, s := range m.git.stashes {
+				_, msg, _ := strings.Cut(s, ": ")
+				rows = append(rows, scmRow{kind: scmStash, n: i, ch: git.Change{Path: msg}})
+			}
+		}
+	}
 	return rows
 }
 
@@ -100,17 +113,23 @@ func (m *Model) scmClamp() []scmRow {
 	return rows
 }
 
+func (k scmKind) header() bool { return k <= scmStashHdr }
+
 func scmGlyph(a scmAct) string {
 	return map[scmAct]string{
 		scmActOpen: "↗", scmActDiscard: "↶", scmActStage: "+", scmActUnstage: "−",
-		scmActStageAll: "+", scmActUnstageAll: "−", scmActDiscardAll: "↶", scmActStash: "⇩",
+		scmActStageAll: "+", scmActUnstageAll: "−", scmActDiscardAll: "↶", scmActStash: "⇩", scmActPop: "↰", scmActDrop: "✕",
 	}[a]
 }
 
 func scmLabel(a scmAct) string {
 	switch a {
 	case scmActOpen:
-		return i18n.T("↗ Abrir el archivo", "↗ Open file")
+		return i18n.T("↗ Abrir los cambios", "↗ Open changes")
+	case scmActPop:
+		return i18n.T("↰ Recuperar el stash (pop)", "↰ Pop the stash")
+	case scmActDrop:
+		return i18n.T("✕ Borrar el stash", "✕ Drop the stash")
 	case scmActDiscard:
 		return i18n.T("↶ Descartar cambios: d", "↶ Discard changes: d")
 	case scmActStage:
@@ -129,6 +148,10 @@ func scmLabel(a scmAct) string {
 
 func scmActs(r scmRow) []scmAct {
 	switch {
+	case r.kind == scmStash:
+		return []scmAct{scmActPop, scmActDrop}
+	case r.kind == scmStashHdr:
+		return nil
 	case r.kind == scmStagedHdr:
 		return []scmAct{scmActUnstageAll}
 	case r.kind == scmChangesHdr:
@@ -222,13 +245,22 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 		room = btns[0].x - m.listX()
 	}
 	var line string
-	if r.kind != scmFile {
+	switch {
+	case r.kind == scmStash:
+		line = fit(" ⇩ "+r.ch.Path, room)
+		if i != m.scm.sel {
+			line = m.styles.dim(line)
+		}
+	case r.kind != scmFile:
 		arrow, title := "▾", i18n.T("Cambios preparados", "Staged Changes")
 		if m.scm.folded[r.kind] {
 			arrow = "▸"
 		}
-		if r.kind == scmChangesHdr {
+		switch r.kind {
+		case scmChangesHdr:
 			title = i18n.T("Cambios", "Changes")
+		case scmStashHdr:
+			title = "Stashes"
 		}
 		count := fmt.Sprintf(" %d", r.n)
 		line = fit(" "+arrow+" "+title, room-len(count)-1) + count
@@ -236,7 +268,7 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 		if i != m.scm.sel {
 			line = m.styles.accent(line)
 		}
-	} else {
+	default:
 		code := r.ch.Code
 		name := path.Base(r.ch.Path)
 		dir := path.Dir(r.ch.Path)
@@ -300,6 +332,8 @@ func (m *Model) scmKey(key string, act keymap.Action) (tea.Cmd, bool) {
 		return m.scmRun(scmActUnstage), true
 	case "d", "delete":
 		return m.scmAsk(scmActDiscard), true
+	case "o":
+		return m.scmOpenFile(), true
 	case "z":
 		return m.gitStash(), true
 	case "b", "B":
@@ -329,7 +363,7 @@ func (m *Model) scmKey(key string, act keymap.Action) (tea.Cmd, bool) {
 	case keymap.Open, keymap.Preview, keymap.Expand:
 		return m.scmActivate(), true
 	case keymap.Parent, keymap.Collapse:
-		if n > 0 && rows[m.scm.sel].kind != scmFile {
+		if n > 0 && rows[m.scm.sel].kind.header() {
 			m.scm.folded[rows[m.scm.sel].kind] = true
 		}
 	case keymap.Help, keymap.Quit, keymap.Reload, keymap.Settings, keymap.Project, keymap.Search, keymap.Commands:
@@ -346,9 +380,12 @@ func (m *Model) scmActivate() tea.Cmd {
 		return nil
 	}
 	r := rows[m.scm.sel]
-	if r.kind != scmFile {
+	switch {
+	case r.kind.header():
 		m.scm.folded[r.kind] = !m.scm.folded[r.kind]
 		return nil
+	case r.kind == scmStash:
+		return m.scmRun(scmActPop)
 	}
 	return m.openDiff(r.ch, r.staged)
 }
@@ -377,7 +414,14 @@ func (m *Model) scmAsk(a scmAct) tea.Cmd {
 	}
 	r := rows[m.scm.sel]
 	switch {
-	case r.kind == scmStagedHdr:
+	case r.kind == scmStash:
+		n := r.n
+		m.confirm(fmt.Sprintf(i18n.T("¿Borrar el stash %d para siempre?", "Drop stash %d for good?"), n), func() tea.Cmd {
+			return m.gitRun(i18n.T("Borrando el stash…", "Dropping the stash…"), i18n.T("Stash borrado", "Stash dropped"),
+				func(root string) error { return git.StashDropAt(root, n) })
+		})
+		return nil
+	case r.kind == scmStagedHdr, r.kind == scmStashHdr:
 		return nil
 	case r.kind == scmChangesHdr:
 		a = scmActDiscardAll
@@ -429,21 +473,38 @@ func (m *Model) scmRun(a scmAct) tea.Cmd {
 		return m.gitRun(i18n.T("Quitando de lo preparado…", "Unstaging…"), i18n.T("Quitado de lo preparado", "Changes unstaged"), git.UnstageAll)
 	case scmActStash:
 		return m.gitStash()
-	case scmActDiscard, scmActDiscardAll:
+	case scmActDiscard, scmActDiscardAll, scmActDrop:
 		return m.scmAsk(a)
+	case scmActPop:
+		if r.kind != scmStash {
+			return nil
+		}
+		n := r.n
+		return m.gitRun(i18n.T("Recuperando el stash…", "Popping the stash…"), i18n.T("Stash recuperado", "Stash restored"),
+			func(root string) error { return git.StashPopAt(root, n) })
 	case scmActOpen:
 		if r.kind != scmFile {
 			return nil
 		}
-		if r.ch.Code == git.Deleted {
-			m.setStatus(i18n.T("El archivo está borrado", "The file is deleted"))
-			return nil
-		}
-		abs := filepath.Join(m.git.st.Root, filepath.FromSlash(r.ch.Path))
-		m.noteVisit(abs)
-		return m.run(m.resolve.Resolve(abs))
+		return m.openDiff(r.ch, r.staged)
 	}
 	return nil
+}
+
+// scmOpenFile opens the selected file with its program.
+func (m *Model) scmOpenFile() tea.Cmd {
+	rows := m.scmRows()
+	if m.scm.sel >= len(rows) || rows[m.scm.sel].kind != scmFile {
+		return nil
+	}
+	r := rows[m.scm.sel]
+	if r.ch.Code == git.Deleted {
+		m.setStatus(i18n.T("El archivo está borrado", "The file is deleted"))
+		return nil
+	}
+	abs := filepath.Join(m.git.st.Root, filepath.FromSlash(r.ch.Path))
+	m.noteVisit(abs)
+	return m.run(m.resolve.Resolve(abs))
 }
 
 // scmClickRow selects a row; a second click on a file shows its diff and one on a section folds it.
@@ -453,8 +514,11 @@ func (m *Model) scmClickRow(i int, double bool) tea.Cmd {
 		return nil
 	}
 	m.scm.sel = i
-	if rows[i].kind != scmFile {
+	if rows[i].kind.header() {
 		m.scm.folded[rows[i].kind] = !m.scm.folded[rows[i].kind]
+		return nil
+	}
+	if rows[i].kind != scmFile {
 		return nil
 	}
 	if double {

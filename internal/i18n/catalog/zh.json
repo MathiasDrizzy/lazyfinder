@@ -111,6 +111,8 @@
  "Document": "文稿",
  "Documents": "文稿",
  "Downloads": "下载",
+ "Drop stash %d for good?": "永久删除 stash %d？",
+ "Dropping the stash…": "正在删除 stash…",
  "Duplicated %s": "已复制副本：%s",
  "Duration: %s": "时长：%s",
  "Error: ": "错误: ",
@@ -297,6 +299,7 @@
  "Staged Changes": "已暂存的更改",
  "Staging…": "正在暂存…",
  "Stash changes": "暂存更改（stash）",
+ "Stash dropped": "stash 已删除",
  "Stash restored": "stash 已恢复",
  "Stashing…": "正在存入 stash…",
  "Subfolders": "子文件夹",
@@ -404,12 +407,15 @@
  "←/→ change · Esc closes": "←/→ 更改 · Esc 关闭",
  "←/→ change · click: select, 2nd click: change": "←/→ 更改 · 单击: 选择，再次单击: 更改",
  "↑↓ scroll · Esc close": "↑↓ 滚动 · Esc 关闭",
+ "↗ Open changes": "↗ 打开更改",
  "↗ Open file": "↗ 打开文件",
+ "↰ Pop the stash": "↰ 恢复 stash（pop）",
  "↶ Discard all changes": "↶ 放弃所有更改",
  "↶ Discard changes: d": "↶ 放弃更改: d",
  "⇩ Stash changes: z": "⇩ 暂存更改（stash）: z",
  "− Unstage all changes": "− 取消暂存所有更改",
  "− Unstage changes: s": "− 取消暂存: s",
  "⚠ %d uncommitted changes go with you": "⚠ %d 处未提交的更改会随之带过去",
- "⚠ 1 uncommitted change goes with you": "⚠ 1 处未提交的更改会随之带过去"
+ "⚠ 1 uncommitted change goes with you": "⚠ 1 处未提交的更改会随之带过去",
+ "✕ Drop the stash": "✕ 删除 stash"
 }

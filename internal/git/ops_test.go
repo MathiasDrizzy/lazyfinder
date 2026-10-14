@@ -318,3 +318,44 @@ func execIn(dir string, args ...string) error {
 	cmd.Env = append(os.Environ(), "GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null", "GIT_CONFIG_NOSYSTEM=1")
 	return cmd.Run()
 }
+
+func TestStashApplyPopAndDropByIndex(t *testing.T) {
+	dir := fixture(t)
+	if err := StashPush(dir, "first"); err != nil {
+		t.Fatal(err)
+	}
+	put(t, filepath.Join(dir, "edited.txt"), "three\n")
+	if err := StashPush(dir, "second"); err != nil {
+		t.Fatal(err)
+	}
+	list, _ := Stashes(dir)
+	if len(list) != 2 || !strings.Contains(list[0], "second") || !strings.Contains(list[1], "first") {
+		t.Fatalf("stashes = %v", list)
+	}
+	if err := StashApplyAt(dir, 1); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	if list, _ = Stashes(dir); len(list) != 2 {
+		t.Fatalf("apply must keep the stash, got %v", list)
+	}
+	if err := StashDropAt(dir, 0); err != nil {
+		t.Fatal(err)
+	}
+	if list, _ = Stashes(dir); len(list) != 1 || !strings.Contains(list[0], "first") {
+		t.Fatalf("after dropping the newest: %v", list)
+	}
+	run(t, dir, "checkout", "--", ".")
+	run(t, dir, "clean", "-fdq")
+	if err := StashPopAt(dir, 0); err != nil {
+		t.Fatalf("pop: %v", err)
+	}
+	if list, _ = Stashes(dir); len(list) != 0 {
+		t.Fatalf("pop must remove the stash, got %v", list)
+	}
+	if err := StashDropAt(dir, 5); err == nil {
+		t.Fatal("dropping a stash that does not exist must fail")
+	}
+	if err := StashDropAt(dir, -1); err == nil {
+		t.Fatal("a negative index must be refused")
+	}
+}

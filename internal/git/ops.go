@@ -339,3 +339,40 @@ func PushSetUpstream(root string) error {
 	_, err = do(networkTimeout, root, "push", "--set-upstream", remote, "HEAD")
 	return err
 }
+
+func stashRef(i int) (string, error) {
+	if i < 0 {
+		return "", fmt.Errorf("not a stash: %d", i)
+	}
+	return fmt.Sprintf("stash@{%d}", i), nil
+}
+
+// StashApplyAt puts stash i back on the work tree and keeps it in the list.
+func StashApplyAt(root string, i int) error {
+	ref, err := stashRef(i)
+	if err != nil {
+		return err
+	}
+	_, err = do(writeTimeout, root, "stash", "apply", ref)
+	return err
+}
+
+// StashPopAt puts stash i back and removes it; on a conflict git keeps it.
+func StashPopAt(root string, i int) error {
+	ref, err := stashRef(i)
+	if err != nil {
+		return err
+	}
+	_, err = do(writeTimeout, root, "stash", "pop", ref)
+	return err
+}
+
+// StashDropAt throws stash i away for good.
+func StashDropAt(root string, i int) error {
+	ref, err := stashRef(i)
+	if err != nil {
+		return err
+	}
+	_, err = do(writeTimeout, root, "stash", "drop", ref)
+	return err
+}

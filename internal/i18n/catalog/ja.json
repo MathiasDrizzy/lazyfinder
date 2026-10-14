@@ -111,6 +111,8 @@
  "Document": "書類",
  "Documents": "書類",
  "Downloads": "ダウンロード",
+ "Drop stash %d for good?": "スタッシュ %d を完全に削除しますか？",
+ "Dropping the stash…": "スタッシュを削除中…",
  "Duplicated %s": "複製しました: %s",
  "Duration: %s": "長さ: %s",
  "Error: ": "エラー: ",
@@ -297,6 +299,7 @@
  "Staged Changes": "ステージ済みの変更",
  "Staging…": "ステージ中…",
  "Stash changes": "変更をスタッシュ",
+ "Stash dropped": "スタッシュを削除しました",
  "Stash restored": "スタッシュを戻しました",
  "Stashing…": "スタッシュ中…",
  "Subfolders": "サブフォルダ",
@@ -404,12 +407,15 @@
  "←/→ change · Esc closes": "←/→ 変更 · Esc で閉じる",
  "←/→ change · click: select, 2nd click: change": "←/→ 変更 · クリック: 選択、2回目のクリック: 変更",
  "↑↓ scroll · Esc close": "↑↓ スクロール · Esc 閉じる",
+ "↗ Open changes": "↗ 変更を開く",
  "↗ Open file": "↗ ファイルを開く",
+ "↰ Pop the stash": "↰ スタッシュを戻す（pop）",
  "↶ Discard all changes": "↶ すべての変更を破棄",
  "↶ Discard changes: d": "↶ 変更を破棄: d",
  "⇩ Stash changes: z": "⇩ 変更をスタッシュ: z",
  "− Unstage all changes": "− すべての変更をステージから外す",
  "− Unstage changes: s": "− ステージから外す: s",
  "⚠ %d uncommitted changes go with you": "⚠ 未コミットの変更 %d 件が一緒に移ります",
- "⚠ 1 uncommitted change goes with you": "⚠ 未コミットの変更 1 件が一緒に移ります"
+ "⚠ 1 uncommitted change goes with you": "⚠ 未コミットの変更 1 件が一緒に移ります",
+ "✕ Drop the stash": "✕ スタッシュを削除"
 }

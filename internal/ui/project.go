@@ -134,7 +134,8 @@ func (m *Model) clickProjectTab(t projectTab) {
 	case tabGit:
 		_ = m.endSearch()
 		m.projTab = tabGit
-		m.scm = scmState{}
+		m.scm = scmState{folded: [3]bool{scmStashHdr: true}}
+		_ = m.reload() // reads the stashes
 	default:
 		_ = m.endSearch()
 		m.projTab = tabFiles

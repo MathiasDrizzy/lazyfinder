@@ -111,6 +111,8 @@
  "Document": "Document",
  "Documents": "Documents",
  "Downloads": "Téléchargements",
+ "Drop stash %d for good?": "Supprimer définitivement le stash %d ?",
+ "Dropping the stash…": "Suppression du stash…",
  "Duplicated %s": "Dupliqué : %s",
  "Duration: %s": "Durée : %s",
  "Error: ": "Erreur : ",
@@ -297,6 +299,7 @@
  "Staged Changes": "Modifications indexées",
  "Staging…": "Indexation…",
  "Stash changes": "Mettre les modifications de côté",
+ "Stash dropped": "Stash supprimé",
  "Stash restored": "Stash récupéré",
  "Stashing…": "Mise de côté…",
  "Subfolders": "Sous-dossiers",
@@ -404,12 +407,15 @@
  "←/→ change · Esc closes": "←/→ changer · Échap ferme",
  "←/→ change · click: select, 2nd click: change": "←/→ changer · clic: sélectionner, 2e clic: changer",
  "↑↓ scroll · Esc close": "↑↓ défiler · Échap fermer",
+ "↗ Open changes": "↗ Ouvrir les modifications",
  "↗ Open file": "↗ Ouvrir le fichier",
+ "↰ Pop the stash": "↰ Récupérer le stash (pop)",
  "↶ Discard all changes": "↶ Annuler toutes les modifications",
  "↶ Discard changes: d": "↶ Annuler les modifications : d",
  "⇩ Stash changes: z": "⇩ Mettre les modifications de côté : z",
  "− Unstage all changes": "− Retirer toutes les modifications de l'index",
  "− Unstage changes: s": "− Retirer de l'index : s",
  "⚠ %d uncommitted changes go with you": "⚠ %d modifications non validées vous suivent",
- "⚠ 1 uncommitted change goes with you": "⚠ 1 modification non validée vous suit"
+ "⚠ 1 uncommitted change goes with you": "⚠ 1 modification non validée vous suit",
+ "✕ Drop the stash": "✕ Supprimer le stash"
 }

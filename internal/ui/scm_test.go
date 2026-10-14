@@ -360,3 +360,41 @@ func TestButtonsShowOnlyOnTheSelectedOrHoveredRowAndHaveTooltips(t *testing.T) {
 		t.Fatalf("the bottom row names the button:\n%s", e.text())
 	}
 }
+
+func TestTheStashesSectionListsPopsAndDropsWithAConfirmation(t *testing.T) {
+	e := gitEnv(t, 50)
+	e.key("z")
+	e.mustHave("Stashes")
+	e.mustNotHave("WIP on main") // folded until opened
+	e.clickText("Stashes")
+	e.mustHave("WIP on main")
+	x, y := e.button("WIP on main", scmActDrop)
+	e.click(x, y)
+	if e.m.prompt.kind != promptConfirm {
+		t.Fatal("dropping a stash loses it for good: it asks first")
+	}
+	e.key("n")
+	if l, _ := git.Stashes(e.root); len(l) != 1 {
+		t.Fatalf("answering no must keep it: %v", l)
+	}
+	x, y = e.button("WIP on main", scmActPop)
+	e.click(x, y)
+	if l, _ := git.Stashes(e.root); len(l) != 0 {
+		t.Fatalf("pop removes the stash: %v", l)
+	}
+	if e.status().Changed() == 0 {
+		t.Fatal("pop brings the changes back")
+	}
+}
+
+func TestTheOpenButtonShowsTheDiffAndOShortcutOpensTheFile(t *testing.T) {
+	e := gitEnv(t, 80)
+	x, y := e.button("notes.txt", scmActOpen)
+	e.click(x, y)
+	e.mustHave("+changed")
+	e.key("esc")
+	e.key("o")
+	if len(e.run.calls) == 0 {
+		t.Fatalf("o opens the file with its program, calls = %v", e.run.calls)
+	}
+}

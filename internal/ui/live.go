@@ -15,8 +15,9 @@ type dirChangedMsg struct{ dir string }
 
 // gitState is the repository status of the current folder; ok is false outside a repository or with git turned off.
 type gitState struct {
-	st git.Status
-	ok bool
+	st      git.Status
+	ok      bool
+	stashes []string // "stash@{0}: message", read only while the Git tab shows them
 }
 
 // waitEvent blocks until the watcher reports a change, then delivers it as a message.
@@ -122,6 +123,9 @@ func (m *Model) scanGit(dir string) {
 	}
 	if st, ok, err := git.Read(dir); err == nil && ok {
 		m.git = gitState{st: st, ok: true}
+		if m.projectMode() && m.projTab == tabGit {
+			m.git.stashes, _ = git.Stashes(st.Root)
+		}
 	}
 }
 

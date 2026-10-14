@@ -111,6 +111,8 @@
  "Document": "Documento",
  "Documents": "Documenti",
  "Downloads": "Download",
+ "Drop stash %d for good?": "Eliminare per sempre lo stash %d?",
+ "Dropping the stash…": "Elimino lo stash…",
  "Duplicated %s": "Duplicato: %s",
  "Duration: %s": "Durata: %s",
  "Error: ": "Errore: ",
@@ -297,6 +299,7 @@
  "Staged Changes": "Modifiche in stage",
  "Staging…": "Metto in stage…",
  "Stash changes": "Metti le modifiche nello stash",
+ "Stash dropped": "Stash eliminato",
  "Stash restored": "Stash recuperato",
  "Stashing…": "Metto nello stash…",
  "Subfolders": "Sottocartelle",
@@ -404,12 +407,15 @@
  "←/→ change · Esc closes": "←/→ cambia · Esc chiude",
  "←/→ change · click: select, 2nd click: change": "←/→ cambia · clic: seleziona, 2° clic: cambia",
  "↑↓ scroll · Esc close": "↑↓ scorri · Esc chiudi",
+ "↗ Open changes": "↗ Apri le modifiche",
  "↗ Open file": "↗ Apri il file",
+ "↰ Pop the stash": "↰ Recupera lo stash (pop)",
  "↶ Discard all changes": "↶ Scarta tutte le modifiche",
  "↶ Discard changes: d": "↶ Scarta le modifiche: d",
  "⇩ Stash changes: z": "⇩ Metti le modifiche nello stash: z",
  "− Unstage all changes": "− Rimuovi tutte le modifiche dall'area di stage",
  "− Unstage changes: s": "− Rimuovi dallo stage: s",
  "⚠ %d uncommitted changes go with you": "⚠ %d modifiche non salvate vengono con te",
- "⚠ 1 uncommitted change goes with you": "⚠ 1 modifica non salvata viene con te"
+ "⚠ 1 uncommitted change goes with you": "⚠ 1 modifica non salvata viene con te",
+ "✕ Drop the stash": "✕ Elimina lo stash"
 }

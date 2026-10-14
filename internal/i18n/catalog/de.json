@@ -111,6 +111,8 @@
  "Document": "Dokument",
  "Documents": "Dokumente",
  "Downloads": "Downloads",
+ "Drop stash %d for good?": "Stash %d endgültig löschen?",
+ "Dropping the stash…": "Stash wird gelöscht…",
  "Duplicated %s": "Dupliziert: %s",
  "Duration: %s": "Dauer: %s",
  "Error: ": "Fehler: ",
@@ -297,6 +299,7 @@
  "Staged Changes": "Gestagte Änderungen",
  "Staging…": "Wird gestaged…",
  "Stash changes": "Änderungen stashen",
+ "Stash dropped": "Stash gelöscht",
  "Stash restored": "Stash zurückgeholt",
  "Stashing…": "Wird gestasht…",
  "Subfolders": "Unterordner",
@@ -404,12 +407,15 @@
  "←/→ change · Esc closes": "←/→ ändern · Esc schließt",
  "←/→ change · click: select, 2nd click: change": "←/→ ändern · Klick: auswählen, 2. Klick: ändern",
  "↑↓ scroll · Esc close": "↑↓ scrollen · Esc schließen",
+ "↗ Open changes": "↗ Änderungen öffnen",
  "↗ Open file": "↗ Datei öffnen",
+ "↰ Pop the stash": "↰ Stash zurückholen (pop)",
  "↶ Discard all changes": "↶ Alle Änderungen verwerfen",
  "↶ Discard changes: d": "↶ Änderungen verwerfen: d",
  "⇩ Stash changes: z": "⇩ Änderungen stashen: z",
  "− Unstage all changes": "− Alle Änderungen aus dem Index nehmen",
  "− Unstage changes: s": "− Aus dem Index nehmen: s",
  "⚠ %d uncommitted changes go with you": "⚠ %d nicht committete Änderungen wandern mit",
- "⚠ 1 uncommitted change goes with you": "⚠ 1 nicht committete Änderung wandert mit"
+ "⚠ 1 uncommitted change goes with you": "⚠ 1 nicht committete Änderung wandert mit",
+ "✕ Drop the stash": "✕ Stash löschen"
 }
