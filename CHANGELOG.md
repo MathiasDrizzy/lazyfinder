@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+_Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
+
 ### Added
 
 - The Git tab of the sidebar mode, modelled on the herdr sidebar: Staged Changes, Changes and Stashes sections with

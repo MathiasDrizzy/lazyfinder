@@ -154,3 +154,4 @@ text of each screen is committed in `docs/parity/<screen>-lazymark.txt` and `<sc
 | - | Columns: choose, order (right click on the header), width (drag, `column_widths`), sort by any, date format, row density; Kind and dates fit their text | done (block G; Date Added and Location are n/a: Date Added needs a Spotlight query per file, Location is already shown after the name in search results) |
 | - | Places named in the interface language | done |
 | - | Recents place in the sidebar | done (block C) |
+| - | Git tab, branch menu, hover buttons and the QA matrix (order 07, block O) | done: see [PARITY-herdr-sidebar.md](PARITY-herdr-sidebar.md) and [qa-matriz.md](qa-matriz.md) |
