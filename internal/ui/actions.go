@@ -52,15 +52,10 @@ type actionDef struct {
 	run         func() tea.Cmd
 }
 
-// actionDefs are the icons of the header: the file actions on the Files tab and in the window, the git ones on the Git tab.
+// actionDefs are the icons of the header: the file actions on the Files tab and in the window, none on the Git tab.
 func (m *Model) actionDefs() []actionDef {
 	if m.projectMode() && m.projTab == tabGit {
-		return []actionDef{
-			{"⎇", "⎇", func() string { return i18n.T("Ramas: B", "Branches: B") }, m.openGitMenu},
-			{"↻", "↻", func() string { return i18n.T("Traer cambios: f", "Fetch: f") }, m.gitFetch},
-			{"↓", "↓", func() string { return i18n.T("Bajar (pull): p", "Pull: p") }, m.gitPull},
-			{"↑", "↑", func() string { return i18n.T("Subir (push): P", "Push: P") }, m.gitPush},
-		}
+		return nil // the Git tab only shows what changed: no git buttons
 	}
 	return []actionDef{
 		{"\uea7f", "+", func() string { return i18n.T("Archivo nuevo: n", "New file: n") }, m.startNewFile},
@@ -114,7 +109,7 @@ type actionsFadeMsg struct{}
 // Files tab of the sidebar mode only while the pointer is active.
 func (m *Model) actionsVisible() bool {
 	if m.projectMode() && m.projTab == tabGit {
-		return m.git.ok // outside a repository there is nothing for the git buttons to do
+		return false
 	}
 	if !m.projectMode() {
 		return true

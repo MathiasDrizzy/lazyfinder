@@ -14,9 +14,10 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// The Git tab of the sidebar mode is a source control view like the one in herdr's sidebar: the changes that are
-// staged and the ones that are not, each file with the buttons that appear under the pointer, the branch on top.
-// Committing, rebasing and merging are left to lazygit (one key opens it).
+// The Git tab of the sidebar mode is a quick look at what changed, like the one in herdr's sidebar: the changes that
+// are staged and the ones that are not, the branch on top, and the diff of a file. It changes nothing (Mathias,
+// 2026-10-14: "no quiero hacer commit en un sidebar … solo ver que es lo que cambio"): staging, discarding,
+// stashing, switching branches, pulling and pushing are left to lazygit (L opens it).
 
 type scmKind int
 
@@ -39,18 +40,7 @@ type scmRow struct {
 // scmAct is what a button of a row does.
 type scmAct int
 
-const (
-	scmActOpen scmAct = iota
-	scmActDiscard
-	scmActStage
-	scmActUnstage
-	scmActStageAll
-	scmActUnstageAll
-	scmActDiscardAll
-	scmActStash
-	scmActPop
-	scmActDrop
-)
+const scmActOpen scmAct = 0 // the only one: show the diff
 
 type scmBtn struct {
 	x, w int
@@ -119,51 +109,15 @@ func (m *Model) scmClamp() []scmRow {
 
 func (k scmKind) header() bool { return k <= scmStashHdr }
 
-func scmGlyph(a scmAct) string {
-	return map[scmAct]string{
-		scmActOpen: "↗", scmActDiscard: "↶", scmActStage: "+", scmActUnstage: "−",
-		scmActStageAll: "+", scmActUnstageAll: "−", scmActDiscardAll: "↶", scmActStash: "⇩", scmActPop: "↰", scmActDrop: "✕",
-	}[a]
-}
+func scmGlyph(scmAct) string { return "↗" }
 
-func scmLabel(a scmAct) string {
-	switch a {
-	case scmActOpen:
-		return i18n.T("↗ Abrir los cambios", "↗ Open changes")
-	case scmActPop:
-		return i18n.T("↰ Recuperar el stash (pop)", "↰ Pop the stash")
-	case scmActDrop:
-		return i18n.T("✕ Borrar el stash", "✕ Drop the stash")
-	case scmActDiscard:
-		return i18n.T("↶ Descartar cambios: d", "↶ Discard changes: d")
-	case scmActStage:
-		return i18n.T("+ Preparar cambios: s", "+ Stage changes: s")
-	case scmActUnstage:
-		return i18n.T("− Quitar de lo preparado: s", "− Unstage changes: s")
-	case scmActStageAll:
-		return i18n.T("+ Preparar todos los cambios", "+ Stage all changes")
-	case scmActUnstageAll:
-		return i18n.T("− Quitar todo de lo preparado", "− Unstage all changes")
-	case scmActDiscardAll:
-		return i18n.T("↶ Descartar todos los cambios", "↶ Discard all changes")
-	}
-	return i18n.T("⇩ Guardar los cambios en el stash: z", "⇩ Stash changes: z")
-}
+func scmLabel(scmAct) string { return i18n.T("↗ Abrir los cambios", "↗ Open changes") }
 
 func scmActs(r scmRow) []scmAct {
-	switch {
-	case r.kind == scmStash:
-		return []scmAct{scmActPop, scmActDrop}
-	case r.kind == scmStashHdr, r.kind == scmNone:
+	if r.kind != scmFile {
 		return nil
-	case r.kind == scmStagedHdr:
-		return []scmAct{scmActUnstageAll}
-	case r.kind == scmChangesHdr:
-		return []scmAct{scmActDiscardAll, scmActStash, scmActStageAll}
-	case r.staged:
-		return []scmAct{scmActOpen, scmActUnstage}
 	}
-	return []scmAct{scmActOpen, scmActDiscard, scmActStage}
+	return []scmAct{scmActOpen}
 }
 
 // scmRowY is the screen line of row i, or -1 when it is scrolled out.
@@ -209,11 +163,6 @@ func (m *Model) scmHeaderBranch() string {
 		l += fmt.Sprintf(" ↓%d ↑%d", m.git.st.Behind, m.git.st.Ahead)
 	}
 	return l
-}
-
-// scmBranchW is the width of the clickable branch label on the first line.
-func (m *Model) scmBranchW() int {
-	return min(ansi.StringWidth(m.scmHeaderBranch())+1, m.listW()-m.actionsWidth(m.actionsShown())-edgeW)
 }
 
 func (m *Model) scmLines() []string {
@@ -329,24 +278,8 @@ func (m *Model) scmKey(key string, act keymap.Action) (tea.Cmd, bool) {
 	n := len(rows)
 	page := m.scmVisible()
 	switch key {
-	case "s":
-		return m.scmToggleStage(), true
-	case "u":
-		return m.scmRun(scmActUnstage), true
-	case "d", "delete":
-		return m.scmAsk(scmActDiscard), true
 	case "o":
 		return m.scmOpenFile(), true
-	case "z":
-		return m.gitStash(), true
-	case "b", "B":
-		return m.openGitMenu(), true
-	case "f":
-		return m.gitFetch(), true
-	case "p":
-		return m.gitPull(), true
-	case "P":
-		return m.gitPush(), true
 	case "L":
 		return m.openLazygit(), true
 	}
@@ -387,124 +320,10 @@ func (m *Model) scmActivate() tea.Cmd {
 	case r.kind.header():
 		m.scm.folded[r.kind] = !m.scm.folded[r.kind]
 		return nil
-	case r.kind == scmStash:
-		return m.scmRun(scmActPop)
+	case r.kind != scmFile:
+		return nil
 	}
 	return m.openDiff(r.ch, r.staged)
-}
-
-func (m *Model) scmToggleStage() tea.Cmd {
-	rows := m.scmRows()
-	if m.scm.sel >= len(rows) {
-		return nil
-	}
-	switch r := rows[m.scm.sel]; {
-	case r.kind == scmStagedHdr:
-		return m.scmRun(scmActUnstageAll)
-	case r.kind == scmChangesHdr:
-		return m.scmRun(scmActStageAll)
-	case r.staged:
-		return m.scmRun(scmActUnstage)
-	}
-	return m.scmRun(scmActStage)
-}
-
-// scmAsk runs the actions that throw work away only after a yes.
-func (m *Model) scmAsk(a scmAct) tea.Cmd {
-	rows := m.scmRows()
-	if m.scm.sel >= len(rows) {
-		return nil
-	}
-	r := rows[m.scm.sel]
-	switch {
-	case r.kind == scmStash:
-		n := r.n
-		m.confirm(fmt.Sprintf(i18n.T("¿Borrar el stash %d para siempre?", "Drop stash %d for good?"), n), func() tea.Cmd {
-			return m.gitRun(i18n.T("Borrando el stash…", "Dropping the stash…"), i18n.T("Stash borrado", "Stash dropped"),
-				func(root string) error { return git.StashDropAt(root, n) })
-		})
-		return nil
-	case r.kind == scmStagedHdr, r.kind == scmStashHdr, r.kind == scmNone:
-		return nil
-	case r.kind == scmChangesHdr:
-		a = scmActDiscardAll
-	case r.staged:
-		m.setStatus(i18n.T("Quítalo de lo preparado antes de descartarlo", "Unstage it before discarding it"))
-		return nil
-	}
-	switch {
-	case a == scmActDiscardAll:
-		ask := fmt.Sprintf(i18n.T("¿Descartar los %d cambios? Los archivos nuevos se borran", "Discard all %d changes? New files are deleted"), r.n)
-		if c := m.git.st.Conflicts(); len(c) > 0 {
-			ask = fmt.Sprintf(i18n.T("¿Descartar los %d cambios, también los que están en conflicto (%s)? Los archivos nuevos se borran",
-				"Discard all %d changes, also those in conflict (%s)? New files are deleted"), r.n, strings.Join(c, ", "))
-		}
-		m.confirm(ask, func() tea.Cmd {
-			return m.gitRun(i18n.T("Descartando…", "Discarding…"), i18n.T("Cambios descartados", "Changes discarded"), git.DiscardAll)
-		})
-	case r.ch.Code == git.Untracked:
-		m.confirm(fmt.Sprintf(i18n.T("¿Borrar el archivo nuevo %s?", "Delete the new file %s?"), path.Base(r.ch.Path)), func() tea.Cmd { return m.scmDiscard(r.ch) })
-	default:
-		m.confirm(fmt.Sprintf(i18n.T("¿Descartar los cambios de %s?", "Discard the changes to %s?"), path.Base(r.ch.Path)), func() tea.Cmd { return m.scmDiscard(r.ch) })
-	}
-	return nil
-}
-
-func (m *Model) scmDiscard(c git.Change) tea.Cmd {
-	return m.gitRun(i18n.T("Descartando…", "Discarding…"), i18n.T("Cambios descartados", "Changes discarded"),
-		func(root string) error { return git.Discard(root, c) })
-}
-
-// scmRun does the action on the selected row, or on the row a button belongs to.
-func (m *Model) scmRun(a scmAct) tea.Cmd {
-	rows := m.scmRows()
-	if m.scm.sel >= len(rows) {
-		return nil
-	}
-	r := rows[m.scm.sel]
-	switch a {
-	case scmActStage:
-		if r.kind != scmFile || r.staged {
-			return nil
-		}
-		return m.gitRun(i18n.T("Preparando…", "Staging…"), i18n.T("Cambios preparados", "Changes staged"),
-			func(root string) error { return git.Stage(root, r.ch.Path) })
-	case scmActUnstage:
-		if r.kind != scmFile || !r.staged {
-			return nil
-		}
-		return m.gitRun(i18n.T("Quitando de lo preparado…", "Unstaging…"), i18n.T("Quitado de lo preparado", "Changes unstaged"),
-			func(root string) error { return git.Unstage(root, r.ch.Path) })
-	case scmActStageAll:
-		stage := func() tea.Cmd {
-			return m.gitRun(i18n.T("Preparando…", "Staging…"), i18n.T("Cambios preparados", "Changes staged"), git.StageAll)
-		}
-		if c := m.git.st.Conflicts(); len(c) > 0 { // git add marks a conflict as solved: say which ones first
-			m.confirm(fmt.Sprintf(i18n.T("¿Preparar todo? Se marcan como resueltos los archivos en conflicto: %s",
-				"Stage everything? The files in conflict are marked as solved: %s"), strings.Join(c, ", ")), stage)
-			return nil
-		}
-		return stage()
-	case scmActUnstageAll:
-		return m.gitRun(i18n.T("Quitando de lo preparado…", "Unstaging…"), i18n.T("Quitado de lo preparado", "Changes unstaged"), git.UnstageAll)
-	case scmActStash:
-		return m.gitStash()
-	case scmActDiscard, scmActDiscardAll, scmActDrop:
-		return m.scmAsk(a)
-	case scmActPop:
-		if r.kind != scmStash {
-			return nil
-		}
-		n := r.n
-		return m.gitRun(i18n.T("Recuperando el stash…", "Popping the stash…"), i18n.T("Stash recuperado", "Stash restored"),
-			func(root string) error { return git.StashPopAt(root, n) })
-	case scmActOpen:
-		if r.kind != scmFile {
-			return nil
-		}
-		return m.openDiff(r.ch, r.staged)
-	}
-	return nil
 }
 
 // scmOpenFile opens the selected file with its program.
@@ -543,8 +362,8 @@ func (m *Model) scmClickRow(i int, double bool) tea.Cmd {
 	return nil
 }
 
-// scmClickBtn selects the row of a button and does what it says.
-func (m *Model) scmClickBtn(i int, a scmAct) tea.Cmd {
+// scmClickBtn selects the row of a button and shows its diff, the one thing a button does.
+func (m *Model) scmClickBtn(i int, _ scmAct) tea.Cmd {
 	m.scm.sel = i
-	return m.scmRun(a)
+	return m.scmActivate()
 }

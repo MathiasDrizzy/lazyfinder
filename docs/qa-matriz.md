@@ -113,8 +113,8 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Every top-row glyph lies inside its own click and hover zone, in both modes and 14 widths | T EveryTopRowGlyphLiesInsideItsOwnZone, T EachGlyphIsDrawnInTheMiddleCellOfItsButton |
 | Tree buttons show with the pointer and fade; the name is not repeated; a narrow start is the sidebar | T TheTreeButtonsAppearWithThePointerAndFadeAfterItStops, T TheWindowToolbarKeepsItsButtonsAlways, T TheTreeHeaderAndTheBorderDoNotRepeatTheProjectName, T AWindowThatStartsNarrowerThanTheLimitIsTheSidebar |
 | Sidebar drawn like herdr: tall tab bar, every row of a tab takes the click, no frame, triangle rows, the selection keeps the icon color | T TheSidebarTabBarIsThreeRowsTallLikeHerdr, T EachRowOfATabButtonOpensIt, T TheSidebarHasNoFrameOfItsOwn, T TheSidebarRowsAreTheIndentTheTriangleTheIconAndTheName, T TheSelectedRowKeepsTheColorOfItsIcon |
-| Detached HEAD with its short hash; no git buttons outside a repository; stage/discard all name the conflicts first | T ADetachedHeadShowsTheShortHash, T OutsideARepositoryTheGitTabHasNoGitButtons, T DiscardAllAndStageAllNameTheConflictsFirst |
-| Header buttons of the tree and the Git tab are drawn inside their zones | T EveryHeaderButtonIsDrawnInsideItsZone |
+| Detached HEAD with its short hash; no git buttons outside a repository | T ADetachedHeadShowsTheShortHash, T OutsideARepositoryTheGitTabHasNoGitButtons |
+| Header buttons of the tree are drawn inside their zones | T EveryHeaderButtonIsDrawnInsideItsZone |
 | No scenario checks the screen right after a git key | T NoScenarioAssertsRightAfterAGitOperation |
 | The last visible row of the list takes the click | T TheLastVisibleRowOfTheListTakesTheClick |
 | Hover keeps the line width over wide glyphs; `.gitignore` keeps its red | T HoverKeepsTheLineWidthOverWideGlyphs, icons: TestAHiddenGitFileKeepsItsRedColor |
@@ -131,17 +131,14 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Function | Proof |
 |---|---|
 | Staged and unstaged sections, counts, folding | T TheGitTabSplitsStagedFromChangesWithCounts, S git-tab |
-| Stage, unstage (key, row button, section button) | T StageUnstageWithTheKeyAndTheButtons, T SectionButtonsStageAndUnstageEverything, S git-tab |
-| Discard asks first; untracked file is deleted | T DiscardAsksFirstAndOnlyThenRestoresTheFile, T DiscardingAnUntrackedFileDeletesIt, S git-tab |
+| The Git tab of the sidebar only looks: no stage, discard, stash, branch switch, pull or push (Mathias, 2026-10-14) | T TheGitTabOfTheSidebarOnlyShowsWhatChanged, T TheRightClickOfTheSidebarOffersNoGitChanges, S git-tab |
 | Diff view | T EnterShowsTheDiffAndEscClosesIt, S git-tab |
 | Open file (`o`) and open changes (↗) | T TheOpenButtonShowsTheDiffAndOShortcutOpensTheFile |
-| Branch menu: search, switch, create, warning about changes | T TheBranchMenuSwitchesCreatesAndWarnsAboutChanges, T TheBranchMenuRefusesToLoseWorkAndSaysWhy, S git-tab |
-| Stash, pop, drop | T StashShelvesTheChangesAndTheTabSaysThereIsNothing, T TheStashesSectionListsPopsAndDropsWithAConfirmation, S git-tab |
-| Fetch, pull (fast-forward only), push | T FetchPullAndPushFromTheTab, T PushWithoutUpstreamExplainsInsteadOfGuessing |
-| Conflicts are marked and cannot be discarded by mistake | T ConflictsAreMarkedAndCannotBeDiscardedByMistake |
+| Branch menu of the window: search, switch, create, warning about changes | T TheBranchMenuSwitchesCreatesAndWarnsAboutChanges, T TheBranchMenuRefusesToLoseWorkAndSaysWhy |
+| Conflicts are marked | T ConflictsAreMarked |
 | Row counter counts the Git rows | T TheCounterOfTheGitTabCountsItsOwnRows |
 | Repository in each state (clean, no commits, modified, staged + untracked, detached, conflict, ahead and behind) at 3 sizes | T TheGitTabInEachRepositoryState |
-| Git operations (package `git`) | git: TestStashApplyPopAndDropByIndex, git: TestChangesOfFindsBothSidesOfAFileByAbsolutePath |
+| Git operations (package `git`) | git: TestStashPushListPopRoundTrip, git: TestChangesOfFindsBothSidesOfAFileByAbsolutePath |
 | Right-click git actions in the normal window; the branch in the bar | T RightClickOnAChangedFileOffersTheGitActions, T GitStateAndBranchAreShown |
 | Not offered on purpose | commit, rebase, merge (open lazygit with `L`) — see PARITY |
 

@@ -12,6 +12,15 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/git"
 )
 
+// windowGitEnv is the normal window on the repository of projectEnv.
+func windowGitEnv(t *testing.T) *env {
+	t.Helper()
+	e := projectEnv(t, 60)
+	e.m.toggleProject()
+	e.key("r")
+	return e
+}
+
 // gitEnv is the sidebar mode on a repository (notes.txt modified, alpha/fresh.txt new), with the Git tab open.
 func gitEnv(t *testing.T, w int) *env {
 	t.Helper()
@@ -27,14 +36,6 @@ func (e *env) status() git.Status {
 		e.t.Fatalf("git.Read: %v %v", ok, err)
 	}
 	return st
-}
-
-func (e *env) staged() []string {
-	var out []string
-	for _, c := range e.status().Staged {
-		out = append(out, c.Path)
-	}
-	return out
 }
 
 // rowY is the screen line of the row of the Git tab that shows name.
@@ -79,89 +80,6 @@ func TestTheGitTabSplitsStagedFromChangesWithCounts(t *testing.T) {
 	}
 }
 
-func TestStageUnstageWithTheKeyAndTheButtons(t *testing.T) {
-	e := gitEnv(t, 40)
-	e.clickText("notes.txt")
-	e.key("s")
-	if got := e.staged(); len(got) != 1 || got[0] != "notes.txt" {
-		t.Fatalf("s stages the selected file, staged = %v", got)
-	}
-	e.mustHave("Staged Changes")
-	e.key("s")
-	if got := e.staged(); len(got) != 0 {
-		t.Fatalf("s on a staged file unstages it, staged = %v", got)
-	}
-	x, y := e.button("fresh.txt", scmActStage)
-	e.click(x, y)
-	if got := e.staged(); len(got) != 1 || got[0] != "alpha/fresh.txt" {
-		t.Fatalf("the + button stages the row it is on, staged = %v", got)
-	}
-	x, y = e.button("fresh.txt", scmActUnstage)
-	e.click(x, y)
-	if got := e.staged(); len(got) != 0 {
-		t.Fatalf("the − button unstages, staged = %v", got)
-	}
-}
-
-func TestSectionButtonsStageAndUnstageEverything(t *testing.T) {
-	e := gitEnv(t, 40)
-	y := e.rowY("Changes")
-	e.move(5, y)
-	var hit bool
-	for _, b := range e.m.scmButtons(e.m.scm.top + y - e.m.firstRow()) {
-		if b.act == scmActStageAll {
-			e.click(b.x, y)
-			hit = true
-		}
-	}
-	if !hit {
-		t.Fatalf("the Changes header has a + button:\n%s", e.text())
-	}
-	if len(e.status().Unstaged) != 0 || len(e.staged()) != 2 {
-		t.Fatalf("stage all: staged=%v unstaged=%v", e.staged(), e.status().Unstaged)
-	}
-	y = e.rowY("Staged Changes")
-	e.move(5, y)
-	for _, b := range e.m.scmButtons(e.m.scm.top + y - e.m.firstRow()) {
-		if b.act == scmActUnstageAll {
-			e.click(b.x, y)
-		}
-	}
-	if len(e.staged()) != 0 {
-		t.Fatalf("unstage all left %v", e.staged())
-	}
-}
-
-func TestDiscardAsksFirstAndOnlyThenRestoresTheFile(t *testing.T) {
-	e := gitEnv(t, 40)
-	e.clickText("notes.txt")
-	e.key("d")
-	if e.m.prompt.kind != promptConfirm {
-		t.Fatal("d asks before throwing work away")
-	}
-	e.mustHave("notes.txt")
-	e.key("n")
-	if b, _ := os.ReadFile(filepath.Join(e.root, "notes.txt")); string(b) != "changed\n" {
-		t.Fatalf("answering no must keep the file, got %q", b)
-	}
-	e.key("d")
-	e.key("y")
-	if b, _ := os.ReadFile(filepath.Join(e.root, "notes.txt")); string(b) != "first line\nsecond line\n" {
-		t.Fatalf("discard must restore the committed text, got %q", b)
-	}
-	e.mustNotHave("notes.txt")
-}
-
-func TestDiscardingAnUntrackedFileDeletesIt(t *testing.T) {
-	e := gitEnv(t, 40)
-	x, y := e.button("fresh.txt", scmActDiscard)
-	e.click(x, y)
-	e.key("y")
-	if _, err := os.Stat(filepath.Join(e.root, "alpha", "fresh.txt")); !os.IsNotExist(err) {
-		t.Fatalf("the untracked file should be gone: %v", err)
-	}
-}
-
 func TestEnterShowsTheDiffAndEscClosesIt(t *testing.T) {
 	e := gitEnv(t, 80)
 	e.clickText("notes.txt")
@@ -172,20 +90,9 @@ func TestEnterShowsTheDiffAndEscClosesIt(t *testing.T) {
 	e.mustNotHave("+changed")
 }
 
-func TestStashShelvesTheChangesAndTheTabSaysThereIsNothing(t *testing.T) {
-	e := gitEnv(t, 40)
-	e.key("z")
-	if e.status().Changed() != 0 {
-		t.Fatal("z stashes everything")
-	}
-	e.mustHave("No changes")
-	if l, _ := git.Stashes(e.root); len(l) != 1 {
-		t.Fatalf("stashes = %v", l)
-	}
-}
-
+// The branch menu is the window's (the sidebar only looks).
 func TestTheBranchMenuSwitchesCreatesAndWarnsAboutChanges(t *testing.T) {
-	e := gitEnv(t, 60)
+	e := windowGitEnv(t)
 	run := func(args ...string) {
 		cmd := exec.Command("git", append([]string{"-c", "user.name=t", "-c", "user.email=t@e.com"}, args...)...)
 		cmd.Dir = e.root
@@ -222,7 +129,7 @@ func TestTheBranchMenuSwitchesCreatesAndWarnsAboutChanges(t *testing.T) {
 }
 
 func TestTheBranchMenuRefusesToLoseWorkAndSaysWhy(t *testing.T) {
-	e := gitEnv(t, 60)
+	e := windowGitEnv(t)
 	// notes.txt differs on "other" and is modified here: git must refuse the switch
 	g := func(args ...string) {
 		cmd := exec.Command("git", append([]string{"-c", "user.name=t", "-c", "user.email=t@e.com"}, args...)...)
@@ -256,51 +163,7 @@ func TestTheBranchMenuRefusesToLoseWorkAndSaysWhy(t *testing.T) {
 	}
 }
 
-func TestFetchPullAndPushFromTheTab(t *testing.T) {
-	e := gitEnv(t, 60)
-	remote := t.TempDir()
-	g := func(dir string, args ...string) {
-		cmd := exec.Command("git", append([]string{"-c", "user.name=t", "-c", "user.email=t@e.com"}, args...)...)
-		cmd.Dir = dir
-		if out, err := cmd.CombinedOutput(); err != nil {
-			t.Fatalf("git %v: %v %s", args, err, out)
-		}
-	}
-	g(remote, "init", "-q", "--bare", "-b", "main")
-	g(e.root, "remote", "add", "origin", remote)
-	g(e.root, "push", "-q", "-u", "origin", "main")
-	other := t.TempDir()
-	g(other, "clone", "-q", remote, "c")
-	c := filepath.Join(other, "c")
-	if err := os.WriteFile(filepath.Join(c, "remote.txt"), []byte("r\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	g(c, "add", ".")
-	g(c, "commit", "-q", "-m", "r")
-	g(c, "push", "-q", "origin", "main")
-	e.key("f")
-	e.mustHave("↓1")
-	e.key("p")
-	if _, err := os.Stat(filepath.Join(e.root, "remote.txt")); err != nil {
-		t.Fatalf("p pulls: %v", err)
-	}
-	g(e.root, "add", "notes.txt")
-	g(e.root, "commit", "-q", "-m", "mine")
-	e.key("r")
-	e.mustHave("↑1")
-	e.key("P")
-	e.mustHave("↑0")
-}
-
-func TestPushWithoutUpstreamExplainsInsteadOfGuessing(t *testing.T) {
-	e := gitEnv(t, 60)
-	e.key("P")
-	if !e.m.statusErr || !strings.Contains(e.m.status, "upstream") {
-		t.Fatalf("status = %q (err=%v)", e.m.status, e.m.statusErr)
-	}
-}
-
-func TestConflictsAreMarkedAndCannotBeDiscardedByMistake(t *testing.T) {
+func TestConflictsAreMarked(t *testing.T) {
 	e := gitEnv(t, 60)
 	g := func(args ...string) {
 		cmd := exec.Command("git", append([]string{"-c", "user.name=t", "-c", "user.email=t@e.com"}, args...)...)
@@ -318,12 +181,6 @@ func TestConflictsAreMarkedAndCannotBeDiscardedByMistake(t *testing.T) {
 	e.key("r")
 	if !strings.Contains(e.row("notes.txt"), "!") {
 		t.Fatalf("a conflict wears the ! letter:\n%s", e.text())
-	}
-	e.clickText("notes.txt")
-	e.key("d")
-	e.key("y")
-	if !e.m.statusErr {
-		t.Fatal("discarding a conflicted file must say to resolve it first")
 	}
 }
 
@@ -343,46 +200,20 @@ func TestButtonsShowOnlyOnTheSelectedOrHoveredRowAndHaveTooltips(t *testing.T) {
 	e.clickText("notes.txt")
 	selY := e.rowY("notes.txt")
 	freshY := e.rowY("fresh.txt")
-	if !strings.Contains(e.screen()[selY], "↶") {
-		t.Fatalf("the selected row shows its buttons:\n%s", e.text())
+	if !strings.Contains(e.screen()[selY], "↗") {
+		t.Fatalf("the selected row shows its button:\n%s", e.text())
 	}
-	if strings.Contains(e.screen()[freshY], "↶") {
+	if strings.Contains(e.screen()[freshY], "↗") {
 		t.Fatalf("a row nobody points at shows its letter, not buttons:\n%s", e.text())
 	}
 	e.move(5, freshY)
-	if !strings.Contains(e.screen()[freshY], "↶") {
-		t.Fatalf("hovering shows the buttons:\n%s", e.text())
+	if !strings.Contains(e.screen()[freshY], "↗") {
+		t.Fatalf("hovering shows the button:\n%s", e.text())
 	}
-	x, y := e.button("fresh.txt", scmActStage)
+	x, y := e.button("fresh.txt", scmActOpen)
 	e.move(x, y)
-	if !strings.Contains(e.screen()[e.m.h-1], "Stage") {
+	if !strings.Contains(e.screen()[e.m.h-1], "Open changes") {
 		t.Fatalf("the bottom row names the button:\n%s", e.text())
-	}
-}
-
-func TestTheStashesSectionListsPopsAndDropsWithAConfirmation(t *testing.T) {
-	e := gitEnv(t, 50)
-	e.key("z")
-	e.mustHave("Stashes")
-	e.mustNotHave("WIP on main") // folded until opened
-	e.clickText("Stashes")
-	e.mustHave("WIP on main")
-	x, y := e.button("WIP on main", scmActDrop)
-	e.click(x, y)
-	if e.m.prompt.kind != promptConfirm {
-		t.Fatal("dropping a stash loses it for good: it asks first")
-	}
-	e.key("n")
-	if l, _ := git.Stashes(e.root); len(l) != 1 {
-		t.Fatalf("answering no must keep it: %v", l)
-	}
-	x, y = e.button("WIP on main", scmActPop)
-	e.click(x, y)
-	if l, _ := git.Stashes(e.root); len(l) != 0 {
-		t.Fatalf("pop removes the stash: %v", l)
-	}
-	if e.status().Changed() == 0 {
-		t.Fatal("pop brings the changes back")
 	}
 }
 
@@ -478,36 +309,6 @@ func TestOutsideARepositoryTheGitTabHasNoGitButtons(t *testing.T) {
 	for _, g := range []string{"↻", "↓", "↑"} {
 		if strings.Contains(e.screen()[e.m.headerRow()], g) {
 			t.Fatalf("the header shows %q outside a repository: %q", g, e.screen()[e.m.headerRow()])
-		}
-	}
-}
-
-// R4: with a conflict, discarding or staging everything names the files in conflict and waits for a yes.
-func TestDiscardAllAndStageAllNameTheConflictsFirst(t *testing.T) {
-	for _, tc := range []struct{ key, word string }{{"d", "Discard"}, {"s", "Stage"}} {
-		e := projectEnv(t, 80)
-		e.git("stash", "-u")
-		e.git("checkout", "-q", "-b", "side")
-		_ = os.WriteFile(filepath.Join(e.root, "notes.txt"), []byte("side\n"), 0o644)
-		e.git("commit", "-q", "-am", "s")
-		e.git("checkout", "-q", "main")
-		_ = os.WriteFile(filepath.Join(e.root, "notes.txt"), []byte("main\n"), 0o644)
-		e.git("commit", "-q", "-am", "m")
-		_ = e.gitMayFail("merge", "side")
-		_ = os.WriteFile(filepath.Join(e.root, "loose.txt"), []byte("x\n"), 0o644)
-		e.clickTab(tabGit)
-		e.clickText("Changes")
-		e.key(tc.key)
-		e.mustHave(tc.word)
-		if ask := e.m.prompt.ask; e.m.prompt.kind != promptConfirm || !strings.Contains(ask, "conflict") || !strings.Contains(ask, "notes.txt") {
-			t.Fatalf("%s with a conflict must ask first and name it: %+v", tc.word, e.m.prompt.ask)
-		}
-		e.key("n")
-		if got := e.staged(); len(got) != 0 {
-			t.Fatalf("no answers yes, nothing changes: staged = %v", got)
-		}
-		if st := e.status(); len(st.Unstaged) < 2 {
-			t.Fatalf("no answers yes, nothing is discarded: %+v", st.Unstaged)
 		}
 	}
 }

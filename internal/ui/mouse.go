@@ -55,9 +55,6 @@ func (m *Model) hit(x, y int) zone {
 		}
 	}
 	if m.scmOn() {
-		if y == m.headerRow() && x >= m.listX() && x < m.listX()+m.scmBranchW() {
-			return zone{kind: zoneBranch}
-		}
 		if y >= m.firstRow() && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
 			i := m.scm.top + y - m.firstRow()
 			if i < len(m.scmRows()) {

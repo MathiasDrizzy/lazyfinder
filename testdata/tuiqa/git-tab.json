@@ -1,6 +1,6 @@
 {
   "name": "lazyfinder-git-tab",
-  "criterio": "order 07 point O: the Git tab lists staged and unstaged changes, shows buttons under the pointer, stages, shows the diff, switches branch and stashes",
+  "criterio": "order 07 point O, narrowed by Mathias on 2026-10-14 (\"no quiero hacer commit en un sidebar … solo ver que es lo que cambio\"): the Git tab lists staged and unstaged changes and shows the diff; it stages, discards, stashes, switches branch and pushes nothing",
   "cmd": [
     "sh",
     "-c",
@@ -48,10 +48,18 @@
       ]
     },
     {
-      "desc": "the selected row wears its buttons: open, discard, stage",
+      "desc": "the selected row wears one button, the diff",
       "wait": {
-        "regex": "notes\\.txt.*↗ +↶ +\\+",
+        "regex": "notes\\.txt.*↗",
         "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "no discard and no stage button",
+      "wait": {
+        "regex": "notes\\.txt.*↗ +[↶+−]",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -67,7 +75,7 @@
     },
     {
       "wait": {
-        "regex": "loose\\.txt.*↗ +↶ +\\+",
+        "regex": "loose\\.txt.*↗",
         "timeout_ms": 5000
       }
     },
@@ -83,32 +91,27 @@
       }
     },
     {
-      "desc": "s stages the selected file",
+      "desc": "the keys that used to stage, discard, stash, switch branch, pull and push do nothing",
       "keys": [
-        "s"
+        "s",
+        "d",
+        "z",
+        "B",
+        "f",
+        "p",
+        "P",
+        "u"
       ]
     },
     {
       "wait": {
-        "regex": "Staged Changes",
-        "timeout_ms": 5000
-      }
-    },
-    {
-      "desc": "s again takes it out",
-      "keys": [
-        "s"
-      ]
-    },
-    {
-      "wait": {
-        "regex": "Staged Changes",
+        "regex": "\\(y/n\\)|Branches|Staged Changes",
         "timeout_ms": 5000,
         "absent": true
       }
     },
     {
-      "desc": "Enter shows what changed",
+      "desc": "Enter still shows what changed, so nothing was stashed or discarded",
       "keys": [
         "enter"
       ]
@@ -132,73 +135,21 @@
       }
     },
     {
-      "desc": "d asks before throwing work away",
-      "keys": [
-        "d"
-      ]
-    },
-    {
+      "desc": "the branch is the same and both files are still listed",
       "wait": {
-        "regex": "Discard the changes to notes\\.txt\\? \\(y/n\\)",
-        "timeout_ms": 5000
-      }
-    },
-    {
-      "keys": [
-        "n"
-      ]
-    },
-    {
-      "desc": "B opens the branches with a warning about the changes",
-      "keys": [
-        "B"
-      ]
-    },
-    {
-      "wait": {
-        "regex": "Branches",
+        "regex": "trunk",
         "timeout_ms": 5000
       }
     },
     {
       "wait": {
-        "regex": "2 uncommitted changes",
+        "regex": "notes\\.txt",
         "timeout_ms": 5000
       }
     },
     {
       "wait": {
-        "regex": "side",
-        "timeout_ms": 5000
-      }
-    },
-    {
-      "keys": [
-        "s",
-        "i"
-      ]
-    },
-    {
-      "keys": [
-        "enter"
-      ]
-    },
-    {
-      "desc": "the branch changed and the footer says so",
-      "wait": {
-        "regex": "side\\s+↓",
-        "timeout_ms": 5000
-      }
-    },
-    {
-      "keys": [
-        "z"
-      ]
-    },
-    {
-      "desc": "stash empties the list",
-      "wait": {
-        "regex": "No changes",
+        "regex": "loose\\.txt",
         "timeout_ms": 5000
       }
     },

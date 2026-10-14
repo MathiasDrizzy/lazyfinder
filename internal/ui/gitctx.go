@@ -30,6 +30,9 @@ func (m *Model) gitContextItems(idx int, e fsmodel.Entry) []ctxItem {
 	for _, c := range staged {
 		items = append(items, ctxItem{i18n.T("Ver los cambios preparados", "Show staged changes"), func() tea.Cmd { return m.openDiff(c, true) }})
 	}
+	if m.projectMode() { // the sidebar only shows what changed; lazygit changes it
+		return items
+	}
 	if len(unstaged) > 0 {
 		c := unstaged[0]
 		items = append(items, ctxItem{i18n.T("Preparar", "Stage"), func() tea.Cmd {
@@ -52,4 +55,9 @@ func (m *Model) gitContextItems(idx int, e fsmodel.Entry) []ctxItem {
 		}})
 	}
 	return items
+}
+
+func (m *Model) scmDiscard(c git.Change) tea.Cmd {
+	return m.gitRun(i18n.T("Descartando…", "Discarding…"), i18n.T("Cambios descartados", "Changes discarded"),
+		func(root string) error { return git.Discard(root, c) })
 }

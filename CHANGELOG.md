@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The Git tab of the sidebar mode only shows what changed: the changes, the stashes, the branch and the diff of a file. It no longer stages, unstages, discards, stashes, switches branches, fetches, pulls or pushes, and it has no git buttons in its header; `L` opens lazygit for that. The normal window keeps its branch menu and the git actions of its right-click menu.
 - The buttons of the top rows are the three-cell chips of the herdr sidebar (` g `), the action buttons side by side
   and one free cell between groups: the four-cell boxes one cell apart of 0.12.0 were too big and too far apart, and
   a Nerd Font glyph, drawn wider than its cell, now sits in the middle of its box.

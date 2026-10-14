@@ -146,16 +146,14 @@ becomes the sidebar, from 62 columns up the sidebar becomes the window again. It
 - the project name in capitals, the tree with the git letter and color at the right edge (`M` modified, `U` new, `A`
   added, `D` deleted, `R` renamed, `!` conflict) and, at the bottom, the branch with how far it is from its upstream;
 - it updates by itself: files created, changed or removed by another program appear at once, marked with `+`;
-- the **Git tab** works like the source control view of the herdr sidebar: staged and unstaged changes with their
-  counts, stage, unstage and discard (asking first) by key or button, the diff of a file, stashes with pop and drop,
-  fetch, pull and push with how far you are from the upstream, and a branch menu with search, create and a warning
-  about changes you have not saved. With a merge conflict, discarding or staging everything names the files in
-  conflict and waits for a yes. It never commits, rebases or merges: `L` opens lazygit for that.
+- the **Git tab** is a quick look at what changed: staged and unstaged changes with their counts, conflicts marked
+  `!`, the stashes, the branch with how far it is from its upstream, and the diff of a file (`Enter` or the `↗`
+  button). It changes nothing: staging, discarding, stashing, switching branches, pulling, pushing and committing are
+  left to lazygit, which `L` opens.
 
 ![The Git tab, dark and light](docs/screenshots/git-tab-dark.png)
 ![The Git tab in a light theme](docs/screenshots/git-tab-light.png)
-![The selected row shows its buttons: open changes, discard, stage](docs/screenshots/git-tab-buttons.png)
-![The branch menu](docs/screenshots/git-branch-menu.png)
+![The branch menu of the normal window](docs/screenshots/git-branch-menu.png)
 
 ![Project mode with git letters](docs/screenshots/project-mode.png)
 

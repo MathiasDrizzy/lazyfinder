@@ -54,17 +54,6 @@ func (s Status) BranchLabel() string {
 	return s.Branch
 }
 
-// Conflicts are the paths in conflict, in path order.
-func (s Status) Conflicts() []string {
-	var out []string
-	for _, c := range s.Unstaged {
-		if c.Code == Conflicted {
-			out = append(out, c.Path)
-		}
-	}
-	return out
-}
-
 // Changed is how many paths differ from the last commit; ignored ones do not count.
 func (s Status) Changed() int {
 	n := 0

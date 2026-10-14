@@ -50,37 +50,29 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `O` | Open With menu | `open_with` |
 | `Q` | Quick Look for the selection | `quick_look` |
 | `Ctrl+B` | Project mode: the folder as a tree with git state, like the VS Code explorer (again to leave) | `project` |
-| `B` | Branch menu: type to search, `Enter` switches, "Create branch" makes a new one; changes you have not saved are named before the switch. The branch in the toolbar opens it too | `branch` |
+| `B` | Branch menu of the normal window: type to search, `Enter` switches, "Create branch" makes a new one; changes you have not saved are named before the switch. The branch in the toolbar opens it too. The sidebar mode has none | `branch` |
 | `,` | Settings popup | `settings` |
 | `q` | Quit | `quit` |
 
 Moving past the last row goes to the first, and past the first goes to the last (in the list, the tree, every menu and
-the sidebar). Right click on a file with git changes adds Show changes, Stage, Unstage and Discard changes to the menu.
+the sidebar). Right click on a file with git changes adds Show changes to the menu, and in the normal window also Stage,
+Unstage and Discard changes.
 
 ## Sidebar mode: the Git tab
 
-The tab lists **Staged Changes**, **Changes** (conflicts are marked `!`) and **Stashes** (folded until opened), each with
-its count. The selected row, and the row under the pointer, show their buttons in place of the git letter; every button
-has a tooltip. These keys work on the tab and are not rebindable:
+The tab is a quick look at what changed: **Staged Changes**, **Changes** (conflicts are marked `!`) and **Stashes**
+(folded until opened), each with its count. The selected row, and the row under the pointer, show the `↗` button in
+place of the git letter. The tab changes nothing: staging, discarding, stashing, switching branches, pulling, pushing
+and committing are left to lazygit. These keys work on the tab and are not rebindable:
 
 | Key | Action |
 | --- | --- |
 | `↑` `↓` | Move (wraps around) |
 | `←` | On a section heading, fold it |
-| `→`, `Enter`, `Space` | On a heading, fold or unfold it; on a file, show its diff; on a stash, pop it |
-| `s` | Stage the file, or unstage it when it is already staged |
-| `u` | Unstage |
-| `d`, `Delete` | Discard the changes (asks first; a conflicted file is refused) |
+| `→`, `Enter`, `Space` | On a heading, fold or unfold it; on a file, show its diff |
 | `↗` | Show the diff of the file; `Esc` closes it |
 | `o` | Open the file with its program |
-| `z` | Stash all changes |
-| `↰` | Pop the stash |
-| `d` on a stash, `✕` | Drop it (asks first) |
-| `b` `B` | Branch menu |
-| `f` `p` `P` | Fetch, pull (fast-forward only), push (refuses without an upstream) |
 | `L` | Open lazygit, when it is installed |
-
-Commit, rebase and merge are not part of the tab on purpose: use `L`.
 
 ## Sidebar (after `Tab`)
 

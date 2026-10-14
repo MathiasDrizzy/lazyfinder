@@ -107,7 +107,7 @@ func TestTheLastVisibleRowOfTheListTakesTheClick(t *testing.T) {
 
 // Each button of the header of the tree and of the Git tab is drawn in the middle cell of its zone.
 func TestEveryHeaderButtonIsDrawnInsideItsZone(t *testing.T) {
-	for _, tab := range []projectTab{tabFiles, tabGit} {
+	for _, tab := range []projectTab{tabFiles} { // the Git tab has no header buttons: it only looks
 		e := projectEnv(t, 50)
 		e.clickTab(tab)
 		e.move(10, 8)

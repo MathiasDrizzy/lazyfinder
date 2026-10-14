@@ -106,15 +106,11 @@ func (m *Model) zoneRectAt(z zone, x, y int) (hoverRect, bool) {
 			}
 		}
 	case zoneBranch:
-		switch {
-		case m.scmOn():
-			return hoverRect{m.listX(), m.headerRow(), m.scmBranchW(), 1}, true
-		case y == 0:
-			if bx, bw, ok := m.branchSpan(); ok {
-				return hoverRect{bx, 0, bw, 1}, true
-			}
-		default:
+		if y != 0 {
 			return hoverRect{0, y, ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")), 1}, true
+		}
+		if bx, bw, ok := m.branchSpan(); ok {
+			return hoverRect{bx, 0, bw, 1}, true
 		}
 	case zoneToggle:
 		return hoverRect{m.listX(), m.firstRow() + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true

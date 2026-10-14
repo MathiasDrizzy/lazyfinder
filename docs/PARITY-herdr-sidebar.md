@@ -25,24 +25,23 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 | herdr sidebar | lazyfinder | State |
 |---|---|---|
 | Branch name, dirty mark, ahead/behind | header row and bottom bar (`main*`, `↓0 ↑0`, change count); a detached HEAD reads `HEAD (detached at 1a2b3c4)`; outside a repository no git buttons | done |
-| Switch branch from a searchable list | branch menu (`B`, click on the branch): search, switch, create, warning that changes go with you | done |
-| Create a branch | same menu, typing a new name | done |
+| Switch branch from a searchable list | not in the sidebar on purpose (Mathias, 2026-10-14: the sidebar only shows what changed); the normal window keeps the branch menu (`B`) | not done, by design |
+| Create a branch | same: only in the branch menu of the normal window | not done, by design |
 | Staged and unstaged changes with counts | `Staged Changes` and `Changes` sections, foldable | done |
 | Diff of a file | Enter or the ↗ button | done |
-| Stage, unstage, discard | key, row buttons, section buttons; discard asks first, an untracked file is deleted | done |
-| Stash | `Stashes` section: stash, pop (Enter), drop with confirmation | done |
-| Fetch, pull, push | menu entries and header buttons; pull is fast-forward only; push without upstream explains instead of guessing | done |
-| Conflicts | marked `!` and cannot be discarded by mistake; discard all and stage all name the files in conflict and wait for a yes | done |
-| Commit, rebase, merge | not offered on purpose (the order says so); `L` opens lazygit | not done, by design |
+| Stage, unstage, discard | not in the sidebar on purpose (Mathias, 2026-10-14); lazygit (`L`) or the right-click menu of the normal window | not done, by design |
+| Stash | the `Stashes` section lists them; stash, pop and drop are left to lazygit | listed only, by design |
+| Fetch, pull, push | not in the sidebar on purpose; the branch menu of the normal window keeps them | not done, by design |
+| Conflicts | marked `!` | done |
+| Commit, rebase, merge | not offered on purpose; `L` opens lazygit | not done, by design |
 
 ## Hover buttons
 
 | Button | Tooltip | Hover | Action | Proof |
 |---|---|---|---|---|
 | New file, new folder, refresh, collapse (Files tab) | yes | yes | yes | T ActionIconsCreateFilesAndFoldersRefreshAndCollapse, S sidebar-actions |
-| Row buttons of the Git tab (open changes, discard, stage / unstage) | yes | yes | yes | T StageUnstageWithTheKeyAndTheButtons, T TheOpenButtonShowsTheDiffAndOShortcutOpensTheFile |
-| Section buttons (stage all, unstage all) | yes | yes | yes | T SectionButtonsStageAndUnstageEverything |
-| Branch label and sync buttons | yes | yes | yes | T TheBranchMenuSwitchesCreatesAndWarnsAboutChanges, T FetchPullAndPushFromTheTab |
+| Row button of the Git tab (open changes; the only one, the tab changes nothing) | yes | yes | yes | T TheOpenButtonShowsTheDiffAndOShortcutOpensTheFile, T TheGitTabOfTheSidebarOnlyShowsWhatChanged |
+| Branch label and sync buttons | no: the label only shows the branch, with no buttons (by design) | — | — | T TheGitTabOfTheSidebarOnlyShowsWhatChanged |
 | Tabs, mode button, settings | yes | yes | yes | T ProjectModeHasClickableFilesSearchAndGitTabs, S mode-button |
 
 ## What came to the normal (finder) window
@@ -51,5 +50,5 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 |---|---|
 | Branch in the top bar, click opens the branch menu | done |
 | Git letters on rows | done |
-| Right-click on a changed file: open with, view changes, stage, unstage, discard (with confirmation) | done (T RightClickOnAChangedFileOffersTheGitActions) |
+| Right-click on a changed file: open with, view changes, stage, unstage, discard (with confirmation) | done in the window (T RightClickOnAChangedFileOffersTheGitActions); in the sidebar only open with and view changes (T TheRightClickOfTheSidebarOffersNoGitChanges) |
 | Staged/unstaged/stash sections | not done: they need a tree of their own, which the columns do not have; use the sidebar mode (`ctrl+b`) |

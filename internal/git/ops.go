@@ -107,12 +107,6 @@ func Stage(root string, paths ...string) error {
 	return err
 }
 
-// StageAll adds every change, new files included.
-func StageAll(root string) error {
-	_, err := do(writeTimeout, root, "add", "--all")
-	return err
-}
-
 // hasHead tells whether the repository has a first commit; before it, "reset" has no HEAD to go back to.
 func hasHead(root string) bool {
 	_, err := do(writeTimeout, root, "rev-parse", "--verify", "-q", "HEAD")
@@ -136,16 +130,6 @@ func Unstage(root string, paths ...string) error {
 	return err
 }
 
-// UnstageAll empties the index and leaves the files as they are.
-func UnstageAll(root string) error {
-	if !hasHead(root) {
-		_, err := do(writeTimeout, root, "rm", "-r", "--cached", "-q", "--", ".")
-		return err
-	}
-	_, err := do(writeTimeout, root, "restore", "--staged", "--", ".")
-	return err
-}
-
 // Discard throws away the work tree side of one change: a tracked file goes back to what the index has and an
 // untracked file is deleted. Ignored files are never touched and a conflict has to be resolved first.
 func Discard(root string, c Change) error {
@@ -161,15 +145,6 @@ func Discard(root string, c Change) error {
 	default:
 		_, err = do(writeTimeout, root, "restore", "--", p)
 	}
-	return err
-}
-
-// DiscardAll throws away every work tree change, untracked files included; ignored files stay.
-func DiscardAll(root string) error {
-	if _, err := do(writeTimeout, root, "restore", "--", "."); err != nil {
-		return err
-	}
-	_, err := do(writeTimeout, root, "clean", "-fd")
 	return err
 }
 
@@ -337,43 +312,6 @@ func PushSetUpstream(root string) error {
 		return errors.New("this repository has no remote")
 	}
 	_, err = do(networkTimeout, root, "push", "--set-upstream", remote, "HEAD")
-	return err
-}
-
-func stashRef(i int) (string, error) {
-	if i < 0 {
-		return "", fmt.Errorf("not a stash: %d", i)
-	}
-	return fmt.Sprintf("stash@{%d}", i), nil
-}
-
-// StashApplyAt puts stash i back on the work tree and keeps it in the list.
-func StashApplyAt(root string, i int) error {
-	ref, err := stashRef(i)
-	if err != nil {
-		return err
-	}
-	_, err = do(writeTimeout, root, "stash", "apply", ref)
-	return err
-}
-
-// StashPopAt puts stash i back and removes it; on a conflict git keeps it.
-func StashPopAt(root string, i int) error {
-	ref, err := stashRef(i)
-	if err != nil {
-		return err
-	}
-	_, err = do(writeTimeout, root, "stash", "pop", ref)
-	return err
-}
-
-// StashDropAt throws stash i away for good.
-func StashDropAt(root string, i int) error {
-	ref, err := stashRef(i)
-	if err != nil {
-		return err
-	}
-	_, err = do(writeTimeout, root, "stash", "drop", ref)
 	return err
 }
 

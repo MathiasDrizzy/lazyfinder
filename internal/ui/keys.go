@@ -84,6 +84,9 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		m.help = helpState{open: true}
 		return nil
 	case keymap.Branch:
+		if m.projectMode() { // the sidebar switches no branch: lazygit does
+			return nil
+		}
 		return m.openGitMenu()
 	case keymap.Quit:
 		return tea.Quit

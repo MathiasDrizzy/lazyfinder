@@ -2,7 +2,6 @@ package git
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -60,24 +59,6 @@ func TestStageAndUnstageMoveAFileBetweenTheLists(t *testing.T) {
 	st, _, _ = Read(dir)
 	if has(names(st.Staged), "edited.txt") || !has(names(st.Unstaged), "edited.txt") {
 		t.Fatalf("after Unstage: staged=%v unstaged=%v", names(st.Staged), names(st.Unstaged))
-	}
-}
-
-func TestStageAllAndUnstageAll(t *testing.T) {
-	dir := fixture(t)
-	if err := StageAll(dir); err != nil {
-		t.Fatal(err)
-	}
-	st, _, _ := Read(dir)
-	if len(st.Unstaged) != 0 || len(st.Staged) < 4 {
-		t.Fatalf("StageAll: staged=%v unstaged=%v", names(st.Staged), names(st.Unstaged))
-	}
-	if err := UnstageAll(dir); err != nil {
-		t.Fatal(err)
-	}
-	st, _, _ = Read(dir)
-	if len(st.Staged) != 0 {
-		t.Fatalf("UnstageAll left %v", names(st.Staged))
 	}
 }
 
@@ -285,78 +266,6 @@ func TestSyncAgainstARemote(t *testing.T) {
 	st, _, _ = Read(dir)
 	if st.Ahead != 0 {
 		t.Fatalf("ahead = %d after push", st.Ahead)
-	}
-}
-
-func TestConflictsAreListed(t *testing.T) {
-	dir := fixture(t)
-	run(t, dir, "stash", "-u", "-q")
-	run(t, dir, "checkout", "-q", "-b", "side")
-	put(t, filepath.Join(dir, "edited.txt"), "side\n")
-	run(t, dir, "commit", "-q", "-am", "side")
-	run(t, dir, "checkout", "-q", "main")
-	put(t, filepath.Join(dir, "edited.txt"), "main\n")
-	run(t, dir, "commit", "-q", "-am", "main")
-	cmd := execIn(dir, "merge", "side") // fails with a conflict, on purpose
-	_ = cmd
-	st, _, _ := Read(dir)
-	var found bool
-	for _, c := range st.Unstaged {
-		if c.Path == "edited.txt" && c.Code == Conflicted {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("conflict not listed: %+v", st.Unstaged)
-	}
-}
-
-// execIn runs git in dir and ignores its failure: used to leave a repository in a state that git reports as an error.
-func execIn(dir string, args ...string) error {
-	cmd := exec.Command("git", append([]string{"-c", "user.name=t", "-c", "user.email=t@example.com", "-c", "commit.gpgsign=false"}, args...)...)
-	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null", "GIT_CONFIG_NOSYSTEM=1")
-	return cmd.Run()
-}
-
-func TestStashApplyPopAndDropByIndex(t *testing.T) {
-	dir := fixture(t)
-	if err := StashPush(dir, "first"); err != nil {
-		t.Fatal(err)
-	}
-	put(t, filepath.Join(dir, "edited.txt"), "three\n")
-	if err := StashPush(dir, "second"); err != nil {
-		t.Fatal(err)
-	}
-	list, _ := Stashes(dir)
-	if len(list) != 2 || !strings.Contains(list[0], "second") || !strings.Contains(list[1], "first") {
-		t.Fatalf("stashes = %v", list)
-	}
-	if err := StashApplyAt(dir, 1); err != nil {
-		t.Fatalf("apply: %v", err)
-	}
-	if list, _ = Stashes(dir); len(list) != 2 {
-		t.Fatalf("apply must keep the stash, got %v", list)
-	}
-	if err := StashDropAt(dir, 0); err != nil {
-		t.Fatal(err)
-	}
-	if list, _ = Stashes(dir); len(list) != 1 || !strings.Contains(list[0], "first") {
-		t.Fatalf("after dropping the newest: %v", list)
-	}
-	run(t, dir, "checkout", "--", ".")
-	run(t, dir, "clean", "-fdq")
-	if err := StashPopAt(dir, 0); err != nil {
-		t.Fatalf("pop: %v", err)
-	}
-	if list, _ = Stashes(dir); len(list) != 0 {
-		t.Fatalf("pop must remove the stash, got %v", list)
-	}
-	if err := StashDropAt(dir, 5); err == nil {
-		t.Fatal("dropping a stash that does not exist must fail")
-	}
-	if err := StashDropAt(dir, -1); err == nil {
-		t.Fatal("a negative index must be refused")
 	}
 }
 
