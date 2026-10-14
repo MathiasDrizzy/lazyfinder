@@ -127,9 +127,12 @@ A narrow panel meant to sit next to another terminal, like the VS Code explorer 
 The window and the sidebar mode also switch by themselves when you resize the terminal: below 60 columns the window
 becomes the sidebar, from 80 columns up the sidebar becomes the window again. It works from 24 columns:
 
-- clickable icon-only tabs **Files**, **Search** and **Git** (a tooltip names each), like the herdr sidebar;
-- action icons at the right of the project name: new file, new folder, collapse all (the list updates by itself, so there is no refresh button). Every icon has a
-  tooltip in the bottom row, and the row or button under the pointer is painted;
+- it is drawn like the herdr sidebar: no frame of its own (herdr frames the pane), a tab bar three rows tall with
+  icon-only tabs **Files**, **Search** and **Git** (a tooltip names each; the chip of the active tab and of the one
+  under the pointer is a tall square), and a tree of `▸`/`▾` triangles, blue-grey folders and plain names;
+- action icons at the right of the project name: new file, new folder, collapse all (the list updates by itself, so
+  there is no refresh button). Like herdr, they show while the pointer moves over the pane and fade three seconds
+  after it stops. Every icon has a tooltip in the bottom row, and the row or button under the pointer is painted;
 - the project name in capitals, the tree with the git letter and color at the right edge (`M` modified, `U` new, `A`
   added, `D` deleted, `R` renamed, `!` conflict) and, at the bottom, the branch with how far it is from its upstream;
 - it updates by itself: files created, changed or removed by another program appear at once, marked with `+`;

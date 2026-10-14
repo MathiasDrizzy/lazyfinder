@@ -2,13 +2,18 @@ package ui
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 
+	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
+	"github.com/MathiasDrizzy/lazyfinder/internal/git"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
+	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 )
 
 // The project sidebar mode (--sidebar, ctrl+b) is a narrow panel meant to sit next to another terminal, like the
@@ -28,31 +33,40 @@ type tabSpan struct{ x, w int }
 
 func (m *Model) projectMode() bool { return m.deps.Follow }
 
-// projectTabsLine draws the tabs and says where each is, so the click lands on the one drawn there. Labels go away
-// (all but the active tab's) when the window is too narrow for them.
-func (m *Model) projectTabsLine() (string, []tabSpan) {
-	type tab struct{ glyph string }
-	nerd := m.icons.Style == icons.Nerd
-	tabs := []tab{{"▤"}, {lens}, {"⎇"}}
-	if nerd {
-		tabs[0].glyph, tabs[1].glyph, tabs[2].glyph = "\uf07b", "\uf002", "\uf126" // the glyphs of the herdr sidebar
-	}
-	active := tabFiles
+// activeTab is the tab of the sidebar mode that is showing.
+func (m *Model) activeTab() projectTab {
 	switch {
 	case m.searchOn():
-		active = tabSearch
+		return tabSearch
 	case m.projTab == tabGit:
-		active = tabGit
+		return tabGit
 	}
-	// Only the icon, like the herdr sidebar: two spaces on each side make a square button that is easy to hit, and
-	// the hover covers the same cells as the click.
+	return tabFiles
+}
+
+// projectTabsLine draws the middle row of the tab bar and says where each tab is, so the click lands on the one drawn
+// there. Like the activity bar of the herdr sidebar: a space, then each icon in a chip with a space between chips.
+// The Nerd Font glyphs of the tabs are drawn two cells wide, so their chip keeps a second cell for them (" G  ") and
+// the icon sits in the middle of its chip.
+func (m *Model) projectTabsLine() (string, []tabSpan) {
+	glyphs := []string{"▤", lens, "⎇"}
+	slack := ""
+	if m.icons.Style == icons.Nerd {
+		glyphs = []string{"\uf07b", "\uf002", "\uf126"} // the glyphs of the herdr sidebar
+		slack = " "
+	}
 	var b strings.Builder
 	var spans []tabSpan
-	x := 0
-	for i, t := range tabs {
-		text := "  " + t.glyph + "  "
-		style := func(s string) string { return s } // readable, not dimmed: the icon is all the tab has
-		if projectTab(i) == active {
+	b.WriteString(" ")
+	x := 1
+	for i, g := range glyphs {
+		if i > 0 {
+			b.WriteString(" ")
+			x++
+		}
+		text := " " + g + slack + " "
+		style := m.styles.dim
+		if projectTab(i) == m.activeTab() {
 			style = m.styles.selected
 		}
 		spans = append(spans, tabSpan{x: x, w: ansi.StringWidth(text)})
@@ -62,14 +76,51 @@ func (m *Model) projectTabsLine() (string, []tabSpan) {
 	return b.String(), spans
 }
 
-// projectToolbar is row 0 of the project mode: the tabs and, at the right edge, the Settings gear.
-func (m *Model) projectToolbar() string {
-	line, _ := m.projectTabsLine()
-	pad := m.w - ansi.StringWidth(line) - m.gearW() - modeBtnW
-	if pad < 0 {
-		return fit(line, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton()
+// toolbarRow is the row of the buttons of the toolbar: the middle row of the tab bar in the sidebar mode.
+func (m *Model) toolbarRow() int {
+	if m.projectMode() {
+		return 1
 	}
-	return line + strings.Repeat(" ", pad) + m.modeButton() + m.gearButton()
+	return 0
+}
+
+// sideButtonX is the first column of the mode button of the sidebar mode; the gear follows it at the right edge.
+func (m *Model) sideButtonX() int { return m.w - m.gearW() - modeBtnW }
+
+// projectToolbar is the tab bar of the sidebar mode, activityH rows: the tabs and, at the right edge, the mode button
+// and the Settings gear on the middle row. The chip of the active tab, and of the button under the pointer, reaches
+// into the rows above and below with half blocks, a tall button like those of the herdr sidebar.
+func (m *Model) projectToolbar() []string {
+	line, spans := m.projectTabsLine()
+	right := m.styles.dim(" "+m.modeGlyph()+" ") + m.styles.dim(" "+m.gearText()+" ")
+	mid := fit(line, m.sideButtonX()) + right
+	type capSpan struct {
+		x, w int
+		c    color.Color
+	}
+	var caps []capSpan
+	p, colored := theme.Lookup(m.deps.Cfg.Theme)
+	if colored {
+		a := spans[m.activeTab()]
+		caps = append(caps, capSpan{a.x, a.w, p.Surface1})
+		if r, ok := m.hoverRect(); ok && r.y == 1 {
+			caps = append(caps, capSpan{r.x, r.w, hoverBg(p)})
+		}
+	}
+	edge := func(glyph string) string {
+		var b strings.Builder
+		x := 0
+		for _, c := range caps {
+			if c.x < x || c.x+c.w > m.w {
+				continue
+			}
+			b.WriteString(strings.Repeat(" ", c.x-x))
+			b.WriteString(lipgloss.NewStyle().Foreground(c.c).Render(strings.Repeat(glyph, c.w)))
+			x = c.x + c.w
+		}
+		return b.String() + strings.Repeat(" ", max(0, m.w-x))
+	}
+	return []string{edge("▄"), mid, edge("▀")}
 }
 
 func (m *Model) projectTabAt(x int) (projectTab, bool) {
@@ -90,10 +141,11 @@ func (m *Model) projectName() string {
 // projectHeader is the line above the tree.
 func (m *Model) projectHeader() string {
 	n := m.actionsShown()
+	name := m.styles.folder(fit(" "+m.projectName(), m.listW()-n*actionW))
 	if n == 0 {
-		return m.styles.accent(fit(" "+m.projectName(), m.listW()))
+		return name
 	}
-	return m.styles.accent(fit(" "+m.projectName(), m.listW()-n*actionW-1)) + m.actionsText() + " "
+	return name + m.actionsText()
 }
 
 // projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream.
@@ -138,4 +190,86 @@ var projectFooterItems = []struct {
 	{keymap.Search, func() string { return i18n.T("Buscar", "Search") }},
 	{keymap.Help, func() string { return i18n.T("Ayuda", "Help") }},
 	{keymap.Quit, func() string { return i18n.T("Salir", "Quit") }},
+}
+
+// folderIconRGB is the blue-grey of the folders of the herdr sidebar, softer than the blue of the normal window.
+const folderIconRGB = 0x90a4ae
+
+// treeRow draws row idx of the sidebar mode like a row of the herdr sidebar: the indent (two cells a level), a dimmed
+// triangle for folders, the icon and the name in the plain color (a git state recolors it), and at the right edge the
+// git letter, or a dot for a folder with changes inside, with two cells after it. The selection only sets the
+// background, so the icon keeps its color.
+func (m *Model) treeRow(idx, width int) string {
+	e := m.entries()[idx]
+	chevron := "  "
+	if e.IsDir {
+		chevron = "▸ "
+		if m.expanded[e.Path] {
+			chevron = "▾ "
+		}
+	}
+	lead := m.styles.dim(strings.Repeat("  ", e.Depth) + chevron)
+	used := 2*e.Depth + 2
+	if m.iconW() > 0 {
+		ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
+		if ic.Role == icons.Folder && !ic.HasRGB {
+			ic.HasRGB, ic.RGB = true, folderIconRGB
+		}
+		lead += m.iconCell(ic)
+		used += m.iconW()
+	}
+	code := m.gitCode(e)
+	marker := ""
+	switch {
+	case m.isFresh(e.Path): // what just appeared says so for a few seconds, without relying on its color
+		marker = m.styles.fresh("+")
+	case !m.git.ok || code == git.None || code == git.Ignored:
+	case e.IsDir:
+		marker = m.styles.gitPaint(string(code), "●")
+	default:
+		marker = m.styles.bold(m.styles.gitLetter(string(code)))
+	}
+	tail := 0
+	if marker != "" {
+		tail = 4 // a space, the marker and two cells clear of the edge
+	}
+	name := fit(strings.TrimPrefix(m.cell(e, fsmodel.ColName), strings.Repeat("  ", e.Depth)), max(1, width-used-tail))
+	switch {
+	case m.isFresh(e.Path):
+		name = m.styles.fresh(name)
+	case code == git.Ignored:
+		name = m.styles.dim(name)
+	case m.git.ok && code != git.None:
+		name = m.styles.gitPaint(string(code), name)
+	}
+	line := lead + name
+	if marker != "" {
+		line += strings.Repeat(" ", max(1, width-ansi.StringWidth(line)-3)) + marker + "  "
+	}
+	line = fit(line, width)
+	switch {
+	case idx == m.sel:
+		return m.rowBackground(line, m.focus == focusList)
+	case m.marked[e.Path]:
+		return m.rowBackground(line, false)
+	}
+	return line
+}
+
+// rowBackground puts the selection background behind line, the strong one (bold, like the selected row) or the soft
+// one, and keeps the colors of the text on it. Without a palette it falls back to the selection styles over the plain
+// text.
+func (m *Model) rowBackground(line string, strong bool) string {
+	p, ok := theme.Lookup(m.deps.Cfg.Theme)
+	switch {
+	case !ok && strong:
+		return m.styles.selected(ansi.Strip(line))
+	case !ok:
+		return m.styles.selectedInactive(ansi.Strip(line))
+	}
+	seq := theme.BackgroundSeq(p.Surface0)
+	if strong {
+		seq = theme.BackgroundSeq(p.Surface1) + "\x1b[1m"
+	}
+	return "\x1b[0m" + seq + dropBackgrounds(line, seq) + "\x1b[0m"
 }

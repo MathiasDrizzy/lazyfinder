@@ -141,7 +141,7 @@ func (m *Model) actionSpans() []actionSpan {
 	}
 	y, end := 0, m.w-m.gearW()-modeBtnW-m.fieldW()-1
 	if m.projectMode() {
-		y, end = 2, m.w-1
+		y, end = m.headerRow(), m.w
 	}
 	spans := make([]actionSpan, 0, n)
 	for i := 0; i < n; i++ {
@@ -150,11 +150,16 @@ func (m *Model) actionSpans() []actionSpan {
 	return spans
 }
 
-// actionsText draws the action icons as one string of n*actionW cells.
+// actionsText draws the action icons as one string of n*actionW cells: dimmed in the sidebar mode, like the title
+// bar buttons of the herdr sidebar (the pointer lights the one under it), in the accent color in the window toolbar.
 func (m *Model) actionsText() string {
+	style := m.styles.accent
+	if m.projectMode() {
+		style = m.styles.dim
+	}
 	var b strings.Builder
 	for i := 0; i < m.actionsShown(); i++ {
-		b.WriteString(m.styles.accent(" " + m.actionGlyph(i) + " "))
+		b.WriteString(style(" " + m.actionGlyph(i) + " "))
 	}
 	return b.String()
 }

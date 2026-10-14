@@ -10,6 +10,12 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Added
 
+- The sidebar mode is drawn like the herdr sidebar (Mathias compared both, 2026-10-13): no frame of its own, a tab
+  bar three rows tall whose active and hovered chips reach the rows above and below with half blocks (each row takes
+  the click), four-cell tab chips that center the wide Nerd Font glyphs, dimmed tree buttons, the project name in
+  blue, and tree rows of `▸`/`▾` triangles, blue-grey folder icons and plain names with the git letter (or a dot for
+  a folder) two cells from the edge. The selected row keeps the colors of its icon and name.
+
 - The tree buttons of the sidebar mode (new file, new folder, collapse all) show while the pointer moves over the pane
   and fade three seconds after it stops, like the title bar buttons of the herdr sidebar; the border of the panel no
   longer repeats the project name that heads the tree.
@@ -57,6 +63,8 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
   itself (`preview.images` stays in the file to force it off) and the mouse is `mouse` in the file or `--no-mouse`.
 
 ### Fixed
+
+- The last visible row of the list did not take the click: the click area ended one row before the bottom border.
 
 - The buttons of the toolbar, the tree header and the rows of the Git tab are all three cells wide with the glyph in
   the middle, so the hover and the click cover the cells they show; the sidebar tabs are icon-only square buttons with

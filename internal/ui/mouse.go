@@ -48,18 +48,18 @@ type zone struct {
 
 // hit resolves a screen position on the base layer (popups are handled before). Panel borders are not clickable.
 func (m *Model) hit(x, y int) zone {
-	lastRow := m.panelH() - 1 // last panel row (its bottom border)
+	lastRow := m.bodyEnd()
 	for _, a := range m.actionSpans() {
 		if y == a.y && x >= a.x && x < a.x+a.w {
 			return zone{kind: zoneAction, idx: a.idx}
 		}
 	}
 	if m.scmOn() {
-		if y == headerRow && x >= m.listX() && x < m.listX()+m.scmBranchW() {
+		if y == m.headerRow() && x >= m.listX() && x < m.listX()+m.scmBranchW() {
 			return zone{kind: zoneBranch}
 		}
-		if y >= firstRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
-			i := m.scm.top + y - firstRow
+		if y >= m.firstRow() && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
+			i := m.scm.top + y - m.firstRow()
 			if i < len(m.scmRows()) {
 				for _, b := range m.scmButtons(i) {
 					if x >= b.x && x < b.x+b.w {
@@ -70,19 +70,19 @@ func (m *Model) hit(x, y int) zone {
 			}
 		}
 	}
-	if m.columnsOn() && y >= headerRow && y < lastRow && x == m.listX()+m.millerGeom().parentW+1+m.millerGeom().centerW {
+	if m.columnsOn() && y >= m.headerRow() && y < lastRow && x == m.listX()+m.millerGeom().parentW+1+m.millerGeom().centerW {
 		return zone{kind: zonePreviewBorder}
 	}
-	if m.columnsOn() && y >= headerRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
+	if m.columnsOn() && y >= m.headerRow() && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
 		return m.millerHit(x, y)
 	}
 	if l := m.sidebarBoxLayout(); len(l) == 2 && x >= 1 && x < m.sidebarW()-1 && (y == l[0].h || y == l[0].h+1) {
 		return zone{kind: zoneBoxBorder}
 	}
-	if y >= 1 && y <= lastRow && m.sidebarW() > 0 && (x == m.sidebarW()-1 || x == m.sidebarW()) {
+	if y >= 1 && y < m.panelH() && m.sidebarW() > 0 && (x == m.sidebarW()-1 || x == m.sidebarW()) {
 		return zone{kind: zoneSideBorder}
 	}
-	if !m.columnsOn() && !m.projectMode() && y == headerRow {
+	if !m.columnsOn() && !m.projectMode() && y == m.headerRow() {
 		for _, s := range m.columns() {
 			if rel := x - m.listX(); rel >= s.x+s.w && rel < s.x+s.w+m.gap() {
 				return zone{kind: zoneColBorder, col: s.col}
@@ -90,14 +90,14 @@ func (m *Model) hit(x, y int) zone {
 		}
 	}
 	switch {
-	case y == 0 && m.projectMode():
+	case y < activityH && m.projectMode(): // every row of a tab bar button takes the click, as in herdr
 		if t, ok := m.projectTabAt(x); ok {
 			return zone{kind: zoneProjectTab, idx: int(t)}
 		}
 		if x >= m.w-m.gearW() {
 			return zone{kind: zoneSettings}
 		}
-		if x >= m.w-m.gearW()-modeBtnW {
+		if x >= m.sideButtonX() {
 			return zone{kind: zoneMode}
 		}
 	case y == 0:
@@ -140,17 +140,17 @@ func (m *Model) hit(x, y int) zone {
 				return zone{kind: zoneCrumb, path: c.path}
 			}
 		}
-	case y >= headerRow && y < lastRow && x >= 1 && x < m.sidebarW()-1:
+	case y >= m.headerRow() && y < lastRow && x >= 1 && x < m.sidebarW()-1:
 		return m.sidebarHit(y - 1)
-	case y == headerRow && !m.projectMode() && x >= m.listX() && x < m.listX()+m.listW():
+	case y == m.headerRow() && !m.projectMode() && x >= m.listX() && x < m.listX()+m.listW():
 		for _, s := range m.columns() {
 			if x-m.listX() >= s.x && x-m.listX() < s.x+s.w {
 				return zone{kind: zoneHeader, col: s.col}
 			}
 		}
-	case y >= firstRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW():
-		if idx := m.top + (y-firstRow)/m.rowH(); idx < len(m.entries()) {
-			if x == m.listX()+2 && m.entries()[idx].IsDir && !m.searchOn() { // the > marker
+	case y >= m.firstRow() && y < lastRow && x >= m.listX() && x < m.listX()+m.listW():
+		if idx := m.top + (y-m.firstRow())/m.rowH(); idx < len(m.entries()) {
+			if x == m.listX()+2 && m.entries()[idx].IsDir && !m.searchOn() && !m.projectMode() { // the > marker
 				return zone{kind: zoneToggle, idx: idx}
 			}
 			return zone{kind: zoneRow, idx: idx}

@@ -20,7 +20,7 @@
     {
       "desc": "the three tabs are on the first row",
       "assert": {
-        "contains": "\uf126"
+        "contains": ""
       }
     },
     {
@@ -56,10 +56,10 @@
     {
       "desc": "the Git tab keeps only the changed files",
       "click": {
-        "at": "\uf126",
+        "at": "",
         "in": {
           "x": 0,
-          "y": 0,
+          "y": 1,
           "w": 30,
           "h": 1
         }
@@ -81,10 +81,10 @@
     {
       "desc": "the Files tab brings everything back",
       "click": {
-        "at": "\uf07b",
+        "at": "",
         "in": {
           "x": 0,
-          "y": 0,
+          "y": 1,
           "w": 30,
           "h": 1
         }

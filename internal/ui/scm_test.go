@@ -50,7 +50,7 @@ func (e *env) button(name string, act scmAct) (x, y int) {
 	y = e.rowY(name)
 	e.move(5, y) // the pointer on the row shows its buttons
 	rows := e.m.scmRows()
-	idx := e.m.scm.top + y - firstRow
+	idx := e.m.scm.top + y - e.m.firstRow()
 	if idx < 0 || idx >= len(rows) {
 		e.t.Fatalf("no row at y=%d", y)
 	}
@@ -108,7 +108,7 @@ func TestSectionButtonsStageAndUnstageEverything(t *testing.T) {
 	y := e.rowY("Changes")
 	e.move(5, y)
 	var hit bool
-	for _, b := range e.m.scmButtons(e.m.scm.top + y - firstRow) {
+	for _, b := range e.m.scmButtons(e.m.scm.top + y - e.m.firstRow()) {
 		if b.act == scmActStageAll {
 			e.click(b.x, y)
 			hit = true
@@ -122,7 +122,7 @@ func TestSectionButtonsStageAndUnstageEverything(t *testing.T) {
 	}
 	y = e.rowY("Staged Changes")
 	e.move(5, y)
-	for _, b := range e.m.scmButtons(e.m.scm.top + y - firstRow) {
+	for _, b := range e.m.scmButtons(e.m.scm.top + y - e.m.firstRow()) {
 		if b.act == scmActUnstageAll {
 			e.click(b.x, y)
 		}
@@ -445,7 +445,12 @@ func TestTheCounterOfTheGitTabCountsItsOwnRows(t *testing.T) {
 	e := projectEnv(t, 50)
 	e.clickTab(tabGit)
 	rows := len(e.m.scmRows())
-	e.mustHave(fmt.Sprintf("1 of %d", rows))
+	// the sidebar draws no frame (herdr frames the pane), so the counter is read where the frame would put it
+	if got, want := e.m.counter(), fmt.Sprintf("1 of %d", rows); got != want {
+		t.Fatalf("counter = %q, want %q", got, want)
+	}
 	e.key("down")
-	e.mustHave(fmt.Sprintf("2 of %d", rows))
+	if got, want := e.m.counter(), fmt.Sprintf("2 of %d", rows); got != want {
+		t.Fatalf("counter = %q, want %q", got, want)
+	}
 }

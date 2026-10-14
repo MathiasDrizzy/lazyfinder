@@ -3,6 +3,22 @@
 What the [herdr sidebar](https://github.com/alexarthurs/herdr-sidebar) offers in its Git view and on its hover
 buttons, and what lazyfinder does about each item. Every "done" names its proof in [qa-matriz.md](qa-matriz.md).
 
+## Look of the explorer (sidebar mode)
+
+Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_line`) and `ui.rs` of herdr-sidebar
+081ed13.
+
+| herdr sidebar | lazyfinder | State |
+|---|---|---|
+| No frame of its own: herdr frames and titles the pane | no border and no counter in the sidebar mode | done |
+| Activity bar three rows tall, active chip extended with `▄`/`▀` half blocks, hover with the same geometry | same, rows 0–2; every row of a chip takes the click | done |
+| Chips `" G  "` (FA glyphs are two cells wide), one space apart, gear at the right edge | same chips; the mode button sits left of the gear | done |
+| Header: ` NAME` bold in the accent blue, title buttons right-aligned, dimmed, shown on mouse activity for 3 s | same (no refresh button: the list updates by itself) | done |
+| Row: indent of two cells a level, dimmed `▸`/`▾`, icon, plain name, git letter or `●` two cells from the edge, ignored names dimmed | same | done |
+| Blue-grey folder icon `#90a4ae` | same | done |
+| Selection sets only the background (bold), icons keep their color | same | done |
+| Footer: git status and the `«` collapse button | branch and distance from upstream, key hints; no `«` (herdr's own pane control) | partial |
+
 ## Git tab (sidebar mode)
 
 | herdr sidebar | lazyfinder | State |

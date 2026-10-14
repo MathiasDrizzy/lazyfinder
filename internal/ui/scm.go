@@ -171,7 +171,7 @@ func (m *Model) scmRowY(i int) int {
 	if i < m.scm.top || i >= m.scm.top+m.scmVisible() {
 		return -1
 	}
-	return firstRow + i - m.scm.top
+	return m.firstRow() + i - m.scm.top
 }
 
 // scmButtonsVisible says whether row i wears its buttons: the selected row and the one under the pointer do.

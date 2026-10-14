@@ -23,9 +23,9 @@
       }
     },
     {
-      "desc": "the frame is whole: its corners are in place",
+      "desc": "the tab bar is whole: the chip of the active tab reaches the row under the icons",
       "assert": {
-        "contains": "\u2570.*\u256f"
+        "contains": "▀▀▀▀"
       }
     },
     {

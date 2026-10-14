@@ -20,10 +20,10 @@
     {
       "desc": "the Git tab is one click away",
       "click": {
-        "at": "\uf126",
+        "at": "",
         "in": {
           "x": 0,
-          "y": 0,
+          "y": 1,
           "w": 50,
           "h": 1
         }
@@ -59,7 +59,7 @@
     },
     {
       "desc": "the pointer on the second row shows its buttons and a soft background",
-      "text": "\u001b[<35;5;6M"
+      "text": "\u001b[<35;5;7M"
     },
     {
       "assert": {

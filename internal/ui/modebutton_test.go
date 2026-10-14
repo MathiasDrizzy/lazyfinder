@@ -135,15 +135,16 @@ func TestTheTabsShowOnlyTheirIconAndEachHasATooltip(t *testing.T) {
 	for _, name := range []string{"Archivos", "Buscar", "Files", "Search"} {
 		e.mustNotHave(name + " ") // a tab label, not the footer hint
 	}
+	// herdr's activity bar: a space, then chips of four cells (" G  ": the glyph is drawn two cells wide) one apart
 	line, spans := e.m.projectTabsLine()
-	if got := ansi.StringWidth(line); got != 3*5 {
-		t.Fatalf("three square buttons of five cells, got %d cells", got)
+	if got := ansi.StringWidth(line); got != 1+3*4+2 {
+		t.Fatalf("three chips of four cells, got %d cells", got)
 	}
 	for i, s := range spans {
-		if s.w != 5 {
-			t.Fatalf("tab %d is %d cells wide, want 5", i, s.w)
+		if s.w != 4 || s.x != 1+5*i {
+			t.Fatalf("tab %d is at %d, %d cells wide; want at %d, 4 wide", i, s.x, s.w, 1+5*i)
 		}
-		e.move(s.x+2, 0)
+		e.move(s.x+1, 1)
 		if tip := e.m.tooltip(); strings.TrimSpace(tip) == "" {
 			t.Fatalf("tab %d has no tooltip", i)
 		}
@@ -243,7 +244,8 @@ func TestEachGlyphIsDrawnInTheMiddleCellOfItsButton(t *testing.T) {
 func TestEveryTopRowGlyphLiesInsideItsOwnZone(t *testing.T) {
 	check := func(label string, e *env, w int) {
 		t.Helper()
-		line := ansi.Strip(e.screen()[0])
+		row := e.m.toolbarRow()
+		line := ansi.Strip(e.screen()[row])
 		glyphs := []struct {
 			name string
 			g    string
@@ -265,10 +267,10 @@ func TestEveryTopRowGlyphLiesInsideItsOwnZone(t *testing.T) {
 				t.Fatalf("%s width %d: no %s glyph in %q", label, w, g.name, line)
 			}
 			x := ansi.StringWidth(line[:i])
-			if z := e.m.hit(x, 0); z.kind != g.kind {
+			if z := e.m.hit(x, row); z.kind != g.kind {
 				t.Fatalf("%s width %d: the %s glyph at cell %d hits %+v (line %q)", label, w, g.name, x, z, line)
 			}
-			if r, ok := hoverAt(e, x, 0); !ok || x < r.x || x >= r.x+r.w {
+			if r, ok := hoverAt(e, x, row); !ok || x < r.x || x >= r.x+r.w {
 				t.Fatalf("%s width %d: the hover of the %s glyph at cell %d is %+v", label, w, g.name, x, r)
 			}
 		}

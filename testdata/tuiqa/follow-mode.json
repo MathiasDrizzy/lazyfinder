@@ -48,7 +48,7 @@
     },
     {
       "assert": {
-        "contains": "\\+\\s+>?v?\\s*\\S?\\s*agent-made"
+        "contains": "agent-made\\s+\\+"
       }
     },
     {

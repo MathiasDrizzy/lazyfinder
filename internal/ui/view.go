@@ -80,13 +80,44 @@ func (m *Model) sidebarW() int {
 
 // The screen, top to bottom: toolbar (row 0), the two panels (rows 1..h-3), the breadcrumb (h-2) and the key bar (h-1).
 // Each panel has a border, so the content of the list starts one cell in and its header sits on row 2.
-func (m *Model) listX() int { return m.sidebarW() + 1 } // first content column of the list panel
-func (m *Model) listW() int { return m.w - m.sidebarW() - 2 }
+// In the sidebar mode the list has no frame (herdr frames the pane), so it starts at the first column and takes the
+// whole width.
+func (m *Model) listX() int { // first content column of the list panel
+	if m.projectMode() {
+		return 0
+	}
+	return m.sidebarW() + 1
+}
+
+func (m *Model) listW() int {
+	if m.projectMode() {
+		return m.w
+	}
+	return m.w - m.sidebarW() - 2
+}
 
 const (
-	headerRow = 2 // column header
-	firstRow  = 3 // first entry
+	headerRow = 2 // column header of the normal window
+	firstRow  = 3 // first entry of the normal window
 )
+
+// activityH is the height of the tab bar of the sidebar mode: the icons on the middle row and room above and below,
+// like the activity bar of the herdr sidebar.
+const activityH = 3
+
+// headerRow is the row of the column header, or of the project name in the sidebar mode, under its tab bar.
+func (m *Model) headerRow() int {
+	if m.projectMode() {
+		return activityH
+	}
+	return headerRow
+}
+
+// firstRow is the row of the first entry.
+func (m *Model) firstRow() int { return m.headerRow() + 1 }
+
+// bodyEnd is the row after the last row of the list.
+func (m *Model) bodyEnd() int { return m.firstRow() + m.panelH() - 3 }
 
 // prefix is the width before the name: pointer, folder marker and, inside a repository, the git state.
 func (m *Model) prefix() int {
@@ -363,25 +394,29 @@ func (m *Model) popupBoxes() []popupBox {
 // background the base is painted here and each popup restores the theme background behind itself.
 func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []string) {
 	lines := make([]string, m.h)
-	lines[0] = m.toolbar()
-	title := m.folderTitle()
 	if m.projectMode() {
-		title = "" // the name is already the heading of the tree
-	}
-	list := m.panel(title, m.counter(), m.listLines(), m.w-m.sidebarW(), m.panelH(), m.focus == focusList)
-	if m.sidebarW() == 0 {
+		// No frame and no counter: herdr frames the pane and titles it already.
+		copy(lines, m.projectToolbar())
+		for i, l := range m.listLines() {
+			if y := m.headerRow() + i; y < m.h-2 {
+				lines[y] = fit(l, m.w)
+			}
+		}
+		lines[m.h-2] = m.projectFooter()
+	} else {
+		lines[0] = m.toolbar()
+		list := m.panel(m.folderTitle(), m.counter(), m.listLines(), m.w-m.sidebarW(), m.panelH(), m.focus == focusList)
+		var side []string
+		if m.sidebarW() > 0 {
+			side = m.sidebarBoxes()
+		}
 		for y := 0; y < m.panelH(); y++ {
 			lines[y+1] = list[y]
+			if side != nil {
+				lines[y+1] = side[y] + list[y]
+			}
 		}
-	} else {
-		side := m.sidebarBoxes()
-		for y := 0; y < m.panelH(); y++ {
-			lines[y+1] = side[y] + list[y]
-		}
-	}
-	lines[m.h-2] = m.breadcrumb()
-	if m.projectMode() {
-		lines[m.h-2] = m.projectFooter()
+		lines[m.h-2] = m.breadcrumb()
 	}
 	if m.searchOn() {
 		lines[m.h-2], _ = m.filterBar()
@@ -435,9 +470,6 @@ func (m *Model) lensGlyph() string {
 }
 
 func (m *Model) toolbar() string {
-	if m.projectMode() {
-		return m.projectToolbar()
-	}
 	left := m.toolbarLeft()
 	right := m.toolbarRight()
 	if b := m.branchLabel(); b != "" {
@@ -618,6 +650,9 @@ func (m *Model) row(idx int, specs []colSpec) string { return m.rowW(idx, specs,
 
 // rowW draws row idx padded or cut to width cells.
 func (m *Model) rowW(idx int, specs []colSpec, width int) string {
+	if m.projectMode() {
+		return m.treeRow(idx, width)
+	}
 	e := m.entries()[idx]
 	selected := idx == m.sel
 	pointer, marker, mark := " ", " ", " "

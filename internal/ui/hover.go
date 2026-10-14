@@ -59,7 +59,7 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 		if z.idx == m.sel {
 			return hoverRect{}, false
 		}
-		return hoverRect{m.listX(), firstRow + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
+		return hoverRect{m.listX(), m.firstRow() + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
 	case zoneScmRow:
 		if z.idx == m.scm.sel {
 			return hoverRect{}, false
@@ -74,7 +74,7 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 	case zoneBranch:
 		switch {
 		case m.scmOn():
-			return hoverRect{m.listX(), headerRow, m.scmBranchW(), 1}, true
+			return hoverRect{m.listX(), m.headerRow(), m.scmBranchW(), 1}, true
 		case y == 0:
 			if bx, bw, ok := m.branchSpan(); ok {
 				return hoverRect{bx, 0, bw, 1}, true
@@ -83,7 +83,7 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 			return hoverRect{0, y, ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")), 1}, true
 		}
 	case zoneToggle:
-		return hoverRect{m.listX(), firstRow + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
+		return hoverRect{m.listX(), m.firstRow() + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
 	case zonePlace:
 		if z.idx == m.sideSel && m.focus == focusSidebar {
 			return hoverRect{}, false
@@ -92,17 +92,20 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 	case zoneHeader:
 		for _, s := range m.columns() {
 			if z.col == s.col {
-				return hoverRect{m.listX() + s.x, headerRow, s.w, 1}, true
+				return hoverRect{m.listX() + s.x, m.headerRow(), s.w, 1}, true
 			}
 		}
 	case zoneProjectTab:
+		if projectTab(z.idx) == m.activeTab() {
+			return hoverRect{}, false // the active tab keeps its selected chip
+		}
 		_, spans := m.projectTabsLine()
 		s := spans[z.idx]
-		return hoverRect{s.x, 0, s.w, 1}, true
+		return hoverRect{s.x, 1, s.w, 1}, true // the tab bar draws the rows above and below
 	case zoneSettings:
-		return hoverRect{m.w - m.gearW(), 0, m.gearW(), 1}, true
+		return hoverRect{m.w - m.gearW(), m.toolbarRow(), m.gearW(), 1}, true
 	case zoneMode:
-		return hoverRect{m.w - m.gearW() - modeBtnW, 0, modeBtnW, 1}, true
+		return hoverRect{m.w - m.gearW() - modeBtnW, m.toolbarRow(), modeBtnW, 1}, true
 	case zoneSearch:
 		if y == 0 {
 			return hoverRect{m.w - m.gearW() - modeBtnW - m.fieldW(), 0, m.fieldW(), 1}, true
