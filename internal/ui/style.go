@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"image/color"
 	"strings"
 
@@ -70,15 +69,15 @@ func newStyles(l look) styles {
 	}
 	p, ok := theme.Lookup(l.Theme)
 	if !ok { // "terminal": the terminal's own 16 colors
-		blue, red := lipgloss.Color("12"), lipgloss.Color("1")
+		blue, red, green, magenta := theme.TerminalBlue, theme.TerminalRed, theme.TerminalGreen, theme.TerminalMagenta
 		return styles{
 			stripe:   plain,
 			selected: r(lipgloss.NewStyle().Reverse(true)), selectedInactive: r(lipgloss.NewStyle().Bold(true)),
 			dim: r(lipgloss.NewStyle().Faint(true)), bold: r(lipgloss.NewStyle().Bold(true)),
-			folder: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), accent: r(lipgloss.NewStyle().Foreground(blue)), fresh: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
+			folder: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), accent: r(lipgloss.NewStyle().Foreground(blue)), fresh: r(lipgloss.NewStyle().Foreground(green).Bold(true)),
 			errText: r(lipgloss.NewStyle().Foreground(red).Bold(true)), border: r(lipgloss.NewStyle().Faint(true)),
-			borderActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2"))), titleActive: r(lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)),
-			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Bold(true)),
+			borderActive: r(lipgloss.NewStyle().Foreground(green)), titleActive: r(lipgloss.NewStyle().Foreground(green).Bold(true)),
+			title: r(lipgloss.NewStyle().Faint(true)), footerKey: r(lipgloss.NewStyle().Foreground(magenta).Bold(true)),
 			footer: r(lipgloss.NewStyle().Faint(true)), popupBorder: r(lipgloss.NewStyle().Foreground(blue)),
 			popupTitle: r(lipgloss.NewStyle().Foreground(blue).Bold(true)), icon: noIconColor,
 			gitLetter: plain, gitPaint: func(_, text string) string { return text },
@@ -120,8 +119,6 @@ func newStyles(l look) styles {
 		c := p.Overlay0
 		switch {
 		case dim:
-		case ic.HasRGB:
-			c = lipgloss.Color(fmt.Sprintf("#%06x", ic.RGB))
 		default:
 			c = roles[ic.Role]
 		}

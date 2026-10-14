@@ -12,7 +12,8 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 |---|---|---|
 | No frame of its own: herdr frames and titles the pane | no border and no counter in the sidebar mode | done |
 | Activity bar three rows tall, active chip extended with `▄`/`▀` half blocks, hover with the same geometry | same, rows 0–2; every row of a chip takes the click | done |
-| Chips `" G  "` (FA glyphs are two cells wide), one space apart, gear at the right edge | same chips; the mode button sits left of the gear | done |
+| Chips `" G  "` (FA glyphs are two cells wide), one space apart, gear at the right edge | same chips, also in the window toolbar, one free cell apart; the mode button sits left of the gear | done |
+| Keycap hover `#32363d`, a lighter chip for the active tab; file icons in fixed colors per kind | the theme's surface color for the hover and a step lighter for the active tab; each file kind takes the theme color closest to herdr's, so every part follows the theme | different on purpose (order 07, revision 2) |
 | Header: ` NAME` bold in the accent blue, title buttons right-aligned, dimmed, shown on mouse activity for 3 s | same (no refresh button: the list updates by itself) | done |
 | Row: indent of two cells a level, dimmed `▸`/`▾`, icon, plain name, git letter or `●` two cells from the edge, ignored names dimmed | same layout; `>`/`v` and the colors of the normal window (Mathias, 2026-10-14: both modes must look like one program) | done, colors different on purpose |
 | Blue-grey folder icon `#90a4ae` | the blue folder icon and name of the normal window | different on purpose |

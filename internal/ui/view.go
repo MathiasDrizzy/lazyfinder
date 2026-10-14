@@ -477,7 +477,7 @@ func (m *Model) toolbar() string {
 	}
 	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
 	if pad < 1 {
-		return fit(left, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton()
+		return fit(left, m.modeX()) + m.modeButton() + strings.Repeat(" ", chipGap) + m.gearButton()
 	}
 	return left + strings.Repeat(" ", pad) + right
 }
@@ -503,10 +503,12 @@ func (m *Model) toolbarLeft() string {
 // toolbarRight is the right part of the toolbar without the branch.
 func (m *Model) toolbarRight() string {
 	count := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries())))
+	gap := strings.Repeat(" ", chipGap)
+	tail := m.searchField() + gap + m.modeButton() + gap + m.gearButton()
 	if m.actionsShown() > 0 { // the action icons sit one cell before the field
-		return count + "  " + m.actionsText() + " " + m.searchField() + m.modeButton() + m.gearButton()
+		return count + "  " + m.actionsText() + gap + tail
 	}
-	return count + "  " + m.searchField() + m.modeButton() + m.gearButton()
+	return count + "  " + tail
 }
 
 // branchSpan says where the branch label sits in the toolbar of the window, when it is shown.
@@ -528,7 +530,7 @@ const searchFieldW = 22
 // fieldW is the cells the field takes, 3 (the lens button) in a narrow window.
 func (m *Model) fieldW() int {
 	if m.w < 80 {
-		return 3 // the lens alone, as wide as every other button
+		return m.chipW() // the lens alone, as wide as every other button
 	}
 	return searchFieldW
 }
@@ -536,8 +538,8 @@ func (m *Model) fieldW() int {
 // searchField draws the Search field: its hint while idle, the query while searching.
 func (m *Model) searchField() string {
 	w := m.fieldW()
-	if w == 3 {
-		return m.styles.accent(" " + m.lensGlyph() + " ")
+	if w < searchFieldW {
+		return m.styles.dim(m.chip(m.lensGlyph()))
 	}
 	text := " " + m.lensGlyph() + " " + i18n.T("Buscar", "Search")
 	style := m.styles.selectedInactive

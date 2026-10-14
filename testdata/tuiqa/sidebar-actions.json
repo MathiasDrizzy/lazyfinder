@@ -38,8 +38,13 @@
     {
       "desc": "the second icon of the header asks for a folder name",
       "click": {
-        "x": 35,
-        "y": 3
+        "at": "|▢",
+        "in": {
+          "x": 0,
+          "y": 3,
+          "w": 40,
+          "h": 1
+        }
       }
     },
     {
@@ -60,8 +65,13 @@
     {
       "desc": "the first icon asks for a file name",
       "click": {
-        "x": 32,
-        "y": 3
+        "at": "|\\+",
+        "in": {
+          "x": 0,
+          "y": 3,
+          "w": 40,
+          "h": 1
+        }
       }
     },
     {

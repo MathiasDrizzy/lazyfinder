@@ -34,13 +34,9 @@ const (
 
 // Icon is a glyph with the palette role that colors it; Dim marks hidden items.
 type Icon struct {
-	Glyph string
-	Role  Role
-	Dim   bool
-	// RGB (0xRRGGBB) is the color of the kind when it has its own, instead of a palette Role; the UI lifts it where
-	// a theme would make it unreadable.
-	RGB     uint32
-	HasRGB  bool
+	Glyph   string
+	Role    Role
+	Dim     bool
 	IsEmoji bool // drawn with its own colors, two cells wide
 }
 
@@ -199,7 +195,7 @@ func nerd(it Item, ext string) Icon {
 	}
 	if k, ok := kindOf(it.Name); ok {
 		g := kindGlyphs[k]
-		return Icon{Glyph: g.glyph, RGB: g.rgb, HasRGB: true}
+		return Icon{Glyph: g.glyph, Role: g.role}
 	}
 	if k, ok := byName[strings.ToLower(it.Name)]; ok {
 		return Icon{Glyph: k.glyph, Role: k.role}
@@ -208,5 +204,5 @@ func nerd(it Item, ext string) Icon {
 		return Icon{Glyph: k.glyph, Role: k.role}
 	}
 	g := kindGlyphs[kFile]
-	return Icon{Glyph: g.glyph, RGB: g.rgb, HasRGB: true}
+	return Icon{Glyph: g.glyph, Role: g.role}
 }

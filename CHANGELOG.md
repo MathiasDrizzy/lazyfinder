@@ -10,6 +10,10 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Added
 
+- A new folder or file is made at once with a free name (`untitled folder`, `untitled 2`, …) and its row shows the
+  name selected, as in the Finder: typing replaces it, enter keeps it, esc takes the new item back. The prompt names
+  what is being made, with its icon.
+
 - The sidebar mode is drawn like the herdr sidebar (Mathias compared both, 2026-10-13): no frame of its own, a tab
   bar three rows tall whose active and hovered chips reach the rows above and below with half blocks (each row takes
   the click), four-cell tab chips that center the wide Nerd Font glyphs, dimmed tree buttons, the project name in
@@ -45,6 +49,12 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Changed
 
+- Every button of the top rows (actions, Search, mode, Settings) is a box centered on its glyph, one free cell from
+  the next, in the same dimmed color in the window and the sidebar mode; the pointer lights it with the theme's
+  surface color and the active tab a step lighter, like the keycaps of the herdr sidebar.
+- The file icons take the theme color closest to the one the herdr sidebar gives each kind, so they change with the
+  theme like everything else; no color is written outside the theme package any more.
+
 - Releases carry a GitHub build provenance attestation (`actions/attest`) for every archive and SBOM instead of a
   cosign signature of `checksums.txt`; verify with `gh attestation verify <file> -R MathiasDrizzy/lazyfinder`.
 - The default row density is now wide, closer to Finder: two-line rows, a soft stripe on every second row and a
@@ -63,6 +73,8 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
   itself (`preview.images` stays in the file to force it off) and the mouse is `mouse` in the file or `--no-mouse`.
 
 ### Fixed
+
+- The tooltip of the new folder icon no longer covers the name prompt (it read as a stray "N").
 
 - A detached HEAD shows where it is, `HEAD (detached at 1a2b3c4)`, in the Git tab and the bottom bar.
 - Outside a repository the Git tab shows no branch, fetch, pull or push buttons.

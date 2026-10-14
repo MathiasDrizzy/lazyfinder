@@ -1,0 +1,77 @@
+{
+  "fixtures": "fixtures",
+  "name": "chips-sidebar",
+  "criterio": "order 07 revision 2, S1 and S3: the buttons of the tree header are the same chips as in the window",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--sidebar",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 44,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the pointer over the pane shows the buttons",
+      "text": "\u001b[<35;10;8M"
+    },
+    {
+      "wait": {
+        "regex": "",
+        "timeout_ms": 5000,
+        "region": {
+          "x": 36,
+          "y": 3,
+          "w": 1,
+          "h": 1
+        }
+      }
+    },
+    {
+      "text": "\u001b[<35;37;4M"
+    },
+    {
+      "desc": "the box of the new folder button of the tree, the same chip as in the window",
+      "assert_color": {
+        "region": {
+          "x": 35,
+          "y": 3,
+          "w": 4,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 34,
+          "y": 3,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 39,
+          "y": 3,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    }
+  ],
+  "fixtures_mtime": "2026-09-01T12:00:00Z"
+}

@@ -1,0 +1,114 @@
+{
+  "fixtures": "fixtures",
+  "name": "chips",
+  "criterio": "order 07 revision 2, S1 and S3: every button of the top row is a chip with the glyph in the middle and a free cell between boxes, lit with the theme's surface1",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 120,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "wait": {
+        "regex": "",
+        "timeout_ms": 5000,
+        "region": {
+          "x": 79,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "",
+        "timeout_ms": 5000,
+        "region": {
+          "x": 117,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        }
+      }
+    },
+    {
+      "desc": "the pointer on the new folder icon",
+      "text": "\u001b[<35;81;1M"
+    },
+    {
+      "desc": "the box of the new folder icon: four cells, the glyph with one cell on each side, and a free cell to the next box",
+      "assert_color": {
+        "region": {
+          "x": 78,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 77,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 82,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "desc": "the pointer on the gear",
+      "text": "\u001b[<35;118;1M"
+    },
+    {
+      "desc": "the gear box, apart from the mode button",
+      "assert_color": {
+        "region": {
+          "x": 116,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 115,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    }
+  ],
+  "fixtures_mtime": "2026-09-01T12:00:00Z"
+}

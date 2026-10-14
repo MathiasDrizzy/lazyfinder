@@ -8,6 +8,14 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
+// The colors of the "terminal" theme: the terminal's own ANSI colors, so they follow the terminal's palette.
+var (
+	TerminalRed     color.Color = lipgloss.Color("1")
+	TerminalGreen   color.Color = lipgloss.Color("2")
+	TerminalMagenta color.Color = lipgloss.Color("5")
+	TerminalBlue    color.Color = lipgloss.Color("12")
+)
+
 // Palette define los colores de un tema
 type Palette struct {
 	Name string

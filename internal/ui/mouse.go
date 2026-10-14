@@ -94,10 +94,10 @@ func (m *Model) hit(x, y int) zone {
 		if t, ok := m.projectTabAt(x); ok {
 			return zone{kind: zoneProjectTab, idx: int(t)}
 		}
-		if x >= m.w-m.gearW() {
+		if x >= m.gearX() {
 			return zone{kind: zoneSettings}
 		}
-		if x >= m.sideButtonX() {
+		if x >= m.modeX() && x < m.modeX()+m.chipW() {
 			return zone{kind: zoneMode}
 		}
 	case y == 0:
@@ -109,11 +109,11 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneBack}
 		case x < 6:
 			return zone{kind: zoneForward}
-		case x >= m.w-m.gearW():
+		case x >= m.gearX():
 			return zone{kind: zoneSettings}
-		case x >= m.w-m.gearW()-modeBtnW && x < m.w-m.gearW():
+		case x >= m.modeX() && x < m.modeX()+m.chipW():
 			return zone{kind: zoneMode}
-		case x >= m.w-m.gearW()-modeBtnW-m.fieldW() && x < m.w-m.gearW()-modeBtnW:
+		case x >= m.fieldX() && x < m.fieldX()+m.fieldW():
 			return zone{kind: zoneSearch}
 		}
 	case y == m.h-2 && m.projectMode() && m.git.ok && x < ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")):

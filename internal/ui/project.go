@@ -67,7 +67,7 @@ func (m *Model) projectTabsLine() (string, []tabSpan) {
 		text := " " + g + slack + " "
 		style := m.styles.dim
 		if projectTab(i) == m.activeTab() {
-			style = m.styles.selected
+			style = m.activeChip
 		}
 		spans = append(spans, tabSpan{x: x, w: ansi.StringWidth(text)})
 		b.WriteString(style(text))
@@ -85,14 +85,14 @@ func (m *Model) toolbarRow() int {
 }
 
 // sideButtonX is the first column of the mode button of the sidebar mode; the gear follows it at the right edge.
-func (m *Model) sideButtonX() int { return m.w - m.gearW() - modeBtnW }
+func (m *Model) sideButtonX() int { return m.modeX() }
 
 // projectToolbar is the tab bar of the sidebar mode, activityH rows: the tabs and, at the right edge, the mode button
 // and the Settings gear on the middle row. The chip of the active tab, and of the button under the pointer, reaches
 // into the rows above and below with half blocks, a tall button like those of the herdr sidebar.
 func (m *Model) projectToolbar() []string {
 	line, spans := m.projectTabsLine()
-	right := m.styles.dim(" "+m.modeGlyph()+" ") + m.styles.dim(" "+m.gearText()+" ")
+	right := m.modeButton() + strings.Repeat(" ", chipGap) + m.gearButton()
 	mid := fit(line, m.sideButtonX()) + right
 	type capSpan struct {
 		x, w int
@@ -102,9 +102,9 @@ func (m *Model) projectToolbar() []string {
 	p, colored := theme.Lookup(m.deps.Cfg.Theme)
 	if colored {
 		a := spans[m.activeTab()]
-		caps = append(caps, capSpan{a.x, a.w, p.Surface1})
+		caps = append(caps, capSpan{a.x, a.w, chipActiveBg(p)})
 		if r, ok := m.hoverRect(); ok && r.y == 1 {
-			caps = append(caps, capSpan{r.x, r.w, hoverBg(p)})
+			caps = append(caps, capSpan{r.x, r.w, chipHoverBg(p)})
 		}
 	}
 	edge := func(glyph string) string {
@@ -141,7 +141,7 @@ func (m *Model) projectName() string {
 // projectHeader is the line above the tree.
 func (m *Model) projectHeader() string {
 	n := m.actionsShown()
-	name := m.styles.folder(fit(" "+m.projectName(), m.listW()-n*actionW))
+	name := m.styles.folder(fit(" "+m.projectName(), m.listW()-m.actionsWidth(n)))
 	if n == 0 {
 		return name
 	}

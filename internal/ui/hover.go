@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"charm.land/lipgloss/v2"
 	"image/color"
 	"strconv"
 	"strings"
@@ -21,6 +22,30 @@ type hoverRect struct{ x, y, w, h int }
 
 // hoverBg is the soft background under the pointer: between the stripes and the selection, so it reads as neither.
 func hoverBg(p theme.Palette) color.Color { return theme.Mix(p.Base, p.Surface1, 0.6) }
+
+// chipHoverBg is the box the pointer lights on a button, lighter than the hover of a row, as the keycap of the herdr
+// sidebar; chipActiveBg is the chip of the active tab, a step lighter still. Both come from the theme (S3).
+func chipHoverBg(p theme.Palette) color.Color  { return p.Surface1 }
+func chipActiveBg(p theme.Palette) color.Color { return theme.Mix(p.Surface1, p.Overlay0, 0.4) }
+
+// activeChip draws the chip of the active tab on its background, bold.
+func (m *Model) activeChip(s string) string {
+	p, ok := theme.Lookup(m.deps.Cfg.Theme)
+	if !ok || m.deps.NoColor {
+		return m.styles.selected(s)
+	}
+	bg := chipActiveBg(p)
+	return lipgloss.NewStyle().Background(bg).Foreground(theme.Readable(p.Text, bg, minReadable)).Bold(true).Render(s)
+}
+
+// onChip says whether the pointer is on a button, whose box is lit with chipHoverBg instead of the row hover.
+func (m *Model) onChip() bool {
+	switch m.hit(m.hover.x, m.hover.y).kind {
+	case zoneAction, zoneSettings, zoneMode, zoneProjectTab, zoneScmBtn, zoneBack, zoneForward:
+		return true
+	}
+	return false
+}
 
 // hoverRect is the area of whatever is clickable under the pointer, if anything.
 func (m *Model) hoverRect() (hoverRect, bool) {
@@ -53,7 +78,16 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 	case m.help.open, m.info.open, m.pv.open:
 		return hoverRect{}, false
 	}
-	z := m.hit(x, y)
+	return m.zoneRectAt(m.hit(x, y), x, y)
+}
+
+// zoneRect is the area a button of the top rows takes: what its hover paints and its click hits.
+func (m *Model) zoneRect(z zone) (hoverRect, bool) {
+	return m.zoneRectAt(z, 0, 0)
+}
+
+// zoneRectAt is the area of the zone z under the pointer at x, y.
+func (m *Model) zoneRectAt(z zone, x, y int) (hoverRect, bool) {
 	switch z.kind {
 	case zoneRow:
 		if z.idx == m.sel {
@@ -103,12 +137,12 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 		s := spans[z.idx]
 		return hoverRect{s.x, 1, s.w, 1}, true // the tab bar draws the rows above and below
 	case zoneSettings:
-		return hoverRect{m.w - m.gearW(), m.toolbarRow(), m.gearW(), 1}, true
+		return hoverRect{m.gearX(), m.toolbarRow(), m.gearW(), 1}, true
 	case zoneMode:
-		return hoverRect{m.w - m.gearW() - modeBtnW, m.toolbarRow(), modeBtnW, 1}, true
+		return hoverRect{m.modeX(), m.toolbarRow(), m.chipW(), 1}, true
 	case zoneSearch:
 		if y == 0 {
-			return hoverRect{m.w - m.gearW() - modeBtnW - m.fieldW(), 0, m.fieldW(), 1}, true
+			return hoverRect{m.fieldX(), 0, m.fieldW(), 1}, true
 		}
 	case zoneAction:
 		for _, a := range m.actionSpans() {
@@ -167,6 +201,9 @@ func (m *Model) paintHover(lines []string, r hoverRect) []string {
 	seq := "\x1b[4m" // without a palette the pointer underlines what it is on
 	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
 		seq = theme.BackgroundSeq(hoverBg(p))
+		if m.onChip() {
+			seq = theme.BackgroundSeq(chipHoverBg(p))
+		}
 	}
 	out := make([]string, len(lines))
 	copy(out, lines)

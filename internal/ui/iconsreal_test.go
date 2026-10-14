@@ -24,9 +24,6 @@ func TestIconsHaveNoBoxAndNoSize(t *testing.T) {
 		if strings.Contains(e.m.gearButton(), "48;") {
 			t.Errorf("icon_size %q: the gear has a background box: %q", legacy, e.m.gearButton())
 		}
-		if strings.Contains(e.m.gearButton(), "  ") {
-			t.Errorf("icon_size %q: the gear is padded into a box: %q", legacy, e.m.gearButton())
-		}
 		glyph, _ := e.m.placeIcon(place{name: "Home", path: e.m.deps.Home})
 		if strings.Contains(glyph, "48;") {
 			t.Errorf("icon_size %q: a sidebar icon has a background box: %q", legacy, glyph)

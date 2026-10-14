@@ -17,12 +17,12 @@ func (e *env) move(x, y int) { e.send(tea.MouseMotionMsg{X: x, Y: y}) }
 // order 07, point M1: a button switches between the normal window and the sidebar mode, in both of them.
 func TestTheModeButtonSwitchesToTheSidebarModeAndBack(t *testing.T) {
 	e := newEnv(t)
-	x := e.m.w - e.m.gearW() - modeBtnW + 1
+	x := e.m.modeX() + 1
 	e.click(x, 0)
 	if !e.m.projectMode() {
 		t.Fatal("clicking the mode button must enter the sidebar mode")
 	}
-	e.click(e.m.w-e.m.gearW()-modeBtnW+1, 0)
+	e.click(e.m.modeX()+1, 0)
 	if e.m.projectMode() {
 		t.Fatal("clicking it again must bring the window back")
 	}
@@ -84,7 +84,7 @@ func TestTheTooltipNamesTheIconUnderThePointer(t *testing.T) {
 	if !strings.Contains(e.text(), "New folder: N") {
 		t.Fatalf("no tooltip:\n%s", e.text())
 	}
-	e.move(e.m.w-e.m.gearW()-modeBtnW+1, 0)
+	e.move(e.m.modeX()+1, 0)
 	if !strings.Contains(e.text(), "Leave the sidebar mode: ctrl+b") {
 		t.Fatalf("no tooltip for the mode button:\n%s", e.text())
 	}
@@ -107,8 +107,8 @@ func TestEveryCellOfAnActionButtonRunsIt(t *testing.T) {
 		e := projectEnv(t, w)
 		e.move(5, 5)
 		for _, sp := range e.m.actionSpans() {
-			if sp.w != 3 {
-				t.Fatalf("width %d: button %d is %d cells wide, want 3", w, sp.idx, sp.w)
+			if sp.w != e.m.chipW() { // order 07, revision 2, S1: a chip, one cell more for a Nerd Font glyph
+				t.Fatalf("width %d: button %d is %d cells wide, want %d", w, sp.idx, sp.w, e.m.chipW())
 			}
 			for dx := 0; dx < sp.w; dx++ {
 				if z := e.m.hit(sp.x+dx, sp.y); z.kind != zoneAction || z.idx != sp.idx {

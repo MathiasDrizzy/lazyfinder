@@ -2,31 +2,32 @@ package icons
 
 import "testing"
 
-// The file kinds, glyphs and colors are those of the herdr sidebar plugin (MIT, see NOTICE).
+// The file kinds and glyphs are those of the herdr sidebar plugin (MIT, see NOTICE); each color is the palette role
+// closest to herdr's, so the theme recolors it (order 07, revision 2, S3).
 func TestFileKindsUseTheHerdrGlyphsAndColors(t *testing.T) {
 	set := Set{Style: Nerd}
 	for _, c := range []struct {
 		name  string
 		glyph string
-		rgb   uint32
+		role  Role
 	}{
-		{"main.rs", "", 0xdea584},
-		{"MAIN.GO", "", 0x00add8},
-		{".gitignore", "", 0xf14e32},
-		{"README.md", "", 0x42a5f5},
-		{"go.mod", "", 0x8d6e63},
-		{"go.sum", "", 0xffd54f},
-		{"Dockerfile", "", 0x0db7ed},
-		{".env.local", "", 0xffd54f},
-		{"photo.JPG", "", 0x26a69a},
-		{"Makefile", "", 0x6d8086},
-		{"LICENSE", "", 0xffd54f},
-		{"data.csv", "", 0x33a852},
-		{"script.sh", "", 0x4eaa25},
+		{"main.rs", "", Peach},
+		{"MAIN.GO", "", Teal},
+		{".gitignore", "", Red},
+		{"README.md", "", Blue},
+		{"go.mod", "", Peach},
+		{"go.sum", "", Yellow},
+		{"Dockerfile", "", Blue},
+		{".env.local", "", Yellow},
+		{"photo.JPG", "", Teal},
+		{"Makefile", "", Plain},
+		{"LICENSE", "", Yellow},
+		{"data.csv", "", Green},
+		{"script.sh", "", Green},
 	} {
 		ic := set.Pick(Item{Name: c.name})
-		if ic.Glyph != c.glyph || !ic.HasRGB || ic.RGB != c.rgb {
-			t.Errorf("%s = %q %#06x (rgb %v), want %q %#06x", c.name, ic.Glyph, ic.RGB, ic.HasRGB, c.glyph, c.rgb)
+		if ic.Glyph != c.glyph || ic.Role != c.role {
+			t.Errorf("%s = %q role %d, want %q role %d", c.name, ic.Glyph, ic.Role, c.glyph, c.role)
 		}
 	}
 }
@@ -38,8 +39,8 @@ func TestTheEmojiThemeDrawsOneColoredEmojiPerKindWithoutColors(t *testing.T) {
 	}
 	for name, want := range map[string]string{"main.rs": "🦀", "a.py": "🐍", "Dockerfile": "🐳", ".gitignore": "🙈", "a.unknownext": "📄"} {
 		ic := set.Pick(Item{Name: name})
-		if ic.Glyph != want || ic.HasRGB {
-			t.Errorf("%s = %q (rgb %v), want %q without a color", name, ic.Glyph, ic.HasRGB, want)
+		if ic.Glyph != want || !ic.IsEmoji {
+			t.Errorf("%s = %q (emoji %v), want the emoji %q with its own colors", name, ic.Glyph, ic.IsEmoji, want)
 		}
 	}
 	if g := set.Pick(Item{Name: "src", IsDir: true, Open: true}).Glyph; g != "📂" {

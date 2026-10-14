@@ -1,0 +1,62 @@
+{
+  "fixtures": "fixtures",
+  "name": "chips-nord",
+  "criterio": "order 07 revision 2, S3: the box of a button follows the theme (nord)",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--theme",
+    "nord",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 120,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "text": "\u001b[<35;81;1M"
+    },
+    {
+      "desc": "in nord the box is that theme's surface1",
+      "assert_color": {
+        "region": {
+          "x": 78,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        },
+        "bg": "#434c5e",
+        "mode": "all"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 77,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#434c5e",
+        "mode": "none"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 82,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#434c5e",
+        "mode": "none"
+      }
+    }
+  ],
+  "fixtures_mtime": "2026-09-01T12:00:00Z"
+}

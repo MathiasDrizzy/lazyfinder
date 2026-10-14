@@ -6,7 +6,7 @@ func TestAHiddenGitFileKeepsItsRedColor(t *testing.T) {
 	s := Set{Style: Nerd}
 	for _, name := range []string{".gitignore", ".gitattributes"} {
 		ic := s.Pick(Item{Name: name})
-		if ic.Dim || !ic.HasRGB || ic.RGB != 0xf14e32 {
+		if ic.Dim || ic.Role != Red {
 			t.Errorf("%s: icon %+v, want the git color and not dimmed", name, ic)
 		}
 	}

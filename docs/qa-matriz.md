@@ -63,6 +63,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Function | Proof |
 |---|---|
 | List, folders first, markers, columns, density | T InitialScreenShowsListColumnsSidebarBreadcrumb, T FolderMarkerAndFoldersFirst, T TheDefaultDensityIsWideLikeFinder, S columns |
+| New folder or file made at once, its name selected on its own row: typing replaces it, enter keeps it, esc takes it back; the prompt says what is made; no tooltip over it | T ANewFolderAppearsAtOnceAndTypingReplacesItsName, T EscapeTakesBackTheNewFolderOrFile, T EnterKeepsTheDefaultName, T AnArrowKeyKeepsTheDefaultNameToEdit, T AClickOnTheNewFolderIconShowsThePromptNotTheTooltip, T TheNewFileAndNewFolderPromptsDiffer, S new-item, S new-item-sidebar |
 | Column separators, choosing columns, narrow windows | T ColumnsAreSeparatedByABarLikeFinder, T ColumnsSettingCyclesBasicFullAndCustom, T NarrowWindowDropsWholeColumnsNeverCutsText, S column-separators |
 | Tree (expand in place, survive leaving, live refresh) | T ExpansionSurvivesLeavingAndComingBack, T ExpandedFoldersAreWatchedAndRefreshLive, S tree |
 | Column (Miller) layout | T ColumnLayoutShowsParentCurrentAndAPreviewOfTheSelection, T ClickingTheParentColumnGoesThere |
@@ -89,6 +90,8 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 
 | Function | Proof |
 |---|---|
+| Every button is a box centered on its glyph, one free cell from the next, the same dimmed color in both modes; the pointer lights it with the theme's surface | T TheButtonBoxesAreCenteredOnTheirGlyphAndApart, T TheButtonsHaveTheSameColorInBothModes, S chips, S chips-sidebar |
+| Every part follows the theme (file icons, folders, selection, border, branch, hover); no color is written outside the theme package | T EveryPartChangesColorWithTheTheme, T NoColorIsWrittenOutsideTheThemePackage, S chips-catppuccin-latte, S chips-nord |
 | 14 themes readable, light and dark | T TextReadsInEveryTheme, T PlainTextTakesTheThemeTextColorOnALightTheme, S themes |
 | Settings (every row saves; a broken config is not overwritten) | T SettingsThemeChangeAppliesAndIsSaved, T SettingsDoesNotOverwriteABrokenConfig, T SettingsFitsAndScrollsAtSmallSizes, S settings |
 | Languages (6 catalogs) | T SettingsLanguageChangesTheTextAtOnce, T SidebarAndTitlesUseTheInterfaceLanguage, S language, S language-ja |
