@@ -21,7 +21,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `Alt+→`, `]` | Forward in history | `forward` |
 | `s` | Sort by the next column | `sort` |
 | `S` | Reverse the sort order | `sort_reverse` |
-| `.` | Show or hide dotfiles | `hidden` |
+| `.` | Show or hide dotfiles (the sidebar tree never lists `.git`, as herdr) | `hidden` |
 | `I` | Show or hide files ignored by git | `ignored` |
 | `/` or `ctrl+f` | Open the search bar (see [search](search.md)) | `search` |
 | `+` `=`, `-` | Open or close the selected folder in place; `-` on a row inside an open folder closes that folder. Clicking the `>` marker does the same | `expand` `collapse` |

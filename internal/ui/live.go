@@ -129,14 +129,19 @@ func (m *Model) scanGit(dir string) {
 	}
 }
 
-// visible drops the entries git ignores when the user asked to hide them.
+// visible drops the entries git ignores when the user asked to hide them, and .git in the sidebar tree, which hides it
+// always, as herdr-sidebar does (tree.rs: "`.git` is always hidden; other dotfiles only when `show_hidden` is off").
 func (m *Model) visible(es []fsmodel.Entry) []fsmodel.Entry {
-	if !m.git.ok || !m.hideIgnored {
+	hideIgnored := m.git.ok && m.hideIgnored
+	if !hideIgnored && !m.projectMode() {
 		return es
 	}
 	kept := make([]fsmodel.Entry, 0, len(es))
 	for _, e := range es {
-		if m.git.st.Of(e.Path, e.IsDir) != git.Ignored {
+		switch {
+		case m.projectMode() && e.Name == ".git":
+		case hideIgnored && m.git.st.Of(e.Path, e.IsDir) == git.Ignored:
+		default:
 			kept = append(kept, e)
 		}
 	}

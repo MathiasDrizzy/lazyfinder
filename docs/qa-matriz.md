@@ -123,6 +123,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Git letters and colors per file and folder | T GitLettersAreVSCodesAndColored, T GitColorsTheNamesAndMarksFoldersWithADotAndACounter, S sidebar-git |
 | Real time (new file under 300 ms, commit and checkout refresh) | T ANewFileAppearsInUnder300msEvenInAFolderOfThousands, T StagingCommittingAndSwitchingBranchRefreshByThemselves, S realtime-sidebar, S realtime-normal, S live-follow |
 | New files in a repository: git tells untracked from committed, the + only outside git | T GitTellsApartTwoNewFilesWhenOneIsCommitted, S git-new-vs-committed |
+| The sidebar tree always hides .git, as herdr-sidebar | T TheSidebarTreeAlwaysHidesDotGitLikeHerdr, S git-new-vs-committed |
 | Without git installed or outside a repository | T WithoutGitInstalledTheListStillWorks, T OutsideARepositoryTheGitTabSaysSo, T OutsideARepositoryThereIsNoGitGutter |
 | 24, 30, 36 and 80 columns | T ProjectModeFitsThirtyColumns, T FollowModeFitsANarrowTerminal, S sidebar-mode-30, S sidebar-mode-40 |
 

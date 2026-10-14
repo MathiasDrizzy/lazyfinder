@@ -1,10 +1,10 @@
 {
   "name": "git-new-vs-committed",
-  "criterio": "Mathias, 2026-10-14: with the sidebar open an agent makes two files, runs git init and commits one; the sidebar must tell them apart as git does (the untracked one says U, the committed one carries no mark), not a + on both",
+  "criterio": "Mathias, 2026-10-14: with the sidebar open an agent makes two files, runs git init and commits one; the sidebar must tell them apart as git does (the untracked one says U, the committed one carries no mark), not a + on both. With hidden files shown, the tree lists .env but never .git, as herdr-sidebar (tree.rs: .git is always hidden)",
   "cmd": [
     "sh",
     "-c",
-    "P=\"${TUIQA_HOME}/proj\"; g() { GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null git -C \"$P\" -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false \"$@\"; }; ( sleep 1.5; echo uno > \"$P/archivo1.txt\"; echo dos > \"$P/archivo2.txt\"; sleep 0.5; g init -q -b main && g add archivo1.txt && g commit -q -m one ) & exec \"${LAZYFINDER_BIN}\" --sidebar \"$P\""
+    "P=\"${TUIQA_HOME}/proj\"; g() { GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null git -C \"$P\" -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false \"$@\"; }; ( sleep 1.5; echo uno > \"$P/archivo1.txt\"; echo dos > \"$P/archivo2.txt\"; echo x > \"$P/.env\"; sleep 0.5; g init -q -b main && g add archivo1.txt && g commit -q -m one ) & exec \"${LAZYFINDER_BIN}\" --sidebar \"$P\""
   ],
   "cols": 40,
   "rows": 24,
@@ -34,6 +34,26 @@
       "desc": "the committed file carries neither a + nor a letter",
       "wait": {
         "regex": "archivo1\\.txt +[+U]",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "show hidden files",
+      "keys": [
+        "."
+      ]
+    },
+    {
+      "wait": {
+        "regex": "\\.env",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "git init made .git, and the tree still does not list it",
+      "wait": {
+        "regex": "\\.git\\b",
         "timeout_ms": 5000,
         "absent": true
       }

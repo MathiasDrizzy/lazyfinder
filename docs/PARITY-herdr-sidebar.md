@@ -35,6 +35,12 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 | Conflicts | marked `!` | done |
 | Commit, rebase, merge | not offered on purpose; `L` opens lazygit | not done, by design |
 
+## Tree
+
+| herdr-sidebar | lazyfinder | State |
+|---|---|---|
+| `.git` always hidden, other dotfiles only with hidden files off (`tree.rs`, `visible`) | same in the sidebar tree; the normal window shows `.git` with hidden files on (T TheSidebarTreeAlwaysHidesDotGitLikeHerdr) | done |
+
 ## Hover buttons
 
 | Button | Tooltip | Hover | Action | Proof |

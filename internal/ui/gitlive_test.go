@@ -219,3 +219,30 @@ func TestGitTellsApartTwoNewFilesWhenOneIsCommitted(t *testing.T) {
 		t.Fatalf("the committed file carries no mark: %q", l)
 	}
 }
+
+// cerebro, 2026-10-14, after Mathias's test where git init left .git open in the tree: the sidebar hides .git as
+// herdr-sidebar does (tree.rs, visible: "`.git` is always hidden; other dotfiles only when `show_hidden` is off").
+func TestTheSidebarTreeAlwaysHidesDotGitLikeHerdr(t *testing.T) {
+	e := projectEnv(t, 40)
+	e.touch(".env", "x\n")
+	e.m.hidden = true // show hidden files on
+	e.key("r")
+	e.mustHave(".env")
+	if e.hasRow(".git") {
+		t.Fatalf("the sidebar tree shows .git:\n%s", e.text())
+	}
+	e.m.toggleProject() // the normal window shows what the folder holds, .git included
+	e.key("r")
+	if !e.hasRow(".git") {
+		t.Fatalf("the normal window shows .git with hidden files on:\n%s", e.text())
+	}
+}
+
+func (e *env) hasRow(name string) bool {
+	for _, r := range e.m.entries() {
+		if r.Name == name {
+			return true
+		}
+	}
+	return false
+}
