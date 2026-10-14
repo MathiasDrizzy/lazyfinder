@@ -142,7 +142,6 @@ func (m *Model) gitStashPop() tea.Cmd {
 // gmRows is how many items fit.
 func (m *Model) gmRows() int { return max(1, min(len(m.gmItems()), m.h-12)) }
 
-func (m *Model) gmTop(rows, n int) int { return max(0, min(m.gm.sel-rows+1, n-rows)) }
 
 func (m *Model) gitMenuGeom() (x, y, iw int) {
 	iw = max(14, min(46, m.w-8))
