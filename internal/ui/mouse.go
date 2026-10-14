@@ -298,6 +298,11 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 		return m.resort(s)
 	case zoneRow:
 		m.focus = focusList
+		if m.projectMode() && !m.searchOn() && z.idx < len(m.entries()) && m.entries()[z.idx].IsDir {
+			m.sel = z.idx // in the tree a click anywhere on a folder opens or closes it, like the herdr sidebar
+			m.lastClick = click{}
+			return m.toggle(m.entries()[z.idx].Path)
+		}
 		double := prev.zone.kind == zoneRow && prev.zone.idx == z.idx && m.deps.Now().Sub(prev.at) <= doubleClickWindow
 		if double {
 			m.lastClick = click{}

@@ -89,6 +89,9 @@ func (s Set) Pick(it Item) Icon {
 	}
 	ic := nerd(it, ext)
 	ic.Dim = hidden
+	if k, ok := kindOf(it.Name); ok && k == kGit && !it.IsDir {
+		ic.Dim = false // .gitignore and friends keep their red, like in the herdr sidebar
+	}
 	return ic
 }
 

@@ -422,6 +422,14 @@ const (
 	lens = "⌕"
 )
 
+// lensGlyph is the magnifier of the Search field: the Nerd Font one is as big as the other icons, the plain one is tiny.
+func (m *Model) lensGlyph() string {
+	if m.icons.Style == icons.Nerd {
+		return "\uf002"
+	}
+	return lens
+}
+
 func (m *Model) toolbar() string {
 	if m.projectMode() {
 		return m.projectToolbar()
@@ -493,16 +501,16 @@ func (m *Model) fieldW() int {
 func (m *Model) searchField() string {
 	w := m.fieldW()
 	if w == 1 {
-		return m.styles.accent(lens)
+		return m.styles.accent(" " + m.lensGlyph() + " ")
 	}
-	text := " " + lens + " " + i18n.T("Buscar", "Search")
+	text := " " + m.lensGlyph() + " " + i18n.T("Buscar", "Search")
 	style := m.styles.selectedInactive
 	if m.searchOn() {
 		cursor := ""
 		if m.search.mode == searchTyping {
 			cursor = "▏"
 		}
-		text = " " + lens + " " + m.search.input + cursor
+		text = " " + m.lensGlyph() + " " + m.search.input + cursor
 		style = m.styles.selected
 	}
 	return style(ansi.Strip(fit(text, w)))

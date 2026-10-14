@@ -14,7 +14,6 @@ import (
 const (
 	actionNewFile = iota
 	actionNewFolder
-	actionRefresh
 	actionCollapse
 	actionCount
 )
@@ -22,8 +21,9 @@ const (
 // modeBtnW is the cells of the mode button, left of the gear.
 const modeBtnW = 3
 
-// actionW is the cells of one action icon: a space and the glyph.
-const actionW = 2
+// actionW is the cells of one action button: the glyph with a space on each side, so the hover and the click cover
+// the same three cells and the glyph sits in the middle of them (the Nerd Font glyphs are drawn wider than a cell).
+const actionW = 3
 
 type actionSpan struct{ x, y, w, idx int }
 
@@ -45,10 +45,9 @@ func (m *Model) actionDefs() []actionDef {
 		}
 	}
 	return []actionDef{
-		{"\U000f0224", "+", func() string { return i18n.T("Archivo nuevo: n", "New file: n") }, m.startNewFile},
-		{"\U000f0257", "▢", func() string { return i18n.T("Carpeta nueva: N", "New folder: N") }, m.startNewFolder},
-		{"\U000f0450", "↻", func() string { return i18n.T("Actualizar: r", "Refresh: r") }, m.reload},
-		{"\U000f0ab5", "⊟", func() string { return i18n.T("Contraer todo", "Collapse all") }, m.collapseAll},
+		{"\uea7f", "+", func() string { return i18n.T("Archivo nuevo: n", "New file: n") }, m.startNewFile},
+		{"\uea80", "▢", func() string { return i18n.T("Carpeta nueva: N", "New folder: N") }, m.startNewFolder},
+		{"\ueac5", "⊟", func() string { return i18n.T("Contraer todo", "Collapse all") }, m.collapseAll},
 	}
 }
 
@@ -118,7 +117,7 @@ func (m *Model) actionSpans() []actionSpan {
 func (m *Model) actionsText() string {
 	var b strings.Builder
 	for i := 0; i < m.actionsShown(); i++ {
-		b.WriteString(m.styles.accent(" " + m.actionGlyph(i)))
+		b.WriteString(m.styles.accent(" " + m.actionGlyph(i) + " "))
 	}
 	return b.String()
 }
@@ -139,6 +138,8 @@ func (m *Model) tooltip() string {
 	switch z := m.hit(m.hover.x, m.hover.y); z.kind {
 	case zoneAction:
 		return " " + m.actionLabel(z.idx)
+	case zoneProjectTab:
+		return " " + projectTabLabel(projectTab(z.idx))
 	case zoneMode:
 		return " " + m.modeLabel()
 	case zoneSettings:
@@ -149,6 +150,17 @@ func (m *Model) tooltip() string {
 		return " " + scmLabel(z.act)
 	}
 	return ""
+}
+
+// projectTabLabel is the tooltip of a tab: the tabs show only their icon, like the herdr sidebar.
+func projectTabLabel(t projectTab) string {
+	switch t {
+	case tabSearch:
+		return i18n.T("Buscar: /", "Search: /")
+	case tabGit:
+		return "Git"
+	}
+	return i18n.T("Archivos", "Files")
 }
 
 func (m *Model) withTooltip(lines []string) []string {

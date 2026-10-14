@@ -44,7 +44,7 @@ func TestChangingAFilterLeavesNoLooseText(t *testing.T) {
 }
 
 func TestSearchFiltersNeverGetCut(t *testing.T) {
-	for _, w := range []int{50, 60, 70, 80, 100, 120} {
+	for _, w := range []int{60, 70, 80, 100, 120} {
 		e := newEnv(t)
 		e.send(tea.WindowSizeMsg{Width: w, Height: 30})
 		e.key("/")

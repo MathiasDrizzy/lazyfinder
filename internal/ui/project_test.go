@@ -44,14 +44,10 @@ func asSidebar(e *env, w int) *env {
 
 func TestProjectModeHasClickableFilesSearchAndGitTabs(t *testing.T) {
 	e := projectEnv(t, 36)
-	top := e.screen()[0]
-	for _, tab := range []string{"Files", "Search", "Git"} {
-		if !strings.Contains(top, tab) {
-			t.Fatalf("tab %q missing in %q", tab, top)
-		}
+	if _, spans := e.m.projectTabsLine(); len(spans) != 3 {
+		t.Fatalf("want three tabs, got %v", spans)
 	}
-	x, _ := e.find("Search")
-	e.click(x, 0)
+	e.clickTab(tabSearch)
 	if !e.m.searchOn() {
 		t.Fatal("the Search tab must open the search")
 	}
@@ -81,13 +77,11 @@ func TestProjectModeKeepsOneLinePerRowAndTheGitLetterAtTheRight(t *testing.T) {
 
 func TestTheGitTabListsOnlyTheChangedFiles(t *testing.T) {
 	e := projectEnv(t, 36)
-	x, _ := e.find("Git")
-	e.click(x, 0)
+	e.clickTab(tabGit)
 	e.mustHave("notes.txt")
 	e.mustHave("fresh.txt")
 	e.mustNotHave("data.xlsx")
-	x, _ = e.find("Files")
-	e.click(x, 0)
+	e.clickTab(tabFiles)
 	e.mustHave("data.xlsx")
 }
 
@@ -99,7 +93,7 @@ func TestProjectModeFitsThirtyColumns(t *testing.T) {
 			t.Fatalf("line %d is absurd", i)
 		}
 	}
-	e.mustHave("Git")
+	e.mustHave("\uf07b") // the Files tab icon: the tabs show no text
 }
 
 func TestSidebarModeStartsCollapsedAndKeepsWhatTheUserOpened(t *testing.T) {

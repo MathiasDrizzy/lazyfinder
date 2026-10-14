@@ -31,11 +31,11 @@ func (m *Model) projectMode() bool { return m.deps.Follow }
 // projectTabsLine draws the tabs and says where each is, so the click lands on the one drawn there. Labels go away
 // (all but the active tab's) when the window is too narrow for them.
 func (m *Model) projectTabsLine() (string, []tabSpan) {
-	type tab struct{ glyph, label string }
+	type tab struct{ glyph string }
 	nerd := m.icons.Style == icons.Nerd
-	tabs := []tab{{"▤", i18n.T("Archivos", "Files")}, {lens, i18n.T("Buscar", "Search")}, {"⎇", "Git"}}
+	tabs := []tab{{"▤"}, {lens}, {"⎇"}}
 	if nerd {
-		tabs[0].glyph, tabs[1].glyph, tabs[2].glyph = "", "", ""
+		tabs[0].glyph, tabs[1].glyph, tabs[2].glyph = "\uf07b", "\uf002", "\uf126" // the glyphs of the herdr sidebar
 	}
 	active := tabFiles
 	switch {
@@ -44,36 +44,22 @@ func (m *Model) projectTabsLine() (string, []tabSpan) {
 	case m.projTab == tabGit:
 		active = tabGit
 	}
-	build := func(labels, tight bool) (string, []tabSpan) {
-		var b strings.Builder
-		var spans []tabSpan
-		x := 0
-		for i, t := range tabs {
-			text := " " + t.glyph + " "
-			if labels || projectTab(i) == active {
-				text += t.label
-				if !tight {
-					text += " "
-				}
-			}
-			style := m.styles.dim
-			if projectTab(i) == active {
-				style = m.styles.selected
-			}
-			spans = append(spans, tabSpan{x: x, w: ansi.StringWidth(text)})
-			b.WriteString(style(text))
-			x += ansi.StringWidth(text)
+	// Only the icon, like the herdr sidebar: two spaces on each side make a square button that is easy to hit, and
+	// the hover covers the same cells as the click.
+	var b strings.Builder
+	var spans []tabSpan
+	x := 0
+	for i, t := range tabs {
+		text := "  " + t.glyph + "  "
+		style := func(s string) string { return s } // readable, not dimmed: the icon is all the tab has
+		if projectTab(i) == active {
+			style = m.styles.selected
 		}
-		return b.String(), spans
+		spans = append(spans, tabSpan{x: x, w: ansi.StringWidth(text)})
+		b.WriteString(style(text))
+		x += ansi.StringWidth(text)
 	}
-	line, spans := build(true, false)
-	if ansi.StringWidth(line)+m.gearW()+modeBtnW > m.w {
-		line, spans = build(true, true) // no space after the labels
-	}
-	if ansi.StringWidth(line)+m.gearW()+modeBtnW > m.w {
-		line, spans = build(false, true)
-	}
-	return line, spans
+	return b.String(), spans
 }
 
 // projectToolbar is row 0 of the project mode: the tabs and, at the right edge, the Settings gear.

@@ -16,8 +16,7 @@ import (
 func gitEnv(t *testing.T, w int) *env {
 	t.Helper()
 	e := projectEnv(t, w)
-	x, _ := e.find("Git")
-	e.click(x, 0)
+	e.clickTab(tabGit)
 	return e
 }
 
@@ -335,8 +334,7 @@ func TestOutsideARepositoryTheGitTabSaysSo(t *testing.T) {
 	d.Watcher = newFakeWatcher()
 	e.m = New(d)
 	e.send(tea.WindowSizeMsg{Width: 40, Height: 24})
-	x, _ := e.find("Git")
-	e.click(x, 0)
+	e.clickTab(tabGit)
 	e.mustHave("Not a git repository")
 }
 
@@ -445,7 +443,7 @@ func (e *env) stagedNames() []string {
 
 func TestTheCounterOfTheGitTabCountsItsOwnRows(t *testing.T) {
 	e := projectEnv(t, 50)
-	e.clickText("Git")
+	e.clickTab(tabGit)
 	rows := len(e.m.scmRows())
 	e.mustHave(fmt.Sprintf("1 of %d", rows))
 	e.key("down")

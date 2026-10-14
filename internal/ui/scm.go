@@ -62,7 +62,7 @@ type scmState struct {
 	folded   [3]bool // the staged section, the changes section, the stashes (folded until opened)
 }
 
-const scmBtnW = 2 // a space and the glyph
+const scmBtnW = 3 // the glyph with a space on each side: every button has the same width and the glyph in the middle
 
 func (m *Model) scmOn() bool { return m.projectMode() && m.projTab == tabGit && !m.searchOn() }
 
@@ -189,7 +189,7 @@ func (m *Model) scmButtons(i int) []scmBtn {
 		return nil
 	}
 	acts := scmActs(rows[i])
-	end := m.listX() + m.listW() - 1 // one cell of air before the border
+	end := m.listX() + m.listW()
 	out := make([]scmBtn, 0, len(acts))
 	for j, a := range acts {
 		out = append(out, scmBtn{x: end - (len(acts)-j)*scmBtnW, w: scmBtnW, act: a})
@@ -314,7 +314,7 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 		line = m.selectedStyle()(ansi.Strip(line))
 	}
 	for _, b := range btns {
-		g := " " + scmGlyph(b.act)
+		g := " " + scmGlyph(b.act) + " "
 		if i == m.scm.sel {
 			line += m.selectedStyle()(g)
 		} else {

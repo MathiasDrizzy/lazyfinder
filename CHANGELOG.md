@@ -10,6 +10,10 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Added
 
+- The window and the sidebar mode switch by themselves when the terminal is resized: narrower than 60 columns the
+  window becomes the sidebar, and from 80 columns up the sidebar becomes the window again (the gap keeps it from
+  flipping on every cell of a drag). The mode the program started in stays until the first resize across a limit.
+
 - The Git tab of the sidebar mode, modelled on the herdr sidebar: Staged Changes, Changes and Stashes sections with
   counts; stage, unstage and discard (with a confirmation) by key or by the buttons of the row; the diff of a file in a
   popup; pop and drop for stashes; fetch, pull (fast-forward only) and push with ahead and behind; conflicts marked
@@ -50,6 +54,12 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Fixed
 
+- The buttons of the toolbar, the tree header and the rows of the Git tab are all three cells wide with the glyph in
+  the middle, so the hover and the click cover the cells they show; the sidebar tabs are icon-only square buttons with
+  a tooltip, the refresh button is gone (the list updates by itself), the Search lens is the Nerd Font one, and the
+  new file, new folder and collapse glyphs are the codicons of the herdr sidebar.
+- `.gitignore` and `.gitattributes` keep the red of the git icon instead of being dimmed; a click anywhere on a folder
+  row of the sidebar tree opens or closes it.
 - Get Info and other popups were 58 cells wide even on a 20-column terminal.
 - The hover area of a search chip that a narrow terminal cuts off ran past the edge of the screen.
 - A popup drawn over a line with wide characters (Chinese, Japanese) pushed the line one cell past the terminal.

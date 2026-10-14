@@ -36,14 +36,15 @@ func TestFollowModeFitsANarrowTerminal(t *testing.T) {
 
 func TestEnterOnAFolderTogglesItInsteadOfLeavingTheProject(t *testing.T) {
 	e, _ := followEnv(t, 40, 20)
-	e.clickText("alpha")
-	e.key("enter")
+	e.clickText("alpha") // a click on the name opens it
 	e.mustHave("inner.txt")
 	if e.m.dir() != e.root {
 		t.Fatalf("dir = %s, the project root must stay", e.m.dir())
 	}
 	e.key("enter")
 	e.mustNotHave("inner.txt")
+	e.key("enter")
+	e.mustHave("inner.txt")
 }
 
 func TestBackspaceNeverLeavesTheProjectRoot(t *testing.T) {

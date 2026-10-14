@@ -26,7 +26,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Copy, Cut, Paste (c x p ctrl+v) | T CopyThenPasteIntoAnotherFolderKeepsTheOriginal, T CutThenPasteMovesAndEmptiesTheClipboard, T CtrlVPastesLikeP |
 | Duplicate (D) | T DKeyDuplicates |
 | Rename (f2 R) | T RenameWithF2PrefillsTheNameAndRenames, T TheOtherKeysOfAnActionDoTheSame |
-| NewFolder, NewFile (N ctrl+n / n) | T NewFolderAsksForANameAndSelectsIt, T ActionIconsCreateFilesAndFoldersRefreshAndCollapse, S rebound-keys |
+| NewFolder, NewFile (N ctrl+n / n) | T NewFolderAsksForANameAndSelectsIt, T ActionIconsCreateFilesAndFoldersAndCollapse, S rebound-keys |
 | Trash, Undo (d delete / u ctrl+z) | T TrashOfOneItemAsksNothingAndUndoBringsItBack, T DeleteKeyTrashesToo, T UndoReversesARename |
 | Info (i) | T InfoPopupShowsDetailsAndEscClosesIt, T GetInfoFitsTheNarrowestSidebar |
 | Layout (M) | T ColumnLayoutToggleReturnsToTheList |
@@ -101,8 +101,11 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Function | Proof |
 |---|---|
 | Enter and leave (ctrl+b, the mode button, `--follow`) | T CtrlBTurnsTheProjectSidebarOnAndOff, T TheModeButtonSwitchesToTheSidebarModeAndBack, S mode-button, S follow-mode |
+| Window and sidebar switch by themselves when resized (below 60 columns, from 80 up) | T TheModeChangesByItselfWhenTheWindowIsResizedAcrossTheLimits, T TheModeTheProgramStartedInStaysUntilTheFirstResizeAcrossALimit |
+| Buttons of equal width, every cell clickable; no refresh button; icon-only tabs with tooltips; click on a folder row opens it | T EveryCellOfAnActionButtonRunsIt, T ThereIsNoRefreshButtonBecauseTheListUpdatesByItself, T TheTabsShowOnlyTheirIconAndEachHasATooltip, T AClickAnywhereOnAFolderRowOpensAndClosesItInTheTree |
+| Hover keeps the line width over wide glyphs; `.gitignore` keeps its red | T HoverKeepsTheLineWidthOverWideGlyphs, icons: TestAHiddenGitFileKeepsItsRedColor |
 | Tabs Files / Search / Git, clickable, even with only glyphs | T ProjectModeHasClickableFilesSearchAndGitTabs, T TheGitTabInEachRepositoryState |
-| Tree with actions (new file, new folder, refresh, collapse) | T ActionIconsCreateFilesAndFoldersRefreshAndCollapse, S sidebar-actions |
+| Tree with actions (new file, new folder, refresh, collapse) | T ActionIconsCreateFilesAndFoldersAndCollapse, S sidebar-actions |
 | Git letters and colors per file and folder | T GitLettersAreVSCodesAndColored, T GitColorsTheNamesAndMarksFoldersWithADotAndACounter, S sidebar-git |
 | Real time (new file under 300 ms, commit and checkout refresh) | T ANewFileAppearsInUnder300msEvenInAFolderOfThousands, T StagingCommittingAndSwitchingBranchRefreshByThemselves, S realtime-sidebar, S realtime-normal, S live-follow |
 | Without git installed or outside a repository | T WithoutGitInstalledTheListStillWorks, T OutsideARepositoryTheGitTabSaysSo, T OutsideARepositoryThereIsNoGitGutter |

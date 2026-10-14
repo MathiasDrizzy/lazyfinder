@@ -422,7 +422,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		prevW := m.w
 		m.w, m.h = msg.Width, msg.Height
+		m.autoMode(prevW)
 		m.ensureVisible()
 		return m, m.refreshPreview()
 	case tea.KeyPressMsg:
@@ -462,6 +464,26 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // restyle rebuilds the styles from the config and the environment.
 func (m *Model) restyle() {
 	m.styles = newStyles(look{Theme: m.deps.Cfg.Theme, NoColor: m.deps.NoColor, ScreenBackground: m.deps.Cfg.ScreenBackground})
+}
+
+// The window changes mode by itself when it is resized across these widths: below autoSidebarW it would be too small
+// for the columns, so it becomes the sidebar; from autoWindowW up it is wide enough for the columns again. The gap
+// between them keeps a window that sits near the limit from flipping on every cell of a drag.
+const (
+	autoSidebarW = minWidth
+	autoWindowW  = 80
+)
+
+// autoMode switches between the normal window and the sidebar mode when the width crosses a limit; prevW is the
+// width before this size (0 for the first one, which never switches: the mode the program started in stays).
+func (m *Model) autoMode(prevW int) {
+	switch {
+	case prevW == 0:
+	case !m.projectMode() && prevW >= autoSidebarW && m.w < autoSidebarW:
+		m.toggleProject()
+	case m.projectMode() && prevW < autoWindowW && m.w >= autoWindowW:
+		m.toggleProject()
+	}
 }
 
 // tooSmallNow says whether the window is below the minimum for the current mode.

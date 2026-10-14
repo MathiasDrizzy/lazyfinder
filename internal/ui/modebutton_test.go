@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/charmbracelet/x/ansi"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
@@ -26,7 +28,7 @@ func TestTheModeButtonSwitchesToTheSidebarModeAndBack(t *testing.T) {
 }
 
 // order 07, point M5: action icons in the header of the tree.
-func TestActionIconsCreateFilesAndFoldersRefreshAndCollapse(t *testing.T) {
+func TestActionIconsCreateFilesAndFoldersAndCollapse(t *testing.T) {
 	e := projectEnv(t, 40)
 	spans := e.m.actionSpans()
 	if len(spans) != actionCount {
@@ -54,11 +56,6 @@ func TestActionIconsCreateFilesAndFoldersRefreshAndCollapse(t *testing.T) {
 	if len(e.m.expanded) != 0 {
 		t.Fatal("the fourth icon collapses everything")
 	}
-	if err := os.WriteFile(filepath.Join(e.root, "outside.txt"), []byte("x"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	click(actionRefresh)
-	e.mustHave("outside.txt")
 }
 
 // order 07, point N: the row under the pointer is highlighted, and it stops when a key is pressed.
@@ -98,5 +95,103 @@ func TestNoMouseTurnsHoverOff(t *testing.T) {
 	e.move(x, y)
 	if _, ok := e.m.hoverRect(); ok {
 		t.Fatal("--no-mouse has no hover")
+	}
+}
+
+// Mathias, 2026-10-13: the buttons were small, uneven and "some do not work": every button is three cells wide, the
+// glyph in the middle, and a click on any of its three cells runs it.
+func TestEveryCellOfAnActionButtonRunsIt(t *testing.T) {
+	for _, w := range []int{30, 40, 80} {
+		e := projectEnv(t, w)
+		for _, sp := range e.m.actionSpans() {
+			if sp.w != 3 {
+				t.Fatalf("width %d: button %d is %d cells wide, want 3", w, sp.idx, sp.w)
+			}
+			for dx := 0; dx < sp.w; dx++ {
+				if z := e.m.hit(sp.x+dx, sp.y); z.kind != zoneAction || z.idx != sp.idx {
+					t.Fatalf("width %d: cell %d of button %d hits %+v", w, dx, sp.idx, z)
+				}
+			}
+		}
+	}
+}
+
+func TestThereIsNoRefreshButtonBecauseTheListUpdatesByItself(t *testing.T) {
+	e := projectEnv(t, 40)
+	for i := range e.m.actionDefs() {
+		if e.m.actionLabel(i) == "Actualizar: r" || e.m.actionLabel(i) == "Refresh: r" {
+			t.Fatal("the refresh button is gone")
+		}
+	}
+}
+
+func TestTheTabsShowOnlyTheirIconAndEachHasATooltip(t *testing.T) {
+	e := projectEnv(t, 36)
+	for _, name := range []string{"Archivos", "Buscar", "Files", "Search"} {
+		e.mustNotHave(name + " ") // a tab label, not the footer hint
+	}
+	line, spans := e.m.projectTabsLine()
+	if got := ansi.StringWidth(line); got != 3*5 {
+		t.Fatalf("three square buttons of five cells, got %d cells", got)
+	}
+	for i, s := range spans {
+		if s.w != 5 {
+			t.Fatalf("tab %d is %d cells wide, want 5", i, s.w)
+		}
+		e.move(s.x+2, 0)
+		if tip := e.m.tooltip(); strings.TrimSpace(tip) == "" {
+			t.Fatalf("tab %d has no tooltip", i)
+		}
+	}
+}
+
+func TestAClickAnywhereOnAFolderRowOpensAndClosesItInTheTree(t *testing.T) {
+	e := projectEnv(t, 40)
+	alpha := filepath.Join(e.root, "alpha")
+	x, y := e.find("alpha")
+	e.click(x+3, y) // on the name, far from the > marker
+	if !e.m.expanded[alpha] {
+		t.Fatal("one click on the name opens the folder")
+	}
+	x, y = e.find("alpha")
+	e.click(x, y)
+	if e.m.expanded[alpha] {
+		t.Fatal("another click closes it")
+	}
+}
+
+// Mathias, 2026-10-13: "cuando se achique el cuadro salte de un modo a otro automáticamente y al revés también".
+func TestTheModeChangesByItselfWhenTheWindowIsResizedAcrossTheLimits(t *testing.T) {
+	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 120, Height: 30})
+	if e.m.projectMode() {
+		t.Fatal("setup: a wide window starts as the normal window")
+	}
+	e.send(tea.WindowSizeMsg{Width: 70, Height: 30})
+	if e.m.projectMode() {
+		t.Fatal("70 columns still fit the normal window")
+	}
+	e.send(tea.WindowSizeMsg{Width: 50, Height: 30})
+	if !e.m.projectMode() {
+		t.Fatal("below 60 columns the window becomes the sidebar")
+	}
+	e.send(tea.WindowSizeMsg{Width: 70, Height: 30})
+	if !e.m.projectMode() {
+		t.Fatal("between 60 and 80 the sidebar stays: no flipping on every cell of a drag")
+	}
+	e.send(tea.WindowSizeMsg{Width: 100, Height: 30})
+	if e.m.projectMode() {
+		t.Fatal("from 80 columns up it is the normal window again")
+	}
+}
+
+func TestTheModeTheProgramStartedInStaysUntilTheFirstResizeAcrossALimit(t *testing.T) {
+	e := projectEnv(t, 120) // the sidebar mode in a wide pane, as asked on the command line
+	if !e.m.projectMode() {
+		t.Fatal("setup")
+	}
+	e.send(tea.WindowSizeMsg{Width: 110, Height: 24})
+	if !e.m.projectMode() {
+		t.Fatal("a resize that crosses no limit changes nothing")
 	}
 }

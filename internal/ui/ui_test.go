@@ -12,6 +12,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
@@ -86,6 +87,7 @@ func newEnv(t *testing.T) *env {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { i18n.SetLanguage("en") }) // a random sweep can reach the Language setting: no test inherits it
 	e := &env{t: t, root: root, home: home, run: &fakeRunner{}, now: time.Date(2026, 10, 13, 12, 0, 0, 0, time.UTC)}
 	e.m = New(Deps{Home: home, Start: root, Cfg: cfg, Runner: e.run, Now: func() time.Time { return e.now }})
 	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
@@ -493,10 +495,12 @@ func TestPreviewOfFolderListsItsEntries(t *testing.T) {
 
 func TestTooSmallTerminal(t *testing.T) {
 	e := newEnv(t)
-	e.send(tea.WindowSizeMsg{Width: 50, Height: 10})
+	e.send(tea.WindowSizeMsg{Width: 30, Height: 4}) // narrower than 60 the window becomes the sidebar, which has its own minimum
 	e.mustHave("too small")
-	e.send(tea.WindowSizeMsg{Width: 60, Height: 16})
+	e.send(tea.WindowSizeMsg{Width: 100, Height: 30}) // and 80 columns bring the normal window back
 	e.mustNotHave("too small")
+	e.mustHave("Name")
+	e.send(tea.WindowSizeMsg{Width: 60, Height: 16})
 	e.mustHave("Name")
 	for _, sz := range [][2]int{{80, 24}, {60, 16}, {200, 60}} {
 		e.send(tea.WindowSizeMsg{Width: sz[0], Height: sz[1]})
@@ -671,4 +675,11 @@ func TestKeyHelperPressesTheKeyItIsAskedFor(t *testing.T) {
 			}
 		}
 	}
+}
+
+// clickTab clicks the middle of a tab of the sidebar mode: the tabs show only their icon, so there is no text to find.
+func (e *env) clickTab(t projectTab) {
+	e.t.Helper()
+	_, spans := e.m.projectTabsLine()
+	e.click(spans[t].x+spans[t].w/2, 0)
 }
