@@ -12,6 +12,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/ansi/kitty"
@@ -155,6 +156,16 @@ func keyMsg(k string) tea.KeyPressMsg {
 		return tea.KeyPressMsg{Code: tea.KeyUp, Mod: tea.ModCtrl}
 	case "ctrl+down":
 		return tea.KeyPressMsg{Code: tea.KeyDown, Mod: tea.ModCtrl}
+	case "pgup":
+		return tea.KeyPressMsg{Code: tea.KeyPgUp}
+	case "pgdown":
+		return tea.KeyPressMsg{Code: tea.KeyPgDown}
+	case "home":
+		return tea.KeyPressMsg{Code: tea.KeyHome}
+	case "end":
+		return tea.KeyPressMsg{Code: tea.KeyEnd}
+	case "f1":
+		return tea.KeyPressMsg{Code: tea.KeyF1}
 	case "f2":
 		return tea.KeyPressMsg{Code: tea.KeyF2}
 	case "delete":
@@ -647,6 +658,17 @@ func TestOverlayKeepsTheLineWidthWhenAWideGlyphStraddlesTheBox(t *testing.T) {
 		out := overlay(base, []string{"[]"}, x, 0)
 		if got := ansi.StringWidth(out[0]); got != 18 {
 			t.Errorf("box at %d: the line is %d wide, want 18: %q", x, got, ansi.Strip(out[0]))
+		}
+	}
+}
+
+// The helper that presses keys must press the key a binding names, or every test that uses it proves nothing.
+func TestKeyHelperPressesTheKeyItIsAskedFor(t *testing.T) {
+	for a, keys := range keymap.Defaults {
+		for _, k := range keys {
+			if got := keyMsg(k).String(); got != k {
+				t.Errorf("%s: keyMsg(%q) presses %q", a, k, got)
+			}
 		}
 	}
 }
