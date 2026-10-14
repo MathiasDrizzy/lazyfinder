@@ -1,8 +1,7 @@
 name: CI
 
-# Linux only: a macOS runner costs ten Linux minutes, so macOS runs in ci-macos.yml before a release (the push of a
-# v* tag) and by hand, and the maintainer runs the same tests on a Mac before each push. Changes that
-# touch only documentation run no CI. See docs/adr/0016-ci-minutes.md.
+# The tests run on Linux and macOS on every push; changes that touch only documentation run no CI.
+# See docs/adr/0016-ci-minutes.md.
 on:
   push:
     branches: [ main, 'ci/**' ]
@@ -31,9 +30,13 @@ concurrency:
 
 jobs:
   test:
-    name: vet + test -race (ubuntu-latest)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: vet + test -race (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -112,9 +115,6 @@ jobs:
           version: v2.18.2 # keep equal to release.yml
           args: release --snapshot --clean --skip=publish --release-notes ${{ runner.temp }}/release-notes.md
       - name: Build provenance for the archives and the SBOMs
-        # GitHub does not offer attestations for user-owned private repositories (it fails with "Feature not available"),
-        # so the step runs once the repository is public
-        if: ${{ !github.event.repository.private }}
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-checksums: dist/checksums.txt

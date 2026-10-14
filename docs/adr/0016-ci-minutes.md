@@ -1,6 +1,6 @@
 # CI minutes: Linux on every push, macOS before a release
 
-* Status: accepted (2026-10-14, order 2026-10-14-12)
+* Status: superseded on 2026-10-14 by the amendment below (the repository is public)
 * Date: 2026-10-14
 
 ## Context and problem statement
@@ -28,3 +28,11 @@ stops all CI until the next month.
   `verificar.sh` before the push, not by CI.
 * Before a release, run `gh workflow run ci-macos.yml` on the commit to tag, so the macOS result is known before the
   tag and not only next to it.
+
+## Amendment (2026-10-14): the repository is public
+
+GitHub Actions does not count minutes for standard runners in public repositories, so the reason for this decision
+is gone. `ci-macos.yml` is removed and the `test` job of `ci.yml` runs on `ubuntu-latest` and `macos-latest` on
+every push to `main` and `ci/**` and on pull requests, with `fail-fast: false` so a failure on one system still shows
+the result of the other. `paths-ignore`, `concurrency` and the timeouts stay. A change that breaks only on macOS is
+caught at the push again.
