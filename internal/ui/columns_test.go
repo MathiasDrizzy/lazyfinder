@@ -11,10 +11,13 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
 
+// The Spanish titles are whole where the window has room for them; at 120 cells a long title is cut instead of
+// dropping a column (TestSpanishKeepsTheDefaultColumnsAt120Cells).
 func TestSpanishTitlesAreNotCut(t *testing.T) {
 	t.Cleanup(func() { i18n.SetLanguage("en") })
 	i18n.SetLanguage("es")
 	e := newEnv(t)
+	e.send(tea.WindowSizeMsg{Width: 140, Height: 40})
 	e.mustHave("Fecha de modificación")
 	e.mustHave("Hoja de cálculo de Excel")
 	// the path bar (second to last line) may start with "…" when the temp folder path is long; only the panels count
