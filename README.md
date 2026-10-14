@@ -135,6 +135,11 @@ It works from 24 columns:
   fetch, pull and push with how far you are from the upstream, and a branch menu with search, create and a warning
   about changes you have not saved. It never commits, rebases or merges: `L` opens lazygit for that.
 
+![The Git tab, dark and light](docs/screenshots/git-tab-dark.png)
+![The Git tab in a light theme](docs/screenshots/git-tab-light.png)
+![The selected row shows its buttons: open changes, discard, stage](docs/screenshots/git-tab-buttons.png)
+![The branch menu](docs/screenshots/git-branch-menu.png)
+
 ![Project mode with git letters](docs/screenshots/project-mode.png)
 
 ## Search
