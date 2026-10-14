@@ -376,3 +376,22 @@ func StashDropAt(root string, i int) error {
 	_, err = do(writeTimeout, root, "stash", "drop", ref)
 	return err
 }
+
+// ChangesOf returns the staged and the unstaged changes of the file at the absolute path.
+func (s Status) ChangesOf(abs string) (staged, unstaged []Change) {
+	rel, ok := s.rel(abs)
+	if !ok {
+		return nil, nil
+	}
+	for _, c := range s.Staged {
+		if c.Path == rel {
+			staged = append(staged, c)
+		}
+	}
+	for _, c := range s.Unstaged {
+		if c.Path == rel {
+			unstaged = append(unstaged, c)
+		}
+	}
+	return staged, unstaged
+}

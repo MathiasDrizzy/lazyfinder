@@ -167,7 +167,12 @@ func (m *Model) openContext(z zone, x, y int) bool {
 	case zoneRow:
 		e := m.entries()[z.idx]
 		if !e.IsDir {
-			return false
+			items = m.gitContextItems(z.idx, e)
+			if len(items) == 0 {
+				return false
+			}
+			title = e.Name
+			break
 		}
 		title = e.Name
 		if m.favoriteIndex(e.Path) >= 0 {

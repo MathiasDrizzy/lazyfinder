@@ -398,3 +398,46 @@ func TestTheOpenButtonShowsTheDiffAndOShortcutOpensTheFile(t *testing.T) {
 		t.Fatalf("o opens the file with its program, calls = %v", e.run.calls)
 	}
 }
+
+// order 07, point O3: what the Git tab does is also in the window, through the right-click menu of a changed file.
+func TestRightClickOnAChangedFileOffersTheGitActions(t *testing.T) {
+	e := newEnv(t)
+	repo(t, e)
+	e.key("r")
+	x, y := e.find("notes.txt")
+	e.rightClick(x, y)
+	for _, want := range []string{"Show changes", "Stage", "Discard changes", "Open with"} {
+		e.mustHave(want)
+	}
+	e.clickText("Stage")
+	if got := e.stagedNames(); len(got) != 1 || got[0] != "notes.txt" {
+		t.Fatalf("staged = %v", got)
+	}
+	x, y = e.find("notes.txt")
+	e.rightClick(x, y)
+	e.mustHave("Unstage")
+	e.mustNotHave("Discard changes")
+	e.clickText("Show staged changes")
+	e.mustHave("+changed")
+}
+
+func TestRightClickOnACleanFileKeepsTheOpenWithMenu(t *testing.T) {
+	e := newEnv(t)
+	repo(t, e)
+	e.key("r")
+	x, y := e.find("data.xlsx")
+	e.rightClick(x, y)
+	e.mustNotHave("Stage")
+	if !e.m.menu.open {
+		t.Fatal("a file with no changes opens the Open with menu as before")
+	}
+}
+
+func (e *env) stagedNames() []string {
+	st, _, _ := git.Read(e.root)
+	var out []string
+	for _, c := range st.Staged {
+		out = append(out, c.Path)
+	}
+	return out
+}

@@ -359,3 +359,21 @@ func TestStashApplyPopAndDropByIndex(t *testing.T) {
 		t.Fatal("a negative index must be refused")
 	}
 }
+
+func TestChangesOfFindsBothSidesOfAFileByAbsolutePath(t *testing.T) {
+	dir := fixture(t)
+	put(t, filepath.Join(dir, "staged.txt"), "new\nmore\n") // staged as new, then edited again: both sides
+	st, _, _ := Read(dir)
+	staged, unstaged := st.ChangesOf(filepath.Join(dir, "staged.txt"))
+	if len(staged) != 1 || len(unstaged) != 1 {
+		t.Fatalf("staged=%v unstaged=%v, want one of each", staged, unstaged)
+	}
+	staged, unstaged = st.ChangesOf(filepath.Join(dir, "kept.txt"))
+	if len(staged)+len(unstaged) != 0 {
+		t.Fatalf("an unchanged file has no changes: %v %v", staged, unstaged)
+	}
+	staged, unstaged = st.ChangesOf(filepath.Join(filepath.Dir(dir), "elsewhere.txt"))
+	if len(staged)+len(unstaged) != 0 {
+		t.Fatal("a path outside the repository has no changes")
+	}
+}

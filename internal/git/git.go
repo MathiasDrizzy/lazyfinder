@@ -169,17 +169,25 @@ func (s *Status) set(path string, c Code) {
 	}
 }
 
-// Of returns the state of the file or directory at the absolute path. A directory takes the strongest state of
-// anything inside it, except Ignored, which only applies to the directory itself.
-func (s Status) Of(abs string, isDir bool) Code {
+// rel is the slash path of abs relative to the repository root, through the folder the status was read from.
+func (s Status) rel(abs string) (string, bool) {
 	if s.viaDir != "" && (abs == s.viaDir || strings.HasPrefix(abs, s.viaDir+string(filepath.Separator))) {
 		abs = s.realDir + strings.TrimPrefix(abs, s.viaDir)
 	}
 	rel, err := filepath.Rel(s.Root, abs)
-	if err != nil || rel == "." || strings.HasPrefix(rel, "..") {
+	if err != nil || rel == "." || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", false
+	}
+	return filepath.ToSlash(rel), true
+}
+
+// Of returns the state of the file or directory at the absolute path. A directory takes the strongest state of
+// anything inside it, except Ignored, which only applies to the directory itself.
+func (s Status) Of(abs string, isDir bool) Code {
+	rel, ok := s.rel(abs)
+	if !ok {
 		return None
 	}
-	rel = filepath.ToSlash(rel)
 	if c, ok := s.files[rel]; ok {
 		return c
 	}
