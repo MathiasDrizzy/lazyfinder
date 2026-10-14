@@ -203,3 +203,18 @@ func (e *env) stayHome() {
 		}
 	}
 }
+
+// Found by the sweep in Chinese: the hover area started inside a wide glyph and the line grew by one cell.
+func TestHoverKeepsTheLineWidthOverWideGlyphs(t *testing.T) {
+	m := &Model{w: 20, h: 8}
+	for x := 0; x < 8; x++ {
+		for w := 1; w < 8; w++ {
+			line := "文件夹文件夹文件夹文件"
+			r := hoverRect{x, 0, w, 1}
+			got := m.paintHover([]string{line}, r)
+			if a, b := ansi.StringWidth(got[0]), ansi.StringWidth(line); a != b {
+				t.Fatalf("hover %v: width %d, want %d", r, a, b)
+			}
+		}
+	}
+}

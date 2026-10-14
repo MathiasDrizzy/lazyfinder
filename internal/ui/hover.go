@@ -154,6 +154,11 @@ func (m *Model) withHover(lines []string) []string {
 	if r.w <= 0 {
 		return lines
 	}
+	return m.paintHover(lines, r)
+}
+
+// paintHover paints the area r of lines with the hover background.
+func (m *Model) paintHover(lines []string, r hoverRect) []string {
 	seq := "\x1b[4m" // without a palette the pointer underlines what it is on
 	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
 		seq = theme.BackgroundSeq(hoverBg(p))
@@ -170,7 +175,16 @@ func (m *Model) withHover(lines []string) []string {
 		mid := ansi.Cut(line, r.x, r.x+r.w)
 		mid += strings.Repeat(" ", max(0, r.w-ansi.StringWidth(mid)))
 		right := ansi.TruncateLeft(line, r.x+r.w, "")
-		out[y] = left + "\x1b[0m" + seq + dropBackgrounds(mid, seq) + "\x1b[0m" + right
+		painted := left + "\x1b[0m" + seq + dropBackgrounds(mid, seq) + "\x1b[0m" + right
+		// a wide glyph cut by the edge of the area changes the width by a cell either way
+		want := ansi.StringWidth(line)
+		if ansi.StringWidth(painted) > want {
+			painted = ansi.Truncate(painted, want, "")
+		}
+		if got := ansi.StringWidth(painted); got < want {
+			painted += strings.Repeat(" ", want-got)
+		}
+		out[y] = painted
 	}
 	return out
 }
