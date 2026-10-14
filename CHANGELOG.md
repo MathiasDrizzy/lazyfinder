@@ -6,9 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-14
+
+The first public release.
+
 ### Added
 
 - Homebrew: `brew install mathiasdrizzy/tap/lazyfinder` (macOS). Each release publishes the cask to the tap.
+- Every archive and SBOM of a release has a build provenance attestation: `gh attestation verify <file> -R
+  MathiasDrizzy/lazyfinder` checks it (see SECURITY.md).
 - Issue and pull request templates.
 
 ### Changed
