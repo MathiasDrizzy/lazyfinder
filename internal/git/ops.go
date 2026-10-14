@@ -154,7 +154,9 @@ func Diff(root string, c Change, staged bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	args := []string{"diff", "--no-color", "--no-ext-diff"}
+	ctx, cancel := context.WithTimeout(context.Background(), writeTimeout)
+	defer cancel()
+	args := append(readOnly(ctx, root), "diff", "--no-color", "--no-ext-diff", "--no-textconv")
 	switch {
 	case staged:
 		args = append(args, "--cached", "--", p)

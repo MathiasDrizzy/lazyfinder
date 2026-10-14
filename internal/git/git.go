@@ -81,7 +81,8 @@ func Read(dir string) (Status, bool, error) {
 	if r, err := filepath.EvalSymlinks(root); err == nil {
 		root = r
 	}
-	out, err := git(ctx, root, "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "-z")
+	args := append(readOnly(ctx, root), "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "-z")
+	out, err := git(ctx, root, args...)
 	if err != nil {
 		return Status{}, false, err
 	}
