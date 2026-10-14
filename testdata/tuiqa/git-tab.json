@@ -20,7 +20,7 @@
     {
       "desc": "the Git tab is one click away",
       "click": {
-        "at": "Git",
+        "at": "\uf126",
         "in": {
           "x": 0,
           "y": 0,
@@ -48,7 +48,7 @@
     {
       "desc": "the selected row wears its buttons: open, discard, stage",
       "assert": {
-        "contains": "notes\\.txt.*↗ ↶ \\+"
+        "contains": "notes\\.txt.*↗ +↶ +\\+"
       }
     },
     {
@@ -63,7 +63,7 @@
     },
     {
       "assert": {
-        "contains": "loose\\.txt.*↗ ↶ \\+"
+        "contains": "loose\\.txt.*↗ +↶ +\\+"
       }
     },
     {

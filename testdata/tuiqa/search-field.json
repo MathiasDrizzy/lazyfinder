@@ -8,7 +8,7 @@
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
     {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the top row has a Search field", "assert": {"contains": "⌕ Search"}},
+    {"desc": "the top row has a Search field", "assert": {"contains": "\uf002 Search"}},
     {"desc": "Recents is a place of the sidebar", "assert": {"contains": "Recents"}},
     {"desc": "a click on the field starts a search", "click": {"at": "Search", "in": {"x": 0, "y": 0, "w": 120, "h": 1}}},
     {"keys": ["n", "o", "t", "e", "s"]},

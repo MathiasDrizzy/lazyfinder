@@ -8,7 +8,7 @@
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
     {"desc": "starts", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the toolbar has a clickable search glyph", "click": {"at": "⌕", "in": {"x": 0, "y": 0, "w": 120, "h": 1}}},
+    {"desc": "the toolbar has a clickable search glyph", "click": {"at": "\uf002", "in": {"x": 0, "y": 0, "w": 120, "h": 1}}},
     {"desc": "the bar opens at the bottom", "wait": {"regex": "type to search", "timeout_ms": 3000}},
     {"desc": "typing filters the folder live", "text": "notes"},
     {"assert": {"contains": "notes\\.txt"}},
