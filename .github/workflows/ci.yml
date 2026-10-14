@@ -1,23 +1,39 @@
 name: CI
 
+# Linux only: a macOS runner costs ten Linux minutes, so macOS runs in ci-macos.yml before a release (the push of a
+# v* tag) and by hand, and .claude/harness/verificar.sh runs the same tests on macOS before each push. Changes that
+# touch only documentation run no CI. See docs/adr/0016-ci-minutes.md.
 on:
   push:
     branches: [ main, 'ci/**' ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'assets/readme/**'
+      - 'LICENSE'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'assets/readme/**'
+      - 'LICENSE'
+  workflow_dispatch:
 
 # CI only reads the repository
 permissions:
   contents: read
 
+# a newer push to the same branch cancels the run of the older one
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    name: vet + test -race (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
+    name: vet + test -race (ubuntu-latest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -36,6 +52,7 @@ jobs:
   cross-build:
     name: build darwin/linux
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -50,6 +67,7 @@ jobs:
   lint-vuln:
     name: golangci-lint + govulncheck
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

@@ -19,3 +19,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | 0013 | [Icon size: Nerd Font glyphs and roomy rows, not Kitty file icons](0013-icon-size.md) | accepted |
 | 0014 | [Icon size is a setting: air, tiles and roomy rows](0014-icon-size-setting.md) | superseded by 0015 |
 | 0015 | [No icon size: a glyph in a cell cannot grow](0015-no-icon-size.md) | accepted |
+| 0016 | [CI minutes: Linux on every push, macOS before a release](0016-ci-minutes.md) | accepted |
