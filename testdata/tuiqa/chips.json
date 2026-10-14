@@ -231,9 +231,9 @@
       }
     },
     {
-      "desc": "the box lights the right five eighths of the cell before the glyph (a left block in the panel color on the box color), the glyph and its space, so it is as wide as the others and its two margins around the ink are equal in Ghostty (order 07, revision 3)",
+      "desc": "the box lights the right five eighths of the cell before the glyph (the block 🮉 in the box color, no reversed colors), the glyph and its space, so it is as wide as the others and its two margins around the ink are equal in Ghostty (order 07, revision 3)",
       "wait": {
-        "regex": "^▍[^ ] ?$",
+        "regex": "^🮉[^ ] ?$",
         "timeout_ms": 3000,
         "region": {
           "x": 80,
@@ -252,7 +252,7 @@
           "h": 1
         },
         "bg": "#45475a",
-        "mode": "all"
+        "mode": "none"
       }
     },
     {
@@ -285,9 +285,9 @@
       }
     },
     {
-      "desc": "the box lights the right five eighths of the cell before the glyph (a left block in the panel color on the box color), the glyph and its space, so it is as wide as the others and its two margins around the ink are equal in Ghostty (order 07, revision 3)",
+      "desc": "the box lights the right five eighths of the cell before the glyph (the block 🮉 in the box color, no reversed colors), the glyph and its space, so it is as wide as the others and its two margins around the ink are equal in Ghostty (order 07, revision 3)",
       "wait": {
-        "regex": "^▍[^ ] ?$",
+        "regex": "^🮉[^ ] ?$",
         "timeout_ms": 3000,
         "region": {
           "x": 86,
@@ -306,7 +306,7 @@
           "h": 1
         },
         "bg": "#45475a",
-        "mode": "all"
+        "mode": "none"
       }
     },
     {

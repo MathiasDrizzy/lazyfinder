@@ -111,6 +111,7 @@ func TestTheButtonBoxesAreHerdrChipsWithTheGlyphInTheMiddle(t *testing.T) {
 // box must be as wide as the others within 3 pixels, for every Nerd Font button in both modes.
 func TestTheLitBoxIsCenteredOnTheInkOfANerdGlyphAndAllBoxesAreAlike(t *testing.T) {
 	eighths := map[rune]int{'▏': 1, '▎': 2, '▍': 3, '▌': 4, '▋': 5, '▊': 6, '▉': 7}
+	rightEighthsOf := map[rune]int{'▕': 1, '🮇': 2, '🮈': 3, '▐': 4, '🮉': 5, '🮊': 6, '🮋': 7}
 	cell := float64(inkCellPx)
 	var widths []float64
 	for _, sidebar := range []bool{false, true} {
@@ -147,16 +148,15 @@ func TestTheLitBoxIsCenteredOnTheInkOfANerdGlyphAndAllBoxesAreAlike(t *testing.T
 				t.Errorf("sidebar=%v: the glyph %q and the space after it must be lit: %q", sidebar, glyph, raw)
 				continue
 			}
-			// The part of the cell before the glyph that is lit: a space on the box color, the half block ▐ in the
-			// box color, or a left block in the panel color on the box color (the box shows on its right).
+			// The part of the cell before the glyph that is lit: a space on the box color, or a block on the right of
+			// the cell in the box color. No reversed colors: with the terminal's own background (Mathias's
+			// "screen_background": "terminal") the unlit part showed as a white strip.
 			var fill float64
 			switch c := cells[r.x]; {
-			case c == '▐':
-				fill = cell / 2
 			case lit(raw, r.x) && c == ' ':
 				fill = cell
-			case lit(raw, r.x) && eighths[c] > 0:
-				fill = float64(8-eighths[c]) * cell / 8
+			case rightEighthsOf[c] > 0:
+				fill = float64(rightEighthsOf[c]) * cell / 8
 			}
 			tail := 0.0
 			if r.x+3 < len(cells) && !lit(raw, r.x+3) {

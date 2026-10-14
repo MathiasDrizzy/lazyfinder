@@ -208,7 +208,7 @@ func (m *Model) paintHover(lines []string, r hoverRect) []string {
 	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
 		if g, ok := m.chipGlyphUnderPointer(); ok {
 			if box, ok := nerdChipBox(g); ok {
-				return paintChip(lines, r, box, chipHoverBg(p), m.styles.bg)
+				return paintChip(lines, r, box, chipHoverBg(p))
 			}
 		}
 	}

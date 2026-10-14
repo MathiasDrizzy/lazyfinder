@@ -33,16 +33,20 @@ const inkCellPx = 17
 // leftEighths are the blocks that fill the left n eighths of a cell, n from 1 to 7.
 var leftEighths = []string{"", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}
 
+// rightEighths are the blocks that fill the right n eighths of a cell, n from 1 to 7 (the ones from 2 to 7, but 4,
+// are in Symbols for Legacy Computing; Ghostty draws them itself).
+var rightEighths = []string{"", "▕", "🮇", "🮈", "▐", "🮉", "🮊", "🮋"}
+
 // chipBoxPx is the width every lit box aims at, two cells and a half, so the boxes look alike whatever the ink of
 // their glyph (Mathias, 2026-10-14: "revisa también los tamaños de los recuadros gris … este es mucho más grande que
 // los otros").
 const chipBoxPx = 2.5 * inkCellPx
 
 // chipBox is how the lit box of a chip x-1, x (the glyph), x+1 is drawn, in eighths of a cell: fill eighths (1 to 8) of
-// the cell before the glyph are lit, on its right side (the half block ▐ for 4, a space for 8, otherwise a left block in
-// the panel color on the box color, which looks the same because the theme paints every cell), and tail eighths of
-// the cell after the space that follows the glyph. That space is lit whole: any other character there makes Ghostty
-// draw the glyph in one cell, smaller than its neighbours.
+// the cell before the glyph are lit, on its right side, with a block in the box color (never with reversed colors:
+// with the terminal's own background the unlit part showed as a white strip, Mathias 2026-10-14), and tail eighths
+// of the cell after the space that follows the glyph. That space is lit whole: any other character there makes
+// Ghostty draw the glyph in one cell, smaller than its neighbours.
 type chipBox struct{ fill, tail int }
 
 // nerdChipBox picks, for a measured glyph, among the boxes whose margins on the two sides of the ink differ by 2
@@ -93,10 +97,10 @@ func (m *Model) chipGlyphUnderPointer() (string, bool) {
 	return "", false
 }
 
-// paintChip lights the chip r (three cells, the glyph in the middle) as box says, over the panel color: the right
+// paintChip lights the chip r (three cells, the glyph in the middle) as box says: the right
 // fill eighths of the cell before the glyph, the glyph's cell and the space after it whole, and the left tail eighths
 // of the next cell.
-func paintChip(lines []string, r hoverRect, box chipBox, bg, panel color.Color) []string {
+func paintChip(lines []string, r hoverRect, box chipBox, bg color.Color) []string {
 	out := make([]string, len(lines))
 	copy(out, lines)
 	if r.y < 0 || r.y >= len(out) {
@@ -107,11 +111,8 @@ func paintChip(lines []string, r hoverRect, box chipBox, bg, panel color.Color) 
 	edge := lipgloss.NewStyle().Foreground(bg).Render
 	seq := theme.BackgroundSeq(bg)
 	from, head := r.x, ""
-	switch {
-	case box.fill == 4:
-		from, head = r.x+1, edge("▐")
-	case box.fill < 8:
-		from, head = r.x+1, lipgloss.NewStyle().Foreground(panel).Background(bg).Render(leftEighths[8-box.fill])
+	if box.fill < 8 {
+		from, head = r.x+1, edge(rightEighths[box.fill])
 	}
 	left := ansi.Truncate(line, r.x, "")
 	left += strings.Repeat(" ", max(0, r.x-ansi.StringWidth(left)))
