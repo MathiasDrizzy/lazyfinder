@@ -1,10 +1,5 @@
 Terminal too small
-Need 60x16, have 50x10
-
-
-
-
-
+Need 20x8, have 30x5
 
 <breadcrumb>
 

@@ -195,3 +195,14 @@ func TestTheModeTheProgramStartedInStaysUntilTheFirstResizeAcrossALimit(t *testi
 		t.Fatal("a resize that crosses no limit changes nothing")
 	}
 }
+
+func TestAWindowThatStartsNarrowerThanTheLimitIsTheSidebar(t *testing.T) {
+	e := newEnv(t)
+	d := e.m.deps
+	e.m = New(d)
+	e.send(tea.WindowSizeMsg{Width: 44, Height: 26})
+	if !e.m.projectMode() {
+		t.Fatal("a 44-column pane has no room for the columns: it starts as the sidebar")
+	}
+	e.mustNotHave("too small")
+}

@@ -475,10 +475,14 @@ const (
 )
 
 // autoMode switches between the normal window and the sidebar mode when the width crosses a limit; prevW is the
-// width before this size (0 for the first one, which never switches: the mode the program started in stays).
+// width before this size. The first size (prevW 0) only moves a window that starts narrower than the limit to the
+// sidebar, where it fits; a sidebar started on purpose in a wide pane stays until a resize crosses a limit.
 func (m *Model) autoMode(prevW int) {
 	switch {
 	case prevW == 0:
+		if !m.projectMode() && m.w < autoSidebarW {
+			m.toggleProject()
+		}
 	case !m.projectMode() && prevW >= autoSidebarW && m.w < autoSidebarW:
 		m.toggleProject()
 	case m.projectMode() && prevW < autoWindowW && m.w >= autoWindowW:

@@ -99,7 +99,7 @@ func TestGoldenList120x40(t *testing.T) { goldenEnv(t, 120, 40).golden("list-120
 func TestGoldenList80x24(t *testing.T)  { goldenEnv(t, 80, 24).golden("list-80x24") }
 func TestGoldenList60x16(t *testing.T)  { goldenEnv(t, 60, 16).golden("list-60x16") }
 
-func TestGoldenTooSmall(t *testing.T) { goldenEnv(t, 50, 10).golden("too-small") }
+func TestGoldenTooSmall(t *testing.T) { goldenEnv(t, 30, 5).golden("too-small") }
 
 func TestGoldenPreviewText(t *testing.T) {
 	e := goldenEnv(t, 120, 40)
