@@ -37,10 +37,9 @@ jobs:
           args: release --clean --release-notes ${{ runner.temp }}/release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # a fine-grained token that can write only to MathiasDrizzy/homebrew-tap, for the cask
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
       - name: Build provenance for the archives and the SBOMs
-        # GitHub does not offer attestations for user-owned private repositories (it fails with "Feature not available"),
-        # so the step runs once the repository is public
-        if: ${{ !github.event.repository.private }}
         # checksums.txt lists every archive and SBOM that GoReleaser published, so one attestation covers them all
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:

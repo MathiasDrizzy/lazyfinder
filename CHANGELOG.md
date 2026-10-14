@@ -6,6 +6,33 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Homebrew: `brew install mathiasdrizzy/tap/lazyfinder` (macOS). Each release publishes the cask to the tap.
+- Issue and pull request templates.
+
+### Changed
+
+- `config.json` and the files of recent items, saved searches and tags are written readable only by you (0600, in a
+  0700 folder).
+- `golang.org/x/net` is v0.60.0 (none of the advisories in v0.39.0 was reachable from lazyfinder).
+
+### Removed
+
+- The Homebrew formula in `packaging/homebrew`: the cask in the tap replaces it.
+- Internal planning notes and review screenshots from `docs/`.
+
+### Security
+
+- Looking at a git repository no longer runs programs from that repository's own `.git/config`: the status and the
+  diff switch off its `core.fsmonitor`, its clean, smudge and process filters and its textconv drivers. The same
+  settings from your global config still apply.
+- Escape sequences in a file name, an archive entry or a previewed file no longer reach the terminal: the preview
+  shows control characters as their pictures (ESC as `␛`), and the screen drops any OSC, DCS or APC sequence, such as
+  an OSC 8 link. A line break in a name no longer breaks the row.
+- A FIFO, `/dev/tty`, `/dev/zero` or a link to one in a folder no longer freezes lazyfinder: the column view, the
+  preview, the archive list, the content search and the image preview open only regular files, without blocking.
+
 ## [0.12.1] - 2026-10-14
 
 ### Added

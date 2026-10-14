@@ -23,9 +23,6 @@ in the [changelog](CHANGELOG.md) unless you ask to stay anonymous.
 
 ## Verifying a release
 
-This applies from the first release made while the repository is public: GitHub does not store attestations for
-user-owned private repositories, so the workflow skips that step until then.
-
 Every release archive has an SPDX SBOM next to it (a `.sbom.json` file made by Syft), and a signed build provenance
 attestation ties each archive and each SBOM to the commit and the workflow that built them. With the GitHub CLI and
 nothing else installed:

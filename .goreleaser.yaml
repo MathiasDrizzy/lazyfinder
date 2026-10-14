@@ -26,6 +26,30 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+homebrew_casks:
+  - name: lazyfinder
+    repository:
+      owner: MathiasDrizzy
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: "https://github.com/MathiasDrizzy/lazyfinder"
+    description: "Finder-like file manager for the terminal"
+    binaries:
+      - lazyfinder
+    # The binary is not signed or notarized: remove the macOS quarantine, the same hook as the lazymark cask.
+    # Homebrew warns "postflight is deprecated! Use postflight_steps instead" for it. GoReleaser does not write
+    # postflight_steps yet (hooks.post.install_steps, goreleaser/goreleaser#6873, planned for v2.19.0); when it does,
+    # switch to install_steps with: on_macos do run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine",
+    # "{{ .StagedPath }}/lazyfinder"] end.
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr",
+                           args: ["-dr", "com.apple.quarantine", "#{staged_path}/lazyfinder"]
+          end
+
 sboms:
   - id: archive
     artifacts: archive # one SPDX JSON per archive, made by syft

@@ -132,8 +132,8 @@ Settings → "Stay in the folder on exit" (`cd_on_exit`) turns it off.
 
 ## Install
 
-Requires macOS or Linux and a terminal with mouse support. Install a [Nerd Font](https://www.nerdfonts.com/) in
-your terminal for the icons (or set `icons` to `emoji`, `ascii` or `off`). Building needs Go 1.27.2 or newer.
+Install a [Nerd Font](https://www.nerdfonts.com/) in your terminal for the icons (or set `icons` to `emoji`, `ascii`
+or `off`). Building needs Go 1.27.2 or newer. lazyfinder runs on macOS and Linux.
 
 **With Go**
 
@@ -149,9 +149,16 @@ cd lazyfinder
 go build -o lazyfinder ./cmd/lazyfinder
 ```
 
-**Prebuilt binaries** for macOS and Linux, with their checksums, are on the
-[Releases page](https://github.com/MathiasDrizzy/lazyfinder/releases). A Homebrew formula for a tap is in
-[packaging/homebrew](packaging/homebrew/lazyfinder.rb).
+**Homebrew (macOS)**
+
+```sh
+brew install mathiasdrizzy/tap/lazyfinder
+```
+
+**Prebuilt binaries** for macOS and Linux are on the [Releases page](https://github.com/MathiasDrizzy/lazyfinder/releases).
+`lazyfinder --version` prints the version you have. Each release lists its checksums in `checksums.txt`, with an SBOM
+and a build provenance attestation per archive; [SECURITY.md](SECURITY.md#verifying-a-release) shows how to verify a
+download.
 
 Shell completions and the manual page:
 
