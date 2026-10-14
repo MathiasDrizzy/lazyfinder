@@ -1,0 +1,15 @@
+name: Feature request
+description: Something lazyfinder could do.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you want to do
+      description: The task, not the solution. How do you do it today, in lazyfinder or elsewhere (Finder, yazi, lf)?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How it could work

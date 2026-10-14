@@ -40,7 +40,13 @@ of a download is still checked with `shasum -a 256 -c checksums.txt --ignore-mis
 
 ## Scope
 
-lazyfinder lists folders, previews files and starts programs you configured to open them. It never writes to
-your files (milestone 1 is read-only). In scope: running anything that is not configured, shell injection through
-file names, terminal escape sequence injection through file names or file content, decompression or image
-"bombs" in the preview, and reading outside what the user navigated to.
+lazyfinder lists folders, previews files, runs the file operations you ask for (copy, move, rename, move to the
+Trash, undo) and starts the programs you configured to open files. Your own `config.json` is trusted; the folders you
+look at are not. In scope:
+
+- running anything that is not configured, or shell or argument injection through file names;
+- terminal escape sequence injection through file names, archive entries or file content;
+- a git repository from somewhere else running a program from its own `.git/config` (fsmonitor, filters, textconv)
+  while lazyfinder only reads it;
+- a FIFO, a device or a huge file in a folder blocking or exhausting the app, and decompression or image "bombs";
+- a file operation that deletes for good, overwrites, or writes outside the folder you chose.
