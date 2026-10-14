@@ -309,6 +309,7 @@
  "Stash dropped": "stash 已删除",
  "Stash restored": "stash 已恢复",
  "Stashing…": "正在存入 stash…",
+ "Stay in the folder on exit": "退出时停留在该文件夹",
  "Subfolders": "子文件夹",
  "Swift Source": "Swift 源代码",
  "Switch branch: B": "切换分支: B",
