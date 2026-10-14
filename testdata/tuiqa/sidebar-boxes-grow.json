@@ -19,14 +19,16 @@
     },
     {
       "desc": "12 favorites: Favorites is taller than half, Locations opens on the 16th line",
-      "assert": {
-        "contains": "\\A(?:[^\\n]*\\n){16}╭─ Locations"
+      "wait": {
+        "regex": "\\A(?:[^\\n]*\\n){16}╭─ Locations",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Locations is still visible with its item",
-      "assert": {
-        "contains": "Disk"
+      "wait": {
+        "regex": "Disk",
+        "timeout_ms": 5000
       }
     },
     {

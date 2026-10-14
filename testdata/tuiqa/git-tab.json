@@ -30,13 +30,15 @@
       }
     },
     {
-      "assert": {
-        "contains": "Changes"
+      "wait": {
+        "regex": "Changes",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "notes\\.txt"
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 5000
       }
     },
     {
@@ -47,14 +49,16 @@
     },
     {
       "desc": "the selected row wears its buttons: open, discard, stage",
-      "assert": {
-        "contains": "notes\\.txt.*↗ +↶ +\\+"
+      "wait": {
+        "regex": "notes\\.txt.*↗ +↶ +\\+",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "a row nobody points at shows its letter instead",
-      "assert": {
-        "contains": "loose\\.txt.* U"
+      "wait": {
+        "regex": "loose\\.txt.* U",
+        "timeout_ms": 5000
       }
     },
     {
@@ -62,8 +66,9 @@
       "text": "\u001b[<35;5;7M"
     },
     {
-      "assert": {
-        "contains": "loose\\.txt.*↗ +↶ +\\+"
+      "wait": {
+        "regex": "loose\\.txt.*↗ +↶ +\\+",
+        "timeout_ms": 5000
       }
     },
     {
@@ -84,8 +89,9 @@
       ]
     },
     {
-      "assert": {
-        "contains": "Staged Changes"
+      "wait": {
+        "regex": "Staged Changes",
+        "timeout_ms": 5000
       }
     },
     {
@@ -95,8 +101,10 @@
       ]
     },
     {
-      "assert": {
-        "not_contains": "Staged Changes"
+      "wait": {
+        "regex": "Staged Changes",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -106,8 +114,9 @@
       ]
     },
     {
-      "assert": {
-        "contains": "\\+changed"
+      "wait": {
+        "regex": "\\+changed",
+        "timeout_ms": 5000
       }
     },
     {
@@ -116,8 +125,10 @@
       ]
     },
     {
-      "assert": {
-        "not_contains": "\\+changed"
+      "wait": {
+        "regex": "\\+changed",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -127,8 +138,9 @@
       ]
     },
     {
-      "assert": {
-        "contains": "Discard the changes to notes\\.txt\\? \\(y/n\\)"
+      "wait": {
+        "regex": "Discard the changes to notes\\.txt\\? \\(y/n\\)",
+        "timeout_ms": 5000
       }
     },
     {
@@ -143,18 +155,21 @@
       ]
     },
     {
-      "assert": {
-        "contains": "Branches"
+      "wait": {
+        "regex": "Branches",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "2 uncommitted changes"
+      "wait": {
+        "regex": "2 uncommitted changes",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "side"
+      "wait": {
+        "regex": "side",
+        "timeout_ms": 5000
       }
     },
     {
@@ -170,8 +185,9 @@
     },
     {
       "desc": "the branch changed and the footer says so",
-      "assert": {
-        "contains": "side"
+      "wait": {
+        "regex": "side\\s+↓",
+        "timeout_ms": 5000
       }
     },
     {
@@ -181,8 +197,9 @@
     },
     {
       "desc": "stash empties the list",
-      "assert": {
-        "contains": "No changes"
+      "wait": {
+        "regex": "No changes",
+        "timeout_ms": 5000
       }
     },
     {

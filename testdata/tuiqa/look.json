@@ -19,13 +19,15 @@
     },
     {
       "desc": "two rounded panels with the folder in the title and a counter",
-      "assert": {
-        "contains": "╭─ proj ─"
+      "wait": {
+        "regex": "╭─ proj ─",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "1 of 6 ─╯"
+      "wait": {
+        "regex": "1 of 6 ─╯",
+        "timeout_ms": 5000
       }
     },
     {
@@ -105,8 +107,9 @@
     },
     {
       "desc": "the key bar names the keys",
-      "assert": {
-        "contains": "Open: ⏎ \\| Preview: Space"
+      "wait": {
+        "regex": "Open: ⏎ \\| Preview: Space",
+        "timeout_ms": 5000
       }
     },
     {

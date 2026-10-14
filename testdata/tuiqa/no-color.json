@@ -1,18 +1,61 @@
 {
   "name": "lazyfinder-no-color",
   "criterio": "R-21 (the selection is visible without colour: reverse video plus a pointer)",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
-  "env": {"NO_COLOR": "1"},
+  "env": {
+    "NO_COLOR": "1"
+  },
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the selected row has a pointer", "assert": {"contains": "▸ >\\s+\\S\\s+alpha"}},
-    {"desc": "and reverse video", "assert_style": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "attr": "reverse", "mode": "any"}},
-    {"desc": "NO_COLOR leaves no foreground colour on the folder name", "assert_color": {"region": {"line_with": "beta"}, "fg": "#0000ff", "mode": "none"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the selected row has a pointer",
+      "wait": {
+        "regex": "▸ >\\s+\\S\\s+alpha",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "and reverse video",
+      "assert_style": {
+        "region": {
+          "line_with": "▸ >\\s+\\S\\s+alpha"
+        },
+        "attr": "reverse",
+        "mode": "any"
+      }
+    },
+    {
+      "desc": "NO_COLOR leaves no foreground colour on the folder name",
+      "assert_color": {
+        "region": {
+          "line_with": "beta"
+        },
+        "fg": "#0000ff",
+        "mode": "none"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

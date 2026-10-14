@@ -1,20 +1,70 @@
 {
   "name": "lazyfinder-language",
   "criterio": "R-42 (--lang es, then a catalog language)",
-  "cmd": ["${LAZYFINDER_BIN}", "--lang", "es", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--lang",
+    "es",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the interface is in Spanish", "assert": {"contains": "Favoritos"}},
-    {"assert": {"contains": "Abrir: ⏎"}},
-    {"assert": {"contains": "Fecha de modif"}},
-    {"assert": {"contains": "1 de 6"}},
-    {"desc": "the preview popup too", "keys": ["space"]},
-    {"wait": {"regex": "Espacio/Esc cerrar"}},
-    {"keys": ["esc", "q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the interface is in Spanish",
+      "wait": {
+        "regex": "Favoritos",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "Abrir: ⏎",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "Fecha de modif",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "1 de 6",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "the preview popup too",
+      "keys": [
+        "space"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Espacio/Esc cerrar"
+      }
+    },
+    {
+      "keys": [
+        "esc",
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

@@ -1,23 +1,90 @@
 {
   "name": "lazyfinder-git-status",
   "criterio": "R-31",
-  "cmd": ["sh", "-c", "cd \"${TUIQA_HOME}/proj\" && git init -q -b trunk . && printf '*.log\\n' > .gitignore && git add . && git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false commit -q -m init && echo changed >> notes.txt && echo x > loose.txt && echo x > debug.log && exec \"${LAZYFINDER_BIN}\" ."],
+  "cmd": [
+    "sh",
+    "-c",
+    "cd \"${TUIQA_HOME}/proj\" && git init -q -b trunk . && printf '*.log\\n' > .gitignore && git add . && git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false commit -q -m init && echo changed >> notes.txt && echo x > loose.txt && echo x > debug.log && exec \"${LAZYFINDER_BIN}\" ."
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"desc": "starts inside the repository", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the branch is in the toolbar", "assert": {"contains": "⎇ trunk"}},
-    {"desc": "an edited file shows M", "assert": {"contains": "M\\s+\\S\\s+notes\\.txt"}},
-    {"desc": "an untracked file shows U", "assert": {"contains": "U\\s+\\S\\s+loose\\.txt"}},
-    {"desc": "an ignored file is listed", "assert": {"contains": "debug\\.log"}},
-    {"desc": "I hides ignored files", "keys": ["I"]},
-    {"assert": {"not_contains": "debug\\.log"}},
-    {"keys": ["I"]},
-    {"assert": {"contains": "debug\\.log"}},
-    {"snapshot": {"name": "git-status"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "desc": "starts inside the repository",
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the branch is in the toolbar",
+      "wait": {
+        "regex": "⎇ trunk",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "an edited file shows M",
+      "wait": {
+        "regex": "M\\s+\\S\\s+notes\\.txt",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "an untracked file shows U",
+      "wait": {
+        "regex": "U\\s+\\S\\s+loose\\.txt",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "an ignored file is listed",
+      "wait": {
+        "regex": "debug\\.log",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "I hides ignored files",
+      "keys": [
+        "I"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "debug\\.log",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "keys": [
+        "I"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "debug\\.log",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "snapshot": {
+        "name": "git-status"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

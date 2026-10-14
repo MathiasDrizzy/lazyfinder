@@ -1,29 +1,111 @@
 {
   "name": "lazyfinder-goto",
   "criterio": "R-52",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"desc": "starts", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "ctrl+g opens the path prompt", "keys": ["ctrl+g"]},
-    {"wait": {"regex": "Go to:", "timeout_ms": 3000}},
-    {"desc": "relative path with Tab completion", "text": "al"},
-    {"keys": ["tab"]},
-    {"assert": {"contains": "Go to: alpha/"}},
-    {"text": "de"},
-    {"keys": ["tab", "enter"]},
-    {"desc": "lands in alpha/deep", "wait": {"regex": "x\\.txt", "timeout_ms": 3000}},
-    {"assert": {"contains": "alpha.*deep"}},
-    {"desc": "a wrong path says so and keeps the prompt", "keys": ["ctrl+g"]},
-    {"text": "/no/such/place"},
-    {"keys": ["enter"]},
-    {"wait": {"regex": "does not exist", "timeout_ms": 3000}},
-    {"keys": ["esc"]},
-    {"snapshot": {"name": "goto"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "desc": "starts",
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "ctrl+g opens the path prompt",
+      "keys": [
+        "ctrl+g"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Go to:",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "desc": "relative path with Tab completion",
+      "text": "al"
+    },
+    {
+      "keys": [
+        "tab"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Go to: alpha/",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "text": "de"
+    },
+    {
+      "keys": [
+        "tab",
+        "enter"
+      ]
+    },
+    {
+      "desc": "lands in alpha/deep",
+      "wait": {
+        "regex": "x\\.txt",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "alpha.*deep",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "a wrong path says so and keeps the prompt",
+      "keys": [
+        "ctrl+g"
+      ]
+    },
+    {
+      "text": "/no/such/place"
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "does not exist",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "snapshot": {
+        "name": "goto"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

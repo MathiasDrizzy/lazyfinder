@@ -18,8 +18,9 @@
     },
     {
       "desc": "rows are two lines apart",
-      "assert": {
-        "contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"
+      "wait": {
+        "regex": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta",
+        "timeout_ms": 5000
       }
     },
     {

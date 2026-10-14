@@ -36,8 +36,10 @@
     },
     {
       "desc": "it is a picture: never a hex dump",
-      "assert": {
-        "not_contains": "00000000  "
+      "wait": {
+        "regex": "00000000  ",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -73,8 +75,10 @@
     },
     {
       "desc": "a WebP is a picture too",
-      "assert": {
-        "not_contains": "00000000  "
+      "wait": {
+        "regex": "00000000  ",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {

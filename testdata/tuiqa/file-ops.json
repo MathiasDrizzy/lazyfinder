@@ -1,54 +1,257 @@
 {
   "name": "lazyfinder-file-ops",
   "criterio": "R-35, R-51",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"desc": "starts", "wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "copy a file, enter beta with a double click and paste", "click": {"at": "notes.txt"}},
-    {"keys": ["c"]},
-    {"wait": {"regex": "Copied notes\\.txt", "timeout_ms": 3000}},
-    {"click": {"at": "beta", "double": true}},
-    {"wait": {"regex": "This folder is empty", "timeout_ms": 3000}},
-    {"keys": ["p"]},
-    {"wait": {"regex": "Pasted notes\\.txt", "timeout_ms": 3000}},
-    {"assert": {"contains": "Plain Text"}},
-    {"keys": ["backspace"]},
-    {"desc": "rename with F2", "click": {"at": "data.xlsx"}},
-    {"keys": ["f2"]},
-    {"wait": {"regex": "Rename: data\\.xlsx", "timeout_ms": 3000}},
-    {"keys": ["ctrl+u"]},
-    {"text": "table.xlsx"},
-    {"keys": ["enter"]},
-    {"wait": {"regex": "Renamed to table\\.xlsx", "timeout_ms": 3000}},
-    {"assert": {"not_contains": "data\\.xlsx"}},
-    {"desc": "d trashes a file without asking and u brings it back", "click": {"at": "main.go"}},
-    {"keys": ["d"]},
-    {"wait": {"regex": "Moved main\\.go to the Trash", "timeout_ms": 3000}},
-    {"assert": {"not_contains": "Go Source"}},
-    {"keys": ["u"]},
-    {"wait": {"regex": "Undone", "timeout_ms": 3000}},
-    {"assert": {"contains": "Go Source"}},
-    {"desc": "marking everything and trashing asks first", "keys": ["ctrl+a"]},
-    {"assert": {"contains": "6 selected"}},
-    {"keys": ["d"]},
-    {"wait": {"regex": "Move 6 items to the Trash\\?", "timeout_ms": 3000}},
-    {"keys": ["n"]},
-    {"assert": {"contains": "Go Source"}},
-    {"keys": ["esc"]},
-    {"desc": "a new folder gets Finder's default name", "keys": ["N"]},
-    {"wait": {"regex": "New folder: untitled folder", "timeout_ms": 3000}},
-    {"keys": ["enter"]},
-    {"wait": {"regex": "Created folder untitled folder", "timeout_ms": 3000}},
-    {"desc": "Get Info shows the details of the selected item", "keys": ["i"]},
-    {"wait": {"regex": "Get Info", "timeout_ms": 3000}},
-    {"assert": {"contains": "Where"}},
-    {"snapshot": {"name": "file-ops"}},
-    {"keys": ["esc"]},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "desc": "starts",
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "copy a file, enter beta with a double click and paste",
+      "click": {
+        "at": "notes.txt"
+      }
+    },
+    {
+      "keys": [
+        "c"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Copied notes\\.txt",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "click": {
+        "at": "beta",
+        "double": true
+      }
+    },
+    {
+      "wait": {
+        "regex": "This folder is empty",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "p"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Pasted notes\\.txt",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "Plain Text",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "backspace"
+      ]
+    },
+    {
+      "desc": "rename with F2",
+      "click": {
+        "at": "data.xlsx"
+      }
+    },
+    {
+      "keys": [
+        "f2"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Rename: data\\.xlsx",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "ctrl+u"
+      ]
+    },
+    {
+      "text": "table.xlsx"
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Renamed to table\\.xlsx",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "data\\.xlsx",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "d trashes a file without asking and u brings it back",
+      "click": {
+        "at": "main.go"
+      }
+    },
+    {
+      "keys": [
+        "d"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Moved main\\.go to the Trash",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "Go Source",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "keys": [
+        "u"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Undone",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "Go Source",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "marking everything and trashing asks first",
+      "keys": [
+        "ctrl+a"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "6 selected",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "d"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Move 6 items to the Trash\\?",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "n"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Go Source",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "desc": "a new folder gets Finder's default name",
+      "keys": [
+        "N"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "New folder: untitled folder",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Created folder untitled folder",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "desc": "Get Info shows the details of the selected item",
+      "keys": [
+        "i"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Get Info",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "Where",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "snapshot": {
+        "name": "file-ops"
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

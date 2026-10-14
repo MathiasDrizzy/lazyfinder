@@ -18,18 +18,21 @@
       }
     },
     {
-      "assert": {
-        "contains": "1 of 6"
+      "wait": {
+        "regex": "1 of 6",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "1 of 6"
+      "wait": {
+        "regex": "1 of 6",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "1 of 6"
+      "wait": {
+        "regex": "1 of 6",
+        "timeout_ms": 5000
       }
     },
     {

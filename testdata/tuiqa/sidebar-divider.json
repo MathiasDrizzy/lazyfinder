@@ -1,25 +1,118 @@
 {
   "name": "lazyfinder-sidebar-divider",
   "criterio": "order 2026-10-13-06 point 1, as corrected by Mathias: Favorites and Locations are two boxes, each with its own border and title, like Folders, Tasks and Tags in lazymark (not a line between them)",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "Favorites is a box with its own top border and title", "assert": {"contains": "(?m)^╭─ Favorites ─+╮╭─ proj"}},
-    {"desc": "Locations is a second box with its own top border and title", "assert": {"contains": "(?m)^╭─ Locations ─+╮"}},
-    {"desc": "the Favorites box closes before the Locations box opens", "assert": {"contains": "(?m)^╰─+╯[^\\n]*\\n╭─ Locations"}},
-    {"desc": "no line of dashes between them, and no single Places box", "assert": {"not_contains": "(?m)^│ ─{10,} ?│"}},
-    {"assert": {"not_contains": "Places"}},
-    {"desc": "the box border has the border color of the theme", "assert_color": {"region": {"line_with": "Locations", "x": 0, "w": 1}, "fg": "#6c7086", "mode": "any"}},
-    {"desc": "a click on a place in the Locations box opens it", "click": {"at": "Disk", "in": {"x": 0, "y": 1, "w": 22, "h": 38}}},
-    {"wait": {"regex": "╭─ / ─"}},
-    {"keys": ["tab"]},
-    {"wait": {"regex": "▸ [^\\n]*Disk"}},
-    {"desc": "while the sidebar has the focus, the box holding the selection takes the focus color", "assert_color": {"region": {"line_with": "Locations", "x": 0, "w": 1}, "fg": "#a6e3a1", "mode": "any"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "Favorites is a box with its own top border and title",
+      "wait": {
+        "regex": "(?m)^╭─ Favorites ─+╮╭─ proj",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "Locations is a second box with its own top border and title",
+      "wait": {
+        "regex": "(?m)^╭─ Locations ─+╮",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "the Favorites box closes before the Locations box opens",
+      "wait": {
+        "regex": "(?m)^╰─+╯[^\\n]*\\n╭─ Locations",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "no line of dashes between them, and no single Places box",
+      "wait": {
+        "regex": "(?m)^│ ─{10,} ?│",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "wait": {
+        "regex": "Places",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "the box border has the border color of the theme",
+      "assert_color": {
+        "region": {
+          "line_with": "Locations",
+          "x": 0,
+          "w": 1
+        },
+        "fg": "#6c7086",
+        "mode": "any"
+      }
+    },
+    {
+      "desc": "a click on a place in the Locations box opens it",
+      "click": {
+        "at": "Disk",
+        "in": {
+          "x": 0,
+          "y": 1,
+          "w": 22,
+          "h": 38
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "╭─ / ─"
+      }
+    },
+    {
+      "keys": [
+        "tab"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "▸ [^\\n]*Disk"
+      }
+    },
+    {
+      "desc": "while the sidebar has the focus, the box holding the selection takes the focus color",
+      "assert_color": {
+        "region": {
+          "line_with": "Locations",
+          "x": 0,
+          "w": 1
+        },
+        "fg": "#a6e3a1",
+        "mode": "any"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

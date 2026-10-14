@@ -19,48 +19,57 @@
     },
     {
       "desc": "column headers",
-      "assert": {
-        "contains": "Name.*Date Modified.*Size.*Kind"
+      "wait": {
+        "regex": "Name.*Date Modified.*Size.*Kind",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "sidebar sections",
-      "assert": {
-        "contains": "Favorites"
+      "wait": {
+        "regex": "Favorites",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "Locations"
+      "wait": {
+        "regex": "Locations",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "folders carry the > marker and sort first",
-      "assert": {
-        "contains": ">\\s+\\S\\s+alpha"
+      "wait": {
+        "regex": ">\\s+\\S\\s+alpha",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "kinds come from the built-in table",
-      "assert": {
-        "contains": "Plain Text"
+      "wait": {
+        "regex": "Plain Text",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "PNG image"
+      "wait": {
+        "regex": "PNG image",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "dotfiles are hidden",
-      "assert": {
-        "not_contains": "\\.secret"
+      "wait": {
+        "regex": "\\.secret",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
       "desc": "the created column shows a real date",
-      "assert": {
-        "contains": "(Today at \\d\\d:\\d\\d|\\d+ \\w+ 20\\d\\d)"
+      "wait": {
+        "regex": "(Today at \\d\\d:\\d\\d|\\d+ \\w+ 20\\d\\d)",
+        "timeout_ms": 5000
       }
     },
     {

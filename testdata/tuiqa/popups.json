@@ -1,24 +1,121 @@
 {
   "name": "lazyfinder-popups",
   "criterio": "order 2026-10-13-05 block H (popups close only with Esc, Settings first click selects and second changes, key hints are clickable, the selection is blue-gray)",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 140,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "the selection bar is blue-gray, not salmon", "assert_color": {"region": {"line_with": "▸ >\\s+\\S\\s+alpha"}, "bg": "#45475a", "mode": "any"}},
-    {"desc": "a click on the Settings key hint opens Settings", "click": {"at": "Settings: ,", "in": {"x": 0, "y": 39, "w": 140, "h": 1}}},
-    {"assert": {"contains": "Popup background"}},
-    {"assert": {"contains": "2nd click: change"}},
-    {"desc": "a click outside does not close it", "click": {"at": "Name", "in": {"x": 23, "y": 2, "w": 100, "h": 1}}},
-    {"assert": {"contains": "Popup background"}},
-    {"desc": "the first click on a row only selects it", "click": {"at": "Hidden files", "in": {"x": 0, "y": 5, "w": 140, "h": 30}}},
-    {"assert": {"contains": "Hidden files\\s+‹ no ›"}},
-    {"desc": "the second click changes it", "click": {"at": "Hidden files", "in": {"x": 0, "y": 5, "w": 140, "h": 30}}},
-    {"assert": {"contains": "Hidden files\\s+‹ yes ›"}},
-    {"desc": "Esc closes it", "keys": ["esc"]},
-    {"assert": {"not_contains": "Popup background"}}
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the selection bar is blue-gray, not salmon",
+      "assert_color": {
+        "region": {
+          "line_with": "▸ >\\s+\\S\\s+alpha"
+        },
+        "bg": "#45475a",
+        "mode": "any"
+      }
+    },
+    {
+      "desc": "a click on the Settings key hint opens Settings",
+      "click": {
+        "at": "Settings: ,",
+        "in": {
+          "x": 0,
+          "y": 39,
+          "w": 140,
+          "h": 1
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "Popup background",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "2nd click: change",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "a click outside does not close it",
+      "click": {
+        "at": "Name",
+        "in": {
+          "x": 23,
+          "y": 2,
+          "w": 100,
+          "h": 1
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "Popup background",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "the first click on a row only selects it",
+      "click": {
+        "at": "Hidden files",
+        "in": {
+          "x": 0,
+          "y": 5,
+          "w": 140,
+          "h": 30
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "Hidden files\\s+‹ no ›",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "the second click changes it",
+      "click": {
+        "at": "Hidden files",
+        "in": {
+          "x": 0,
+          "y": 5,
+          "w": 140,
+          "h": 30
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "Hidden files\\s+‹ yes ›",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "Esc closes it",
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Popup background",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    }
   ]
 }

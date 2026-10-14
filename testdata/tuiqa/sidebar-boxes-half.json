@@ -18,8 +18,9 @@
     },
     {
       "desc": "Favorites fits its 3 entries (5 lines with borders) and Locations opens right below, on the 7th line under the toolbar; the rest of the column stays free",
-      "assert": {
-        "contains": "\\A(?:[^\\n]*\\n){6}╭─ Locations"
+      "wait": {
+        "regex": "\\A(?:[^\\n]*\\n){6}╭─ Locations",
+        "timeout_ms": 5000
       }
     },
     {

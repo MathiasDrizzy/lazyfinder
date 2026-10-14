@@ -18,8 +18,9 @@
     },
     {
       "desc": "the Kind column is not cut",
-      "assert": {
-        "contains": "Excel Spreadsheet"
+      "wait": {
+        "regex": "Excel Spreadsheet",
+        "timeout_ms": 5000
       }
     },
     {
@@ -36,13 +37,15 @@
       }
     },
     {
-      "assert": {
-        "contains": "✓ Size"
+      "wait": {
+        "regex": "✓ Size",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "Move left"
+      "wait": {
+        "regex": "Move left",
+        "timeout_ms": 5000
       }
     },
     {
@@ -59,14 +62,16 @@
     },
     {
       "desc": "the new column shows the extension of each file",
-      "assert": {
-        "contains": "(?m)xlsx\\s"
+      "wait": {
+        "regex": "(?m)xlsx\\s",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "rows are two lines apart by default (wide density)",
-      "assert": {
-        "contains": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta"
+      "wait": {
+        "regex": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta",
+        "timeout_ms": 5000
       }
     },
     {
@@ -76,13 +81,15 @@
       ]
     },
     {
-      "assert": {
-        "contains": "Date format"
+      "wait": {
+        "regex": "Date format",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "Row density"
+      "wait": {
+        "regex": "Row density",
+        "timeout_ms": 5000
       }
     },
     {
@@ -103,8 +110,9 @@
     },
     {
       "desc": "now the rows are one line apart",
-      "assert": {
-        "contains": "alpha[^\\n]*\\n[^\\n]*beta"
+      "wait": {
+        "regex": "alpha[^\\n]*\\n[^\\n]*beta",
+        "timeout_ms": 5000
       }
     }
   ]

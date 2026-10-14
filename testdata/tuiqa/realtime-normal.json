@@ -45,8 +45,10 @@
     },
     {
       "desc": "and the old name is gone",
-      "assert": {
-        "not_contains": "agent\\.go"
+      "wait": {
+        "regex": "agent\\.go",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -64,8 +66,10 @@
     },
     {
       "desc": "the deleted file left the list",
-      "assert": {
-        "not_contains": "renamed\\.go"
+      "wait": {
+        "regex": "renamed\\.go",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {

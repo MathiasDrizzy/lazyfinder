@@ -19,68 +19,80 @@
     },
     {
       "desc": "Recents has the clock",
-      "assert": {
-        "contains": "\\s+Recents"
+      "wait": {
+        "regex": "\\s+Recents",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Home has its own glyph U+F015",
-      "assert": {
-        "contains": "\\s+Home"
+      "wait": {
+        "regex": "\\s+Home",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Desktop has its own glyph U+F108",
-      "assert": {
-        "contains": "\\s+Desktop"
+      "wait": {
+        "regex": "\\s+Desktop",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Documents has its own glyph U+F0F6",
-      "assert": {
-        "contains": "\\s+Documents"
+      "wait": {
+        "regex": "\\s+Documents",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Downloads has its own glyph U+F019",
-      "assert": {
-        "contains": "\\s+Downloads"
+      "wait": {
+        "regex": "\\s+Downloads",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Applications has its own glyph U+F135",
-      "assert": {
-        "contains": "\\s+Applications"
+      "wait": {
+        "regex": "\\s+Applications",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Music has its own glyph U+F001",
-      "assert": {
-        "contains": "\\s+Music"
+      "wait": {
+        "regex": "\\s+Music",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Macintosh HD has its own glyph U+F0A0",
-      "assert": {
-        "contains": "\\s+Macintosh HD"
+      "wait": {
+        "regex": "\\s+Macintosh HD",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Volumes has its own glyph U+F0A0",
-      "assert": {
-        "contains": "\\s+Volumes"
+      "wait": {
+        "regex": "\\s+Volumes",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "Trash has its own glyph U+F1F8",
-      "assert": {
-        "contains": "\\s+Trash"
+      "wait": {
+        "regex": "\\s+Trash",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "no entry is left with the generic folder glyph",
-      "assert": {
-        "not_contains": "\\s+(Home|Desktop|Documents|Downloads|Applications|Music|Macintosh HD|Volumes|Trash|Recents)"
+      "wait": {
+        "regex": "\\s+(Home|Desktop|Documents|Downloads|Applications|Music|Macintosh HD|Volumes|Trash|Recents)",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {

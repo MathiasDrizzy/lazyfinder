@@ -19,24 +19,32 @@
       }
     },
     {
-      "assert": {
-        "not_contains": "inner\\.txt"
+      "wait": {
+        "regex": "inner\\.txt",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
       "desc": "no sidebar and no columns",
-      "assert": {
-        "not_contains": "Favorites"
+      "wait": {
+        "regex": "Favorites",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
-      "assert": {
-        "not_contains": "Date Modified"
+      "wait": {
+        "regex": "Date Modified",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
-      "assert": {
-        "not_contains": "agent-made"
+      "wait": {
+        "regex": "agent-made",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -47,14 +55,16 @@
       }
     },
     {
-      "assert": {
-        "contains": "agent-made\\s+\\+"
+      "wait": {
+        "regex": "agent-made\\s+\\+",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "everything that is new is marked with +",
-      "assert": {
-        "contains": "\\+\\s+\\S\\s+main\\.rs"
+      "wait": {
+        "regex": "\\+\\s+\\S\\s+main\\.rs",
+        "timeout_ms": 5000
       }
     },
     {

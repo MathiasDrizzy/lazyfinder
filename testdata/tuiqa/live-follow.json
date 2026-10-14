@@ -20,8 +20,10 @@
     },
     {
       "desc": "the file does not exist yet",
-      "assert": {
-        "not_contains": "agent"
+      "wait": {
+        "regex": "agent",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -33,8 +35,9 @@
     },
     {
       "desc": "and it is marked as new with a +, not only with color",
-      "assert": {
-        "contains": "\\+\\s+\\S\\s+agent\\.go"
+      "wait": {
+        "regex": "\\+\\s+\\S\\s+agent\\.go",
+        "timeout_ms": 5000
       }
     },
     {

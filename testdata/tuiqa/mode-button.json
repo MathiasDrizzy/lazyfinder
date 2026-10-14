@@ -18,8 +18,9 @@
     },
     {
       "desc": "the normal window has Favorites",
-      "assert": {
-        "contains": "Favorites"
+      "wait": {
+        "regex": "Favorites",
+        "timeout_ms": 5000
       }
     },
     {
@@ -31,13 +32,16 @@
     },
     {
       "desc": "the sidebar mode has no places and says how to leave",
-      "assert": {
-        "contains": "Exit mode: ctrl\\+b"
+      "wait": {
+        "regex": "Exit mode: ctrl\\+b",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "not_contains": "Favorites"
+      "wait": {
+        "regex": "Favorites",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -48,8 +52,9 @@
       }
     },
     {
-      "assert": {
-        "contains": "Favorites"
+      "wait": {
+        "regex": "Favorites",
+        "timeout_ms": 5000
       }
     },
     {

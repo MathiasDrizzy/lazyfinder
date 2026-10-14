@@ -19,14 +19,17 @@
     },
     {
       "desc": "the header has a bar between every column",
-      "assert": {
-        "contains": "Name ▲[^\\n]*│ Date Modified[^\\n]*│ Size[^\\n]*│ Kind"
+      "wait": {
+        "regex": "Name ▲[^\\n]*│ Date Modified[^\\n]*│ Size[^\\n]*│ Kind",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "no bar in any row or in the empty panel below: it does not go down",
-      "assert": {
-        "not_contains": "│",
+      "wait": {
+        "regex": "│",
+        "timeout_ms": 5000,
+        "absent": true,
         "region": {
           "x": 23,
           "y": 3,
@@ -49,8 +52,9 @@
     },
     {
       "desc": "the bar before Size sits at x=86",
-      "assert": {
-        "contains": "(?m)^.{86}│ Size"
+      "wait": {
+        "regex": "(?m)^.{86}│ Size",
+        "timeout_ms": 5000
       }
     },
     {
@@ -68,13 +72,15 @@
     },
     {
       "desc": "the name took the 4 cells Size gave up, so the bar before Size moved from 86 to 90",
-      "assert": {
-        "contains": "(?m)^.{90}│ Size"
+      "wait": {
+        "regex": "(?m)^.{90}│ Size",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "Name ▲"
+      "wait": {
+        "regex": "Name ▲",
+        "timeout_ms": 5000
       }
     },
     {
@@ -107,8 +113,10 @@
     },
     {
       "desc": "off: no bar between the columns",
-      "assert": {
-        "not_contains": "Name ▲[^\\n]*│ Date Modified"
+      "wait": {
+        "regex": "Name ▲[^\\n]*│ Date Modified",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {

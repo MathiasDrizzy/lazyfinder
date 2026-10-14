@@ -1,27 +1,113 @@
 {
   "name": "lazyfinder-open-with",
   "criterio": "R-10 R-11 R-12 R-13",
-  "cmd": ["${LAZYFINDER_BIN}", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"desc": "select notes.txt and open it: txt is configured to the terminal editor", "click": {"at": "notes\\.txt"}},
-    {"keys": ["enter"]},
-    {"desc": "lazyfinder hands the terminal over and the editor sees exactly one argument: the file", "wait": {"regex": "FAKE_EDITOR_OPENED:.*/proj/notes\\.txt"}},
-    {"keys": ["enter"]},
-    {"desc": "when the editor ends, lazyfinder is back", "wait": {"regex": "Date Modified", "timeout_ms": 4000}},
-    {"desc": "O lists the configured openers and the system default", "keys": ["O"]},
-    {"wait": {"regex": "Open With"}},
-    {"assert": {"contains": "term-edit", "region": {"box_with": "Open With"}}},
-    {"assert": {"contains": "default", "region": {"box_with": "Open With"}}},
-    {"snapshot": {"name": "menu"}},
-    {"desc": "Esc cancels without running anything", "keys": ["esc"]},
-    {"wait": {"regex": "Open With", "absent": true}},
-    {"assert": {"not_contains": "FAKE_EDITOR_OPENED.*FAKE_EDITOR_OPENED"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "select notes.txt and open it: txt is configured to the terminal editor",
+      "click": {
+        "at": "notes\\.txt"
+      }
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "desc": "lazyfinder hands the terminal over and the editor sees exactly one argument: the file",
+      "wait": {
+        "regex": "FAKE_EDITOR_OPENED:.*/proj/notes\\.txt"
+      }
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "desc": "when the editor ends, lazyfinder is back",
+      "wait": {
+        "regex": "Date Modified",
+        "timeout_ms": 4000
+      }
+    },
+    {
+      "desc": "O lists the configured openers and the system default",
+      "keys": [
+        "O"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Open With"
+      }
+    },
+    {
+      "wait": {
+        "regex": "term-edit",
+        "timeout_ms": 5000,
+        "region": {
+          "box_with": "Open With"
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": "default",
+        "timeout_ms": 5000,
+        "region": {
+          "box_with": "Open With"
+        }
+      }
+    },
+    {
+      "snapshot": {
+        "name": "menu"
+      }
+    },
+    {
+      "desc": "Esc cancels without running anything",
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Open With",
+        "absent": true
+      }
+    },
+    {
+      "wait": {
+        "regex": "FAKE_EDITOR_OPENED.*FAKE_EDITOR_OPENED",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

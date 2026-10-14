@@ -1,25 +1,116 @@
 {
   "name": "lazyfinder-sidebar-git",
   "criterio": "order 2026-10-13-06 point 6 (the project sidebar shows git state in VS Code letters and colors, and follows stage, commit and checkout by itself)",
-  "cmd": ["sh", "-c", "cd \"${TUIQA_HOME}/proj\" && export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null && g() { git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false \"$@\"; } && g init -q -b trunk . && g add . && g commit -q -m init && echo changed >> notes.txt && echo x > loose.txt && (sleep 2; g add loose.txt; sleep 2; g commit -q -am second; sleep 2; g checkout -q -b feature; sleep 1; echo y > made-by-agent.txt) & sleep 0.5; exec \"${LAZYFINDER_BIN}\" --follow \"${TUIQA_HOME}/proj\""],
+  "cmd": [
+    "sh",
+    "-c",
+    "cd \"${TUIQA_HOME}/proj\" && export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null && g() { git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false \"$@\"; } && g init -q -b trunk . && g add . && g commit -q -m init && echo changed >> notes.txt && echo x > loose.txt && (sleep 2; g add loose.txt; sleep 2; g commit -q -am second; sleep 2; g checkout -q -b feature; sleep 1; echo y > made-by-agent.txt) & sleep 0.5; exec \"${LAZYFINDER_BIN}\" --follow \"${TUIQA_HOME}/proj\""
+  ],
   "cols": 50,
   "rows": 24,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "loose\\.txt", "timeout_ms": 8000}},
-    {"desc": "the branch is in the title", "assert": {"contains": "trunk"}},
-    {"desc": "modified is M and an untracked file is U", "assert": {"contains": "notes\\.txt\\s+M\\b"}},
-    {"assert": {"contains": "loose\\.txt\\s+U\\b"}},
-    {"desc": "the letters, at the right edge, have the colors of VS Code: yellow M, green U", "assert_color": {"region": {"line_with": "notes\\.txt", "x": 36, "w": 12}, "fg": "#f9e2af", "mode": "any"}},
-    {"assert_color": {"region": {"line_with": "loose\\.txt", "x": 36, "w": 12}, "fg": "#a6e3a1", "mode": "any"}},
-    {"desc": "git add by another program turns U into A on its own", "wait": {"regex": "loose\\.txt\\s+A\\b", "timeout_ms": 4000}},
-    {"desc": "git commit clears the letters", "wait": {"regex": "notes\\.txt\\s+M\\b", "absent": true, "timeout_ms": 5000}},
-    {"assert": {"not_contains": "loose\\.txt\\s+A\\b"}},
-    {"desc": "git checkout changes the branch", "wait": {"regex": "feature", "timeout_ms": 5000}},
-    {"desc": "a new file appears by itself, marked as new", "wait": {"regex": "made-by-agent\\.txt", "timeout_ms": 5000}},
-    {"snapshot": {"name": "sidebar-git"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "wait": {
+        "regex": "loose\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the branch is in the title",
+      "wait": {
+        "regex": "trunk",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "modified is M and an untracked file is U",
+      "wait": {
+        "regex": "notes\\.txt\\s+M\\b",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "loose\\.txt\\s+U\\b",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "the letters, at the right edge, have the colors of VS Code: yellow M, green U",
+      "assert_color": {
+        "region": {
+          "line_with": "notes\\.txt",
+          "x": 36,
+          "w": 12
+        },
+        "fg": "#f9e2af",
+        "mode": "any"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "line_with": "loose\\.txt",
+          "x": 36,
+          "w": 12
+        },
+        "fg": "#a6e3a1",
+        "mode": "any"
+      }
+    },
+    {
+      "desc": "git add by another program turns U into A on its own",
+      "wait": {
+        "regex": "loose\\.txt\\s+A\\b",
+        "timeout_ms": 4000
+      }
+    },
+    {
+      "desc": "git commit clears the letters",
+      "wait": {
+        "regex": "notes\\.txt\\s+M\\b",
+        "absent": true,
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "loose\\.txt\\s+A\\b",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "git checkout changes the branch",
+      "wait": {
+        "regex": "feature",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "a new file appears by itself, marked as new",
+      "wait": {
+        "regex": "made-by-agent\\.txt",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "snapshot": {
+        "name": "sidebar-git"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

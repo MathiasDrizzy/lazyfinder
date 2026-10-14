@@ -18,20 +18,23 @@
     },
     {
       "desc": "a closed folder shows the folder glyph",
-      "assert": {
-        "contains": " +alpha"
+      "wait": {
+        "regex": " +alpha",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "a text file shows the text glyph",
-      "assert": {
-        "contains": " +notes\\.txt"
+      "wait": {
+        "regex": " +notes\\.txt",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "a Go file shows its own glyph",
-      "assert": {
-        "contains": " +main\\.go"
+      "wait": {
+        "regex": " +main\\.go",
+        "timeout_ms": 5000
       }
     },
     {
@@ -41,8 +44,9 @@
     },
     {
       "desc": "an expanded folder shows the open glyph",
-      "assert": {
-        "contains": " +alpha"
+      "wait": {
+        "regex": " +alpha",
+        "timeout_ms": 5000
       }
     },
     {
@@ -64,8 +68,9 @@
     },
     {
       "desc": "Settings shows the Icons row and switched to ascii",
-      "assert": {
-        "contains": "‹ ascii ›"
+      "wait": {
+        "regex": "‹ ascii ›",
+        "timeout_ms": 5000
       }
     },
     {
@@ -75,8 +80,10 @@
     },
     {
       "desc": "no Nerd Font glyph is left",
-      "assert": {
-        "not_contains": ""
+      "wait": {
+        "regex": "",
+        "timeout_ms": 5000,
+        "absent": true
       }
     }
   ]

@@ -19,8 +19,10 @@
       }
     },
     {
-      "assert": {
-        "not_contains": "inner\\.txt"
+      "wait": {
+        "regex": "inner\\.txt",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -38,13 +40,15 @@
     },
     {
       "desc": "the marker turns into v and the children are indented",
-      "assert": {
-        "contains": "v\\s+\\S\\s+alpha"
+      "wait": {
+        "regex": "v\\s+\\S\\s+alpha",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "contains": "\\s{4}\\S\\s+inner\\.txt"
+      "wait": {
+        "regex": "\\s{4}\\S\\s+inner\\.txt",
+        "timeout_ms": 5000
       }
     },
     {
@@ -61,8 +65,9 @@
       }
     },
     {
-      "assert": {
-        "contains": "\\s{6}\\S\\s+x\\.txt"
+      "wait": {
+        "regex": "\\s{6}\\S\\s+x\\.txt",
+        "timeout_ms": 5000
       }
     },
     {
@@ -77,8 +82,10 @@
       ]
     },
     {
-      "assert": {
-        "not_contains": "x\\.txt"
+      "wait": {
+        "regex": "x\\.txt",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -89,13 +96,16 @@
       ]
     },
     {
-      "assert": {
-        "not_contains": "inner\\.txt"
+      "wait": {
+        "regex": "inner\\.txt",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
-      "assert": {
-        "contains": "▸ >\\s+\\S\\s+alpha"
+      "wait": {
+        "regex": "▸ >\\s+\\S\\s+alpha",
+        "timeout_ms": 5000
       }
     },
     {

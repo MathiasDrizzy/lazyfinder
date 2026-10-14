@@ -1,17 +1,50 @@
 {
   "name": "lazyfinder-language-ja",
   "criterio": "R-42 (a catalog language, wide characters keep the frames aligned)",
-  "cmd": ["${LAZYFINDER_BIN}", "--lang", "ja", "${TUIQA_HOME}/proj"],
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--lang",
+    "ja",
+    "${TUIQA_HOME}/proj"
+  ],
   "cols": 120,
   "rows": 40,
   "fixtures": "fixtures",
   "fixtures_mtime": "2026-09-01T12:00:00Z",
   "steps": [
-    {"wait": {"regex": "notes\\.txt", "timeout_ms": 8000}},
-    {"assert": {"contains": "よく使う項目"}},
-    {"assert": {"contains": "名前"}},
-    {"snapshot": {"name": "ja"}},
-    {"keys": ["q"]},
-    {"wait_exit": {"timeout_ms": 3000, "code": 0}}
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "wait": {
+        "regex": "よく使う項目",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "名前",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "snapshot": {
+        "name": "ja"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
   ]
 }

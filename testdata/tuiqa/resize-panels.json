@@ -19,8 +19,9 @@
     },
     {
       "desc": "the list starts 27 cells from the left",
-      "assert": {
-        "contains": "(?m)^.{27}Name"
+      "wait": {
+        "regex": "(?m)^.{27}Name",
+        "timeout_ms": 5000
       }
     },
     {
@@ -38,8 +39,9 @@
     },
     {
       "desc": "the list now starts at 35",
-      "assert": {
-        "contains": "(?m)^.{35}Name"
+      "wait": {
+        "regex": "(?m)^.{35}Name",
+        "timeout_ms": 5000
       }
     },
     {
@@ -49,8 +51,9 @@
       ]
     },
     {
-      "assert": {
-        "contains": "(?m)^.{37}Name"
+      "wait": {
+        "regex": "(?m)^.{37}Name",
+        "timeout_ms": 5000
       }
     },
     {
@@ -62,8 +65,9 @@
     },
     {
       "desc": "< narrows by two",
-      "assert": {
-        "contains": "(?m)^.{31}Name"
+      "wait": {
+        "regex": "(?m)^.{31}Name",
+        "timeout_ms": 5000
       }
     },
     {
@@ -79,13 +83,16 @@
     },
     {
       "desc": "still sorted by Name",
-      "assert": {
-        "contains": "Name ▲"
+      "wait": {
+        "regex": "Name ▲",
+        "timeout_ms": 5000
       }
     },
     {
-      "assert": {
-        "not_contains": "Size [▲▼]"
+      "wait": {
+        "regex": "Size [▲▼]",
+        "timeout_ms": 5000,
+        "absent": true
       }
     }
   ],

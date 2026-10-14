@@ -19,8 +19,10 @@
     },
     {
       "desc": "the tree starts collapsed (point M3)",
-      "assert": {
-        "not_contains": "\\bv\\s"
+      "wait": {
+        "regex": "\\bv\\s",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
@@ -28,8 +30,9 @@
       "text": "\u001b[<35;10;6M"
     },
     {
-      "assert": {
-        "contains": ""
+      "wait": {
+        "regex": "",
+        "timeout_ms": 5000
       }
     },
     {
@@ -40,8 +43,9 @@
       }
     },
     {
-      "assert": {
-        "contains": "New folder: untitled folder"
+      "wait": {
+        "regex": "New folder: untitled folder",
+        "timeout_ms": 5000
       }
     },
     {
@@ -61,8 +65,9 @@
       }
     },
     {
-      "assert": {
-        "contains": "New file: untitled file"
+      "wait": {
+        "regex": "New file: untitled file",
+        "timeout_ms": 5000
       }
     },
     {

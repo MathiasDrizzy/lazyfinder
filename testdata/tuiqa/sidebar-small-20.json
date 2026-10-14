@@ -18,14 +18,17 @@
       }
     },
     {
-      "assert": {
-        "not_contains": "too small"
+      "wait": {
+        "regex": "too small",
+        "timeout_ms": 5000,
+        "absent": true
       }
     },
     {
       "desc": "the tab bar is whole: the chip of the active tab reaches the row under the icons",
-      "assert": {
-        "contains": "▀▀▀▀"
+      "wait": {
+        "regex": "▀▀▀▀",
+        "timeout_ms": 5000
       }
     },
     {
@@ -35,8 +38,9 @@
     },
     {
       "desc": "Settings fits the window and says where it is",
-      "assert": {
-        "contains": "1/17"
+      "wait": {
+        "regex": "1/17",
+        "timeout_ms": 5000
       }
     },
     {
@@ -46,8 +50,9 @@
     },
     {
       "desc": "scrolling to the end shows the last row and its position",
-      "assert": {
-        "contains": "17/17"
+      "wait": {
+        "regex": "17/17",
+        "timeout_ms": 5000
       }
     },
     {

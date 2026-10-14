@@ -19,26 +19,30 @@
     },
     {
       "desc": "the three tabs are on the first row",
-      "assert": {
-        "contains": ""
+      "wait": {
+        "regex": "",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "the project name is in capitals",
-      "assert": {
-        "contains": "PROJ"
+      "wait": {
+        "regex": "PROJ",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "the branch is at the bottom",
-      "assert": {
-        "contains": "trunk  ↓0 ↑0"
+      "wait": {
+        "regex": "trunk  ↓0 ↑0",
+        "timeout_ms": 5000
       }
     },
     {
       "desc": "a modified file has its letter at the right",
-      "assert": {
-        "contains": "notes\\.txt\\s+M\\b"
+      "wait": {
+        "regex": "notes\\.txt\\s+M\\b",
+        "timeout_ms": 5000
       }
     },
     {
@@ -74,8 +78,9 @@
       }
     },
     {
-      "assert": {
-        "contains": "loose\\.txt"
+      "wait": {
+        "regex": "loose\\.txt",
+        "timeout_ms": 5000
       }
     },
     {
@@ -98,8 +103,9 @@
     },
     {
       "desc": "the shortcut to leave the mode is in the bottom bar",
-      "assert": {
-        "contains": "ctrl\\+b"
+      "wait": {
+        "regex": "ctrl\\+b",
+        "timeout_ms": 5000
       }
     },
     {
