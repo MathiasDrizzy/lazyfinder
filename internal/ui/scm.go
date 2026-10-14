@@ -189,7 +189,7 @@ func (m *Model) scmButtons(i int) []scmBtn {
 		return nil
 	}
 	acts := scmActs(rows[i])
-	end := m.listX() + m.listW()
+	end := m.listX() + m.listW() - 1 // one cell of air before the border
 	out := make([]scmBtn, 0, len(acts))
 	for j, a := range acts {
 		out = append(out, scmBtn{x: end - (len(acts)-j)*scmBtnW, w: scmBtnW, act: a})
@@ -280,7 +280,7 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 		if m.iconW() > 0 {
 			lead += m.iconCell(m.icons.Pick(icons.Item{Name: name})) + " "
 		}
-		letterW := 2
+		letterW := 3
 		if len(btns) > 0 {
 			letterW = 0
 		}
@@ -303,9 +303,9 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 			line = text
 		}
 		if letterW > 0 {
-			letter := " " + m.styles.gitLetter(string(code))
+			letter := " " + m.styles.gitLetter(string(code)) + " "
 			if i == m.scm.sel {
-				letter = " " + string(code)
+				letter = " " + string(code) + " "
 			}
 			line += letter
 		}

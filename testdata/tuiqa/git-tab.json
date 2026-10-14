@@ -1,0 +1,200 @@
+{
+  "name": "lazyfinder-git-tab",
+  "criterio": "order 07 point O: the Git tab lists staged and unstaged changes, shows buttons under the pointer, stages, shows the diff, switches branch and stashes",
+  "cmd": [
+    "sh",
+    "-c",
+    "cd \"${TUIQA_HOME}/proj\" && export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null && g() { git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false \"$@\"; } && g init -q -b trunk . && g add . && g commit -q -m init && g branch side && echo changed >> notes.txt && echo x > loose.txt; exec \"${LAZYFINDER_BIN}\" --sidebar \"${TUIQA_HOME}/proj\""
+  ],
+  "cols": 50,
+  "rows": 24,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "loose\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the Git tab is one click away",
+      "click": {
+        "at": "Git",
+        "in": {
+          "x": 0,
+          "y": 0,
+          "w": 50,
+          "h": 1
+        }
+      }
+    },
+    {
+      "assert": {
+        "contains": "Changes"
+      }
+    },
+    {
+      "assert": {
+        "contains": "notes\\.txt"
+      }
+    },
+    {
+      "desc": "down selects the first file",
+      "keys": [
+        "down"
+      ]
+    },
+    {
+      "desc": "the selected row wears its buttons: open, discard, stage",
+      "assert": {
+        "contains": "notes\\.txt.*↗ ↶ \\+"
+      }
+    },
+    {
+      "desc": "a row nobody points at shows its letter instead",
+      "assert": {
+        "contains": "loose\\.txt.* U"
+      }
+    },
+    {
+      "desc": "the pointer on the second row shows its buttons and a soft background",
+      "text": "\u001b[<35;5;6M"
+    },
+    {
+      "assert": {
+        "contains": "loose\\.txt.*↗ ↶ \\+"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "line_with": "loose\\.txt",
+          "x": 1,
+          "w": 10
+        },
+        "bg": "#353748",
+        "mode": "any"
+      }
+    },
+    {
+      "desc": "s stages the selected file",
+      "keys": [
+        "s"
+      ]
+    },
+    {
+      "assert": {
+        "contains": "Staged Changes"
+      }
+    },
+    {
+      "desc": "s again takes it out",
+      "keys": [
+        "s"
+      ]
+    },
+    {
+      "assert": {
+        "not_contains": "Staged Changes"
+      }
+    },
+    {
+      "desc": "Enter shows what changed",
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "assert": {
+        "contains": "\\+changed"
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "assert": {
+        "not_contains": "\\+changed"
+      }
+    },
+    {
+      "desc": "d asks before throwing work away",
+      "keys": [
+        "d"
+      ]
+    },
+    {
+      "assert": {
+        "contains": "Discard the changes to notes\\.txt\\? \\(y/n\\)"
+      }
+    },
+    {
+      "keys": [
+        "n"
+      ]
+    },
+    {
+      "desc": "B opens the branches with a warning about the changes",
+      "keys": [
+        "B"
+      ]
+    },
+    {
+      "assert": {
+        "contains": "Branches"
+      }
+    },
+    {
+      "assert": {
+        "contains": "2 uncommitted changes"
+      }
+    },
+    {
+      "assert": {
+        "contains": "side"
+      }
+    },
+    {
+      "keys": [
+        "s",
+        "i"
+      ]
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "desc": "the branch changed and the footer says so",
+      "assert": {
+        "contains": "side"
+      }
+    },
+    {
+      "keys": [
+        "z"
+      ]
+    },
+    {
+      "desc": "stash empties the list",
+      "assert": {
+        "contains": "No changes"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}
