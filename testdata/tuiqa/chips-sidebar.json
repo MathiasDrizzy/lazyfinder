@@ -25,7 +25,7 @@
         "regex": "",
         "timeout_ms": 5000,
         "region": {
-          "x": 39,
+          "x": 38,
           "y": 3,
           "w": 1,
           "h": 1
@@ -33,19 +33,32 @@
       }
     },
     {
-      "text": "\u001b[<35;40;4M"
+      "text": "\u001b[<35;39;4M"
     },
     {
-      "desc": "the new folder box of the tree, the same chip as in the window",
+      "desc": "the new folder box of the tree, the same as in the window",
       "assert_color": {
         "region": {
           "x": 38,
           "y": 3,
-          "w": 3,
+          "w": 2,
           "h": 1
         },
         "bg": "#45475a",
         "mode": "all"
+      }
+    },
+    {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 37,
+          "y": 3,
+          "w": 4,
+          "h": 1
+        }
       }
     },
     {
@@ -63,7 +76,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 41,
+          "x": 40,
           "y": 3,
           "w": 1,
           "h": 1

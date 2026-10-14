@@ -13,6 +13,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
+	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Mathias, 2026-10-14 (order 07, revision 2, S1): "los recuadros no están al medio del icono … se superponen", and
@@ -77,15 +79,64 @@ func TestTheButtonBoxesAreHerdrChipsWithTheGlyphInTheMiddle(t *testing.T) {
 					t.Errorf("%s %v: action buttons %d and %d are %d cells apart, want 0 as in herdr", label, style, i-1, i, gap)
 				}
 			}
+			// Mathias, 2026-10-14: "el de configuración y el de cambiar modo no están muy separados?": the mode
+			// button and the gear follow each other like the actions; one free cell parts the actions, Search and
+			// the mode button, and one free cell is left after the gear for the right edge of its box.
 			sort.Slice(boxes, func(i, j int) bool { return boxes[i].r.x < boxes[j].r.x })
 			for i := 1; i < len(boxes); i++ {
 				a, b := boxes[i-1], boxes[i]
 				if a.r.y != b.r.y {
 					continue
 				}
-				if gap := b.r.x - (a.r.x + a.r.w); gap < 0 || a.name != b.name && gap != 1 {
-					t.Errorf("%s %v: the %s box %+v and the %s box %+v are %d cells apart, want one cell between groups and no overlap", label, style, a.name, a.r, b.name, b.r, gap)
+				want := 1
+				if a.name == b.name || a.name == "mode" && b.name == "gear" {
+					want = 0
 				}
+				if gap := b.r.x - (a.r.x + a.r.w); gap != want {
+					t.Errorf("%s %v: the %s box %+v and the %s box %+v are %d cells apart, want %d", label, style, a.name, a.r, b.name, b.r, gap, want)
+				}
+			}
+			if last := boxes[len(boxes)-1]; last.r.x+last.r.w != e.m.w-1 {
+				t.Errorf("%s %v: the last box %+v must leave one cell at the right edge (width %d)", label, style, last.r, e.m.w)
+			}
+		}
+	}
+}
+
+// Mathias, 2026-10-14, zooming on the hover of the mode button: "no se puede centrar el icono con el recuadro gris …
+// el icono está más a la derecha y la izquierda está más grande". Ghostty draws a Nerd Font glyph over two cells, the
+// glyph's and the space after it, so a box of whole cells is one cell wider on the left. The lit box is the glyph's
+// two cells with a half block on each side, ▐ in the chip's first cell and ▌ in the free cell after it: half a cell
+// of margin on both sides, as the half blocks above and below the tab chips.
+func TestTheLitBoxIsCenteredOnTheTwoCellsOfANerdGlyph(t *testing.T) {
+	for _, sidebar := range []bool{false, true} {
+		var e *env
+		if sidebar {
+			e = projectEnv(t, 60)
+		} else {
+			e = newEnv(t)
+		}
+		e.m.icons = icons.Set{Style: icons.Nerd}
+		e.move(10, 8)
+		var rects []hoverRect
+		for _, a := range e.m.actionSpans() {
+			rects = append(rects, hoverRect{a.x, a.y, a.w, 1})
+		}
+		for _, z := range []zoneKind{zoneMode, zoneSettings} {
+			r, _ := e.m.zoneRect(zone{kind: z})
+			rects = append(rects, r)
+		}
+		for _, r := range rects {
+			e.move(r.x+1, r.y)
+			raw := strings.Split(e.m.View().Content, "\n")[r.y]
+			cells := []rune(ansi.Strip(raw))
+			if r.x+3 >= len(cells) || cells[r.x] != '▐' || cells[r.x+3] != '▌' {
+				t.Errorf("sidebar=%v: the lit box %+v must be ▐ glyph ▌: %q", sidebar, r, string(cells))
+				continue
+			}
+			p, _ := theme.Lookup(e.m.deps.Cfg.Theme)
+			if bg := theme.BackgroundSeq(chipHoverBg(p)); !strings.Contains(ansi.Cut(raw, r.x+1, r.x+3), bg) {
+				t.Errorf("sidebar=%v: the two cells of the glyph %+v are not lit: %q", sidebar, r, raw)
 			}
 		}
 	}

@@ -477,7 +477,7 @@ func (m *Model) toolbar() string {
 	}
 	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
 	if pad < 1 {
-		return fit(left, m.modeX()) + m.modeButton() + strings.Repeat(" ", chipGap) + m.gearButton()
+		return fit(left, m.modeX()) + m.modeButton() + m.gearButton() + strings.Repeat(" ", edgeW)
 	}
 	return left + strings.Repeat(" ", pad) + right
 }
@@ -504,7 +504,7 @@ func (m *Model) toolbarLeft() string {
 func (m *Model) toolbarRight() string {
 	count := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries())))
 	gap := strings.Repeat(" ", chipGap)
-	tail := m.searchField() + gap + m.modeButton() + gap + m.gearButton()
+	tail := m.searchField() + gap + m.modeButton() + m.gearButton() + strings.Repeat(" ", edgeW)
 	if m.actionsShown() > 0 { // the action icons sit one cell before the field
 		return count + "  " + m.actionsText() + gap + tail
 	}

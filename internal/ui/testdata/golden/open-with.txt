@@ -1,4 +1,4 @@
- ‹  ›   proj                                                           5 items           Search                  
+ ‹  ›   proj                                                           5 items           Search                 
 ╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │  Recents          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
 │  Home             ││  >  alpha                                 1 Sep 2026, 12:00    --           Folder            │

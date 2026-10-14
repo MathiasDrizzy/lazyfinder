@@ -32,7 +32,19 @@
         "regex": "",
         "timeout_ms": 5000,
         "region": {
-          "x": 118,
+          "x": 117,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        }
+      }
+    },
+    {
+      "wait": {
+        "regex": ".",
+        "timeout_ms": 5000,
+        "region": {
+          "x": 114,
           "y": 0,
           "w": 1,
           "h": 1
@@ -44,12 +56,12 @@
       "text": "\u001b[<35;85;1M"
     },
     {
-      "desc": "the new folder box: three cells with the glyph in the middle, its neighbours unlit",
+      "desc": "the new folder box: the two cells of the glyph lit",
       "assert_color": {
         "region": {
-          "x": 83,
+          "x": 84,
           "y": 0,
-          "w": 3,
+          "w": 2,
           "h": 1
         },
         "bg": "#45475a",
@@ -57,9 +69,22 @@
       }
     },
     {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 83,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        }
+      }
+    },
+    {
       "assert_color": {
         "region": {
-          "x": 82,
+          "x": 83,
           "y": 0,
           "w": 1,
           "h": 1
@@ -81,8 +106,8 @@
       }
     },
     {
-      "desc": "the pointer on the gear",
-      "text": "\u001b[<35;119;1M"
+      "desc": "the pointer on the gear, right after the mode button (Mathias: they were too far apart)",
+      "text": "\u001b[<35;118;1M"
     },
     {
       "desc": "the gear box",
@@ -90,11 +115,90 @@
         "region": {
           "x": 117,
           "y": 0,
-          "w": 3,
+          "w": 2,
           "h": 1
         },
         "bg": "#45475a",
         "mode": "all"
+      }
+    },
+    {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 116,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        }
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 116,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 119,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "desc": "the pointer on the mode button",
+      "text": "\u001b[<35;115;1M"
+    },
+    {
+      "desc": "the mode box, its right half block in the first cell of the gear chip",
+      "assert_color": {
+        "region": {
+          "x": 114,
+          "y": 0,
+          "w": 2,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 113,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        }
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 113,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
       }
     },
     {
@@ -117,9 +221,9 @@
       "desc": "the new file box lights, alone",
       "assert_color": {
         "region": {
-          "x": 80,
+          "x": 81,
           "y": 0,
-          "w": 3,
+          "w": 2,
           "h": 1
         },
         "bg": "#45475a",
@@ -127,9 +231,22 @@
       }
     },
     {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 80,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        }
+      }
+    },
+    {
       "assert_color": {
         "region": {
-          "x": 79,
+          "x": 80,
           "y": 0,
           "w": 1,
           "h": 1
@@ -158,9 +275,9 @@
       "desc": "the collapse box lights, alone",
       "assert_color": {
         "region": {
-          "x": 86,
+          "x": 87,
           "y": 0,
-          "w": 3,
+          "w": 2,
           "h": 1
         },
         "bg": "#45475a",
@@ -168,9 +285,22 @@
       }
     },
     {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 86,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        }
+      }
+    },
+    {
       "assert_color": {
         "region": {
-          "x": 85,
+          "x": 86,
           "y": 0,
           "w": 1,
           "h": 1

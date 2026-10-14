@@ -24,9 +24,9 @@
       "desc": "in catppuccin-latte the box is that theme's surface1",
       "assert_color": {
         "region": {
-          "x": 83,
+          "x": 84,
           "y": 0,
-          "w": 3,
+          "w": 2,
           "h": 1
         },
         "bg": "#bcc0cc",
@@ -34,9 +34,22 @@
       }
     },
     {
+      "desc": "half blocks close the box on both sides of the glyph, half a cell each (Mathias, 2026-10-14: the glyph in the middle)",
+      "wait": {
+        "regex": "▐..▌",
+        "timeout_ms": 3000,
+        "region": {
+          "x": 83,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        }
+      }
+    },
+    {
       "assert_color": {
         "region": {
-          "x": 82,
+          "x": 83,
           "y": 0,
           "w": 1,
           "h": 1

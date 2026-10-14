@@ -213,7 +213,7 @@ func (m *Model) scmHeaderBranch() string {
 
 // scmBranchW is the width of the clickable branch label on the first line.
 func (m *Model) scmBranchW() int {
-	return min(ansi.StringWidth(m.scmHeaderBranch())+1, m.listW()-m.actionsWidth(m.actionsShown()))
+	return min(ansi.StringWidth(m.scmHeaderBranch())+1, m.listW()-m.actionsWidth(m.actionsShown())-edgeW)
 }
 
 func (m *Model) scmLines() []string {
@@ -222,7 +222,7 @@ func (m *Model) scmLines() []string {
 	out := make([]string, h)
 	w := m.listW()
 	n := m.actionsShown()
-	out[0] = m.styles.accent(fit(m.scmHeaderBranch(), w-m.actionsWidth(n))) + m.actionsText()
+	out[0] = m.styles.accent(fit(m.scmHeaderBranch(), w-m.actionsWidth(n)-edgeW)) + m.actionsText() + strings.Repeat(" ", edgeW)
 	for r := 1; r < h; r++ {
 		i := m.scm.top + r - 1
 		if i >= len(rows) {

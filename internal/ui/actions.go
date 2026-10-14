@@ -30,10 +30,14 @@ func (m *Model) chipW() int { return 3 }
 // chip is the text of a button around glyph g.
 func (m *Model) chip(g string) string { return " " + g + " " }
 
-// The buttons at the right of the top row, right to left: the gear at the edge, the mode button and, in the window,
-// the Search field, each one chipGap from the next.
-func (m *Model) gearX() int  { return m.w - m.gearW() }
-func (m *Model) modeX() int  { return m.gearX() - chipGap - m.chipW() }
+// edgeW is the free cell after the last button of a row: the lit box of a Nerd Font glyph ends with a half block in
+// the cell after the chip (see paintChip), so the last chip of a row must not touch the edge.
+const edgeW = 1
+
+// The buttons at the right of the top row, right to left: the gear one cell from the edge, the mode button right
+// before it (Mathias, 2026-10-14: the two were "muy separados") and, in the window, the Search field chipGap before.
+func (m *Model) gearX() int  { return m.w - edgeW - m.gearW() }
+func (m *Model) modeX() int  { return m.gearX() - m.chipW() }
 func (m *Model) fieldX() int { return m.modeX() - chipGap - m.fieldW() }
 
 // actionsWidth is the cells n action buttons take: they follow each other with no gap, as in herdr.
@@ -160,7 +164,7 @@ func (m *Model) actionSpans() []actionSpan {
 	}
 	y, end := 0, m.fieldX()-chipGap
 	if m.projectMode() {
-		y, end = m.headerRow(), m.w
+		y, end = m.headerRow(), m.w-edgeW
 	}
 	x := end - m.actionsWidth(n)
 	spans := make([]actionSpan, 0, n)

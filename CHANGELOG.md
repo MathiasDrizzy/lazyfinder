@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows
 - The buttons of the top rows are the three-cell chips of the herdr sidebar (` g `), the action buttons side by side
   and one free cell between groups: the four-cell boxes one cell apart of 0.12.0 were too big and too far apart, and
   a Nerd Font glyph, drawn wider than its cell, now sits in the middle of its box.
+- The box the pointer lights on a button of a Nerd Font glyph is the glyph's two cells with a half block on each
+  side, so the glyph sits in its middle; the mode button and the gear sit side by side like the action buttons.
 
 ## [0.12.0] - 2026-10-14
 

@@ -92,7 +92,7 @@ func (m *Model) sideButtonX() int { return m.modeX() }
 // into the rows above and below with half blocks, a tall button like those of the herdr sidebar.
 func (m *Model) projectToolbar() []string {
 	line, spans := m.projectTabsLine()
-	right := m.modeButton() + strings.Repeat(" ", chipGap) + m.gearButton()
+	right := m.modeButton() + m.gearButton() + strings.Repeat(" ", edgeW)
 	mid := fit(line, m.sideButtonX()) + right
 	type capSpan struct {
 		x, w int
@@ -141,11 +141,11 @@ func (m *Model) projectName() string {
 // projectHeader is the line above the tree.
 func (m *Model) projectHeader() string {
 	n := m.actionsShown()
-	name := m.styles.folder(fit(" "+m.projectName(), m.listW()-m.actionsWidth(n)))
+	name := m.styles.folder(fit(" "+m.projectName(), m.listW()-m.actionsWidth(n)-edgeW))
 	if n == 0 {
 		return name
 	}
-	return name + m.actionsText()
+	return name + m.actionsText() + strings.Repeat(" ", edgeW)
 }
 
 // projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream.
