@@ -201,7 +201,7 @@ func (m *Model) scmHeaderBranch() string {
 	if !m.git.ok || m.git.st.Branch == "" {
 		return " " + i18n.T("sin git", "no git")
 	}
-	l := " ⎇ " + m.git.st.Branch
+	l := " ⎇ " + m.git.st.BranchLabel()
 	if m.git.st.Changed() > 0 {
 		l += "*"
 	}
@@ -213,7 +213,7 @@ func (m *Model) scmHeaderBranch() string {
 
 // scmBranchW is the width of the clickable branch label on the first line.
 func (m *Model) scmBranchW() int {
-	return min(ansi.StringWidth(m.scmHeaderBranch())+1, m.listW()-m.actionsShown()*actionW-1)
+	return min(ansi.StringWidth(m.scmHeaderBranch())+1, m.listW()-m.actionsShown()*actionW)
 }
 
 func (m *Model) scmLines() []string {
@@ -222,8 +222,7 @@ func (m *Model) scmLines() []string {
 	out := make([]string, h)
 	w := m.listW()
 	n := m.actionsShown()
-	head := m.styles.accent(fit(m.scmHeaderBranch(), w-n*actionW-1))
-	out[0] = head + m.actionsText() + " "
+	out[0] = m.styles.accent(fit(m.scmHeaderBranch(), w-n*actionW)) + m.actionsText()
 	for r := 1; r < h; r++ {
 		i := m.scm.top + r - 1
 		if i >= len(rows) {
@@ -435,7 +434,12 @@ func (m *Model) scmAsk(a scmAct) tea.Cmd {
 	}
 	switch {
 	case a == scmActDiscardAll:
-		m.confirm(fmt.Sprintf(i18n.T("¿Descartar los %d cambios? Los archivos nuevos se borran", "Discard all %d changes? New files are deleted"), r.n), func() tea.Cmd {
+		ask := fmt.Sprintf(i18n.T("¿Descartar los %d cambios? Los archivos nuevos se borran", "Discard all %d changes? New files are deleted"), r.n)
+		if c := m.git.st.Conflicts(); len(c) > 0 {
+			ask = fmt.Sprintf(i18n.T("¿Descartar los %d cambios, también los que están en conflicto (%s)? Los archivos nuevos se borran",
+				"Discard all %d changes, also those in conflict (%s)? New files are deleted"), r.n, strings.Join(c, ", "))
+		}
+		m.confirm(ask, func() tea.Cmd {
 			return m.gitRun(i18n.T("Descartando…", "Discarding…"), i18n.T("Cambios descartados", "Changes discarded"), git.DiscardAll)
 		})
 	case r.ch.Code == git.Untracked:
@@ -472,7 +476,15 @@ func (m *Model) scmRun(a scmAct) tea.Cmd {
 		return m.gitRun(i18n.T("Quitando de lo preparado…", "Unstaging…"), i18n.T("Quitado de lo preparado", "Changes unstaged"),
 			func(root string) error { return git.Unstage(root, r.ch.Path) })
 	case scmActStageAll:
-		return m.gitRun(i18n.T("Preparando…", "Staging…"), i18n.T("Cambios preparados", "Changes staged"), git.StageAll)
+		stage := func() tea.Cmd {
+			return m.gitRun(i18n.T("Preparando…", "Staging…"), i18n.T("Cambios preparados", "Changes staged"), git.StageAll)
+		}
+		if c := m.git.st.Conflicts(); len(c) > 0 { // git add marks a conflict as solved: say which ones first
+			m.confirm(fmt.Sprintf(i18n.T("¿Preparar todo? Se marcan como resueltos los archivos en conflicto: %s",
+				"Stage everything? The files in conflict are marked as solved: %s"), strings.Join(c, ", ")), stage)
+			return nil
+		}
+		return stage()
 	case scmActUnstageAll:
 		return m.gitRun(i18n.T("Quitando de lo preparado…", "Unstaging…"), i18n.T("Quitado de lo preparado", "Changes unstaged"), git.UnstageAll)
 	case scmActStash:

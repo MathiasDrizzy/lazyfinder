@@ -139,7 +139,8 @@ becomes the sidebar, from 80 columns up the sidebar becomes the window again. It
 - the **Git tab** works like the source control view of the herdr sidebar: staged and unstaged changes with their
   counts, stage, unstage and discard (asking first) by key or button, the diff of a file, stashes with pop and drop,
   fetch, pull and push with how far you are from the upstream, and a branch menu with search, create and a warning
-  about changes you have not saved. It never commits, rebases or merges: `L` opens lazygit for that.
+  about changes you have not saved. With a merge conflict, discarding or staging everything names the files in
+  conflict and waits for a yes. It never commits, rebases or merges: `L` opens lazygit for that.
 
 ![The Git tab, dark and light](docs/screenshots/git-tab-dark.png)
 ![The Git tab in a light theme](docs/screenshots/git-tab-light.png)

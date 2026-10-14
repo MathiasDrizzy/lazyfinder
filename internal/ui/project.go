@@ -157,7 +157,7 @@ func (m *Model) projectFooter() string {
 	if m.icons.Style == icons.Nerd {
 		branch = "\ue725"
 	}
-	l := " " + branch + " " + m.git.st.Branch + fmt.Sprintf("  ↓%d ↑%d", m.git.st.Behind, m.git.st.Ahead)
+	l := " " + branch + " " + m.git.st.BranchLabel() + fmt.Sprintf("  ↓%d ↑%d", m.git.st.Behind, m.git.st.Ahead)
 	if n := m.git.st.Changed(); n > 0 {
 		l += fmt.Sprintf("  ● %d", n)
 	}

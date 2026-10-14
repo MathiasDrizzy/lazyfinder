@@ -23,7 +23,7 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 
 | herdr sidebar | lazyfinder | State |
 |---|---|---|
-| Branch name, dirty mark, ahead/behind | header row and bottom bar (`main*`, `↓0 ↑0`, change count) | done |
+| Branch name, dirty mark, ahead/behind | header row and bottom bar (`main*`, `↓0 ↑0`, change count); a detached HEAD reads `HEAD (detached at 1a2b3c4)`; outside a repository no git buttons | done |
 | Switch branch from a searchable list | branch menu (`B`, click on the branch): search, switch, create, warning that changes go with you | done |
 | Create a branch | same menu, typing a new name | done |
 | Staged and unstaged changes with counts | `Staged Changes` and `Changes` sections, foldable | done |
@@ -31,7 +31,7 @@ Taken from `explorer_app.rs` (`draw`, `draw_activity_bar`, `draw_header`, `row_l
 | Stage, unstage, discard | key, row buttons, section buttons; discard asks first, an untracked file is deleted | done |
 | Stash | `Stashes` section: stash, pop (Enter), drop with confirmation | done |
 | Fetch, pull, push | menu entries and header buttons; pull is fast-forward only; push without upstream explains instead of guessing | done |
-| Conflicts | marked `U` and cannot be discarded by mistake | done |
+| Conflicts | marked `!` and cannot be discarded by mistake; discard all and stage all name the files in conflict and wait for a yes | done |
 | Commit, rebase, merge | not offered on purpose (the order says so); `L` opens lazygit | not done, by design |
 
 ## Hover buttons

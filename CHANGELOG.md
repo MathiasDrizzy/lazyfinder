@@ -64,6 +64,14 @@ _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._
 
 ### Fixed
 
+- A detached HEAD shows where it is, `HEAD (detached at 1a2b3c4)`, in the Git tab and the bottom bar.
+- Outside a repository the Git tab shows no branch, fetch, pull or push buttons.
+- With a merge conflict, discarding or staging everything names the files in conflict and waits for a yes (staging
+  marks a conflict as solved).
+- The buttons of the Git tab header were drawn one cell left of their click area.
+- The end-to-end scenarios wait for what they check instead of reading the screen at once: a check right after a git
+  command failed two runs in six with scenarios in parallel. A test rejects a check right after a git key.
+
 - The last visible row of the list did not take the click: the click area ended one row before the bottom border.
 
 - The buttons of the toolbar, the tree header and the rows of the Git tab are all three cells wide with the glyph in

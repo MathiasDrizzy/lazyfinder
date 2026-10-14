@@ -108,3 +108,22 @@ func TestTheLastVisibleRowOfTheListTakesTheClick(t *testing.T) {
 		t.Fatalf("a click on the last visible row (y=%d) must select it: sel=%d top=%d rows=%d", last, e.m.sel, e.m.top, e.m.listRows())
 	}
 }
+
+// Each button of the header of the tree and of the Git tab is drawn in the middle cell of its zone.
+func TestEveryHeaderButtonIsDrawnInsideItsZone(t *testing.T) {
+	for _, tab := range []projectTab{tabFiles, tabGit} {
+		e := projectEnv(t, 50)
+		e.clickTab(tab)
+		e.move(10, 8)
+		spans := e.m.actionSpans()
+		if len(spans) == 0 {
+			t.Fatalf("tab %d: no buttons", tab)
+		}
+		for _, a := range spans {
+			cells := []rune(e.screen()[a.y])
+			if got, want := string(cells[a.x+1]), e.m.actionGlyph(a.idx); got != want {
+				t.Fatalf("tab %d: button %d drawn %q in the middle of its zone, want %q: %q", tab, a.idx, got, want, e.screen()[a.y])
+			}
+		}
+	}
+}

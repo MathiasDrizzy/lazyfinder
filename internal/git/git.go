@@ -37,12 +37,32 @@ const timeout = 5 * time.Second
 type Status struct {
 	Root            string // absolute, symlinks resolved
 	Branch          string // "HEAD" when detached
+	Head            string // the short hash of the commit checked out; empty before the first commit
 	Upstream        string // the branch this one tracks, empty when it tracks none
 	Ahead, Behind   int
 	Staged          []Change        // changes in the index, in path order
 	Unstaged        []Change        // changes in the work tree: modified, deleted, untracked and in conflict
 	files           map[string]Code // slash path relative to Root
 	viaDir, realDir string
+}
+
+// BranchLabel is the branch to show: its name, or where a detached HEAD is, as git says it.
+func (s Status) BranchLabel() string {
+	if s.Branch == "HEAD" && s.Head != "" {
+		return "HEAD (detached at " + s.Head + ")"
+	}
+	return s.Branch
+}
+
+// Conflicts are the paths in conflict, in path order.
+func (s Status) Conflicts() []string {
+	var out []string
+	for _, c := range s.Unstaged {
+		if c.Code == Conflicted {
+			out = append(out, c.Path)
+		}
+	}
+	return out
 }
 
 // Changed is how many paths differ from the last commit; ignored ones do not count.
@@ -101,6 +121,10 @@ func parse(out []byte) Status {
 			s.Branch = strings.TrimPrefix(r, "# branch.head ")
 			if s.Branch == "(detached)" {
 				s.Branch = "HEAD"
+			}
+		case strings.HasPrefix(r, "# branch.oid "):
+			if oid := strings.TrimPrefix(r, "# branch.oid "); oid != "(initial)" {
+				s.Head = oid[:min(7, len(oid))]
 			}
 		case strings.HasPrefix(r, "# branch.upstream "):
 			s.Upstream = strings.TrimPrefix(r, "# branch.upstream ")

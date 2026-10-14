@@ -106,6 +106,9 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Every top-row glyph lies inside its own click and hover zone, in both modes and 14 widths | T EveryTopRowGlyphLiesInsideItsOwnZone, T EachGlyphIsDrawnInTheMiddleCellOfItsButton |
 | Tree buttons show with the pointer and fade; the name is not repeated; a narrow start is the sidebar | T TheTreeButtonsAppearWithThePointerAndFadeAfterItStops, T TheWindowToolbarKeepsItsButtonsAlways, T TheTreeHeaderAndTheBorderDoNotRepeatTheProjectName, T AWindowThatStartsNarrowerThanTheLimitIsTheSidebar |
 | Sidebar drawn like herdr: tall tab bar, every row of a tab takes the click, no frame, triangle rows, the selection keeps the icon color | T TheSidebarTabBarIsThreeRowsTallLikeHerdr, T EachRowOfATabButtonOpensIt, T TheSidebarHasNoFrameOfItsOwn, T TheSidebarRowsAreTheIndentTheTriangleTheIconAndTheName, T TheSelectedRowKeepsTheColorOfItsIcon |
+| Detached HEAD with its short hash; no git buttons outside a repository; stage/discard all name the conflicts first | T ADetachedHeadShowsTheShortHash, T OutsideARepositoryTheGitTabHasNoGitButtons, T DiscardAllAndStageAllNameTheConflictsFirst |
+| Header buttons of the tree and the Git tab are drawn inside their zones | T EveryHeaderButtonIsDrawnInsideItsZone |
+| No scenario checks the screen right after a git key | T NoScenarioAssertsRightAfterAGitOperation |
 | The last visible row of the list takes the click | T TheLastVisibleRowOfTheListTakesTheClick |
 | Hover keeps the line width over wide glyphs; `.gitignore` keeps its red | T HoverKeepsTheLineWidthOverWideGlyphs, icons: TestAHiddenGitFileKeepsItsRedColor |
 | Tabs Files / Search / Git, clickable, even with only glyphs | T ProjectModeHasClickableFilesSearchAndGitTabs, T TheGitTabInEachRepositoryState |

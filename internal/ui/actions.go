@@ -96,7 +96,10 @@ type actionsFadeMsg struct{}
 // actionsVisible says whether the buttons of the header are drawn: always in the toolbar of the window, and in the
 // Files tab of the sidebar mode only while the pointer is active.
 func (m *Model) actionsVisible() bool {
-	if !m.projectMode() || m.projTab == tabGit {
+	if m.projectMode() && m.projTab == tabGit {
+		return m.git.ok // outside a repository there is nothing for the git buttons to do
+	}
+	if !m.projectMode() {
 		return true
 	}
 	return m.mouse && m.hover.on && m.deps.Now().Sub(m.hover.at) < actionsLinger

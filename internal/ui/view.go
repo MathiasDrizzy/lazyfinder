@@ -879,7 +879,7 @@ func (m *Model) branchLabel() string {
 	if !m.git.ok || m.git.st.Branch == "" {
 		return ""
 	}
-	l := "⎇ " + m.git.st.Branch
+	l := "⎇ " + m.git.st.BranchLabel()
 	if m.git.st.Ahead > 0 {
 		l += fmt.Sprintf(" ↑%d", m.git.st.Ahead)
 	}

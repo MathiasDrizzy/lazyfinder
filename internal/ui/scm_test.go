@@ -454,3 +454,60 @@ func TestTheCounterOfTheGitTabCountsItsOwnRows(t *testing.T) {
 		t.Fatalf("counter = %q, want %q", got, want)
 	}
 }
+
+// R2 of cerebro's review: a detached HEAD says where it is, like git and the herdr sidebar.
+func TestADetachedHeadShowsTheShortHash(t *testing.T) {
+	e := gitEnv(t, 60)
+	e.git("checkout", "-q", "--detach")
+	e.key("r")
+	out, err := exec.Command("git", "-C", e.root, "rev-parse", "--short", "HEAD").Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	e.mustHave("HEAD (detached at " + strings.TrimSpace(string(out)) + ")")
+}
+
+// R3: outside a repository the Git tab has no git buttons to click.
+func TestOutsideARepositoryTheGitTabHasNoGitButtons(t *testing.T) {
+	e := projectEnvWithoutGit(t, 50)
+	e.clickTab(tabGit)
+	e.move(10, 6)
+	if n := e.m.actionsShown(); n != 0 {
+		t.Fatalf("no git buttons outside a repository, got %d", n)
+	}
+	for _, g := range []string{"↻", "↓", "↑"} {
+		if strings.Contains(e.screen()[e.m.headerRow()], g) {
+			t.Fatalf("the header shows %q outside a repository: %q", g, e.screen()[e.m.headerRow()])
+		}
+	}
+}
+
+// R4: with a conflict, discarding or staging everything names the files in conflict and waits for a yes.
+func TestDiscardAllAndStageAllNameTheConflictsFirst(t *testing.T) {
+	for _, tc := range []struct{ key, word string }{{"d", "Discard"}, {"s", "Stage"}} {
+		e := projectEnv(t, 80)
+		e.git("stash", "-u")
+		e.git("checkout", "-q", "-b", "side")
+		_ = os.WriteFile(filepath.Join(e.root, "notes.txt"), []byte("side\n"), 0o644)
+		e.git("commit", "-q", "-am", "s")
+		e.git("checkout", "-q", "main")
+		_ = os.WriteFile(filepath.Join(e.root, "notes.txt"), []byte("main\n"), 0o644)
+		e.git("commit", "-q", "-am", "m")
+		_ = e.gitMayFail("merge", "side")
+		_ = os.WriteFile(filepath.Join(e.root, "loose.txt"), []byte("x\n"), 0o644)
+		e.clickTab(tabGit)
+		e.clickText("Changes")
+		e.key(tc.key)
+		e.mustHave(tc.word)
+		if ask := e.m.prompt.ask; e.m.prompt.kind != promptConfirm || !strings.Contains(ask, "conflict") || !strings.Contains(ask, "notes.txt") {
+			t.Fatalf("%s with a conflict must ask first and name it: %+v", tc.word, e.m.prompt.ask)
+		}
+		e.key("n")
+		if got := e.staged(); len(got) != 0 {
+			t.Fatalf("no answers yes, nothing changes: staged = %v", got)
+		}
+		if st := e.status(); len(st.Unstaged) < 2 {
+			t.Fatalf("no answers yes, nothing is discarded: %+v", st.Unstaged)
+		}
+	}
+}
