@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
+	"unicode"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
@@ -200,8 +202,8 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) dir() string { return m.hist.Current() }
 
-func (m *Model) setStatus(s string)       { m.status, m.statusErr = s, false }
-func (m *Model) setError(err error)       { m.status, m.statusErr = err.Error(), true }
+func (m *Model) setStatus(s string)       { m.status, m.statusErr = oneLine(s), false }
+func (m *Model) setError(err error)       { m.status, m.statusErr = oneLine(err.Error()), true }
 func (m *Model) entries() []fsmodel.Entry { return m.listing.Entries }
 
 func (m *Model) selected() (fsmodel.Entry, bool) {
@@ -468,4 +470,15 @@ func (m *Model) tooSmallNow() bool {
 		return m.w < followMinWidth || m.h < followMinHeight
 	}
 	return m.w < minWidth || m.h < minHeight
+}
+
+// oneLine makes text from outside (a git error, a file name) safe for the bottom row: a tab or a control code
+// would move the cursor and push the row past the edge of the terminal.
+func oneLine(s string) string {
+	return strings.Join(strings.Fields(strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) {
+			return ' '
+		}
+		return r
+	}, s)), " ")
 }

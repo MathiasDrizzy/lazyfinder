@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
@@ -40,7 +43,8 @@ func (e *env) mustFit(step string) {
 	}
 	for i, l := range lines {
 		if got := ansi.StringWidth(l); got > w {
-			e.t.Fatalf("%s: line %d is %d wide on a %dx%d terminal: %q\n%s", step, i, got, w, h, l, e.text())
+			raw := strings.Split(e.m.View().Content, "\n")
+			e.t.Fatalf("%s: line %d is %d wide on a %dx%d terminal: %q\nraw: %q\nstatus: %q\n%s", step, i, got, w, h, l, raw[i], e.m.status, e.text())
 		}
 	}
 }
@@ -79,6 +83,7 @@ func (e *env) sweep(seed int64, events int) {
 		}
 		trail = append(trail, step)
 		e.sweepCheck(trail)
+		e.stayHome()
 	}
 }
 
@@ -152,4 +157,49 @@ func TestGetInfoFitsTheNarrowestSidebar(t *testing.T) {
 	e.key("i")
 	e.mustHave("Get Info")
 	e.mustFit("info")
+}
+
+// The same sweep with the Git tab open on a repository with staged, unstaged and stashed work, so the keys and
+// clicks land on the rows, buttons, branch menu and diff.
+func TestSweepGitTabKeepsTheScreenInsideTheTerminal(t *testing.T) {
+	for _, sz := range [][2]int{{24, 12}, {36, 16}, {50, 24}, {120, 40}} {
+		t.Run(fmt.Sprintf("%dx%d", sz[0], sz[1]), func(t *testing.T) {
+			e := projectEnvWithoutGit(t, sz[0])
+			cleanRepo(e)
+			_ = os.WriteFile(filepath.Join(e.root, "notes.txt"), []byte("stashed\n"), 0o644)
+			e.git("stash", "-q")
+			_ = os.WriteFile(filepath.Join(e.root, "notes.txt"), []byte("changed\n"), 0o644)
+			_ = os.WriteFile(filepath.Join(e.root, "loose.txt"), []byte("x\n"), 0o644)
+			_ = os.WriteFile(filepath.Join(e.root, "data.xlsx"), []byte("PK2"), 0o644)
+			e.git("add", "data.xlsx")
+			e.send(tea.WindowSizeMsg{Width: sz[0], Height: sz[1]})
+			e.key("r")
+			_, spans := e.m.projectTabsLine()
+			e.click(spans[tabGit].x+1, 0)
+			e.sweep(int64(sz[0])+sweepSeed(), 500)
+		})
+	}
+}
+
+// Found by the Git tab sweep: git's "would be overwritten by merge" error has a tab, which the terminal expands.
+func TestAnErrorWithATabOrNewlineStaysOnOneRow(t *testing.T) {
+	e := newEnv(t)
+	e.m.setError(errors.New("overwritten by merge:\n\tnotes.txt\nPlease commit\x1b[31m or stash"))
+	e.mustFit("error")
+	e.mustHave("overwritten by merge: notes.txt Please commit [31m or stash")
+}
+
+// stayHome brings the sweep back when a random key took it outside the temporary home: a recursive search from the
+// real root of the disk would walk the user's files, and a test never touches them.
+func (e *env) stayHome() {
+	e.t.Helper()
+	if e.m.dir() == e.home || strings.HasPrefix(e.m.dir(), e.home+string(filepath.Separator)) {
+		return
+	}
+	e.key("esc")
+	if cmd := e.m.enter(e.root, ""); cmd != nil {
+		if msg := cmd(); msg != nil {
+			e.send(msg)
+		}
+	}
 }
