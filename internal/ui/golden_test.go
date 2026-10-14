@@ -57,7 +57,7 @@ func goldenEnv(t *testing.T, w, h int) *env {
 		t.Fatal(err)
 	}
 	e := &env{t: t, root: root, home: home, run: &fakeRunner{}, now: time.Date(2026, 10, 13, 12, 0, 0, 0, time.UTC)}
-	e.m = New(Deps{Home: home, Start: root, Cfg: cfg, Runner: e.run, Now: func() time.Time { return e.now }})
+	e.m = New(Deps{Home: home, Start: root, Cfg: cfg, Runner: e.run, Now: func() time.Time { return e.now }, Wake: noWake})
 	e.send(tea.WindowSizeMsg{Width: w, Height: h})
 	return e
 }

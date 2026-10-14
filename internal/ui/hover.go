@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/charmbracelet/x/ansi"
@@ -13,6 +14,7 @@ import (
 type hoverState struct {
 	x, y int
 	on   bool
+	at   time.Time // the last time the pointer moved over the screen
 }
 
 type hoverRect struct{ x, y, w, h int }
@@ -98,7 +100,7 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 		s := spans[z.idx]
 		return hoverRect{s.x, 0, s.w, 1}, true
 	case zoneSettings:
-		return hoverRect{m.w - m.gearW(), 0, m.gearW() - 1, 1}, true
+		return hoverRect{m.w - m.gearW(), 0, m.gearW(), 1}, true
 	case zoneMode:
 		return hoverRect{m.w - m.gearW() - modeBtnW, 0, modeBtnW, 1}, true
 	case zoneSearch:

@@ -180,7 +180,7 @@ func TestRebindingAKeyMovesTheAction(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	e.m = New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: e.m.deps.Now})
+	e.m = New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: e.m.deps.Now, Wake: noWake})
 	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
 	e.mustHave("Quit: Z")
 	e.key("w")
@@ -210,7 +210,7 @@ func TestStartupWarningFromTheConfigIsShown(t *testing.T) {
 	e := newEnv(t)
 	cfg := e.m.deps.Cfg
 	cfg.Warnings = []string{"theme night.json: unreadable"}
-	e.m = New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: e.m.deps.Now})
+	e.m = New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: e.m.deps.Now, Wake: noWake})
 	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
 	e.mustHave("night.json")
 }

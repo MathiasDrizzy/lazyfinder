@@ -43,6 +43,7 @@ type Deps struct {
 	Cfg     config.Config
 	Runner  opener.Runner
 	Now     func() time.Time
+	Wake    func(d time.Duration) tea.Cmd // sends actionsFadeMsg after d; nil uses a real timer (tests pass their own)
 	NoColor bool
 	Watcher watch.Watcher // nil: nothing is followed
 
@@ -427,6 +428,8 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.autoMode(prevW)
 		m.ensureVisible()
 		return m, m.refreshPreview()
+	case actionsFadeMsg:
+		return m, m.fadeActions()
 	case tea.KeyPressMsg:
 		m.hover.on = false // the keyboard takes over from the pointer
 		return m, m.onKey(msg)

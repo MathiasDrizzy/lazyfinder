@@ -70,8 +70,8 @@ func (m *Model) gearText() string {
 	return gear
 }
 
-// gearW is the cells the Settings button takes from the right edge, margin included: the whole of it is clickable.
-func (m *Model) gearW() int { return 4 }
+// gearW is the cells of the Settings button, the same three as every other button: the whole of it is clickable.
+func (m *Model) gearW() int { return 3 }
 
-// gearButton draws the gear, bare and in the accent color.
-func (m *Model) gearButton() string { return m.styles.accent(m.gearText()) }
+// gearButton draws the gear in the accent color, with a space on each side.
+func (m *Model) gearButton() string { return m.styles.accent(" " + m.gearText() + " ") }

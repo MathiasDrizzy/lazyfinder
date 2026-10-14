@@ -41,6 +41,7 @@ func (f *fakeRunner) Start(argv []string) error {
 
 type env struct {
 	t    *testing.T
+	woke []time.Duration // the wake-ups the model asked for, in place of real timers
 	root string
 	home string
 	run  *fakeRunner
@@ -89,7 +90,7 @@ func newEnv(t *testing.T) *env {
 	}
 	t.Cleanup(func() { i18n.SetLanguage("en") }) // a random sweep can reach the Language setting: no test inherits it
 	e := &env{t: t, root: root, home: home, run: &fakeRunner{}, now: time.Date(2026, 10, 13, 12, 0, 0, 0, time.UTC)}
-	e.m = New(Deps{Home: home, Start: root, Cfg: cfg, Runner: e.run, Now: func() time.Time { return e.now }})
+	e.m = New(Deps{Home: home, Start: root, Cfg: cfg, Runner: e.run, Now: func() time.Time { return e.now }, Wake: func(d time.Duration) tea.Cmd { e.woke = append(e.woke, d); return nil }})
 	e.send(tea.WindowSizeMsg{Width: 120, Height: 40})
 	return e
 }
@@ -683,3 +684,6 @@ func (e *env) clickTab(t projectTab) {
 	_, spans := e.m.projectTabsLine()
 	e.click(spans[t].x+spans[t].w/2, 0)
 }
+
+// noWake is the Wake of the test models that do not look at the fading of the buttons: no real timers.
+func noWake(time.Duration) tea.Cmd { return nil }

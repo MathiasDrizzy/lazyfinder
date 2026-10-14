@@ -67,9 +67,9 @@ func (m *Model) projectToolbar() string {
 	line, _ := m.projectTabsLine()
 	pad := m.w - ansi.StringWidth(line) - m.gearW() - modeBtnW
 	if pad < 0 {
-		return fit(line, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton() + " "
+		return fit(line, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton()
 	}
-	return line + strings.Repeat(" ", pad) + m.modeButton() + m.gearButton() + " "
+	return line + strings.Repeat(" ", pad) + m.modeButton() + m.gearButton()
 }
 
 func (m *Model) projectTabAt(x int) (projectTab, bool) {

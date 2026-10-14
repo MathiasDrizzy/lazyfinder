@@ -158,7 +158,11 @@ func (m *Model) beginDrag(z zone, x int) {
 
 func (m *Model) onMotion(msg tea.MouseMotionMsg) tea.Cmd {
 	if m.mouse {
-		m.hover = hoverState{x: msg.Mouse().X, y: msg.Mouse().Y, on: true}
+		wasVisible := m.actionsVisible()
+		m.hover = hoverState{x: msg.Mouse().X, y: msg.Mouse().Y, on: true, at: m.deps.Now()}
+		if !wasVisible && m.actionsVisible() {
+			return m.wake(actionsLinger)
+		}
 	}
 	if !m.mouse || m.drag.kind == dragNone {
 		return nil

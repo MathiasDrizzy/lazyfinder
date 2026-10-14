@@ -2,6 +2,7 @@ package ui
 
 import (
 	"strings"
+	"time"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
@@ -84,8 +85,44 @@ func (m *Model) actionLabel(idx int) string { return m.actionDefs()[idx].label()
 
 func (m *Model) modeButton() string { return m.styles.accent(" " + m.modeGlyph() + " ") }
 
+// actionsLinger is how long the tree buttons of the sidebar mode stay after the pointer last moved, like the title bar
+// buttons of the herdr sidebar: a terminal says nothing when the pointer leaves, so activity over the pane shows them
+// and they fade a few seconds after the last movement.
+const actionsLinger = 3 * time.Second
+
+// actionsFadeMsg wakes the screen up when the buttons are due to fade.
+type actionsFadeMsg struct{}
+
+// actionsVisible says whether the buttons of the header are drawn: always in the toolbar of the window, and in the
+// Files tab of the sidebar mode only while the pointer is active.
+func (m *Model) actionsVisible() bool {
+	if !m.projectMode() || m.projTab == tabGit {
+		return true
+	}
+	return m.mouse && m.hover.on && m.deps.Now().Sub(m.hover.at) < actionsLinger
+}
+
+// wake asks for an actionsFadeMsg after d.
+func (m *Model) wake(d time.Duration) tea.Cmd {
+	if m.deps.Wake != nil {
+		return m.deps.Wake(d)
+	}
+	return tea.Tick(d, func(time.Time) tea.Msg { return actionsFadeMsg{} })
+}
+
+// fadeActions keeps the wake-up going while the pointer moved again after the one that was scheduled.
+func (m *Model) fadeActions() tea.Cmd {
+	if left := actionsLinger - m.deps.Now().Sub(m.hover.at); m.hover.on && left > 0 {
+		return m.wake(left)
+	}
+	return nil
+}
+
 // actionsShown is how many action icons fit.
 func (m *Model) actionsShown() int {
+	if !m.actionsVisible() {
+		return 0
+	}
 	n := len(m.actionDefs())
 	if m.projectMode() {
 		return max(0, min(n, (m.listW()-2-8)/actionW))

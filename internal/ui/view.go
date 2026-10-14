@@ -364,7 +364,11 @@ func (m *Model) popupBoxes() []popupBox {
 func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []string) {
 	lines := make([]string, m.h)
 	lines[0] = m.toolbar()
-	list := m.panel(m.folderTitle(), m.counter(), m.listLines(), m.w-m.sidebarW(), m.panelH(), m.focus == focusList)
+	title := m.folderTitle()
+	if m.projectMode() {
+		title = "" // the name is already the heading of the tree
+	}
+	list := m.panel(title, m.counter(), m.listLines(), m.w-m.sidebarW(), m.panelH(), m.focus == focusList)
 	if m.sidebarW() == 0 {
 		for y := 0; y < m.panelH(); y++ {
 			lines[y+1] = list[y]
@@ -441,7 +445,7 @@ func (m *Model) toolbar() string {
 	}
 	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
 	if pad < 1 {
-		return fit(left, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton() + " "
+		return fit(left, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton()
 	}
 	return left + strings.Repeat(" ", pad) + right
 }
@@ -468,9 +472,9 @@ func (m *Model) toolbarLeft() string {
 func (m *Model) toolbarRight() string {
 	count := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries())))
 	if m.actionsShown() > 0 { // the action icons sit one cell before the field
-		return count + "  " + m.actionsText() + " " + m.searchField() + m.modeButton() + m.gearButton() + " "
+		return count + "  " + m.actionsText() + " " + m.searchField() + m.modeButton() + m.gearButton()
 	}
-	return count + "  " + m.searchField() + m.modeButton() + m.gearButton() + " "
+	return count + "  " + m.searchField() + m.modeButton() + m.gearButton()
 }
 
 // branchSpan says where the branch label sits in the toolbar of the window, when it is shown.
@@ -489,10 +493,10 @@ func (m *Model) branchSpan() (x, w int, ok bool) {
 // searchFieldW is the width of the Search field at the top right, the one Finder has; narrow windows show just the lens.
 const searchFieldW = 22
 
-// fieldW is the cells the field takes, 1 (the lens) in a narrow window.
+// fieldW is the cells the field takes, 3 (the lens button) in a narrow window.
 func (m *Model) fieldW() int {
 	if m.w < 80 {
-		return 1
+		return 3 // the lens alone, as wide as every other button
 	}
 	return searchFieldW
 }
@@ -500,7 +504,7 @@ func (m *Model) fieldW() int {
 // searchField draws the Search field: its hint while idle, the query while searching.
 func (m *Model) searchField() string {
 	w := m.fieldW()
-	if w == 1 {
+	if w == 3 {
 		return m.styles.accent(" " + m.lensGlyph() + " ")
 	}
 	text := " " + m.lensGlyph() + " " + i18n.T("Buscar", "Search")

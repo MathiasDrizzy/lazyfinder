@@ -1,4 +1,4 @@
- ‹  ›   proj                               5 items      
+ ‹  ›   proj                              5 items       
 ╭─ Favorites ────╮╭─ proj ─────────────────────────────────╮
 │  Recents      ││    Name ▲                              │
 │  Home         ││▸ >  alpha                             │

@@ -24,6 +24,15 @@
       }
     },
     {
+      "desc": "the buttons of the tree appear while the pointer moves over the pane",
+      "text": "\u001b[<35;10;6M"
+    },
+    {
+      "assert": {
+        "contains": ""
+      }
+    },
+    {
       "desc": "the second icon of the header asks for a folder name",
       "click": {
         "x": 33,
@@ -39,6 +48,10 @@
       "keys": [
         "esc"
       ]
+    },
+    {
+      "desc": "a key press hid the buttons; the pointer brings them back",
+      "text": "\u001b[<35;11;6M"
     },
     {
       "desc": "the first icon asks for a file name",

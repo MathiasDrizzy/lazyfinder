@@ -116,7 +116,7 @@ func TestSearchChoicesAreRememberedInTheConfig(t *testing.T) {
 	if s := cfg.Search; s.Scope != "subfolders" || s.Kinds != "files" || s.By != "content" {
 		t.Fatalf("saved %+v", s)
 	}
-	e2 := New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: d.Now})
+	e2 := New(Deps{Home: e.home, Start: e.root, Cfg: cfg, Runner: e.run, Now: d.Now, Wake: noWake})
 	e2.Update(sizeMsg())
 	e2.openSearch()
 	if e2.search.scope != "subfolders" || e2.search.kinds != "files" || e2.search.by != "content" {
