@@ -21,6 +21,10 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 	switch {
 	case m.ctx.open:
 		return m.ctxKey(key, act)
+	case m.diff.open:
+		return m.diffKey(key, act)
+	case m.gm.open:
+		return m.gitMenuKey(k)
 	case m.help.open:
 		return m.helpKey(key, act)
 	case m.set.open:
@@ -52,6 +56,11 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 	if isResizeAction(act) {
 		return m.resizeKey(act)
 	}
+	if m.scmOn() {
+		if cmd, ok := m.scmKey(key, act); ok {
+			return cmd
+		}
+	}
 	if key == "esc" && m.markCount() > 0 {
 		clear(m.marked)
 		return nil
@@ -74,6 +83,8 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.Help:
 		m.help = helpState{open: true}
 		return nil
+	case keymap.Branch:
+		return m.openGitMenu()
 	case keymap.Quit:
 		return tea.Quit
 	case keymap.Up:

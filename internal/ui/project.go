@@ -6,8 +6,6 @@ import (
 
 	"github.com/charmbracelet/x/ansi"
 
-	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
-	"github.com/MathiasDrizzy/lazyfinder/internal/git"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
@@ -136,42 +134,12 @@ func (m *Model) clickProjectTab(t projectTab) {
 	case tabGit:
 		_ = m.endSearch()
 		m.projTab = tabGit
-		m.expandChanged()
+		m.scm = scmState{}
 	default:
 		_ = m.endSearch()
 		m.projTab = tabFiles
 		_ = m.reload()
 	}
-}
-
-// expandChanged opens every folder that holds a change, so the Git tab shows all the changed files.
-func (m *Model) expandChanged() {
-	for range 12 { // deep enough for any project; each pass opens one more level
-		before := len(m.expanded)
-		for _, e := range m.entries() {
-			if e.IsDir && !e.IsLink && m.gitCode(e) != git.None && m.gitCode(e) != git.Ignored {
-				m.expanded[e.Path] = true
-			}
-		}
-		_ = m.reload()
-		if len(m.expanded) == before {
-			return
-		}
-	}
-}
-
-// onlyChanged keeps the entries with a git change when the Git tab is showing.
-func (m *Model) onlyChanged(es []fsmodel.Entry) []fsmodel.Entry {
-	if !m.projectMode() || m.projTab != tabGit || !m.git.ok {
-		return es
-	}
-	kept := make([]fsmodel.Entry, 0, len(es))
-	for _, e := range es {
-		if c := m.gitCode(e); c != git.None && c != git.Ignored {
-			kept = append(kept, e)
-		}
-	}
-	return kept
 }
 
 // projectFooterItems are the key hints of the narrow mode: only what a 30 column window can hold.

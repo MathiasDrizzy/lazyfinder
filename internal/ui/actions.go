@@ -27,11 +27,43 @@ const actionW = 2
 
 type actionSpan struct{ x, y, w, idx int }
 
-func (m *Model) actionGlyph(idx int) string {
-	if m.icons.Style == icons.Nerd {
-		return []string{"\U000f0224", "\U000f0257", "\U000f0450", "\U000f0ab5"}[idx]
+// actionDef is one icon of the header: the glyph in both icon styles, its tooltip and what a click does.
+type actionDef struct {
+	nerd, plain string
+	label       func() string
+	run         func() tea.Cmd
+}
+
+// actionDefs are the icons of the header: the file actions on the Files tab and in the window, the git ones on the Git tab.
+func (m *Model) actionDefs() []actionDef {
+	if m.projectMode() && m.projTab == tabGit {
+		return []actionDef{
+			{"⎇", "⎇", func() string { return i18n.T("Ramas: B", "Branches: B") }, m.openGitMenu},
+			{"↻", "↻", func() string { return i18n.T("Traer cambios: f", "Fetch: f") }, m.gitFetch},
+			{"↓", "↓", func() string { return i18n.T("Bajar (pull): p", "Pull: p") }, m.gitPull},
+			{"↑", "↑", func() string { return i18n.T("Subir (push): P", "Push: P") }, m.gitPush},
+		}
 	}
-	return []string{"+", "▢", "↻", "⊟"}[idx]
+	return []actionDef{
+		{"\U000f0224", "+", func() string { return i18n.T("Archivo nuevo: n", "New file: n") }, m.startNewFile},
+		{"\U000f0257", "▢", func() string { return i18n.T("Carpeta nueva: N", "New folder: N") }, m.startNewFolder},
+		{"\U000f0450", "↻", func() string { return i18n.T("Actualizar: r", "Refresh: r") }, m.reload},
+		{"\U000f0ab5", "⊟", func() string { return i18n.T("Contraer todo", "Collapse all") }, m.collapseAll},
+	}
+}
+
+func (m *Model) collapseAll() tea.Cmd {
+	clear(m.expanded)
+	m.sel, m.top = 0, 0
+	return m.reload()
+}
+
+func (m *Model) actionGlyph(idx int) string {
+	d := m.actionDefs()[idx]
+	if m.icons.Style == icons.Nerd {
+		return d.nerd
+	}
+	return d.plain
 }
 
 func (m *Model) modeGlyph() string {
@@ -49,24 +81,18 @@ func (m *Model) modeLabel() string {
 	return i18n.T("Modo lateral: ctrl+b", "Sidebar mode: ctrl+b")
 }
 
-func (m *Model) actionLabel(idx int) string {
-	return []string{
-		i18n.T("Archivo nuevo: n", "New file: n"),
-		i18n.T("Carpeta nueva: N", "New folder: N"),
-		i18n.T("Actualizar: r", "Refresh: r"),
-		i18n.T("Contraer todo", "Collapse all"),
-	}[idx]
-}
+func (m *Model) actionLabel(idx int) string { return m.actionDefs()[idx].label() }
 
 func (m *Model) modeButton() string { return m.styles.accent(" " + m.modeGlyph() + " ") }
 
 // actionsShown is how many action icons fit.
 func (m *Model) actionsShown() int {
+	n := len(m.actionDefs())
 	if m.projectMode() {
-		return max(0, min(actionCount, (m.listW()-2-8)/actionW))
+		return max(0, min(n, (m.listW()-2-8)/actionW))
 	}
 	if m.w >= 90 {
-		return actionCount
+		return n
 	}
 	return 0
 }
@@ -99,17 +125,8 @@ func (m *Model) actionsText() string {
 
 // runAction does what an action icon says.
 func (m *Model) runAction(idx int) tea.Cmd {
-	switch idx {
-	case actionNewFile:
-		return m.startNewFile()
-	case actionNewFolder:
-		return m.startNewFolder()
-	case actionRefresh:
-		return m.reload()
-	case actionCollapse:
-		clear(m.expanded)
-		m.sel, m.top = 0, 0
-		return m.reload()
+	if defs := m.actionDefs(); idx >= 0 && idx < len(defs) {
+		return defs[idx].run()
 	}
 	return nil
 }
@@ -126,6 +143,10 @@ func (m *Model) tooltip() string {
 		return " " + m.modeLabel()
 	case zoneSettings:
 		return " " + i18n.T("Ajustes: ,", "Settings: ,")
+	case zoneBranch:
+		return " " + i18n.T("Cambiar de rama: B", "Switch branch: B")
+	case zoneScmBtn:
+		return " " + scmLabel(z.act)
 	}
 	return ""
 }

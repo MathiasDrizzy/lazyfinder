@@ -37,6 +37,14 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 	case m.ctx.open:
 		mx, my, bx := m.ctxBox()
 		return popupRow(x, y, mx, my, bx, len(m.ctx.items))
+	case m.diff.open:
+		return hoverRect{}, false
+	case m.gm.open:
+		mx, my, bx := m.gitMenuBox()
+		if !inBox(x, y, mx, my, bx) || y-my-3 < 0 || y-my-3 >= m.gmRows() {
+			return hoverRect{}, false
+		}
+		return hoverRect{mx + 1, y, boxWidth(bx) - 2, 1}, true
 	case m.picker.open:
 		mx, my, bx := m.pickerBox()
 		return popupRow(x, y, mx, my, bx, m.pickerRows())
@@ -50,6 +58,28 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 			return hoverRect{}, false
 		}
 		return hoverRect{m.listX(), firstRow + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
+	case zoneScmRow:
+		if z.idx == m.scm.sel {
+			return hoverRect{}, false
+		}
+		return hoverRect{m.listX(), y, m.listW(), 1}, true
+	case zoneScmBtn:
+		for _, b := range m.scmButtons(z.idx) {
+			if b.act == z.act {
+				return hoverRect{b.x, y, b.w, 1}, true
+			}
+		}
+	case zoneBranch:
+		switch {
+		case m.scmOn():
+			return hoverRect{m.listX(), headerRow, m.scmBranchW(), 1}, true
+		case y == 0:
+			if bx, bw, ok := m.branchSpan(); ok {
+				return hoverRect{bx, 0, bw, 1}, true
+			}
+		default:
+			return hoverRect{0, y, ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")), 1}, true
+		}
 	case zoneToggle:
 		return hoverRect{m.listX(), firstRow + (z.idx-m.top)*m.rowH(), m.listW(), m.rowH()}, true
 	case zonePlace:

@@ -37,6 +37,7 @@ const timeout = 5 * time.Second
 type Status struct {
 	Root            string // absolute, symlinks resolved
 	Branch          string // "HEAD" when detached
+	Upstream        string // the branch this one tracks, empty when it tracks none
 	Ahead, Behind   int
 	Staged          []Change        // changes in the index, in path order
 	Unstaged        []Change        // changes in the work tree: modified, deleted, untracked and in conflict
@@ -101,6 +102,8 @@ func parse(out []byte) Status {
 			if s.Branch == "(detached)" {
 				s.Branch = "HEAD"
 			}
+		case strings.HasPrefix(r, "# branch.upstream "):
+			s.Upstream = strings.TrimPrefix(r, "# branch.upstream ")
 		case strings.HasPrefix(r, "# branch.ab "):
 			f := strings.Fields(strings.TrimPrefix(r, "# branch.ab "))
 			if len(f) == 2 {

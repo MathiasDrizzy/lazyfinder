@@ -353,6 +353,8 @@ func (m *Model) popupBoxes() []popupBox {
 	add(m.set.open, m.settingsBox)
 	add(m.info.open, m.infoBox)
 	add(m.help.open, m.helpBox)
+	add(m.gm.open, m.gitMenuBox)
+	add(m.diff.open, m.diffBox)
 	add(m.ctx.open, m.ctxBox)
 	return out
 }
@@ -418,6 +420,19 @@ func (m *Model) toolbar() string {
 	if m.projectMode() {
 		return m.projectToolbar()
 	}
+	left := m.toolbarLeft()
+	right := m.toolbarRight()
+	if b := m.branchLabel(); b != "" {
+		right = m.styles.accent(b) + "  " + right
+	}
+	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
+	if pad < 1 {
+		return fit(left, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton() + " "
+	}
+	return left + strings.Repeat(" ", pad) + right
+}
+
+func (m *Model) toolbarLeft() string {
 	back, fwd := " ‹ ", " › "
 	if !m.hist.CanBack() {
 		back = m.styles.dim(back)
@@ -432,19 +447,29 @@ func (m *Model) toolbar() string {
 	if l := m.tabLabel(); l != "" {
 		left += "  " + m.styles.accent(l)
 	}
+	return left
+}
+
+// toolbarRight is the right part of the toolbar without the branch.
+func (m *Model) toolbarRight() string {
 	count := m.styles.dim(fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(m.entries())))
-	right := count + "  " + m.searchField() + m.modeButton() + m.gearButton() + " "
 	if m.actionsShown() > 0 { // the action icons sit one cell before the field
-		right = count + "  " + m.actionsText() + " " + m.searchField() + m.modeButton() + m.gearButton() + " "
+		return count + "  " + m.actionsText() + " " + m.searchField() + m.modeButton() + m.gearButton() + " "
 	}
-	if b := m.branchLabel(); b != "" {
-		right = m.styles.accent(b) + "  " + right
+	return count + "  " + m.searchField() + m.modeButton() + m.gearButton() + " "
+}
+
+// branchSpan says where the branch label sits in the toolbar of the window, when it is shown.
+func (m *Model) branchSpan() (x, w int, ok bool) {
+	b := m.branchLabel()
+	if b == "" || m.projectMode() {
+		return 0, 0, false
 	}
-	pad := m.w - ansi.StringWidth(left) - ansi.StringWidth(right)
-	if pad < 1 {
-		return fit(left, m.w-m.gearW()-modeBtnW) + m.modeButton() + m.gearButton() + " "
+	full := ansi.StringWidth(b) + 2 + ansi.StringWidth(m.toolbarRight())
+	if m.w-ansi.StringWidth(m.toolbarLeft())-full < 1 {
+		return 0, 0, false
 	}
-	return left + strings.Repeat(" ", pad) + right
+	return m.w - full, ansi.StringWidth(b), true
 }
 
 // searchFieldW is the width of the Search field at the top right, the one Finder has; narrow windows show just the lens.
@@ -478,6 +503,9 @@ func (m *Model) searchField() string {
 }
 
 func (m *Model) listLines() []string {
+	if m.scmOn() {
+		return m.scmLines()
+	}
 	if m.columnsOn() {
 		return m.millerLines()
 	}

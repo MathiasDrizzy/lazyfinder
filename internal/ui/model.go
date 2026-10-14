@@ -60,6 +60,9 @@ type Deps struct {
 
 	// ConfigPath is where the settings popup saves; empty means it only changes the running session.
 	ConfigPath string
+
+	// LookPath finds an executable (nil: exec.LookPath); tests use it to say whether lazygit is installed.
+	LookPath func(string) (string, error)
 }
 
 type focus int
@@ -132,6 +135,9 @@ type Model struct {
 	clip   clipboard
 	prompt promptState
 	info   infoState
+	scm    scmState
+	diff   diffState
+	gm     gitMenuState
 }
 
 type click struct {
@@ -440,6 +446,8 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.onPreview(msg)
 	case imageMsg:
 		return m, m.onImage(msg)
+	case gitDoneMsg:
+		return m, m.onGitDone(msg)
 	case execDoneMsg:
 		if msg.err != nil {
 			m.setError(msg.err)

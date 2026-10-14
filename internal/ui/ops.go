@@ -20,7 +20,8 @@ const (
 	promptTrash
 	promptFilter
 	promptTag
-	promptPlace // renaming a favorite of the sidebar
+	promptPlace   // renaming a favorite of the sidebar
+	promptConfirm // a yes/no question with its own answer (git operations that throw work away)
 )
 
 // promptState is the one-line question on the bottom row: a name to type, or a yes/no.
@@ -29,6 +30,8 @@ type promptState struct {
 	input  string
 	target string   // the path being renamed, or the folder a new file or folder goes in
 	paths  []string // the paths a trash confirmation is about
+	ask    string   // the question of a promptConfirm
+	yes    func() tea.Cmd
 }
 
 // dirOr is the folder the prompt was started for, or fallback when it has none.
@@ -287,6 +290,17 @@ func (m *Model) promptKey(k tea.KeyPressMsg) tea.Cmd {
 		}
 		return nil
 	}
+	if m.prompt.kind == promptConfirm {
+		switch key {
+		case "y", "Y", "s", "S", "enter":
+			yes := m.prompt.yes
+			m.prompt = promptState{}
+			return yes()
+		case "n", "N", "esc":
+			m.prompt = promptState{}
+		}
+		return nil
+	}
 	if m.prompt.kind == promptFilter {
 		return m.filterKey(k)
 	}
@@ -358,6 +372,8 @@ func (m *Model) promptBar() string {
 		return fit(m.styles.accent(" "+i18n.T("Nombre del favorito: ", "Favorite name: "))+m.prompt.input+"▏", m.w)
 	case promptFilter:
 		return fit(m.styles.accent(" "+i18n.T("Filtro: ", "Filter: "))+m.prompt.input+"▏", m.w)
+	case promptConfirm:
+		return fit(m.styles.accent(" "+m.prompt.ask+i18n.T(" (s/n)", " (y/n)")), m.w)
 	}
 	return fit(m.styles.accent(" "+fmt.Sprintf(i18n.T("¿Enviar %s a la Papelera? (s/n)", "Move %s to the Trash? (y/n)"), subject(m.prompt.paths))), m.w)
 }

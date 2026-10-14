@@ -127,7 +127,6 @@ func (m *Model) scanGit(dir string) {
 
 // visible drops the entries git ignores when the user asked to hide them.
 func (m *Model) visible(es []fsmodel.Entry) []fsmodel.Entry {
-	es = m.onlyChanged(es)
 	if !m.git.ok || !m.hideIgnored {
 		return es
 	}

@@ -1,8 +1,11 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
+	"github.com/charmbracelet/x/ansi"
 
 	tea "charm.land/bubbletea/v2"
 )
@@ -29,6 +32,9 @@ const (
 	zoneProjectTab    // a tab of the project mode
 	zoneAction        // an action icon of the tree (new file, new folder, refresh, collapse)
 	zoneMode          // the button that switches between the normal window and the sidebar mode
+	zoneScmRow        // a row of the Git tab
+	zoneScmBtn        // a button on a row of the Git tab
+	zoneBranch        // the branch label: opens the branch menu
 )
 
 // zone is what lies under a screen cell.
@@ -37,6 +43,7 @@ type zone struct {
 	idx  int
 	col  fsmodel.Column
 	path string
+	act  scmAct
 }
 
 // hit resolves a screen position on the base layer (popups are handled before). Panel borders are not clickable.
@@ -45,6 +52,22 @@ func (m *Model) hit(x, y int) zone {
 	for _, a := range m.actionSpans() {
 		if y == a.y && x >= a.x && x < a.x+a.w {
 			return zone{kind: zoneAction, idx: a.idx}
+		}
+	}
+	if m.scmOn() {
+		if y == headerRow && x >= m.listX() && x < m.listX()+m.scmBranchW() {
+			return zone{kind: zoneBranch}
+		}
+		if y >= firstRow && y < lastRow && x >= m.listX() && x < m.listX()+m.listW() {
+			i := m.scm.top + y - firstRow
+			if i < len(m.scmRows()) {
+				for _, b := range m.scmButtons(i) {
+					if x >= b.x && x < b.x+b.w {
+						return zone{kind: zoneScmBtn, idx: i, act: b.act}
+					}
+				}
+				return zone{kind: zoneScmRow, idx: i}
+			}
 		}
 	}
 	if m.columnsOn() && y >= headerRow && y < lastRow && x == m.listX()+m.millerGeom().parentW+1+m.millerGeom().centerW {
@@ -78,7 +101,10 @@ func (m *Model) hit(x, y int) zone {
 			return zone{kind: zoneMode}
 		}
 	case y == 0:
+		bx, bw, hasBranch := m.branchSpan()
 		switch {
+		case hasBranch && x >= bx && x < bx+bw:
+			return zone{kind: zoneBranch}
 		case x < 3:
 			return zone{kind: zoneBack}
 		case x < 6:
@@ -90,6 +116,8 @@ func (m *Model) hit(x, y int) zone {
 		case x >= m.w-m.gearW()-modeBtnW-m.fieldW() && x < m.w-m.gearW()-modeBtnW:
 			return zone{kind: zoneSearch}
 		}
+	case y == m.h-2 && m.projectMode() && m.git.ok && x < ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")):
+		return zone{kind: zoneBranch}
 	case y == m.h-1 && m.footerShowsHints():
 		_, spans := m.footerHints()
 		for _, s := range spans {
@@ -154,6 +182,12 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	m.setStatus("")
 	if m.ctx.open {
 		return m.ctxClick(mouse.X, mouse.Y)
+	}
+	if m.diff.open {
+		return nil // like every popup, it closes only with Esc
+	}
+	if m.gm.open {
+		return m.gitMenuClick(mouse.X, mouse.Y)
 	}
 	if m.help.open {
 		return nil // like lazymark: a popup closes only with Esc
@@ -220,6 +254,16 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 	case zoneMode:
 		m.toggleProject()
 		return nil
+	case zoneBranch:
+		return m.openGitMenu()
+	case zoneScmBtn:
+		return m.scmClickBtn(z.idx, z.act)
+	case zoneScmRow:
+		double := prev.zone.kind == zoneScmRow && prev.zone.idx == z.idx && m.deps.Now().Sub(prev.at) <= doubleClickWindow
+		if double {
+			m.lastClick = click{}
+		}
+		return m.scmClickRow(z.idx, double)
 	case zoneBack:
 		return m.step(m.hist.Back())
 	case zoneForward:
@@ -279,8 +323,19 @@ func (m *Model) onWheel(w tea.MouseWheelMsg) tea.Cmd {
 	default:
 		return nil
 	}
+	if m.diff.open {
+		m.diff.scroll = max(0, min(m.diffMax(), m.diff.scroll+dir*wheelStep))
+		return nil
+	}
+	if m.gm.open {
+		return nil
+	}
 	if m.pv.open {
 		m.scrollPreview(dir * wheelStep)
+		return nil
+	}
+	if m.scmOn() {
+		m.scm.top = max(0, min(max(0, len(m.scmRows())-m.scmVisible()), m.scm.top+dir*wheelStep))
 		return nil
 	}
 	if m.menu.open {
