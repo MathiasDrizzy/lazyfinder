@@ -627,7 +627,7 @@ func Update(path string, set map[string]any) error {
 
 func writeAtomic(path string, data []byte) error {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return i18n.Errorf(`no se puede crear %s: %w`, `cannot create %s: %w`, dir, err)
 	}
 	tmp, err := os.CreateTemp(dir, ".config-*.tmp")
@@ -642,7 +642,7 @@ func writeAtomic(path string, data []byte) error {
 	if err := tmp.Close(); err != nil {
 		return i18n.Errorf(`no se puede escribir la configuración: %w`, `cannot write config: %w`, err)
 	}
-	if err := os.Chmod(tmp.Name(), 0o644); err != nil {
+	if err := os.Chmod(tmp.Name(), 0o600); err != nil { // it lists your folders and programs
 		return err
 	}
 	return os.Rename(tmp.Name(), path)

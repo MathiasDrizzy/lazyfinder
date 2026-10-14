@@ -24,8 +24,8 @@ func loadState(path string, into any) {
 	}
 }
 
-// saveState writes v as JSON. A failure is not worth interrupting the user for: the value still works for this
-// session.
+// saveState writes v as JSON, readable only by the user (it says which files were opened and where). A failure is
+// not worth interrupting the user for: the value still works for this session.
 func saveState(path string, v any) {
 	if path == "" {
 		return
@@ -34,6 +34,7 @@ func saveState(path string, v any) {
 	if err != nil {
 		return
 	}
-	_ = os.MkdirAll(filepath.Dir(path), 0o755)
-	_ = os.WriteFile(path, append(data, '\n'), 0o644)
+	_ = os.MkdirAll(filepath.Dir(path), 0o700)
+	_ = os.WriteFile(path, append(data, '\n'), 0o600)
+	_ = os.Chmod(path, 0o600) // WriteFile keeps the mode of a file that already exists
 }
