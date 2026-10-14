@@ -14,7 +14,7 @@ import (
 // projectEnv is the project sidebar mode on a git repository with one modified and one new file, 36 columns wide.
 func projectEnv(t *testing.T, w int) *env {
 	t.Helper()
-	e := projectEnvWithoutGit(t, w)
+	e := newEnv(t)
 	e.git("init", "-q", "-b", "main")
 	e.git("add", "-A")
 	e.git("commit", "-q", "-m", "init")
@@ -24,14 +24,14 @@ func projectEnv(t *testing.T, w int) *env {
 	if err := os.WriteFile(filepath.Join(e.root, "alpha", "fresh.txt"), []byte("new\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	e.send(tea.WindowSizeMsg{Width: w, Height: 24})
-	return e
+	return asSidebar(e, w)
 }
 
 // projectEnvWithoutGit is the sidebar mode on the fixture folder, which is not a repository yet.
-func projectEnvWithoutGit(t *testing.T, w int) *env {
-	t.Helper()
-	e := newEnv(t)
+func projectEnvWithoutGit(t *testing.T, w int) *env { return asSidebar(newEnv(t), w) }
+
+// asSidebar turns the model of e into the sidebar mode, w columns wide.
+func asSidebar(e *env, w int) *env {
 	d := e.m.deps
 	d.Follow = true
 	d.Watcher = newFakeWatcher()
