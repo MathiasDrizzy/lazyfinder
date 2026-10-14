@@ -198,3 +198,24 @@ func TestProjectModeDoesNotOpenIgnoredFoldersByItself(t *testing.T) {
 		t.Fatal("no folder opens by itself")
 	}
 }
+
+// Mathias, 2026-10-14: an agent made two files with the sidebar open, ran git init and committed one; the sidebar
+// showed both alike, a + on each, because the new-file mark covered the git letter. git tells them apart, so its
+// letter wins: the untracked file says U and the committed one says nothing.
+func TestGitTellsApartTwoNewFilesWhenOneIsCommitted(t *testing.T) {
+	e := projectEnvWithoutGit(t, 40)
+	e.touch("archivo1.txt", "uno\n")
+	e.touch("archivo2.txt", "dos\n")
+	e.send(dirChangedMsg{dir: e.root})
+	e.git("init", "-q", "-b", "main")
+	e.git("add", "archivo1.txt")
+	e.git("commit", "-q", "-m", "one")
+	e.send(dirChangedMsg{dir: e.root})
+	e.send(dirChangedMsg{dir: filepath.Join(e.root, ".git")})
+	if !e.rowHas("archivo2.txt", "U")() {
+		t.Fatalf("the untracked file must say U:\n%s", e.text())
+	}
+	if l := e.row("archivo1.txt"); strings.Contains(l, " + ") || strings.Contains(l, " U ") {
+		t.Fatalf("the committed file carries no mark: %q", l)
+	}
+}

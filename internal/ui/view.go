@@ -701,10 +701,10 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 		}
 		switch {
 		case s.col != fsmodel.ColName || selected:
-		case m.isFresh(e.Path):
-			text = m.styles.fresh(text)
-		case m.git.ok && m.gitCode(e) != git.None:
+		case m.git.ok && m.gitCode(e) != git.None && m.gitCode(e) != git.Ignored:
 			text = m.styles.gitPaint(string(m.gitCode(e)), text) // the name wears the color of its git state
+		case m.isFresh(e.Path) && (!m.git.ok || m.gitCode(e) == git.Ignored): // in a repository git tells new from committed
+			text = m.styles.fresh(text)
 		case e.IsDir:
 			text = m.styles.folder(text)
 		}

@@ -27,6 +27,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- In a git repository a file that appears while lazyfinder is open shows its git state, not a + that hid it: an untracked file says U and a committed one carries no mark, as `git status` does. The + stays for new files outside a repository or ignored by git.
 - With `"screen_background": "terminal"`, the left side of the box lit on a button showed a white strip: the box
   is drawn with blocks in its own color, never with reversed colors.
 - In the sidebar, the tall box lit on the mode button and the gear had a notch on its left side: its rows above and

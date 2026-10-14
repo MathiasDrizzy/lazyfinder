@@ -224,11 +224,13 @@ func (m *Model) treeRow(idx, width int) string {
 		used += m.iconW()
 	}
 	code := m.gitCode(e)
+	byGit := m.git.ok && code != git.Ignored // in a repository git tells new from committed, so the + gives way
+	tracked := byGit && code != git.None
 	marker := ""
 	switch {
-	case m.isFresh(e.Path): // what just appeared says so for a few seconds, without relying on its color
+	case !byGit && m.isFresh(e.Path): // what just appeared says so, without relying on its color
 		marker = m.styles.fresh("+")
-	case !m.git.ok || code == git.None || code == git.Ignored:
+	case !tracked:
 	case e.IsDir:
 		marker = m.styles.gitPaint(string(code), "●")
 	default:
@@ -244,12 +246,12 @@ func (m *Model) treeRow(idx, width int) string {
 	}
 	name := fit(plain, max(1, width-used-tail))
 	switch {
-	case m.isFresh(e.Path):
+	case tracked:
+		name = m.styles.gitPaint(string(code), name)
+	case !byGit && m.isFresh(e.Path):
 		name = m.styles.fresh(name)
 	case code == git.Ignored:
 		name = m.styles.dim(name)
-	case m.git.ok && code != git.None:
-		name = m.styles.gitPaint(string(code), name)
 	case e.IsDir:
 		name = m.styles.folder(name)
 	}
