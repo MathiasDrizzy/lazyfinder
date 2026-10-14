@@ -177,8 +177,8 @@ func (m *Model) runAction(idx int) tea.Cmd {
 
 // tooltip is the text of the bottom row while the pointer rests on an icon with no label of its own.
 func (m *Model) tooltip() string {
-	if !m.hover.on || !m.mouse {
-		return ""
+	if !m.hover.on || !m.mouse || m.prompt.kind != promptNone {
+		return "" // a prompt keeps the bottom row: it says what is being typed
 	}
 	switch z := m.hit(m.hover.x, m.hover.y); z.kind {
 	case zoneAction:

@@ -50,9 +50,8 @@ func TestActionIconsCreateFilesAndFoldersAndCollapse(t *testing.T) {
 		t.Fatal("the second icon asks for a folder name")
 	}
 	e.key("esc")
-	e.key("right") // opens alpha
 	if !e.m.expanded[filepath.Join(e.root, "alpha")] {
-		t.Fatal("setup: alpha should be open")
+		t.Fatal("the new file opened alpha, where its row shows")
 	}
 	click(actionCollapse)
 	if len(e.m.expanded) != 0 {

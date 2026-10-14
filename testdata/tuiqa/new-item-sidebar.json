@@ -1,0 +1,141 @@
+{
+  "fixtures": "fixtures",
+  "name": "new-item-sidebar",
+  "criterio": "order 07 revision 2, S2 and S4: a new folder or file is made at once, its row shows the name being typed, typing replaces the default name, esc takes it back, and the tooltip of the icon does not cover the prompt",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--sidebar",
+    "${TUIQA_HOME}/proj"
+  ],
+  "cols": 44,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "N makes the folder at once, its row shows the name being typed",
+      "keys": [
+        "N"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "untitled folder▏",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": " New folder: untitled folder▏",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "typing replaces the whole default name (S2, S4: no 'untitled folderaas')",
+      "text": "aas"
+    },
+    {
+      "wait": {
+        "regex": "aas▏",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Created folder aas",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "folderaas",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "wait": {
+        "regex": "untitled folder",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "n makes a file; esc takes it back",
+      "keys": [
+        "n"
+      ]
+    },
+    {
+      "wait": {
+        "regex": " New file: untitled file▏",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "untitled file",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "a click on the new folder icon: the bottom row asks for the name, the tooltip does not cover it",
+      "text": "\u001b[<35;5;5M"
+    },
+    {
+      "click": {
+        "at": ""
+      }
+    },
+    {
+      "wait": {
+        "regex": " New folder: untitled folder▏",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "New folder: N",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "text": "bb"
+    },
+    {
+      "keys": [
+        "enter"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Created folder bb",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "wait": {
+        "regex": "folderbb",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    }
+  ],
+  "fixtures_mtime": "2026-09-01T12:00:00Z"
+}

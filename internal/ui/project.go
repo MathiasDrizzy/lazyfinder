@@ -228,7 +228,11 @@ func (m *Model) treeRow(idx, width int) string {
 	if marker != "" {
 		tail = 4 // a space, the marker and two cells clear of the edge
 	}
-	name := fit(strings.TrimPrefix(m.cell(e, fsmodel.ColName), strings.Repeat("  ", e.Depth)), max(1, width-used-tail))
+	plain := strings.TrimPrefix(m.cell(e, fsmodel.ColName), strings.Repeat("  ", e.Depth))
+	if m.editing(e.Path) {
+		plain = m.editedName()
+	}
+	name := fit(plain, max(1, width-used-tail))
 	switch {
 	case m.isFresh(e.Path):
 		name = m.styles.fresh(name)

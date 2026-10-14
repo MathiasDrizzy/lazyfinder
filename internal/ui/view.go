@@ -690,6 +690,9 @@ func (m *Model) rowW(idx int, specs []colSpec, width int) string {
 			ic := m.icons.Pick(icons.Item{Name: e.Name, IsDir: e.IsDir, IsLink: e.IsLink, Open: m.expanded[e.Path]})
 			lead = strings.Repeat(" ", indent) + m.iconCell(ic)
 			text = strings.TrimPrefix(text, strings.Repeat("  ", e.Depth))
+			if m.editing(e.Path) {
+				text = m.editedName()
+			}
 			text = fit(text, s.w-indent-m.iconW())
 		} else {
 			text = fit(text, s.w)

@@ -7,6 +7,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fileops"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 )
 
@@ -29,6 +30,8 @@ type promptState struct {
 	kind   promptKind
 	input  string
 	target string   // the path being renamed, or the folder a new file or folder goes in
+	made   string   // the new file or folder, made before its name is asked, like the Finder does
+	whole  bool     // the name is selected entirely: the first letter typed replaces it
 	paths  []string // the paths a trash confirmation is about
 	ask    string   // the question of a promptConfirm
 	yes    func() tea.Cmd
@@ -222,21 +225,45 @@ func (m *Model) createDir() string {
 }
 
 func (m *Model) startNewFolder() tea.Cmd {
-	if !m.canWrite() {
-		return nil
-	}
-	dir := m.createDir()
-	m.prompt = promptState{kind: promptNewFolder, target: dir, input: fileops.UniqueName(dir, i18n.T("carpeta sin título", "untitled folder"))}
-	return nil
+	return m.startNew(promptNewFolder, i18n.T("carpeta sin título", "untitled folder"), m.ops.Mkdir)
 }
 
 func (m *Model) startNewFile() tea.Cmd {
+	return m.startNew(promptNewFile, i18n.T("archivo sin título", "untitled file"), m.ops.Touch)
+}
+
+// startNew makes the new folder or file at once with a free default name and asks for its name on its own row, with
+// the whole name selected, as the Finder does: what is typed replaces it, enter keeps it and esc takes it back.
+func (m *Model) startNew(kind promptKind, base string, mk func(dir, name string) (string, error)) tea.Cmd {
 	if !m.canWrite() {
 		return nil
 	}
 	dir := m.createDir()
-	m.prompt = promptState{kind: promptNewFile, target: dir, input: fileops.UniqueName(dir, i18n.T("archivo sin título", "untitled file"))}
-	return nil
+	name := fileops.UniqueName(dir, base)
+	made, err := mk(dir, name)
+	if err != nil {
+		m.setError(err)
+		return nil
+	}
+	if dir != m.dir() {
+		m.expanded[dir] = true // the new row shows inside its folder
+	}
+	cmd := m.refresh(made)
+	m.prompt = promptState{kind: kind, target: dir, made: made, input: name, whole: true}
+	return cmd
+}
+
+// cancelNew takes back the folder or file the prompt made, while it is still empty: the undo of its creation.
+func (m *Model) cancelNew() tea.Cmd {
+	p := m.prompt
+	m.prompt = promptState{}
+	if p.made == "" {
+		return nil
+	}
+	if _, err := m.ops.Undo(); err != nil {
+		m.setError(err)
+	}
+	return m.refresh("")
 }
 
 func (m *Model) startTrash() tea.Cmd {
@@ -304,12 +331,21 @@ func (m *Model) promptKey(k tea.KeyPressMsg) tea.Cmd {
 	if m.prompt.kind == promptFilter {
 		return m.filterKey(k)
 	}
+	whole := m.prompt.whole
+	m.prompt.whole = false
 	switch key {
 	case "esc":
+		if m.prompt.made != "" {
+			return m.cancelNew()
+		}
 		m.prompt = promptState{}
 	case "enter":
 		return m.promptSubmit()
 	case "backspace":
+		if whole {
+			m.prompt.input = ""
+			break
+		}
 		if r := []rune(m.prompt.input); len(r) > 0 {
 			m.prompt.input = string(r[:len(r)-1])
 		}
@@ -317,6 +353,9 @@ func (m *Model) promptKey(k tea.KeyPressMsg) tea.Cmd {
 		m.prompt.input = ""
 	default:
 		if k.Text != "" && k.Mod&(tea.ModCtrl|tea.ModAlt) == 0 {
+			if whole {
+				m.prompt.input = ""
+			}
 			m.prompt.input += k.Text
 		}
 	}
@@ -330,10 +369,11 @@ func (m *Model) promptSubmit() tea.Cmd {
 	switch p.kind {
 	case promptRename:
 		made, err = m.ops.Rename(p.target, p.input)
-	case promptNewFolder:
-		made, err = m.ops.Mkdir(p.dirOr(m.dir()), p.input)
-	case promptNewFile:
-		made, err = m.ops.Touch(p.dirOr(m.dir()), p.input)
+	case promptNewFolder, promptNewFile:
+		made = p.made
+		if p.input != filepath.Base(p.made) {
+			made, err = m.ops.Rename(p.made, p.input)
+		}
 	case promptTag:
 		m.prompt = promptState{}
 		return m.toggleTag(p.input)
@@ -363,9 +403,9 @@ func (m *Model) promptBar() string {
 	case promptRename:
 		return fit(m.styles.accent(" "+i18n.T("Renombrar: ", "Rename: "))+m.prompt.input+"▏", m.w)
 	case promptNewFolder:
-		return fit(m.styles.accent(" "+i18n.T("Carpeta nueva: ", "New folder: "))+m.prompt.input+"▏", m.w)
+		return fit(" "+m.newIcon(true)+m.styles.accent(i18n.T("Nueva carpeta: ", "New folder: "))+m.promptInput()+"▏", m.w)
 	case promptNewFile:
-		return fit(m.styles.accent(" "+i18n.T("Archivo nuevo: ", "New file: "))+m.prompt.input+"▏", m.w)
+		return fit(" "+m.newIcon(false)+m.styles.accent(i18n.T("Nuevo archivo: ", "New file: "))+m.promptInput()+"▏", m.w)
 	case promptTag:
 		return fit(m.styles.accent(" "+i18n.T("Etiqueta: ", "Tag: "))+m.prompt.input+"▏", m.w)
 	case promptPlace:
@@ -377,3 +417,36 @@ func (m *Model) promptBar() string {
 	}
 	return fit(m.styles.accent(" "+fmt.Sprintf(i18n.T("¿Enviar %s a la Papelera? (s/n)", "Move %s to the Trash? (y/n)"), subject(m.prompt.paths))), m.w)
 }
+
+// newIcon is the icon of a folder or a file that heads the prompt for a new one, so it is clear which is being made.
+func (m *Model) newIcon(dir bool) string {
+	if m.iconW() == 0 {
+		if dir {
+			return "▢ "
+		}
+		return "▤ "
+	}
+	return m.iconCell(m.icons.Pick(icons.Item{Name: "x", IsDir: dir}))
+}
+
+// promptInput is the text being typed, shown selected while the first letter typed would replace it.
+func (m *Model) promptInput() string {
+	if m.prompt.whole && m.prompt.input != "" {
+		return m.styles.selected(m.prompt.input)
+	}
+	return m.prompt.input
+}
+
+// editing says whether the row of path shows its name being typed: a new folder or file, or a rename.
+func (m *Model) editing(path string) bool {
+	switch m.prompt.kind {
+	case promptNewFolder, promptNewFile:
+		return m.prompt.made == path
+	case promptRename:
+		return m.prompt.target == path
+	}
+	return false
+}
+
+// editedName is the name cell of the row being named: the text typed so far and the caret.
+func (m *Model) editedName() string { return m.prompt.input + "▏" }
