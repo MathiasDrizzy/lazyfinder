@@ -640,3 +640,13 @@ func writePNG(t *testing.T, path string, w, h int) {
 		t.Fatal(err)
 	}
 }
+
+func TestOverlayKeepsTheLineWidthWhenAWideGlyphStraddlesTheBox(t *testing.T) {
+	base := []string{"文件夹文件夹文件夹"} // 18 cells
+	for x := 0; x < 10; x++ {
+		out := overlay(base, []string{"[]"}, x, 0)
+		if got := ansi.StringWidth(out[0]); got != 18 {
+			t.Errorf("box at %d: the line is %d wide, want 18: %q", x, got, ansi.Strip(out[0]))
+		}
+	}
+}

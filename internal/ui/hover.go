@@ -150,6 +150,10 @@ func (m *Model) withHover(lines []string) []string {
 	if !ok {
 		return lines
 	}
+	r.w = min(r.w, m.w-r.x) // a chip cut off by a narrow terminal still has its full span
+	if r.w <= 0 {
+		return lines
+	}
 	seq := "\x1b[4m" // without a palette the pointer underlines what it is on
 	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
 		seq = theme.BackgroundSeq(hoverBg(p))

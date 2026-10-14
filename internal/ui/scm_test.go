@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -440,4 +441,13 @@ func (e *env) stagedNames() []string {
 		out = append(out, c.Path)
 	}
 	return out
+}
+
+func TestTheCounterOfTheGitTabCountsItsOwnRows(t *testing.T) {
+	e := projectEnv(t, 50)
+	e.clickText("Git")
+	rows := len(e.m.scmRows())
+	e.mustHave(fmt.Sprintf("1 of %d", rows))
+	e.key("down")
+	e.mustHave(fmt.Sprintf("2 of %d", rows))
 }

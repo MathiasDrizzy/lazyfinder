@@ -400,6 +400,12 @@ func (m *Model) folderTitle() string {
 
 // counter is the "n of m" in the bottom border of the list panel.
 func (m *Model) counter() string {
+	if m.scmOn() {
+		if n := len(m.scmRows()); n > 0 {
+			return fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), m.scm.sel+1, n)
+		}
+		return fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), 0, 0)
+	}
 	n := len(m.entries())
 	if n == 0 {
 		return fmt.Sprintf(i18n.T("%d de %d", "%d of %d"), 0, 0)

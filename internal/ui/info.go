@@ -36,7 +36,7 @@ func (m *Model) openInfo() tea.Cmd {
 
 func (m *Model) infoGeom() (x, y, h int) {
 	h = len(m.infoLines()) + 4
-	return (m.w - infoInner - 4) / 2, max(1, (m.h-h)/2), h
+	return max(0, (m.w-min(infoInner, m.w-4)-4)/2), max(1, (m.h-h)/2), h
 }
 
 func (m *Model) infoLines() []string {
