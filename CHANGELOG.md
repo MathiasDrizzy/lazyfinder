@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The buttons of the top rows are the three-cell chips of the herdr sidebar (` g `), the action buttons side by side
+  and one free cell between groups: the four-cell boxes one cell apart of 0.12.0 were too big and too far apart, and
+  a Nerd Font glyph, drawn wider than its cell, now sits in the middle of its box.
+
 ## [0.12.0] - 2026-10-14
 
 _Parity with the herdr sidebar is tabulated in `docs/PARITY-herdr-sidebar.md`._

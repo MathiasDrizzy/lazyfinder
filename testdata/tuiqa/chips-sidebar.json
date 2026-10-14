@@ -1,7 +1,7 @@
 {
   "fixtures": "fixtures",
   "name": "chips-sidebar",
-  "criterio": "order 07 revision 2, S1 and S3: the buttons of the tree header are the same chips as in the window",
+  "criterio": "order 07 revision 2, S1 and S3: the buttons of the tree header are the same chips as in the window (Mathias, 2026-10-14: herdr's ' g ' chip, three cells, the glyph in the middle, the actions side by side)",
   "cmd": [
     "${LAZYFINDER_BIN}",
     "--sidebar",
@@ -25,7 +25,7 @@
         "regex": "",
         "timeout_ms": 5000,
         "region": {
-          "x": 36,
+          "x": 39,
           "y": 3,
           "w": 1,
           "h": 1
@@ -33,15 +33,15 @@
       }
     },
     {
-      "text": "\u001b[<35;37;4M"
+      "text": "\u001b[<35;40;4M"
     },
     {
-      "desc": "the box of the new folder button of the tree, the same chip as in the window",
+      "desc": "the new folder box of the tree, the same chip as in the window",
       "assert_color": {
         "region": {
-          "x": 35,
+          "x": 38,
           "y": 3,
-          "w": 4,
+          "w": 3,
           "h": 1
         },
         "bg": "#45475a",
@@ -51,7 +51,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 34,
+          "x": 37,
           "y": 3,
           "w": 1,
           "h": 1
@@ -63,7 +63,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 39,
+          "x": 41,
           "y": 3,
           "w": 1,
           "h": 1

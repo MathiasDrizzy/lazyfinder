@@ -1,4 +1,4 @@
- ‹  ›   proj                                                5 elementos                Buscar                   
+ ‹  ›   proj                                                       5 elementos           Buscar                  
 ╭─ Favoritos ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │  Recientes        ││    Nombre ▲                  │ Fecha de modificación   │ Tamaño     │ Clase                    │
 │  Inicio           ││▸ >  alpha                     01/09/2026 12:00          --           Carpeta                  │

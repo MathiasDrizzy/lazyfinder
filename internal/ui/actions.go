@@ -19,25 +19,16 @@ const (
 	actionCount
 )
 
-// chipGap is the empty cell between two buttons, so their boxes never touch (order 07, revision 2, S1).
+// chipGap is the empty cell between two groups of buttons (the actions, Search, the mode button and the gear).
 const chipGap = 1
 
-// chipW is the cells of one button of the top rows: a space, the glyph and a space. A Nerd Font glyph is drawn two
-// cells wide, so it gets one more cell and the box keeps one cell of margin on each side of it, as the tab chips do.
-func (m *Model) chipW() int {
-	if m.icons.Style == icons.Nerd {
-		return 4
-	}
-	return 3
-}
+// chipW is the cells of one button of the top rows, herdr's title_action_chip: a space, the glyph and a space. A
+// Nerd Font glyph is drawn wider than its cell and spills into the right space, which puts it in the middle of the
+// box (Mathias, 2026-10-14: four cells one apart were "muy separados … muy grandes").
+func (m *Model) chipW() int { return 3 }
 
-// chip is the text of a button of chipW cells around glyph g.
-func (m *Model) chip(g string) string {
-	if m.icons.Style == icons.Nerd {
-		return " " + g + "  "
-	}
-	return " " + g + " "
-}
+// chip is the text of a button around glyph g.
+func (m *Model) chip(g string) string { return " " + g + " " }
 
 // The buttons at the right of the top row, right to left: the gear at the edge, the mode button and, in the window,
 // the Search field, each one chipGap from the next.
@@ -45,13 +36,8 @@ func (m *Model) gearX() int  { return m.w - m.gearW() }
 func (m *Model) modeX() int  { return m.gearX() - chipGap - m.chipW() }
 func (m *Model) fieldX() int { return m.modeX() - chipGap - m.fieldW() }
 
-// actionsWidth is the cells n action buttons take with the gaps between them.
-func (m *Model) actionsWidth(n int) int {
-	if n <= 0 {
-		return 0
-	}
-	return n*m.chipW() + (n-1)*chipGap
-}
+// actionsWidth is the cells n action buttons take: they follow each other with no gap, as in herdr.
+func (m *Model) actionsWidth(n int) int { return max(0, n) * m.chipW() }
 
 type actionSpan struct{ x, y, w, idx int }
 
@@ -179,7 +165,7 @@ func (m *Model) actionSpans() []actionSpan {
 	x := end - m.actionsWidth(n)
 	spans := make([]actionSpan, 0, n)
 	for i := 0; i < n; i++ {
-		spans = append(spans, actionSpan{x: x + i*(m.chipW()+chipGap), y: y, w: m.chipW(), idx: i})
+		spans = append(spans, actionSpan{x: x + i*m.chipW(), y: y, w: m.chipW(), idx: i})
 	}
 	return spans
 }
@@ -191,7 +177,7 @@ func (m *Model) actionsText() string {
 	for i := range parts {
 		parts[i] = m.styles.dim(m.chip(m.actionGlyph(i)))
 	}
-	return strings.Join(parts, strings.Repeat(" ", chipGap))
+	return strings.Join(parts, "")
 }
 
 // runAction does what an action icon says.

@@ -1,7 +1,7 @@
 {
   "fixtures": "fixtures",
   "name": "chips",
-  "criterio": "order 07 revision 2, S1 and S3: every button of the top row is a chip with the glyph in the middle and a free cell between boxes, lit with the theme's surface1; S6: hover and click work on every action icon of the window toolbar",
+  "criterio": "order 07 revision 2, S1 and S3: every button of the top row is a chip with the glyph in the middle and a free cell between boxes, lit with the theme's surface1; S6: hover and click work on every action icon of the window toolbar (Mathias, 2026-10-14: herdr's ' g ' chip, three cells, the glyph in the middle, the actions side by side)",
   "cmd": [
     "${LAZYFINDER_BIN}",
     "${TUIQA_HOME}/proj"
@@ -20,7 +20,7 @@
         "regex": "",
         "timeout_ms": 5000,
         "region": {
-          "x": 79,
+          "x": 84,
           "y": 0,
           "w": 1,
           "h": 1
@@ -32,7 +32,7 @@
         "regex": "",
         "timeout_ms": 5000,
         "region": {
-          "x": 117,
+          "x": 118,
           "y": 0,
           "w": 1,
           "h": 1
@@ -41,15 +41,15 @@
     },
     {
       "desc": "the pointer on the new folder icon",
-      "text": "\u001b[<35;81;1M"
+      "text": "\u001b[<35;85;1M"
     },
     {
-      "desc": "the box of the new folder icon: four cells, the glyph with one cell on each side, and a free cell to the next box",
+      "desc": "the new folder box: three cells with the glyph in the middle, its neighbours unlit",
       "assert_color": {
         "region": {
-          "x": 78,
+          "x": 83,
           "y": 0,
-          "w": 4,
+          "w": 3,
           "h": 1
         },
         "bg": "#45475a",
@@ -59,7 +59,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 77,
+          "x": 82,
           "y": 0,
           "w": 1,
           "h": 1
@@ -71,7 +71,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 82,
+          "x": 86,
           "y": 0,
           "w": 1,
           "h": 1
@@ -82,15 +82,15 @@
     },
     {
       "desc": "the pointer on the gear",
-      "text": "\u001b[<35;118;1M"
+      "text": "\u001b[<35;119;1M"
     },
     {
-      "desc": "the gear box, apart from the mode button",
+      "desc": "the gear box",
       "assert_color": {
         "region": {
-          "x": 116,
+          "x": 117,
           "y": 0,
-          "w": 4,
+          "w": 3,
           "h": 1
         },
         "bg": "#45475a",
@@ -100,7 +100,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 115,
+          "x": 116,
           "y": 0,
           "w": 1,
           "h": 1
@@ -111,15 +111,15 @@
     },
     {
       "desc": "cerebro S6: the pointer on the new file icon of the window toolbar",
-      "text": "\u001b[<35;76;1M"
+      "text": "\u001b[<35;82;1M"
     },
     {
       "desc": "the new file box lights, alone",
       "assert_color": {
         "region": {
-          "x": 73,
+          "x": 80,
           "y": 0,
-          "w": 4,
+          "w": 3,
           "h": 1
         },
         "bg": "#45475a",
@@ -129,7 +129,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 72,
+          "x": 79,
           "y": 0,
           "w": 1,
           "h": 1
@@ -141,7 +141,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 77,
+          "x": 83,
           "y": 0,
           "w": 1,
           "h": 1
@@ -152,15 +152,15 @@
     },
     {
       "desc": "cerebro S6: the pointer on the collapse icon of the window toolbar",
-      "text": "\u001b[<35;86;1M"
+      "text": "\u001b[<35;88;1M"
     },
     {
       "desc": "the collapse box lights, alone",
       "assert_color": {
         "region": {
-          "x": 83,
+          "x": 86,
           "y": 0,
-          "w": 4,
+          "w": 3,
           "h": 1
         },
         "bg": "#45475a",
@@ -170,7 +170,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 82,
+          "x": 85,
           "y": 0,
           "w": 1,
           "h": 1
@@ -182,7 +182,7 @@
     {
       "assert_color": {
         "region": {
-          "x": 87,
+          "x": 89,
           "y": 0,
           "w": 1,
           "h": 1
@@ -192,9 +192,9 @@
       }
     },
     {
-      "desc": "cerebro S6: a click on the new folder icon of the window toolbar makes the folder and asks its name",
+      "desc": "cerebro S6: a click on the new folder icon makes the folder and asks its name",
       "click": {
-        "x": 79,
+        "x": 84,
         "y": 0
       }
     },
@@ -219,7 +219,7 @@
     {
       "desc": "and a click on the new file icon asks a file name",
       "click": {
-        "x": 74,
+        "x": 81,
         "y": 0
       }
     },

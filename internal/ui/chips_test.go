@@ -13,14 +13,15 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
-	"github.com/charmbracelet/x/ansi"
 )
 
-// Mathias, 2026-10-14 (order 07, revision 2, S1): "los recuadros no están al medio del icono … también esos recuadros
-// se superponen, debe haber espacio para que no se superpongan como en el buscar". Every button of the top row is a
-// chip whose hover box has the same margin on both sides of the glyph, a Nerd Font glyph being drawn two cells wide,
-// and one empty cell between one box and the next.
-func TestTheButtonBoxesAreCenteredOnTheirGlyphAndApart(t *testing.T) {
+// Mathias, 2026-10-14 (order 07, revision 2, S1): "los recuadros no están al medio del icono … se superponen", and
+// after trying the four-cell boxes one apart: "ahora están muy separados, los recuadros son muy grandes … comparado a
+// sidebar de herdr, ellos sí lograron generar el recuadro perfecto y que quede al medio el icono". Every button is
+// herdr's title_action_chip, " g ": the glyph in the middle of three cells, so a Nerd Font glyph, drawn wider than its
+// cell, spills into the right margin and sits in the middle. The action buttons follow each other with no gap, as in
+// herdr; one free cell parts the groups (the actions, Search, the mode button, the gear); no two boxes overlap.
+func TestTheButtonBoxesAreHerdrChipsWithTheGlyphInTheMiddle(t *testing.T) {
 	for _, style := range []icons.Style{icons.Nerd, icons.ASCII} {
 		for _, sidebar := range []bool{false, true} {
 			var e *env
@@ -42,7 +43,8 @@ func TestTheButtonBoxesAreCenteredOnTheirGlyphAndApart(t *testing.T) {
 				glyph string
 			}
 			var boxes []box
-			for _, a := range e.m.actionSpans() {
+			spans := e.m.actionSpans()
+			for _, a := range spans {
 				boxes = append(boxes, box{"action", hoverRect{a.x, a.y, a.w, 1}, e.m.actionGlyph(a.idx)})
 			}
 			for _, b := range []struct {
@@ -65,30 +67,24 @@ func TestTheButtonBoxesAreCenteredOnTheirGlyphAndApart(t *testing.T) {
 				if b.glyph == "" {
 					continue
 				}
-				line := e.screen()[b.r.y]
-				cells := []rune(line)
-				g := -1
-				for x := b.r.x; x < b.r.x+b.r.w && x < len(cells); x++ {
-					if string(cells[x]) == b.glyph {
-						g = x
-					}
+				line := []rune(e.screen()[b.r.y])
+				if b.r.w != 3 || b.r.x+1 >= len(line) || string(line[b.r.x+1]) != b.glyph {
+					t.Errorf("%s %v: the %s box %+v is not \" %s \" (three cells, the glyph in the middle): %q", label, style, b.name, b.r, b.glyph, string(line))
 				}
-				if g < 0 {
-					t.Fatalf("%s %v: the %s glyph %q is not inside its box %+v: %q", label, style, b.name, b.glyph, b.r, line)
-				}
-				vw := ansi.StringWidth(b.glyph)
-				if r := []rune(b.glyph)[0]; style == icons.Nerd && vw == 1 && (r >= 0xe000 && r <= 0xf8ff || r >= 0xf0000) {
-					vw = 2 // the Nerd Font glyphs are drawn two cells wide
-				}
-				if left, right := g-b.r.x, b.r.x+b.r.w-(g+vw); left != right || left < 1 {
-					t.Errorf("%s %v: the %s box %+v has margins %d and %d around its glyph at %d", label, style, b.name, b.r, left, right, g)
+			}
+			for i := 1; i < len(spans); i++ {
+				if gap := spans[i].x - (spans[i-1].x + spans[i-1].w); gap != 0 {
+					t.Errorf("%s %v: action buttons %d and %d are %d cells apart, want 0 as in herdr", label, style, i-1, i, gap)
 				}
 			}
 			sort.Slice(boxes, func(i, j int) bool { return boxes[i].r.x < boxes[j].r.x })
 			for i := 1; i < len(boxes); i++ {
 				a, b := boxes[i-1], boxes[i]
-				if a.r.y == b.r.y && a.r.x+a.r.w >= b.r.x {
-					t.Errorf("%s %v: the %s box %+v touches the %s box %+v", label, style, a.name, a.r, b.name, b.r)
+				if a.r.y != b.r.y {
+					continue
+				}
+				if gap := b.r.x - (a.r.x + a.r.w); gap < 0 || a.name != b.name && gap != 1 {
+					t.Errorf("%s %v: the %s box %+v and the %s box %+v are %d cells apart, want one cell between groups and no overlap", label, style, a.name, a.r, b.name, b.r, gap)
 				}
 			}
 		}
