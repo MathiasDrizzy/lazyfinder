@@ -1,0 +1,35 @@
+{
+  "name": "lazyfinder-rows-git-comfortable",
+  "criterio": "cerebro S5 (order 07, revision 2): the row height comes from the density setting, not from git; with the default density (comfortable) rows are two lines apart on purpose, git or not",
+  "cmd": [
+    "sh",
+    "-c",
+    "cd \"${TUIQA_HOME}/proj\" && git init -q -b trunk . && git add . && git -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false commit -q -m init && echo changed >> notes.txt && echo x > loose.txt && printf '{\"version\":1,\"density\":\"comfortable\"}' > \"${TUIQA_HOME}/cfg.json\" && LAZYFINDER_CONFIG=\"${TUIQA_HOME}/cfg.json\" exec \"${LAZYFINDER_BIN}\" ."
+  ],
+  "cols": 120,
+  "rows": 35,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "the git letters are there",
+      "wait": {
+        "regex": "M\\s+\\S\\s+notes\\.txt",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "with the default density (comfortable) rows are two lines apart on purpose, git or not",
+      "wait": {
+        "regex": "alpha[^\\n]*\\n[^\\n]*\\n[^\\n]*beta",
+        "timeout_ms": 5000
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "fixtures": "fixtures",
   "name": "chips",
-  "criterio": "order 07 revision 2, S1 and S3: every button of the top row is a chip with the glyph in the middle and a free cell between boxes, lit with the theme's surface1",
+  "criterio": "order 07 revision 2, S1 and S3: every button of the top row is a chip with the glyph in the middle and a free cell between boxes, lit with the theme's surface1; S6: hover and click work on every action icon of the window toolbar",
   "cmd": [
     "${LAZYFINDER_BIN}",
     "${TUIQA_HOME}/proj"
@@ -108,6 +108,131 @@
         "bg": "#45475a",
         "mode": "none"
       }
+    },
+    {
+      "desc": "cerebro S6: the pointer on the new file icon of the window toolbar",
+      "text": "\u001b[<35;76;1M"
+    },
+    {
+      "desc": "the new file box lights, alone",
+      "assert_color": {
+        "region": {
+          "x": 73,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 72,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 77,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "desc": "cerebro S6: the pointer on the collapse icon of the window toolbar",
+      "text": "\u001b[<35;86;1M"
+    },
+    {
+      "desc": "the collapse box lights, alone",
+      "assert_color": {
+        "region": {
+          "x": 83,
+          "y": 0,
+          "w": 4,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "all"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 82,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "assert_color": {
+        "region": {
+          "x": 87,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "bg": "#45475a",
+        "mode": "none"
+      }
+    },
+    {
+      "desc": "cerebro S6: a click on the new folder icon of the window toolbar makes the folder and asks its name",
+      "click": {
+        "x": 79,
+        "y": 0
+      }
+    },
+    {
+      "wait": {
+        "regex": "New folder: untitled folder",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "New folder:",
+        "timeout_ms": 5000,
+        "absent": true
+      }
+    },
+    {
+      "desc": "and a click on the new file icon asks a file name",
+      "click": {
+        "x": 74,
+        "y": 0
+      }
+    },
+    {
+      "wait": {
+        "regex": "New file: untitled",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "keys": [
+        "esc"
+      ]
     }
   ],
   "fixtures_mtime": "2026-09-01T12:00:00Z"

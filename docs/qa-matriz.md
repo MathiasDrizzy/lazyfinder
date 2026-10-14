@@ -91,6 +91,8 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Function | Proof |
 |---|---|
 | Every button is a box centered on its glyph, one free cell from the next, the same dimmed color in both modes; the pointer lights it with the theme's surface | T TheButtonBoxesAreCenteredOnTheirGlyphAndApart, T TheButtonsHaveTheSameColorInBothModes, S chips, S chips-sidebar |
+| Row height comes from the density, not from git: inside a repository `normal` rows sit on consecutive lines and the default `comfortable` rows are two lines apart | S rows-git-normal, S rows-git-comfortable, T TheDefaultDensityIsWideLikeFinder |
+| Hover and click on every action icon of the window toolbar (the new folder and new file icons open their prompt) | S chips |
 | Every part follows the theme (file icons, folders, selection, border, branch, hover); no color is written outside the theme package | T EveryPartChangesColorWithTheTheme, T NoColorIsWrittenOutsideTheThemePackage, S chips-catppuccin-latte, S chips-nord |
 | 14 themes readable, light and dark | T TextReadsInEveryTheme, T PlainTextTakesTheThemeTextColorOnALightTheme, S themes |
 | Settings (every row saves; a broken config is not overwritten) | T SettingsThemeChangeAppliesAndIsSaved, T SettingsDoesNotOverwriteABrokenConfig, T SettingsFitsAndScrollsAtSmallSizes, S settings |
