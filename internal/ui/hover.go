@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -206,8 +205,12 @@ func (m *Model) paintHover(lines []string, r hoverRect) []string {
 			seq = theme.BackgroundSeq(chipHoverBg(p))
 		}
 	}
-	if p, found := theme.Lookup(m.deps.Cfg.Theme); found && m.halfEdgeChip() {
-		return m.paintChip(lines, r, chipHoverBg(p))
+	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
+		if g, ok := m.chipGlyphUnderPointer(); ok {
+			if box, ok := nerdChipBox(g); ok {
+				return paintChip(lines, r, box, chipHoverBg(p), m.styles.bg)
+			}
+		}
 	}
 	out := make([]string, len(lines))
 	copy(out, lines)
@@ -232,48 +235,6 @@ func (m *Model) paintHover(lines []string, r hoverRect) []string {
 		}
 		out[y] = painted
 	}
-	return out
-}
-
-// halfEdgeChip says whether the pointer is on a button of a Nerd Font glyph: an action, the mode button or the gear.
-func (m *Model) halfEdgeChip() bool {
-	if m.icons.Style != icons.Nerd {
-		return false
-	}
-	switch m.hit(m.hover.x, m.hover.y).kind {
-	case zoneAction, zoneSettings, zoneMode:
-		return true
-	}
-	return false
-}
-
-// paintChip lights the chip r of a Nerd Font glyph (Mathias, 2026-10-14: "no se puede centrar el icono con el recuadro
-// gris?"). Ghostty draws the glyph over its own cell and the space after it, so the box is those two cells with a
-// half block on each side: ▐ in the first cell of the chip and ▌ in the free cell after it, half a cell of margin on
-// both sides, like the half blocks above and below the tab chips.
-func (m *Model) paintChip(lines []string, r hoverRect, bg color.Color) []string {
-	out := make([]string, len(lines))
-	copy(out, lines)
-	if r.y < 0 || r.y >= len(out) {
-		return out
-	}
-	line := out[r.y]
-	want := ansi.StringWidth(line)
-	edge := lipgloss.NewStyle().Foreground(bg).Render
-	seq := theme.BackgroundSeq(bg)
-	left := ansi.Truncate(line, r.x, "")
-	left += strings.Repeat(" ", max(0, r.x-ansi.StringWidth(left)))
-	mid := ansi.Cut(line, r.x+1, r.x+r.w)
-	mid += strings.Repeat(" ", max(0, r.w-1-ansi.StringWidth(mid)))
-	right := ansi.TruncateLeft(line, r.x+r.w+1, "")
-	painted := left + "\x1b[0m" + edge("▐") + seq + dropBackgrounds(mid, seq) + "\x1b[0m" + edge("▌") + right
-	if ansi.StringWidth(painted) > want {
-		painted = ansi.Truncate(painted, want, "")
-	}
-	if got := ansi.StringWidth(painted); got < want {
-		painted += strings.Repeat(" ", want-got)
-	}
-	out[r.y] = painted
 	return out
 }
 

@@ -11,8 +11,15 @@ All notable changes to this project are documented here. The format follows
 - The buttons of the top rows are the three-cell chips of the herdr sidebar (` g `), the action buttons side by side
   and one free cell between groups: the four-cell boxes one cell apart of 0.12.0 were too big and too far apart, and
   a Nerd Font glyph, drawn wider than its cell, now sits in the middle of its box.
-- The box the pointer lights on a button of a Nerd Font glyph is the glyph's two cells with a half block on each
-  side, so the glyph sits in its middle; the mode button and the gear sit side by side like the action buttons.
+- The box the pointer lights on a button of a Nerd Font glyph is sized from the glyph's measured ink, with a partial
+  cell on its left side, so the glyph sits in its middle in Ghostty (margins at most 2 pixels apart) and every box is
+  as wide as the others (43 to 45 pixels, the collapse box was 57); the mode button and the gear sit side by side
+  like the action buttons.
+
+### Fixed
+
+- In the sidebar, the tall box lit on the mode button and the gear had a notch on its left side: its rows above and
+  below now start at the same half cell as the middle row.
 
 ## [0.12.0] - 2026-10-14
 

@@ -97,17 +97,23 @@ func (m *Model) projectToolbar() []string {
 	type capSpan struct {
 		x, w int
 		c    color.Color
+		half bool // the box starts at the middle of its first cell, as the half block ▐ of the middle row
 	}
 	var caps []capSpan
 	p, colored := theme.Lookup(m.deps.Cfg.Theme)
 	if colored {
 		a := spans[m.activeTab()]
-		caps = append(caps, capSpan{a.x, a.w, chipActiveBg(p)})
+		caps = append(caps, capSpan{a.x, a.w, chipActiveBg(p), false})
 		if r, ok := m.hoverRect(); ok && r.y == 1 {
-			caps = append(caps, capSpan{r.x, r.w, chipHoverBg(p)})
+			half := false
+			if g, ok := m.chipGlyphUnderPointer(); ok {
+				box, ok := nerdChipBox(g)
+				half = ok && box.fill == 4
+			}
+			caps = append(caps, capSpan{r.x, r.w, chipHoverBg(p), half})
 		}
 	}
-	edge := func(glyph string) string {
+	edge := func(glyph, quadrant string) string {
 		var b strings.Builder
 		x := 0
 		for _, c := range caps {
@@ -115,12 +121,16 @@ func (m *Model) projectToolbar() []string {
 				continue
 			}
 			b.WriteString(strings.Repeat(" ", c.x-x))
-			b.WriteString(lipgloss.NewStyle().Foreground(c.c).Render(strings.Repeat(glyph, c.w)))
+			cells := strings.Repeat(glyph, c.w)
+			if c.half {
+				cells = quadrant + strings.Repeat(glyph, c.w-1)
+			}
+			b.WriteString(lipgloss.NewStyle().Foreground(c.c).Render(cells))
 			x = c.x + c.w
 		}
 		return b.String() + strings.Repeat(" ", max(0, m.w-x))
 	}
-	return []string{edge("▄"), mid, edge("▀")}
+	return []string{edge("▄", "▗"), mid, edge("▀", "▝")}
 }
 
 func (m *Model) projectTabAt(x int) (projectTab, bool) {

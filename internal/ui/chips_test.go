@@ -104,11 +104,15 @@ func TestTheButtonBoxesAreHerdrChipsWithTheGlyphInTheMiddle(t *testing.T) {
 }
 
 // Mathias, 2026-10-14, zooming on the hover of the mode button: "no se puede centrar el icono con el recuadro gris …
-// el icono está más a la derecha y la izquierda está más grande". Ghostty draws a Nerd Font glyph over two cells, the
-// glyph's and the space after it, so a box of whole cells is one cell wider on the left. The lit box is the glyph's
-// two cells with a half block on each side, ▐ in the chip's first cell and ▌ in the free cell after it: half a cell
-// of margin on both sides, as the half blocks above and below the tab chips.
-func TestTheLitBoxIsCenteredOnTheTwoCellsOfANerdGlyph(t *testing.T) {
+// el icono está más a la derecha y la izquierda está más grande". cerebro measured b46b985 in Ghostty (order 07,
+// revision 3, S7): margins of 9 and 20 pixels. And then: "revisa también los tamaños de los recuadros gris … este es
+// mucho más grande que los otros" (the collapse box, 57 pixels against 43). The box is read back from the screen,
+// turned into pixels with the ink measured in Ghostty, and its two margins must differ by 2 pixels at most and every
+// box must be as wide as the others within 3 pixels, for every Nerd Font button in both modes.
+func TestTheLitBoxIsCenteredOnTheInkOfANerdGlyphAndAllBoxesAreAlike(t *testing.T) {
+	eighths := map[rune]int{'▏': 1, '▎': 2, '▍': 3, '▌': 4, '▋': 5, '▊': 6, '▉': 7}
+	cell := float64(inkCellPx)
+	var widths []float64
 	for _, sidebar := range []bool{false, true} {
 		var e *env
 		if sidebar {
@@ -126,19 +130,52 @@ func TestTheLitBoxIsCenteredOnTheTwoCellsOfANerdGlyph(t *testing.T) {
 			r, _ := e.m.zoneRect(zone{kind: z})
 			rects = append(rects, r)
 		}
+		p, _ := theme.Lookup(e.m.deps.Cfg.Theme)
+		bg := theme.BackgroundSeq(chipHoverBg(p))
+		lit := func(raw string, x int) bool { return strings.Contains(ansi.Cut(raw, x, x+1), bg) }
 		for _, r := range rects {
 			e.move(r.x+1, r.y)
 			raw := strings.Split(e.m.View().Content, "\n")[r.y]
 			cells := []rune(ansi.Strip(raw))
-			if r.x+3 >= len(cells) || cells[r.x] != '▐' || cells[r.x+3] != '▌' {
-				t.Errorf("sidebar=%v: the lit box %+v must be ▐ glyph ▌: %q", sidebar, r, string(cells))
+			glyph := string(cells[r.x+1])
+			ink, ok := nerdInkPx[glyph]
+			if !ok {
+				t.Errorf("sidebar=%v: the glyph %q of the button at %+v has no measured ink width", sidebar, glyph, r)
 				continue
 			}
-			p, _ := theme.Lookup(e.m.deps.Cfg.Theme)
-			if bg := theme.BackgroundSeq(chipHoverBg(p)); !strings.Contains(ansi.Cut(raw, r.x+1, r.x+3), bg) {
-				t.Errorf("sidebar=%v: the two cells of the glyph %+v are not lit: %q", sidebar, r, raw)
+			if !lit(raw, r.x+1) || !lit(raw, r.x+2) || cells[r.x+2] != ' ' {
+				t.Errorf("sidebar=%v: the glyph %q and the space after it must be lit: %q", sidebar, glyph, raw)
+				continue
 			}
+			// The part of the cell before the glyph that is lit: a space on the box color, the half block ▐ in the
+			// box color, or a left block in the panel color on the box color (the box shows on its right).
+			var fill float64
+			switch c := cells[r.x]; {
+			case c == '▐':
+				fill = cell / 2
+			case lit(raw, r.x) && c == ' ':
+				fill = cell
+			case lit(raw, r.x) && eighths[c] > 0:
+				fill = float64(8-eighths[c]) * cell / 8
+			}
+			tail := 0.0
+			if r.x+3 < len(cells) && !lit(raw, r.x+3) {
+				tail = float64(eighths[cells[r.x+3]]) * cell / 8
+			}
+			left := inkLeftPx + fill
+			right := 2*cell - inkLeftPx - float64(ink) + tail
+			if d := left - right; d > 2 || d < -2 {
+				t.Errorf("sidebar=%v: the box of %q leaves %.1f px left and %.1f px right of its ink, want at most 2 px apart", sidebar, glyph, left, right)
+			}
+			widths = append(widths, fill+2*cell+tail)
 		}
+	}
+	lo, hi := widths[0], widths[0]
+	for _, w := range widths {
+		lo, hi = min(lo, w), max(hi, w)
+	}
+	if hi-lo > 3 {
+		t.Errorf("the boxes are from %.1f to %.1f px wide, want them alike within 3 px: %v", lo, hi, widths)
 	}
 }
 
@@ -200,5 +237,26 @@ func TestNoColorIsWrittenOutsideTheThemePackage(t *testing.T) {
 	}
 	if len(found) > 0 {
 		t.Fatalf("%d colors written down outside internal/theme:\n%s", len(found), strings.Join(found, "\n"))
+	}
+}
+
+// The sidebar lights the mode button and the gear as a tall chip, three rows like herdr's tabs. When the middle row
+// starts the box at the half block ▐, the rows above and below start at the same half (▗ and ▝): with whole cells
+// there the box showed a notch on its left side in Ghostty (order 07, revision 3).
+func TestTheTallChipOfTheSidebarHasStraightSides(t *testing.T) {
+	e := projectEnv(t, 60)
+	e.m.icons = icons.Set{Style: icons.Nerd}
+	e.move(10, 8)
+	for _, z := range []zoneKind{zoneMode, zoneSettings} {
+		r, _ := e.m.zoneRect(zone{kind: z})
+		e.move(r.x+1, r.y)
+		s := e.screen()
+		mid := []rune(s[1])
+		if mid[r.x] != '▐' {
+			t.Fatalf("zone %d: the middle row starts at the half block: %q", z, s[1])
+		}
+		if top, bottom := []rune(s[0])[r.x], []rune(s[2])[r.x]; top != '▗' || bottom != '▝' {
+			t.Errorf("zone %d: the rows above and below start at the same half, got %q and %q:\n%s\n%s\n%s", z, top, bottom, s[0], s[1], s[2])
+		}
 	}
 }
