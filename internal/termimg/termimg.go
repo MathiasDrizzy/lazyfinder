@@ -6,17 +6,18 @@ package termimg
 
 import (
 	"fmt"
-	_ "golang.org/x/image/bmp"  // decoders
-	_ "golang.org/x/image/tiff" // decoders
-	_ "golang.org/x/image/webp" // decoders
 	"image"
 	_ "image/gif"  // decoders
 	_ "image/jpeg" // decoders
 	_ "image/png"  // decoders
-	"os"
 	"strconv"
 	"strings"
 
+	_ "golang.org/x/image/bmp"  // decoders
+	_ "golang.org/x/image/tiff" // decoders
+	_ "golang.org/x/image/webp" // decoders
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/ansi/kitty"
@@ -86,12 +87,12 @@ func Placeholders(id, cols, rows int) []string {
 // Encode decodes the image at path, shrinks it and builds its transmission sequence for cols x rows cells. It
 // touches no shared state, so it is safe to run in a goroutine. Use WithID to give the sequence its real id.
 func Encode(path string, cols, rows int) (string, error) {
-	f, err := os.Open(path)
+	f, fi, err := fsmodel.OpenRegular(path)
 	if err != nil {
 		return "", fmt.Errorf("cannot open image %q: %w", path, err)
 	}
 	defer func() { _ = f.Close() }()
-	if fi, err := f.Stat(); err != nil || !fi.Mode().IsRegular() || fi.Size() > MaxFileBytes {
+	if fi.Size() > MaxFileBytes {
 		return "", fmt.Errorf("image %q is not a regular file under %d MiB", path, MaxFileBytes>>20)
 	}
 	// header first: a small file that declares billions of pixels is never decoded

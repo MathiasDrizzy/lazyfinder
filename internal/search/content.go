@@ -6,11 +6,12 @@ import (
 	"errors"
 	"io"
 	"io/fs"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 )
 
 const (
@@ -80,12 +81,12 @@ func nativeContent(ctx context.Context, root, text string, hidden bool) (map[str
 // FileContains reports whether the text file at path holds want (already lower case). Binary files, files over
 // 2 MiB and unreadable files do not.
 func FileContains(path string, want []byte) bool {
-	f, err := os.Open(path)
+	f, st, err := fsmodel.OpenRegular(path)
 	if err != nil {
 		return false
 	}
 	defer func() { _ = f.Close() }()
-	if st, err := f.Stat(); err != nil || st.Size() > maxContentFile {
+	if st.Size() > maxContentFile {
 		return false
 	}
 	body, err := io.ReadAll(io.LimitReader(f, maxContentFile))

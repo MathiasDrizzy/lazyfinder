@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
@@ -55,22 +54,21 @@ func listArchive(ctx context.Context, path string, kind archiveKind) (lines []st
 		}
 		lines = append(lines, fmt.Sprintf("%10s  %s", sz, VisibleLine(name)))
 	}
+	f, info, err := fsmodel.OpenRegular(path)
+	if err != nil {
+		return nil, 0, false, err
+	}
+	defer func() { _ = f.Close() }()
 	if kind == zipArchive {
-		zr, err := zip.OpenReader(path)
+		zr, err := zip.NewReader(f, info.Size())
 		if err != nil {
 			return nil, 0, false, err
 		}
-		defer func() { _ = zr.Close() }()
 		for _, f := range zr.File {
 			add(f.Name, int64(f.UncompressedSize64), f.FileInfo().IsDir())
 		}
 		return lines, total, false, nil
 	}
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, 0, false, err
-	}
-	defer func() { _ = f.Close() }()
 	var r io.Reader = f
 	if kind == tarGzArchive {
 		gz, err := gzip.NewReader(f)

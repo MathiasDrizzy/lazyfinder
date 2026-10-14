@@ -4,7 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -41,7 +43,10 @@ func hostileEnv(t *testing.T) *env {
 		}
 	}
 	e := newEnvAt(t, home)
-	e.key("\r") // alpha is the first row
+	e.send(tea.KeyPressMsg{Code: tea.KeyEnter}) // alpha is the first row
+	if !strings.HasSuffix(e.m.dir(), "alpha") {
+		t.Fatalf("did not enter alpha: %s", e.m.dir())
+	}
 	return e
 }
 
@@ -85,4 +90,41 @@ func TestHostileNamesAndTextNeverReachTheTerminal(t *testing.T) {
 	e.key("M")
 	e.send(tea.WindowSizeMsg{Width: 40, Height: 30})
 	mustBeSafeFrame(t, e, "sidebar mode")
+}
+
+func TestFifosAndDevicesNeverBlockTheWindow(t *testing.T) {
+	home := t.TempDir()
+	dir := filepath.Join(home, "proj", "alpha")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	// The first row of each case is the special file, so it is selected as soon as the folder opens.
+	if err := syscall.Mkfifo(filepath.Join(dir, "a-pipe.txt"), 0o644); err != nil {
+		t.Skip("no FIFOs here:", err)
+	}
+	for _, link := range []struct{ name, target string }{{"b-tty.txt", "/dev/tty"}, {"c-tty.png", "/dev/tty"}, {"d-zero.txt", "/dev/zero"}} {
+		if err := os.Symlink(link.target, filepath.Join(dir, link.name)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		e := newEnvAt(t, home)
+		e.send(tea.KeyPressMsg{Code: tea.KeyEnter})
+		for range 4 {
+			e.key(" ")
+			e.send(tea.KeyPressMsg{Code: tea.KeyEscape})
+			e.key("M")
+			e.key("M")
+			e.send(tea.KeyPressMsg{Code: tea.KeyDown})
+		}
+		e.send(tea.WindowSizeMsg{Width: 40, Height: 30})
+		_ = e.m.View()
+	}()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("a FIFO or a device in the folder blocked the window")
+	}
 }

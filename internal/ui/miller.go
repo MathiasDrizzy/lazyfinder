@@ -2,7 +2,6 @@ package ui
 
 import (
 	"bytes"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -95,9 +94,9 @@ func millerRight(e fsmodel.Entry, hidden bool, sort fsmodel.Sort) []string {
 		}
 		return out
 	}
-	f, err := os.Open(e.Path)
+	f, _, err := fsmodel.OpenRegular(e.Path)
 	if err != nil {
-		return []string{}
+		return []string{fsmodel.KindOf(e.Name, false, e.IsLink)}
 	}
 	defer func() { _ = f.Close() }()
 	buf := make([]byte, millerSnippetBytes)

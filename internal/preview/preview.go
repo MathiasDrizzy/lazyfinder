@@ -106,7 +106,7 @@ func Load(ctx context.Context, path string, opts Options) Result {
 		res.Kind = KindOther
 		return res
 	}
-	f, err := os.Open(path)
+	f, _, err := fsmodel.OpenRegular(path)
 	if err != nil {
 		return failed(res, path, err)
 	}
