@@ -17,6 +17,11 @@ All notable changes to this project are documented here. The format follows
   0700 folder).
 - `golang.org/x/net` is v0.60.0 (none of the advisories in v0.39.0 was reachable from lazyfinder).
 
+### Fixed
+
+- On a narrow window the columns cut a long title, and then a long kind, before a whole column goes away: in Spanish
+  at 120 cells the date created no longer disappears. Dates are never cut.
+
 ### Removed
 
 - The Homebrew formula in `packaging/homebrew`: the cask in the tap replaces it.

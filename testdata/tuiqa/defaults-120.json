@@ -1,6 +1,6 @@
 {
   "name": "lazyfinder-defaults-120",
-  "criterio": "order 2026-10-13-05 revision 2 (at 120 columns in Spanish the default columns are read whole, and every selected row, in the list, the sidebar and the column view, is the blue-gray selection)",
+  "criterio": "order 2026-10-13-05 revision 2, amended on 2026-10-14 (the date created is a default column): at 120 columns in Spanish the five default columns are shown with readable data, a long title is cut with … instead of dropping a column, dates are never cut; and every selected row, in the list, the sidebar and the column view, is the blue-gray selection",
   "cmd": [
     "${LAZYFINDER_BIN}",
     "${TUIQA_HOME}/proj"
@@ -21,28 +21,37 @@
       }
     },
     {
-      "desc": "the date and kind columns are not cut",
+      "desc": "the five default columns are on the header, long titles may be cut",
       "wait": {
-        "regex": "Fecha de modificación",
+        "regex": "Nombre.*Fecha de modifi.*Fecha de creaci.*Tamaño.*Clase",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "both dates of a row are whole",
+      "wait": {
+        "regex": "\\d\\d/\\d\\d/\\d{4} \\d\\d:\\d\\d\\s+\\d\\d/\\d\\d/\\d{4} \\d\\d:\\d\\d",
+        "timeout_ms": 5000
+      }
+    },
+    {
+      "desc": "the kind is readable even when it is cut",
+      "wait": {
+        "regex": "Hoja de cálculo",
         "timeout_ms": 5000
       }
     },
     {
       "wait": {
-        "regex": "Hoja de cálculo de Excel",
+        "regex": "Código fuente",
         "timeout_ms": 5000
       }
     },
     {
+      "desc": "no date is cut",
       "wait": {
-        "regex": "Código fuente de Go",
-        "timeout_ms": 5000
-      }
-    },
-    {
-      "wait": {
-        "regex": "(?m)(modifica|cálculo d|fuente de )…",
-        "timeout_ms": 5000,
+        "regex": "\\d\\d/\\d\\d/[\\d ]{0,9}…",
+        "timeout_ms": 3000,
         "absent": true
       }
     },

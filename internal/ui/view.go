@@ -146,7 +146,9 @@ func (m *Model) panelH() int { return m.h - 3 }
 // dropOrder says which optional columns go first when the window is narrow: the extension first, the name shows it.
 var dropOrder = []fsmodel.Column{fsmodel.ColExt, fsmodel.ColPath, fsmodel.ColTags, fsmodel.ColOwner, fsmodel.ColPerms, fsmodel.ColOpened, fsmodel.ColCreated, fsmodel.ColKind, fsmodel.ColSize, fsmodel.ColModified}
 
-// columns lays out the visible columns; optional ones are dropped by dropOrder until the name fits.
+// columns lays out the visible columns. When the name does not fit, the optional columns first give up the room their
+// titles take beyond their content, then text columns are cut down to shrinkFloor; only then are columns dropped by
+// dropOrder. A long translated title is cut before a whole column goes away.
 func (m *Model) columns() []colSpec {
 	var extra []fsmodel.Column
 	for _, c := range m.deps.Cfg.Columns {
@@ -154,26 +156,43 @@ func (m *Model) columns() []colSpec {
 			extra = append(extra, col)
 		}
 	}
-	nameW := func() int {
-		w := m.listW() - m.prefix() - m.rightGutter()
-		for _, c := range extra {
-			w -= m.colWidth(c) + m.gap()
-		}
-		return w
-	}
+	widths, nameW := m.fitColumns(extra)
 	for _, drop := range dropOrder {
-		if nameW() >= minNameW {
+		if nameW >= minNameW {
 			break
 		}
 		extra = slices.DeleteFunc(extra, func(c fsmodel.Column) bool { return c == drop })
+		widths, nameW = m.fitColumns(extra)
 	}
-	specs := []colSpec{{col: fsmodel.ColName, x: m.prefix(), w: max(1, nameW())}}
+	specs := []colSpec{{col: fsmodel.ColName, x: m.prefix(), w: max(1, nameW)}}
 	x := m.prefix() + specs[0].w + m.gap()
-	for _, c := range extra {
-		specs = append(specs, colSpec{col: c, x: x, w: m.colWidth(c)})
-		x += m.colWidth(c) + m.gap()
+	for i, c := range extra {
+		specs = append(specs, colSpec{col: c, x: x, w: widths[i]})
+		x += widths[i] + m.gap()
 	}
 	return specs
+}
+
+// fitColumns gives the widths of the optional columns and of the name, narrowing the columns as far as their floors
+// allow when the name would be under minNameW.
+func (m *Model) fitColumns(extra []fsmodel.Column) ([]int, int) {
+	widths := make([]int, len(extra))
+	nameW := m.listW() - m.prefix() - m.rightGutter()
+	for i, c := range extra {
+		widths[i] = m.colWidth(c)
+		nameW -= widths[i] + m.gap()
+	}
+	for _, floor := range []func(fsmodel.Column) int{m.contentWidth, m.shrinkFloor} {
+		for i, c := range extra {
+			if nameW >= minNameW {
+				return widths, nameW
+			}
+			cut := min(minNameW-nameW, max(0, widths[i]-floor(c)))
+			widths[i] -= cut
+			nameW += cut
+		}
+	}
+	return widths, nameW
 }
 
 func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {

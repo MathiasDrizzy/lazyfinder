@@ -149,3 +149,29 @@ func TestTheExtensionGoesBeforeTheDateCreatedOnANarrowWindow(t *testing.T) {
 		t.Fatalf("at %d columns the date created must fit once the extension is gone: %v", e.m.w, shown)
 	}
 }
+
+// Seen while recording the README at 1200 px (120 cells): in Spanish the default columns lost the date created, only
+// because the Spanish titles are longer than the dates under them. A long title is cut before a column is dropped,
+// and the dates themselves are never cut.
+func TestSpanishKeepsTheDefaultColumnsAt120Cells(t *testing.T) {
+	t.Cleanup(func() { i18n.SetLanguage("en") })
+	i18n.SetLanguage("es")
+	e := newEnv(t)
+	e.send(sizeMsg())
+	var shown []fsmodel.Column
+	for _, c := range e.m.columns() {
+		shown = append(shown, c.col)
+		if c.col == fsmodel.ColName && c.w < minNameW {
+			t.Errorf("the name is %d cells, under the minimum %d", c.w, minNameW)
+		}
+	}
+	for _, want := range []fsmodel.Column{fsmodel.ColName, fsmodel.ColModified, fsmodel.ColCreated, fsmodel.ColSize, fsmodel.ColKind} {
+		if !slices.Contains(shown, want) {
+			t.Fatalf("at %d cells the column %s is missing: %v\n%s", e.m.w, want, shown, e.text())
+		}
+	}
+	date := regexp.MustCompile(`\d\d/\d\d/\d{4} \d\d:\d\d`)
+	if n := len(date.FindAllString(e.text(), -1)); n < 2 {
+		t.Fatalf("want whole dates in both date columns, found %d:\n%s", n, e.text())
+	}
+}

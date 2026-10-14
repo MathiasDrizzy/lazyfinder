@@ -33,6 +33,40 @@ func (m *Model) colWidth(c fsmodel.Column) int {
 	return m.autoWidth(c)
 }
 
+// contentWidth is what the cells of a column need, without its title: the narrowest it gets before its text is cut.
+// A width set in config.json is kept.
+func (m *Model) contentWidth(c fsmodel.Column) int {
+	if w, ok := m.deps.Cfg.ColumnWidths[string(c)]; ok {
+		return w
+	}
+	need := 0
+	switch c {
+	case fsmodel.ColModified, fsmodel.ColCreated, fsmodel.ColOpened:
+		need = m.dateWidth()
+	case fsmodel.ColPerms:
+		need = 10
+	case fsmodel.ColSize:
+		need = columnWidths[c]
+	default:
+		for _, e := range m.entries() {
+			need = max(need, ansi.StringWidth(m.cell(e, c))+1)
+		}
+	}
+	return max(config.MinColumn, min(need, m.colWidth(c)))
+}
+
+// shrinkFloor is the narrowest a column gets before it is dropped: dates, sizes and permissions are never cut, and a
+// text column such as Kind keeps textFloor cells.
+func (m *Model) shrinkFloor(c fsmodel.Column) int {
+	switch c {
+	case fsmodel.ColModified, fsmodel.ColCreated, fsmodel.ColOpened, fsmodel.ColPerms, fsmodel.ColSize:
+		return m.contentWidth(c)
+	}
+	return min(m.contentWidth(c), max(config.MinColumn, textFloor))
+}
+
+const textFloor = 12 // a text column cut to this still says what it holds ("Hoja de cál…")
+
 // autoWidth fits a column to its title (with room for the sort arrow) and its widest cell, so "Kind" and "Date
 // Modified" are not cut while the window allows it.
 func (m *Model) autoWidth(c fsmodel.Column) int {
