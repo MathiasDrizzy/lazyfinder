@@ -174,6 +174,7 @@ func (m *Model) change(i, dir int) tea.Cmd {
 		m.deps.Cfg.Language = cycle(languageCodes(), m.deps.Cfg.Language, dir)
 		key, val = "language", m.deps.Cfg.Language
 		i18n.SetLanguage(m.deps.Cfg.Language)
+		cmd = m.reload() // the kinds of the files are written in the language of the read
 	case setHidden:
 		m.hidden = !m.hidden
 		key, val = "show_hidden", m.hidden
