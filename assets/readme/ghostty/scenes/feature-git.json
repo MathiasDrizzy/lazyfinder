@@ -2,31 +2,12 @@
  "output": "feature-git.gif",
  "windows": [
   {
-   "name": "tmux",
+   "name": "herdr",
    "cols": 118,
    "rows": 32,
    "cwd": "Projects/website",
    "argv": [
-    "tmux",
-    "-f",
-    "/tmp/lazyfinder-demo/tmux.conf",
-    "new-session",
-    "-s",
-    "demo",
-    "lazyfinder --sidebar .",
-    ";",
-    "select-pane",
-    "-T",
-    "lazyfinder --sidebar",
-    ";",
-    "split-window",
-    "-h",
-    "-l",
-    "62%",
-    ";",
-    "select-pane",
-    "-T",
-    "terminal"
+    "herdr"
    ],
    "setup": [
     {
@@ -39,7 +20,7 @@
      "sleep": 1
     },
     {
-     "raw": "\u001b[<0;14;3M\u001b[<0;14;3m"
+     "raw": "\u001b[<0;91;3M\u001b[<0;91;3m"
     },
     {
      "wait": "Staged"
@@ -47,9 +28,9 @@
     {
      "keys": [
       "ctrl+a",
-      "right"
+      "\u001b[104u"
      ],
-     "gap": 0.1
+     "gap": 0.3
     },
     {
      "sleep": 1
@@ -74,9 +55,9 @@
     {
      "keys": [
       "ctrl+a",
-      "left"
+      "\u001b[108u"
      ],
-     "gap": 0.1
+     "gap": 0.3
     },
     {
      "sleep": 1
@@ -108,9 +89,9 @@
     {
      "keys": [
       "ctrl+a",
-      "right"
+      "\u001b[104u"
      ],
-     "gap": 0.1
+     "gap": 0.3
     },
     {
      "sleep": 0.6
@@ -133,5 +114,12 @@
    ],
    "title": "website"
   }
- ]
+ ],
+ "config": {
+  "herdr": {
+   "dock": "right",
+   "auto_open": true,
+   "width": 38
+  }
+ }
 }

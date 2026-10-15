@@ -6,12 +6,7 @@
    "cols": 118,
    "rows": 32,
    "argv": [
-    "tmux",
-    "-f",
-    "/tmp/lazyfinder-demo/tmux.conf",
-    "new-session",
-    "-s",
-    "demo"
+    "herdr"
    ],
    "setup": [
     {
@@ -252,24 +247,25 @@
      "gap": 1.0
     },
     {
-     "type": "tmux split-window -hb -l 30% 'lazyfinder --sidebar .'",
-     "speed": 0.02
-    },
-    {
-     "sleep": 0.1
-    },
-    {
      "keys": [
-      "enter"
+      "ctrl+a",
+      "\u001b[101u"
      ],
-     "gap": 1.4
+     "gap": 0.3,
+     "clear": true
+    },
+    {
+     "wait": "WEBSITE"
+    },
+    {
+     "sleep": 1.2
     },
     {
      "keys": [
       "ctrl+a",
-      "right"
+      "\u001b[108u"
      ],
-     "gap": 0.15
+     "gap": 0.3
     },
     {
      "sleep": 0.4
@@ -306,5 +302,12 @@
    ]
   }
  ],
- "speed": 1.25
+ "speed": 1.25,
+ "config": {
+  "herdr": {
+   "dock": "left",
+   "auto_open": false,
+   "width": 30
+  }
+ }
 }

@@ -14,6 +14,8 @@ DEMO_TMP=/tmp/lazyfinder-demo
 rm -rf "${DEMO_TMP:?}"
 mkdir -p "$DEMO_TMP/.bin"
 go build -o "$DEMO_TMP/.bin/lazyfinder" ./cmd/lazyfinder || return 1 # before changing HOME: Go uses its cache there
+sh scripts/herdr-build.sh || return 1 # bin/lazyfinder, which the herdr plugin runs
+LAZYFINDER_REPO="$PWD"
 export HOME="$DEMO_TMP/home"
 mkdir -p "$HOME"
 cp -R assets/readme/demo-home/. "$HOME/"
@@ -43,35 +45,46 @@ cat >"$XDG_CONFIG_HOME/micro/settings.json" <<'JSON'
 }
 JSON
 export MICRO_TRUECOLOR=1 COLORTERM=truecolor
-# tmux for the sidebar GIF: two panes side by side with a title each, Catppuccin borders, no status bar. The prefix
-# is ctrl+a, so ctrl+b reaches lazyfinder. Its socket lives in the demo folder: no other tmux is touched, and the
-# `tmux info` that colorprofile runs to see whether tmux passes 24-bit color finds this server.
-export TMUX_TMPDIR="$DEMO_TMP"
-cat >"$DEMO_TMP/tmux.conf" <<'TMUX'
-set -g prefix C-a
-unbind C-b
-set -g escape-time 0
-set -g status off
-# clicks reach the pane under them (the Git tab of the sidebar opens with a click)
-set -g mouse on
-set -g default-terminal "tmux-256color"
-set -as terminal-features ",*:RGB"
-set -ga terminal-overrides ",*:Tc"
-set -g default-command "bash --norc --noprofile"
-# a title over each pane once the window is split (one pane has no border): the program in it, "terminal" for the shell
-set -g pane-border-status off
-set-hook -g after-split-window "set -w pane-border-status top"
-set -g pane-border-format " #{?#{==:#{pane_current_command},bash},terminal,#{pane_current_command}} "
-# programs do not set the pane titles: the border shows the program (the default title is the host name)
-set -g allow-set-title off
-set -g pane-border-style "fg=#45475a"
-set -g pane-active-border-style "fg=#89b4fa"
-# the window title (Ghostty shows it) and no "default shell is now zsh" notice from macOS's bash
-set -g set-titles on
-set -g set-titles-string "website"
-set-environment -g BASH_SILENCE_DEPRECATION_WARNING 1
-set-environment -g PS1 '\[\e[38;2;137;180;250m\]\W\[\e[0m\] $ '
-TMUX
+# herdr for the GIFs of the sidebar and the Git tab, with the lazyfinder plugin of this checkout (herdr-plugin.toml).
+# Its config, socket and plugin list live in the demo HOME: the herdr the recording runs never meets another one. The
+# workspace sidebar of herdr starts hidden and the tab row only shows with two tabs, so the GIF is lazyfinder and the
+# terminal. The prefix is ctrl+a; prefix+e is the plugin's toggle action.
+mkdir -p "$XDG_CONFIG_HOME/herdr"
+cat >"$XDG_CONFIG_HOME/herdr/config.toml" <<'TOML'
+onboarding = false
+
+[terminal]
+default_shell = "/bin/bash"
+shell_mode = "non_login"
+
+[keys]
+prefix = "ctrl+a"
+
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "lazyfinder.toggle"
+description = "toggle lazyfinder"
+
+[theme]
+name = "catppuccin"
+
+[ui]
+sidebar_start_collapsed = true
+sidebar_collapsed_mode = "hidden"
+hide_tab_bar_when_single_tab = true
+prompt_new_tab_name = false
+window_title = "website"
+
+[update]
+version_check = false
+manifest_check = false
+TOML
+# the shell of the herdr panes: the prompt of the recordings, no "default shell is now zsh" notice
+cat >"$HOME/.bashrc" <<'BASH'
+export BASH_SILENCE_DEPRECATION_WARNING=1
+PS1='\[\e[38;2;137;180;250m\]\W\[\e[0m\] $ '
+BASH
 # lazygit without its first-run popups (the welcome and the notes of a new version).
 lg_version="$(lazygit --version 2>/dev/null | sed -n 's/.*[ ,]version=\([^,]*\),.*/\1/p')"
 for d in "$XDG_CONFIG_HOME/lazygit" "$XDG_STATE_HOME/lazygit"; do
@@ -84,6 +97,20 @@ chmod +x "$DEMO_TMP/.bin/"*
 export PATH="$DEMO_TMP/.bin:$PATH"
 export LANG=en_US.UTF-8 BASH_SILENCE_DEPRECATION_WARNING=1
 unset LC_ALL LC_MESSAGES
+
+# an unknown key would show a warning in the recording and fall back to the user's shell
+herdr config check >/dev/null 2>&1 || { herdr config check >&2; return 1; }
+# The plugin is linked with a server of the demo HOME that stops right after: the herdr of the recording starts its own
+# and finds the plugin in its list.
+(
+  unset HERDR_SOCKET_PATH HERDR_ENV HERDR_PANE_ID HERDR_SESSION HERDR_WORKSPACE_ID HERDR_TAB_ID HERDR_PLUGIN_ID
+  herdr server >/dev/null 2>&1 &
+  for _ in $(seq 50); do [ -S "$XDG_CONFIG_HOME/herdr/herdr.sock" ] && break; sleep 0.1; done
+  linked=0
+  herdr plugin link "$LAZYFINDER_REPO" >/dev/null && linked=1
+  herdr server stop >/dev/null
+  [ "$linked" = 1 ]
+) || return 1
 
 # Projects/website: one commit, then a changed file, a new one and a staged one.
 export GIT_CONFIG_NOSYSTEM=1 GIT_AUTHOR_NAME=Demo GIT_AUTHOR_EMAIL=demo@example.com GIT_COMMITTER_NAME=Demo GIT_COMMITTER_EMAIL=demo@example.com
@@ -118,5 +145,6 @@ for d in Documents/Reports Documents Pictures Downloads Desktop Projects/website
   set_time 202609010900 202610011800 "$d"
 done
 unset -f set_time
+unset LAZYFINDER_REPO
 cd "$HOME" || return 1
 clear

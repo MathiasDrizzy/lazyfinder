@@ -2,12 +2,11 @@
 
 | File | Made with | Source |
 |---|---|---|
-| `main.gif` and every `feature-*.gif` | Real [Ghostty](https://ghostty.org) windows, recorded by `ghostty/record.py` | `ghostty/scenes/*.json` |
-| `feature-images.png` | A real Ghostty window | the steps below |
+| `main.gif`, every `feature-*.gif` and `feature-images.png` | Real [Ghostty](https://ghostty.org) windows, recorded by `ghostty/record.py` | `ghostty/scenes/*.json` |
 
-## GIFs
+## GIFs and the image screenshot
 
-Run from the repository root, on macOS, with Ghostty, ffmpeg, uv, micro, tmux and lazygit installed, and the
+Run from the repository root, on macOS, with Ghostty, ffmpeg, uv, micro, [herdr](https://herdr.dev) and lazygit installed, and the
 JetBrainsMono Nerd Font (the plain "JetBrains Mono" shows boxes instead of icons):
 
 ```sh
@@ -28,14 +27,20 @@ Without a scene name it records them all, one after another (they share the demo
 
 So the GIFs show lazyfinder exactly as Ghostty draws it, and images are drawn with the Kitty graphics protocol.
 
-`main.gif` is a tour of both modes in one tmux window: the full window (preview, an editor, columns, search with an
-image, tabs, go to a folder, themes, and the shell left in that folder on quit), then the sidebar next to the shell.
+`main.gif` is a tour of both modes in one herdr window: the full window (preview, an editor, columns, search with an
+image, tabs, go to a folder, themes, and the shell left in that folder on quit), then the sidebar of the lazyfinder
+herdr plugin, opened with its key, next to the shell.
 Its scene sets `"speed": 1.25`, so the GIF plays faster than it was recorded.
 
-`feature-sidebar` and `feature-git` run tmux inside the window: `lazyfinder --sidebar` in a narrow pane on the left
-and a shell on the right, the way the sidebar is meant to be used. The keys `ctrl+a` and an arrow move between the
-panes. The Git tab opens with a click, which the scene sends the way a terminal reports it (`ESC [<0;14;3M` and
-`ESC [<0;14;3m`, one row lower because of the pane title).
+`feature-sidebar` and `feature-git` run herdr inside the window, and the lazyfinder plugin docks the sidebar next to
+the shell by itself: on the left in `feature-sidebar`, on the right in `feature-git` (each scene sets `herdr.dock` in
+its `"config"`). `ctrl+a` and `h` or `l` move between the panes; the scenes send `h` and `l` in the Kitty keyboard
+form (`ESC [104u`, `ESC [108u`), because herdr turns that protocol on in Ghostty. The Git tab opens with a click,
+which the scene sends the way a terminal reports it (`ESC [<0;91;3M` and `ESC [<0;91;3m`): the Ghostty window ends
+up 124x34 cells, so the right sidebar starts at column 78 and the Git icon is its 13th cell.
+
+`feature-images.png` is the last frame of its scene: herdr, lazyfinder in `Pictures`, `↓` and `Space` on
+`Sunset.png`. herdr passes the Kitty graphics on to Ghostty, so the picture is drawn as in a plain terminal.
 
 `demo-env.sh`:
 
@@ -49,23 +54,13 @@ panes. The Git tab opens with a click, which the scene sends the way a terminal 
   and a status bar that says how to go back;
 - puts stand-ins for `open`, `qlmanage`, `osascript` and `xdg-open` first on `PATH`, so nothing the recording opens
   starts a real application;
-- writes a `tmux.conf` for the split-window GIFs (`feature-sidebar` and `feature-git`): two panes with a title each,
-  prefix `ctrl+a` (so `ctrl+b` reaches lazyfinder), the mouse on, and 24-bit color (`Tc`). `TMUX_TMPDIR` keeps the
-  tmux socket in the demo folder, so no other tmux is touched and the `tmux info` that lazyfinder runs to check for
-  24-bit color finds this one;
+- links the lazyfinder herdr plugin of the repository (`scripts/herdr-build.sh` builds its binary) and writes a herdr
+  `config.toml` in that `HOME`: bash without a login, prefix `ctrl+a` (so `ctrl+b` reaches lazyfinder), `prefix+e`
+  for the plugin's toggle, Catppuccin, no workspace sidebar, no tab bar with one tab and no update checks. It runs
+  `herdr config check`, because herdr shows a warning for an unknown key. herdr keeps its socket in that `HOME`, so
+  no other herdr is touched, and `record.py` stops the demo's server after each scene;
 - makes `Projects/website` a git repository with one commit, then a staged change (`README.md`), a modified file
   (`style.css`) and a new one (`src/menu.js`);
 - fixes the dates of every file (created first, then modified), so the Date Modified and Date Created columns are the
   same whichever day you record. Files the GIFs create (in `feature-files.gif`) carry the day of the recording;
 - turns off lazygit's first-run popups in that `HOME`, so `L` shows lazygit itself.
-
-## Image screenshot
-
-The image preview is also a screenshot of a real terminal window: Ghostty, 120x35, Catppuccin Mocha, opaque background. To redo it:
-
-1. Build lazyfinder: `go build -o /tmp/lazyfinder-img ./cmd/lazyfinder`.
-2. Open Ghostty with a temporary `HOME` that holds a copy of `demo-home/` and `LANG=en_US.UTF-8`, and run
-   `assets/readme/images-start.sh /tmp/lazyfinder-img` in it. The script copies the pictures to
-   `/tmp/lazyfinder-demo/home/Pictures`, the folder the GIFs use, fixes their dates and starts lazyfinder there.
-3. Press `↓` and `Space`: the popup shows `Sunset.png`.
-4. Take a screenshot of the window and save it as `feature-images.png`.

@@ -5,7 +5,8 @@ Run from the repository root on macOS, with Ghostty, ffmpeg and uv installed:
     uv run --with pyobjc-framework-Quartz --with pyobjc-framework-Cocoa python assets/readme/ghostty/record.py [scene ...]
 
 Each scene in assets/readme/ghostty/scenes is one GIF. For each scene the script prepares a fresh demo environment
-(demo-env.sh: temporary HOME, fake openers), opens one Ghostty window per entry of "windows" side by side, and
+(demo-env.sh: temporary HOME, fake openers, a herdr with the lazyfinder plugin), applies the scene's "config" to the
+demo config.json of lazyfinder, opens one Ghostty window per entry of "windows" side by side, and
 driver.py runs the window's program and types its steps. The windows are captured straight from the window server
 (the content of each window, not the screen), cut to the terminal and encoded with ffmpeg.
 
@@ -61,7 +62,6 @@ ENV_KEYS = (
     "USER",
     "LOGNAME",
     "TMPDIR",
-    "TMUX_TMPDIR",
     "BASH_SILENCE_DEPRECATION_WARNING",
 )
 
@@ -178,6 +178,11 @@ def record(scene_file: Path) -> None:
     env = demo_env()
     env_file = work / "env.json"
     env_file.write_text(json.dumps(env))
+    if "config" in scene:  # e.g. the edge of the herdr sidebar for this GIF
+        cfg_file = Path(env["XDG_CONFIG_HOME"]) / "lazyfinder" / "config.json"
+        cfg = json.loads(cfg_file.read_text())
+        cfg.update(scene["config"])
+        cfg_file.write_text(json.dumps(cfg, indent=2))
     windows, pids = [], []
     try:
         x, y = ORIGIN
@@ -191,20 +196,20 @@ def record(scene_file: Path) -> None:
         time.sleep(0.5)  # the last setup frame reaches the window
         windows = [ghostty_windows()[w["kCGWindowNumber"]] for w in windows]  # final bounds
         encode(Canvas(windows), sync, scene, work / "raw.mkv")
-        to_gif(work / "raw.mkv", out, scene.get("speed", 1))
+        if out.suffix == ".png":  # a still: the last frame
+            last = ["ffmpeg", "-loglevel", "error", "-y", "-sseof", "-0.2", "-i", str(work / "raw.mkv")]
+            subprocess.run([*last, "-frames:v", "1", str(out)], check=True)
+        else:
+            to_gif(work / "raw.mkv", out, scene.get("speed", 1))
     finally:
         for pid in pids:
             try:
                 os.kill(pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
-        # a tmux scene leaves its server running after Ghostty quits: it lives in the demo folder, no other is touched
-        subprocess.run(
-            ["tmux", "kill-server"],
-            check=False,
-            env=dict(os.environ, TMUX_TMPDIR=env["TMUX_TMPDIR"]),
-            capture_output=True,
-        )
+        # a herdr scene leaves its server running after Ghostty quits: it is the one of the demo HOME (env has no
+        # HERDR_* variable), no other is touched
+        subprocess.run(["herdr", "server", "stop"], check=False, env=env, capture_output=True)
         shutil.rmtree(work, ignore_errors=True)
     print(f"   {out.stat().st_size / 1e6:.2f} MB", flush=True)
 

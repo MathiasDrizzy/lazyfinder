@@ -10,7 +10,7 @@ Columns, a sidebar, a Space preview popup and open-with, with keyboard and mouse
 [![Go version](https://img.shields.io/github/go-mod/go-version/MathiasDrizzy/lazyfinder)](go.mod)
 [![License: MIT](https://img.shields.io/github/license/MathiasDrizzy/lazyfinder)](LICENSE)
 
-<img src="assets/readme/main.gif" alt="lazyfinder entering the Documents folder, previewing two Markdown notes with Space, opening a text file in micro and coming back, switching to the column view and changing the theme in Settings" width="100%">
+<img src="assets/readme/main.gif" alt="lazyfinder entering the Documents folder, previewing two Markdown notes with Space, opening a text file in micro and coming back, switching to the column view and changing the theme in Settings, then opening the herdr sidebar next to the shell" width="100%">
 
 [Install](#install) · [Quick start](#quick-start) · [Keys](#keys) · [Configuration](#configuration)
 
@@ -67,10 +67,11 @@ you opened lately.
 ### A sidebar next to your terminal
 
 `lazyfinder --sidebar` is a narrow tree of your project, like the file explorer of VS Code. Put it on the left of
-your terminal (a split in Ghostty, tmux or any terminal) and keep working on the right: files you create, edit or
-stage there show up at once, each with its git letter (`M` modified, `U` new, `A` staged).
+your terminal (the [herdr plugin](#a-sidebar-in-every-herdr-tab) docks it by itself, or a split in Ghostty or any
+terminal) and keep working on the right: files you create, edit or stage there show up at once, each with its git
+letter (`M` modified, `U` new, `A` staged).
 
-<img src="assets/readme/feature-sidebar.gif" alt="lazyfinder in sidebar mode on the left of a split window; on the right, a terminal creates notes.md, stages it and edits index.html, and the tree shows each change at once; then a preview of menu.js" width="100%">
+<img src="assets/readme/feature-sidebar.gif" alt="lazyfinder docked by its herdr plugin on the left of a herdr tab; on the right, a terminal creates notes.md, stages it and edits index.html, and the tree shows each change at once; then a preview of menu.js" width="100%">
 
 ### A sidebar in every herdr tab
 
@@ -95,7 +96,7 @@ always.
 The **Git** tab of the sidebar lists what changed: staged files, changes and stashes. `Enter` shows the diff of a
 file. It only shows; you commit in your terminal, or press `L` to open [lazygit](https://github.com/jesseduffield/lazygit).
 
-<img src="assets/readme/feature-git.gif" alt="The Git tab of the sidebar next to a terminal: git add moves style.css to Staged Changes, its diff opens with Enter, and after git commit the list empties" width="100%">
+<img src="assets/readme/feature-git.gif" alt="The Git tab of the sidebar docked on the right of a herdr tab: git add moves style.css to Staged Changes, its diff opens with Enter, and after git commit the list empties" width="100%">
 
 ### Themes and languages
 

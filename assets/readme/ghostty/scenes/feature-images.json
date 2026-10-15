@@ -1,0 +1,58 @@
+{
+ "output": "feature-images.png",
+ "config": {
+  "herdr": {
+   "dock": "left",
+   "auto_open": false,
+   "width": 30
+  }
+ },
+ "windows": [
+  {
+   "name": "herdr",
+   "cols": 118,
+   "rows": 32,
+   "cwd": "Pictures",
+   "argv": [
+    "herdr"
+   ],
+   "setup": [
+    {
+     "wait": "\\$ "
+    },
+    {
+     "type": "clear; lazyfinder",
+     "speed": 0
+    },
+    {
+     "keys": [
+      "enter"
+     ]
+    },
+    {
+     "wait": "Favorites"
+    },
+    {
+     "sleep": 1
+    }
+   ],
+   "steps": [
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 2.5
+    },
+    {
+     "post": "end"
+    }
+   ]
+  }
+ ]
+}

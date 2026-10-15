@@ -33,7 +33,8 @@ All notable changes to this project are documented here. The format follows
 
 - The README is shorter and explains each feature in plain words. Its GIFs are recorded in real Ghostty windows
   instead of VHS, so they show the real colors, title bar and images, with compact rows, text files opened in micro,
-  and the sidebar and Git tab in a tmux split next to a terminal.
+  and the sidebar and Git tab docked by the lazyfinder herdr plugin next to a terminal (on the left and on the right).
+  The main GIF and the image screenshot are recorded inside herdr too, and the image shows in both.
 
 ## [0.13.1] - 2026-10-14
 
