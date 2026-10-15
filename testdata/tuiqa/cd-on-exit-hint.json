@@ -1,0 +1,67 @@
+{
+  "fixtures": "fixtures",
+  "name": "cd-on-exit-hint",
+  "criterio": "ORDEN 2026-10-14-15 (Mathias: «cuando salgo del tui no se queda en la carpeta ... y eso que active la opcion»). Started without the shell function (no --cwd-file), the Settings row says the shell line is missing and, selected, shows the line for $SHELL (zsh here) and its file.",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj"
+  ],
+  "env": {
+    "SHELL": "/bin/zsh"
+  },
+  "cols": 120,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "keys": [
+        ","
+      ]
+    },
+    {
+      "desc": "the row says the shell line is missing",
+      "wait": {
+        "regex": "Stay in the folder on exit +‹ yes · needs shell ›",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "desc": "selected, it shows the line and its file",
+      "keys": [
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down"
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Add to ~/\\.zshrc:",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "wait": {
+        "regex": "eval \"\\$\\(lazyfinder --shell-init zsh\\)\"",
+        "timeout_ms": 3000
+      }
+    }
+  ]
+}

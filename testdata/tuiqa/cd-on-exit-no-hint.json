@@ -1,0 +1,63 @@
+{
+  "fixtures": "fixtures",
+  "name": "cd-on-exit-no-hint",
+  "criterio": "ORDEN 2026-10-14-15 (Mathias: «cuando salgo del tui no se queda en la carpeta ... y eso que active la opcion»). Started by the shell function (--cwd-file), the row is a plain yes: nothing is missing.",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "--cwd-file",
+    "${TUIQA_HOME}/cwd",
+    "${TUIQA_HOME}/proj"
+  ],
+  "env": {
+    "SHELL": "/bin/zsh"
+  },
+  "cols": 120,
+  "rows": 30,
+  "steps": [
+    {
+      "wait": {
+        "regex": "notes\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "keys": [
+        ","
+      ]
+    },
+    {
+      "wait": {
+        "regex": "Stay in the folder on exit +‹ yes ›",
+        "timeout_ms": 3000
+      }
+    },
+    {
+      "keys": [
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down",
+        "down"
+      ]
+    },
+    {
+      "desc": "no shell line",
+      "wait": {
+        "regex": "needs shell|Add to ~",
+        "timeout_ms": 1500,
+        "absent": true
+      }
+    }
+  ]
+}

@@ -120,6 +120,9 @@ func (m *Model) settingValue(i int) string {
 	case setConfirmDelete:
 		return onOff(c.ConfirmDelete)
 	case setCdOnExit:
+		if m.shellLineMissing() {
+			return onOff(c.CdOnExit) + " · " + i18n.T("falta shell", "needs shell")
+		}
 		return onOff(c.CdOnExit)
 	case setSidebarMode:
 		return onOff(m.projectMode())
@@ -322,7 +325,12 @@ func (m *Model) settingsBox() (x, y int, lines []string) {
 		}
 		content = append(content, line)
 	}
-	if hint {
+	switch {
+	case hint && m.set.sel == setCdOnExit && m.shellLineMissing():
+		line := m.deps.ShellSetup.Line
+		content = append(content, m.styles.dim(fmt.Sprintf(i18n.T("Agrega a %s:", "Add to %s:"), m.deps.ShellSetup.File)),
+			ansi.Truncate(line, inner, "…"))
+	case hint:
 		text := i18n.T("←/→ cambiar · clic: seleccionar, 2.º clic: cambiar", "←/→ change · click: select, 2nd click: change")
 		if ansi.StringWidth(text) > inner {
 			text = i18n.T("←/→ cambiar · Esc cierra", "←/→ change · Esc closes")
@@ -338,6 +346,11 @@ func (m *Model) settingsBox() (x, y int, lines []string) {
 		}
 	}
 	return x, y, m.box(title, content, inner)
+}
+
+// shellLineMissing says cd_on_exit is on but cannot work: lazyfinder was not started by the shell function.
+func (m *Model) shellLineMissing() bool {
+	return m.deps.Cfg.CdOnExit && m.deps.ShellSetup.Line != ""
 }
 
 func spaces(n int) string { return strings.Repeat(" ", n) }

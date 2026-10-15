@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Settings says when "Stay in the folder on exit" cannot work: started without the shell function, its row reads
+  "yes · needs shell" and, selected, shows the line to add and the file it goes in, for the shell in `$SHELL`. The
+  Homebrew cask prints those lines after `brew install`, and the README says the setting needs them.
 - The terminal's own background takes the theme's color while lazyfinder runs, so the window padding and the edges
   change with the theme instead of keeping the terminal's color. It is reset on exit, and left alone when the screen
   or the popups use the terminal background.

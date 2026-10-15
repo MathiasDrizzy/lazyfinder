@@ -334,3 +334,29 @@ func TestExitDirIsTheFolderShownUnlessCdOnExitIsOff(t *testing.T) {
 		t.Fatalf("with the setting off the app ends in no folder, got %q", got)
 	}
 }
+
+// ORDEN 2026-10-14-15, Mathias: "cuando salgo del tui no se queda en la carpeta ... y eso que active la opcion". Without
+// the shell function (lazyfinder started without --cwd-file) the setting cannot work: its row says so, and with the
+// row selected Settings shows the line to add and where.
+func TestTheCdOnExitRowSaysTheShellLineIsMissing(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.ShellSetup = ShellSetup{File: "~/.zshrc", Line: `eval "$(lazyfinder --shell-init zsh)"`}
+	e.key(",")
+	e.mustHave("‹ yes · needs shell ›")
+	e.pickSetting("Stay in the folder on exit")
+	e.mustHave("Add to ~/.zshrc:")
+	e.mustHave(`eval "$(lazyfinder --shell-init zsh)"`)
+	e.key("right")
+	e.mustHave("‹ no ›")
+	e.mustNotHave("Add to ~/.zshrc:") // off: nothing is missing
+}
+
+// Started by the shell function (ShellSetup empty), the row is a plain yes and the usual hint stays.
+func TestTheCdOnExitRowIsPlainWhenTheShellFunctionStartedIt(t *testing.T) {
+	e := newEnv(t)
+	e.key(",")
+	e.pickSetting("Stay in the folder on exit")
+	e.mustHave("‹ yes ›")
+	e.mustNotHave("needs shell")
+	e.mustHave("←/→ change")
+}

@@ -105,3 +105,32 @@ func TestTheShellFunctionMovesTheShellToTheLastFolder(t *testing.T) {
 		})
 	}
 }
+
+// ORDEN 2026-10-14-15: started without --cwd-file (no shell function), the UI gets the line for the user's shell;
+// with --cwd-file it gets nothing.
+func TestTheUIGetsTheShellLineOnlyWithoutTheShellFunction(t *testing.T) {
+	cases := []struct {
+		shell, file, line string
+		withCwdFile       bool
+	}{
+		{"/bin/zsh", "~/.zshrc", `eval "$(lazyfinder --shell-init zsh)"`, false},
+		{"/usr/local/bin/bash", "~/.bashrc", `eval "$(lazyfinder --shell-init bash)"`, false},
+		{"/opt/homebrew/bin/fish", "~/.config/fish/config.fish", "lazyfinder --shell-init fish | source", false},
+		{"/bin/tcsh", "~/.zshrc", `eval "$(lazyfinder --shell-init zsh)"`, false},
+		{"/bin/zsh", "", "", true},
+	}
+	for _, c := range cases {
+		home := t.TempDir()
+		args := []string{home}
+		if c.withCwdFile {
+			args = []string{"--cwd-file", filepath.Join(t.TempDir(), "cwd"), home}
+		}
+		var got Options
+		var o, e bytes.Buffer
+		env := map[string]string{"HOME": home, "SHELL": c.shell}
+		run(args, func(k string) string { return env[k] }, &o, &e, func(opts Options) (string, error) { got = opts; return "", nil })
+		if got.ShellSetup.File != c.file || got.ShellSetup.Line != c.line {
+			t.Errorf("%s (cwd-file %v): got %+v, want %q %q", c.shell, c.withCwdFile, got.ShellSetup, c.file, c.line)
+		}
+	}
+}

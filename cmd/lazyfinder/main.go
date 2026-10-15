@@ -42,6 +42,7 @@ type Options struct {
 	Logger  *slog.Logger
 
 	ConfigPath string
+	ShellSetup ui.ShellSetup // the line cd_on_exit needs, when the shell function did not start lazyfinder
 }
 
 func main() {
@@ -120,6 +121,9 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	}
 	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != "", Follow: *followDir != "" || *sidebarFlag}
 	opts.ConfigPath = config.ResolvePath(getenv, home)
+	if *cwdFile == "" {
+		opts.ShellSetup = shellSetup(getenv("SHELL"))
+	}
 	cfg, err := config.Load(opts.ConfigPath, home)
 	if err != nil {
 		opts.Warning = err.Error()
@@ -229,7 +233,7 @@ func launch(o Options) (string, error) {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow}
+	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
 	}

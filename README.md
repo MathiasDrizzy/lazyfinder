@@ -88,12 +88,17 @@ columns, the icons and the row density. Changes apply at once and are saved.
 
 ### Stay in the folder when you quit
 
-Add this line to `~/.zshrc` (there is also `bash` and `fish`), and quitting lazyfinder leaves your shell in the
-folder you were looking at:
+A program cannot move the shell that started it, so this needs one line in your shell's startup file. Without it,
+quitting leaves you where you started, even with "Stay in the folder on exit" on in Settings (the row then says
+"needs shell"). `brew install` does not add the line for you:
 
 ```sh
-eval "$(lazyfinder --shell-init zsh)"
+eval "$(lazyfinder --shell-init zsh)"     # in ~/.zshrc
+eval "$(lazyfinder --shell-init bash)"    # in ~/.bashrc
+lazyfinder --shell-init fish | source     # in ~/.config/fish/config.fish
 ```
+
+Open a new terminal, and quitting lazyfinder leaves your shell in the folder you were looking at.
 
 <img src="assets/readme/feature-cd-on-exit.gif" alt="pwd prints the home folder, lazyfinder goes to Projects/website and quits, and pwd now prints that folder" width="100%">
 

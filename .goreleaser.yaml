@@ -37,6 +37,13 @@ homebrew_casks:
     description: "Finder-like file manager for the terminal"
     binaries:
       - lazyfinder
+    # brew install does not touch the shell's startup file: without this line, quitting does not change folder
+    caveats: |
+      To stay in the folder lazyfinder ends in when you quit, add one line to your shell's startup file:
+        zsh  (~/.zshrc):                    eval "$(lazyfinder --shell-init zsh)"
+        bash (~/.bashrc):                   eval "$(lazyfinder --shell-init bash)"
+        fish (~/.config/fish/config.fish):  lazyfinder --shell-init fish | source
+      Then open a new terminal.
     # The binary is not signed or notarized: remove the macOS quarantine, the same hook as the lazymark cask.
     # Homebrew warns "postflight is deprecated! Use postflight_steps instead" for it. GoReleaser does not write
     # postflight_steps yet (hooks.post.install_steps, goreleaser/goreleaser#6873, planned for v2.19.0); when it does,

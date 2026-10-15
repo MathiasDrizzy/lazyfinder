@@ -1,5 +1,11 @@
 package main
 
+import (
+	"path/filepath"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/ui"
+)
+
 // shellInit returns the function that wraps lazyfinder in a shell: it runs lazyfinder with --cwd-file and, when
 // lazyfinder wrote a folder there, moves the shell to it (the way of yazi's y and lf's lfcd). It goes in the shell's
 // startup file: eval "$(lazyfinder --shell-init zsh)".
@@ -36,4 +42,16 @@ end
 `, true
 	}
 	return "", false
+}
+
+// shellSetup is the line that installs the function of --shell-init for the shell at path ($SHELL), and the file it
+// goes in. A shell without a function (tcsh, nu) gets the zsh line, the macOS default.
+func shellSetup(path string) ui.ShellSetup {
+	switch filepath.Base(path) {
+	case "bash":
+		return ui.ShellSetup{File: "~/.bashrc", Line: `eval "$(lazyfinder --shell-init bash)"`}
+	case "fish":
+		return ui.ShellSetup{File: "~/.config/fish/config.fish", Line: "lazyfinder --shell-init fish | source"}
+	}
+	return ui.ShellSetup{File: "~/.zshrc", Line: `eval "$(lazyfinder --shell-init zsh)"`}
 }

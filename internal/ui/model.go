@@ -66,6 +66,16 @@ type Deps struct {
 
 	// LookPath finds an executable (nil: exec.LookPath); tests use it to say whether lazygit is installed.
 	LookPath func(string) (string, error)
+
+	// ShellSetup is the line the shell needs for cd_on_exit, set when lazyfinder was not started by the function of
+	// --shell-init (no --cwd-file): Settings says it is missing. Empty when the function started it.
+	ShellSetup ShellSetup
+}
+
+// ShellSetup is one line to add to a shell's startup file.
+type ShellSetup struct {
+	File string // the startup file, as the user writes it (~/.zshrc)
+	Line string
 }
 
 type focus int

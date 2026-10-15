@@ -404,5 +404,7 @@
  "↑↓ scroll · Esc close": "↑↓ 滚动 · Esc 关闭",
  "↗ Open changes": "↗ 打开更改",
  "⚠ %d uncommitted changes go with you": "⚠ %d 处未提交的更改会随之带过去",
- "⚠ 1 uncommitted change goes with you": "⚠ 1 处未提交的更改会随之带过去"
+ "⚠ 1 uncommitted change goes with you": "⚠ 1 处未提交的更改会随之带过去",
+ "needs shell": "需要 shell 配置",
+ "Add to %s:": "添加到 %s："
 }

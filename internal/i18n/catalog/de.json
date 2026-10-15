@@ -404,5 +404,7 @@
  "↑↓ scroll · Esc close": "↑↓ scrollen · Esc schließen",
  "↗ Open changes": "↗ Änderungen öffnen",
  "⚠ %d uncommitted changes go with you": "⚠ %d nicht committete Änderungen wandern mit",
- "⚠ 1 uncommitted change goes with you": "⚠ 1 nicht committete Änderung wandert mit"
+ "⚠ 1 uncommitted change goes with you": "⚠ 1 nicht committete Änderung wandert mit",
+ "needs shell": "braucht Shell",
+ "Add to %s:": "In %s eintragen:"
 }
