@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The terminal's own background takes the theme's color while lazyfinder runs, so the window padding and the edges
+  change with the theme instead of keeping the terminal's color. It is reset on exit, and left alone when the screen
+  or the popups use the terminal background.
+- Switching the language in Settings translates the Kind column at once; it kept the previous language until the
+  folder was read again.
+
 ## [0.13.1] - 2026-10-14
 
 Completes the 0.13.0 release, whose workflow stopped before publishing the Homebrew cask and the build provenance

@@ -356,6 +356,11 @@ func (m *Model) View() tea.View {
 		v.MouseMode = tea.MouseModeAllMotion // the hover needs the motion without a button
 	}
 	v.WindowTitle = "lazyfinder"
+	if m.styles.bg != nil && !m.popupsKeepTerminalBackground() {
+		// the terminal's own background (the window padding, a cell at the edge) takes the theme's color too; Bubble
+		// Tea resets it on exit. Popups that keep the terminal's background need it untouched.
+		v.BackgroundColor = m.styles.bg
+	}
 	return v
 }
 
