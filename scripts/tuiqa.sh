@@ -27,6 +27,8 @@ for p in open qlmanage osascript xdg-open; do
   chmod +x "$out/fakebin/$p"
 done
 export PATH="$out/fakebin:$PATH"
+# tuiqa puts its own fake openers first unless told not to; ours are fakes too, and their log is what this script checks
+export TUIQA_REAL_OPENERS=1
 # Scenarios that open a file on purpose (the fake opener takes the call); any other call fails the run.
 opens_on_purpose=" key-combinations.json "
 
