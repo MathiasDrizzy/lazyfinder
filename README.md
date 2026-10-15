@@ -86,7 +86,20 @@ the folder of the terminal next to it: `cd` there and the tree moves with you. A
 sidebar stays until the terminal changes folder again. "Sidebar in herdr" in Settings puts it on the left or the right
 of new tabs, and the plugin's **Toggle lazyfinder** action (bind it to a key in herdr) opens, focuses or closes it;
 closed with the action, it stays closed in that tab. `herdr.auto_open` and `herdr.width` in `config.json` turn the
-automatic opening off and set its width. The plugin builds lazyfinder with Go, or uses the `lazyfinder` you installed.
+automatic opening off and set its width. To toggle it with `prefix` and `e`, add this to herdr's `config.toml`:
+
+```toml
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "lazyfinder.toggle"
+```
+
+`herdr plugin install` builds lazyfinder with Go, or uses the `lazyfinder` you installed. `herdr plugin link` (a local
+clone) does not build: run `sh scripts/herdr-build.sh` in the clone once, and again after you change the code.
+
+If you use the [herdr-sidebar](https://github.com/alexarthurs/herdr-sidebar) plugin, turn off **Auto-open** in its
+Settings (`s`), or disable it with `herdr plugin disable herdr-sidebar`, so new tabs do not get two sidebars.
 
 Run outside the plugin, lazyfinder starts in the normal window, and `ctrl+b` or `--sidebar` gives the sidebar mode as
 always.

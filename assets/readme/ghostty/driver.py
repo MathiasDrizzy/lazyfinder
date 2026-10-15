@@ -143,6 +143,9 @@ def main() -> int:
     tty.setraw(sys.stdin.fileno())
     # Ghostty titles a window with the folder of its command: the demo folder, never the real home
     os.chdir(spec.get("cwd", env["HOME"]))
+    # the path as written (/tmp, not /private/tmp on macOS): Go and the shells take the folder from PWD when it is
+    # the current one, as when a shell starts a program
+    env["PWD"] = spec.get("cwd", env["HOME"])
     pid, fd = pty.fork()
     if pid == 0:
         os.execvpe(spec["argv"][0], spec["argv"], env)

@@ -14,7 +14,8 @@ All notable changes to this project are documented here. The format follows
   lazyfinder sidebar in every tab, next to the terminal, and the sidebar follows the folder of that terminal. "Sidebar
   in herdr" in Settings (`herdr.dock`) puts it on the left or the right; `herdr.auto_open` and `herdr.width` turn the
   automatic opening off and set its width; the Toggle lazyfinder action opens, focuses or closes it. New flag
-  `--herdr ensure|toggle`, used by the plugin.
+  `--herdr ensure|toggle`, used by the plugin. `herdr plugin link` does not build it: run `sh scripts/herdr-build.sh`
+  in the clone. With the herdr-sidebar plugin installed, turn off its Auto-open so new tabs do not get two sidebars.
 
 ### Fixed
 
