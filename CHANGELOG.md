@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-15
+
 ### Added
 
 - A right click on a segment of the breadcrumb copies the path of that folder, and the status line says so. It uses
