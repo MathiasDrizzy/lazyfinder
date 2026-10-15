@@ -70,6 +70,12 @@ type Deps struct {
 	// ShellSetup is the line the shell needs for cd_on_exit, set when lazyfinder was not started by the function of
 	// --shell-init (no --cwd-file): Settings says it is missing. Empty when the function started it.
 	ShellSetup ShellSetup
+
+	// Copy puts text on the clipboard (a right click on the breadcrumb copies that folder); nil copies nothing.
+	Copy func(text string) error
+
+	// InTmux is set when lazyfinder runs inside tmux, which does not pass the Kitty graphics query on.
+	InTmux bool
 }
 
 // ShellSetup is one line to add to a shell's startup file.

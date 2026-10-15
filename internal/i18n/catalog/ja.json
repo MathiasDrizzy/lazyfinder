@@ -406,5 +406,7 @@
  "⚠ %d uncommitted changes go with you": "⚠ 未コミットの変更 %d 件が一緒に移ります",
  "⚠ 1 uncommitted change goes with you": "⚠ 未コミットの変更 1 件が一緒に移ります",
  "needs shell": "シェル設定が必要",
- "Add to %s:": "%s に追加:"
+ "Add to %s:": "%s に追加:",
+ "Cannot copy the path: %w": "パスをコピーできません: %w",
+ "tmux does not pass images through. Press Q for Quick Look.": "tmux は画像を通しません。Q でクイックルックを開きます。"
 }

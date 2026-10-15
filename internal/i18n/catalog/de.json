@@ -406,5 +406,7 @@
  "⚠ %d uncommitted changes go with you": "⚠ %d nicht committete Änderungen wandern mit",
  "⚠ 1 uncommitted change goes with you": "⚠ 1 nicht committete Änderung wandert mit",
  "needs shell": "braucht Shell",
- "Add to %s:": "In %s eintragen:"
+ "Add to %s:": "In %s eintragen:",
+ "Cannot copy the path: %w": "Pfad konnte nicht kopiert werden: %w",
+ "tmux does not pass images through. Press Q for Quick Look.": "tmux lässt keine Bilder durch. Mit Q öffnet sich die Übersicht."
 }

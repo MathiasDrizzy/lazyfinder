@@ -134,3 +134,16 @@ func TestTheUIGetsTheShellLineOnlyWithoutTheShellFunction(t *testing.T) {
 		}
 	}
 }
+
+func TestTheUIKnowsWhenItRunsInsideTmux(t *testing.T) {
+	for _, tmux := range []string{"/tmp/tmux-501/default,123,0", ""} {
+		home := t.TempDir()
+		var got Options
+		var o, e bytes.Buffer
+		env := map[string]string{"HOME": home, "TMUX": tmux}
+		run([]string{home}, func(k string) string { return env[k] }, &o, &e, func(opts Options) (string, error) { got = opts; return "", nil })
+		if got.InTmux != (tmux != "") {
+			t.Errorf("TMUX=%q: InTmux %v", tmux, got.InTmux)
+		}
+	}
+}

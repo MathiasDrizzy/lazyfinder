@@ -101,6 +101,7 @@ and committing are left to lazygit. These keys work on the tab and are not rebin
 | Wheel | Scroll the list (three rows per notch) |
 | Click on a sidebar entry | Go to that place |
 | Click on a breadcrumb segment | Go to that folder |
+| Right click on a breadcrumb segment | Copy the path of that folder (pbcopy, wl-copy, xclip or xsel; OSC 52 without them) |
 | Click on `‹` or `›` | Back or forward |
 | Click on the gear `⚙` | Settings popup |
 | Click outside a popup | Close it |

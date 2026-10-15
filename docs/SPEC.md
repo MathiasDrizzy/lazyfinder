@@ -42,7 +42,8 @@ follow mode, in the spirit of lazymark: stop using Finder and still have everyth
   plus scenario.
 - **R-04 Breadcrumb (M1).** The current path is shown as clickable segments at the bottom, as in the reference
   screenshot. AC: clicking segment N changes directory to the Nth ancestor; long paths elide the middle, never the
-  last segment.
+  last segment. A right click on a segment copies the path of that folder to the clipboard (pbcopy, wl-copy, xclip or
+  xsel; OSC 52 when none is installed) and the status line says what was copied.
 
 ### List and columns (Q1)
 

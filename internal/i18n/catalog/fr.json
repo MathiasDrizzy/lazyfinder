@@ -406,5 +406,7 @@
  "⚠ %d uncommitted changes go with you": "⚠ %d modifications non validées vous suivent",
  "⚠ 1 uncommitted change goes with you": "⚠ 1 modification non validée vous suit",
  "needs shell": "shell requis",
- "Add to %s:": "Ajoutez à %s :"
+ "Add to %s:": "Ajoutez à %s :",
+ "Cannot copy the path: %w": "Impossible de copier le chemin : %w",
+ "tmux does not pass images through. Press Q for Quick Look.": "tmux ne laisse pas passer les images. Appuyez sur Q pour Coup d’œil."
 }

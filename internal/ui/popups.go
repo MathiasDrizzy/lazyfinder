@@ -265,9 +265,13 @@ func (m *Model) imageBody(r *preview.Result, iw int) []string {
 	case m.imagesAllowed:
 		return []string{m.styles.dim(i18n.T("Cargando imagen…", "Loading image…"))}
 	}
+	why := i18n.T("Esta terminal no muestra imágenes. Pulsa Q para Vista rápida.", "This terminal does not show images. Press Q for Quick Look.")
+	if m.deps.InTmux {
+		why = i18n.T("tmux no deja pasar las imágenes. Pulsa Q para Vista rápida.", "tmux does not pass images through. Press Q for Quick Look.")
+	}
 	return []string{
 		m.styles.dim(fmt.Sprintf(i18n.T("Imagen %d x %d", "Image %d x %d"), r.ImageW, r.ImageH)),
-		m.styles.dim(i18n.T("Esta terminal no muestra imágenes. Pulsa Q para Vista rápida.", "This terminal does not show images. Press Q for Quick Look.")),
+		m.styles.dim(why),
 	}
 }
 

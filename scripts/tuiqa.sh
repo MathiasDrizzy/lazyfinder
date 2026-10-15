@@ -26,7 +26,15 @@ for p in open qlmanage osascript xdg-open; do
   printf '#!/bin/sh\nprintf "%%s %%s\\n" "$(basename "$0")" "$*" >>"%s"\nexit 0\n' "$out/opener.log" >"$out/fakebin/$p"
   chmod +x "$out/fakebin/$p"
 done
+# The clipboard tools are fakes too: a right click on the breadcrumb copies, and no scenario reaches the real clipboard.
+for p in pbcopy wl-copy xclip xsel; do
+  # shellcheck disable=SC2016 # $0 belongs to the fake script, expanded when it runs
+  printf '#!/bin/sh\n{ printf "%%s " "$(basename "$0")"; cat; echo; } >>"%s"\n' "$out/clipboard.log" >"$out/fakebin/$p"
+  chmod +x "$out/fakebin/$p"
+done
 export PATH="$out/fakebin:$PATH"
+# Inside herdr the plugin variables would point at the real server: the scenarios run outside it.
+unset HERDR_ENV HERDR_SOCKET_PATH HERDR_PANE_ID HERDR_TAB_ID HERDR_WORKSPACE_ID HERDR_PLUGIN_ID HERDR_SESSION
 # tuiqa puts its own fake openers first unless told not to; ours are fakes too, and their log is what this script checks
 export TUIQA_REAL_OPENERS=1
 # Scenarios that open a file on purpose (the fake opener takes the call); any other call fails the run.
@@ -44,5 +52,10 @@ for f in "${TUIQA_SCENARIOS:-testdata/tuiqa}"/*.json; do
     fails=$((fails + 1))
   fi
   : >"$out/opener.log"
+  if [ -s "$out/clipboard.log" ]; then
+    echo "      copied: $(cat "$out/clipboard.log")"
+    [ -n "${TUIQA_CLIPBOARD_LOG:-}" ] && cat "$out/clipboard.log" >>"$TUIQA_CLIPBOARD_LOG"
+  fi
+  : >"$out/clipboard.log"
 done
 exit "$fails"

@@ -1,7 +1,12 @@
 package ui
 
 import (
+	"errors"
+	"fmt"
 	"strings"
+
+	sysclip "github.com/MathiasDrizzy/lazyfinder/internal/clipboard"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
@@ -213,6 +218,9 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	if mouse.Button == tea.MouseRight && m.openContext(z, mouse.X, mouse.Y) {
 		return nil
 	}
+	if mouse.Button == tea.MouseRight && z.kind == zoneCrumb {
+		return m.copyPath(z.path)
+	}
 	if mouse.Button == tea.MouseRight && z.kind == zoneRow {
 		m.focus = focusList
 		m.sel = z.idx
@@ -353,4 +361,22 @@ func inBox(x, y, bx, by int, box []string) bool {
 		return false
 	}
 	return y >= by && y < by+len(box) && x >= bx && x < bx+boxWidth(box)
+}
+
+// copyPath puts a folder of the breadcrumb on the clipboard and says so.
+// Without a clipboard tool, the terminal sets it (OSC 52).
+func (m *Model) copyPath(path string) tea.Cmd {
+	if m.deps.Copy == nil {
+		return nil
+	}
+	var cmd tea.Cmd
+	switch err := m.deps.Copy(path); {
+	case errors.Is(err, sysclip.ErrNoTool):
+		cmd = tea.SetClipboard(path)
+	case err != nil:
+		m.setError(fmt.Errorf(i18n.T("No se pudo copiar la ruta: %w", "Cannot copy the path: %w"), err))
+		return nil
+	}
+	m.setStatus(fmt.Sprintf(i18n.T("Copiado: %s", "Copied %s"), path))
+	return cmd
 }

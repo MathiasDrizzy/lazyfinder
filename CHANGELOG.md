@@ -6,7 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A right click on a segment of the breadcrumb copies the path of that folder, and the status line says so. It uses
+  pbcopy, wl-copy, xclip or xsel, and OSC 52 (the terminal's own clipboard) when none of them is installed.
+
 ### Fixed
+
+- Inside tmux the image preview says that tmux does not pass images through, instead of blaming the terminal.
 
 - Settings says when "Stay in the folder on exit" cannot work: started without the shell function, its row reads
   "yes · needs shell" and, selected, shows the line to add and the file it goes in, for the shell in `$SHELL`. The

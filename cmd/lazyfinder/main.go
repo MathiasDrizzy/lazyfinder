@@ -12,6 +12,7 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/clipboard"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
@@ -43,6 +44,7 @@ type Options struct {
 
 	ConfigPath string
 	ShellSetup ui.ShellSetup // the line cd_on_exit needs, when the shell function did not start lazyfinder
+	InTmux     bool          // tmux does not pass the Kitty graphics query on: the image preview says so
 }
 
 func main() {
@@ -121,6 +123,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	}
 	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != "", Follow: *followDir != "" || *sidebarFlag}
 	opts.ConfigPath = config.ResolvePath(getenv, home)
+	opts.InTmux = getenv("TMUX") != ""
 	if *cwdFile == "" {
 		opts.ShellSetup = shellSetup(getenv("SHELL"))
 	}
@@ -233,7 +236,7 @@ func launch(o Options) (string, error) {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup}
+	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
 	}

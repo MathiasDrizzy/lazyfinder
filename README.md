@@ -176,7 +176,8 @@ The essentials. `?` shows all of them, and [docs/keybindings.md](docs/keybinding
 | `q` | Quit |
 
 Every key can be rebound with `keys` in `config.json`. The mouse does the same: click rows, headers, sidebar entries,
-breadcrumb segments and the back and forward buttons.
+breadcrumb segments and the back and forward buttons. A right click on a breadcrumb segment copies the path of that
+folder.
 
 ## Configuration
 

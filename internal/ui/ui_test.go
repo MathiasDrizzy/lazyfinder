@@ -692,3 +692,17 @@ func (e *env) clickTab(t projectTab) {
 
 // noWake is the Wake of the test models that do not look at the fading of the buttons: no real timers.
 func noWake(time.Duration) tea.Cmd { return nil }
+
+// Order 2026-10-15-16: inside tmux the outer terminal may show images, but tmux does not pass the Kitty query; the
+// message names tmux instead of blaming the terminal.
+func TestImagePreviewInsideTmuxSaysTmuxDoesNotPassImages(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.InTmux = true
+	writePNG(t, filepath.Join(e.root, "pic.png"), 64, 32)
+	e.key("r")
+	e.clickText("pic.png")
+	e.key("space")
+	e.mustHave("tmux does not pass images through")
+	e.mustNotHave("This terminal does not show images")
+	e.mustHave("Quick Look")
+}

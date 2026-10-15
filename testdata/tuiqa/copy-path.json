@@ -1,0 +1,55 @@
+{
+  "name": "lazyfinder-copy-path",
+  "criterio": "order 2026-10-15-16: a right click on the breadcrumb copies that folder",
+  "cmd": [
+    "${LAZYFINDER_BIN}",
+    "${TUIQA_HOME}/proj/alpha"
+  ],
+  "cols": 120,
+  "rows": 40,
+  "fixtures": "fixtures",
+  "fixtures_mtime": "2026-09-01T12:00:00Z",
+  "steps": [
+    {
+      "wait": {
+        "regex": "inner\\.txt",
+        "timeout_ms": 8000
+      }
+    },
+    {
+      "desc": "a right click on the proj crumb of the bottom bar copies that folder",
+      "click": {
+        "at": "proj",
+        "in": {
+          "x": 0,
+          "y": 38,
+          "w": 120,
+          "h": 1
+        },
+        "button": "right"
+      }
+    },
+    {
+      "desc": "the status line says what was copied, and the folder did not change",
+      "wait": {
+        "regex": "Copied /.*/proj\\b"
+      }
+    },
+    {
+      "assert": {
+        "contains": "inner.txt"
+      }
+    },
+    {
+      "keys": [
+        "q"
+      ]
+    },
+    {
+      "wait_exit": {
+        "timeout_ms": 3000,
+        "code": 0
+      }
+    }
+  ]
+}
