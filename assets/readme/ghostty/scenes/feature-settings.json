@@ -6,7 +6,9 @@
    "cols": 118,
    "rows": 32,
    "argv": [
-    "lazyfinder"
+    "lazyfinder",
+    "--cwd-file",
+    "/tmp/lazyfinder-demo/cwd"
    ],
    "setup": [
     {

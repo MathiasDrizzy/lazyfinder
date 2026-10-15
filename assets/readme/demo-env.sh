@@ -58,9 +58,11 @@ set -g default-terminal "tmux-256color"
 set -as terminal-features ",*:RGB"
 set -ga terminal-overrides ",*:Tc"
 set -g default-command "bash --norc --noprofile"
-set -g pane-border-status top
-set -g pane-border-format " #{pane_title} "
-# titles are set by the tape (the default one is the host name)
+# a title over each pane once the window is split (one pane has no border): the program in it, "terminal" for the shell
+set -g pane-border-status off
+set-hook -g after-split-window "set -w pane-border-status top"
+set -g pane-border-format " #{?#{==:#{pane_current_command},bash},terminal,#{pane_current_command}} "
+# programs do not set the pane titles: the border shows the program (the default title is the host name)
 set -g allow-set-title off
 set -g pane-border-style "fg=#45475a"
 set -g pane-active-border-style "fg=#89b4fa"
@@ -68,7 +70,7 @@ set -g pane-active-border-style "fg=#89b4fa"
 set -g set-titles on
 set -g set-titles-string "website"
 set-environment -g BASH_SILENCE_DEPRECATION_WARNING 1
-set-environment -g PS1 '\[\e[38;2;137;180;250m\]website\[\e[0m\] $ '
+set-environment -g PS1 '\[\e[38;2;137;180;250m\]\W\[\e[0m\] $ '
 TMUX
 # lazygit without its first-run popups (the welcome and the notes of a new version).
 lg_version="$(lazygit --version 2>/dev/null | sed -n 's/.*[ ,]version=\([^,]*\),.*/\1/p')"

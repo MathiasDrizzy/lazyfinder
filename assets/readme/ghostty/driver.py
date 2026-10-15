@@ -40,6 +40,7 @@ KEYS = {
     "ctrl+a": b"\x01",
     "ctrl+b": b"\x02",
     "ctrl+c": b"\x03",
+    "ctrl+g": b"\x07",
     "ctrl+q": b"\x11",
     "ctrl+s": b"\x13",
     "ctrl+t": b"\x14",

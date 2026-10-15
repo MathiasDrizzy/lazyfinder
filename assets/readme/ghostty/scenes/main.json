@@ -1,21 +1,310 @@
 {
-  "output": "main.gif",
-  "windows": [
+ "output": "main.gif",
+ "windows": [
+  {
+   "name": "main",
+   "cols": 118,
+   "rows": 32,
+   "argv": [
+    "tmux",
+    "-f",
+    "/tmp/lazyfinder-demo/tmux.conf",
+    "new-session",
+    "-s",
+    "demo"
+   ],
+   "setup": [
     {
-      "name": "lazyfinder", "cols": 118, "rows": 32, "argv": ["lazyfinder"],
-      "setup": [{"wait": "Favorites"}, {"sleep": 1}],
-      "steps": [
-        {"sleep": 1.2},
-        {"keys": ["down"], "gap": 0.5}, {"keys": ["enter"], "gap": 1.2},
-        {"keys": ["down"], "gap": 0.3}, {"keys": ["down"], "gap": 0.6},
-        {"keys": ["space"], "gap": 2.2}, {"keys": ["down"], "gap": 2}, {"keys": ["space"], "gap": 0.6},
-        {"keys": ["down"], "gap": 0.4}, {"keys": ["enter"], "gap": 2.5}, {"keys": ["ctrl+q"], "gap": 1.2},
-        {"keys": ["M"], "gap": 1.2}, {"keys": ["up"], "gap": 0.7}, {"keys": ["up"], "gap": 0.7},
-        {"keys": ["up"], "gap": 1.5}, {"keys": ["M"], "gap": 0.8},
-        {"keys": [","], "gap": 1.2}, {"keys": ["right"], "gap": 1.3}, {"keys": ["right"], "gap": 1.3},
-        {"keys": ["right"], "gap": 1.3}, {"keys": ["esc"], "gap": 1.8},
-        {"post": "end"}, {"keys": ["q"]}
-      ]
+     "wait": "\\$ "
+    },
+    {
+     "type": "eval \"$(lazyfinder --shell-init bash)\"; clear",
+     "speed": 0
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1
     }
-  ]
+   ],
+   "steps": [
+    {
+     "sleep": 0.6
+    },
+    {
+     "type": "lazyfinder",
+     "speed": 0.035
+    },
+    {
+     "sleep": 0.2
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.1
+    },
+    {
+     "wait": "Favorites"
+    },
+    {
+     "sleep": 0.9
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.35
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.7
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.25
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 1.5
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 1.3
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 0.35
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.35
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.5
+    },
+    {
+     "keys": [
+      "ctrl+q"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "M"
+     ],
+     "gap": 1.0
+    },
+    {
+     "keys": [
+      "up"
+     ],
+     "gap": 0.45
+    },
+    {
+     "keys": [
+      "up"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "M"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "backspace"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "/"
+     ],
+     "gap": 0.35
+    },
+    {
+     "type": "kind:image",
+     "speed": 0.035
+    },
+    {
+     "sleep": 0.3
+    },
+    {
+     "keys": [
+      "tab"
+     ],
+     "gap": 1.0
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.35
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 1.6
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "esc"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "ctrl+t"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "ctrl+g"
+     ],
+     "gap": 0.4
+    },
+    {
+     "type": "~/Projects/website",
+     "speed": 0.035
+    },
+    {
+     "sleep": 0.2
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.4
+    },
+    {
+     "keys": [
+      ","
+     ],
+     "gap": 0.7
+    },
+    {
+     "keys": [
+      "right"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "right"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "left"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "left"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "esc"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "q"
+     ],
+     "gap": 1.0
+    },
+    {
+     "type": "tmux split-window -hb -l 30% 'lazyfinder --sidebar .'",
+     "speed": 0.02
+    },
+    {
+     "sleep": 0.1
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.4
+    },
+    {
+     "keys": [
+      "ctrl+a",
+      "right"
+     ],
+     "gap": 0.15
+    },
+    {
+     "sleep": 0.4
+    },
+    {
+     "type": "echo \"Open every day\" > notes.md",
+     "speed": 0.03
+    },
+    {
+     "sleep": 0.1
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "type": "git add notes.md",
+     "speed": 0.03
+    },
+    {
+     "sleep": 0.1
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.6
+    },
+    {
+     "post": "end"
+    }
+   ]
+  }
+ ],
+ "speed": 1.25
 }

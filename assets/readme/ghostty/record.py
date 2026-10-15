@@ -7,7 +7,7 @@ Run from the repository root on macOS, with Ghostty, ffmpeg and uv installed:
 Each scene in assets/readme/ghostty/scenes is one GIF. For each scene the script prepares a fresh demo environment
 (demo-env.sh: temporary HOME, fake openers), opens one Ghostty window per entry of "windows" side by side, and
 driver.py runs the window's program and types its steps. The windows are captured straight from the window server
-(the content of each window, not the screen), laid out on a plain backdrop and encoded with ffmpeg.
+(the content of each window, not the screen), cut to the terminal and encoded with ffmpeg.
 
 Ghostty takes the keyboard focus while it records; the keys typed by hand are dropped by driver.py.
 """
@@ -30,23 +30,24 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 OUT_DIR = REPO / "assets" / "readme"
 FPS = 20
-MARGIN = 22  # points of backdrop around the windows
+# points cut off each side of the window: its rounded corners. The GIF is the terminal from edge to edge, like the
+# VHS ones of lazymark; the window padding is larger by as much, so the text keeps its margin.
+INSET = 14
 GAP = 14  # points between two windows
 ORIGIN = (60, 70)  # where the first window opens on the screen
-BACKDROP = (0x45 / 255, 0x47 / 255, 0x5A / 255)  # Catppuccin Mocha surface1
 MAX_SECONDS = 120
 GHOSTTY = {
     "font-family": "JetBrainsMono Nerd Font",
     "font-size": "16",
     "theme": "Catppuccin Mocha",
-    "window-padding-x": "12",
-    "window-padding-y": "8",
+    "window-padding-x": "28",
+    "window-padding-y": "24",
     "window-padding-color": "extend",
     "window-padding-balance": "true",
     "window-save-state": "never",
     "confirm-close-surface": "false",
     "quit-after-last-window-closed": "true",
-    "macos-titlebar-proxy-icon": "hidden",
+    "macos-titlebar-style": "hidden",
     "cursor-style-blink": "false",
     "shell-integration": "none",
 }
@@ -131,14 +132,14 @@ def wait_files(paths: list[Path], timeout: float) -> None:
 
 
 class Canvas:
-    """The backdrop with every window drawn where it is on the screen, at one pixel per point."""
+    """The windows drawn where they are on the screen, at one pixel per point, cut INSET points inside their edges."""
 
     def __init__(self, windows: list[dict]) -> None:
         bounds = [w["kCGWindowBounds"] for w in windows]
-        self.left = min(b["X"] for b in bounds) - MARGIN
-        self.top = min(b["Y"] for b in bounds) - MARGIN
-        right = max(b["X"] + b["Width"] for b in bounds) + MARGIN
-        bottom = max(b["Y"] + b["Height"] for b in bounds) + MARGIN
+        self.left = min(b["X"] for b in bounds) + INSET
+        self.top = min(b["Y"] for b in bounds) + INSET
+        right = max(b["X"] + b["Width"] for b in bounds) - INSET
+        bottom = max(b["Y"] + b["Height"] for b in bounds) - INSET
         self.width = int(right - self.left + 1) // 2 * 2
         self.height = int(bottom - self.top + 1) // 2 * 2
         self.windows = windows
@@ -150,8 +151,6 @@ class Canvas:
 
     def frame(self) -> bytes:
         ctx = self.ctx
-        Quartz.CGContextSetRGBFillColor(ctx, *BACKDROP, 1)
-        Quartz.CGContextFillRect(ctx, Quartz.CGRectMake(0, 0, self.width, self.height))
         for w in self.windows:
             b = w["kCGWindowBounds"]
             img = Quartz.CGWindowListCreateImage(
@@ -192,7 +191,7 @@ def record(scene_file: Path) -> None:
         time.sleep(0.5)  # the last setup frame reaches the window
         windows = [ghostty_windows()[w["kCGWindowNumber"]] for w in windows]  # final bounds
         encode(Canvas(windows), sync, scene, work / "raw.mkv")
-        to_gif(work / "raw.mkv", out)
+        to_gif(work / "raw.mkv", out, scene.get("speed", 1))
     finally:
         for pid in pids:
             try:
@@ -244,9 +243,10 @@ def encode(canvas: Canvas, sync: Path, scene: dict, raw: Path) -> None:
         raise SystemExit("ffmpeg failed")
 
 
-def to_gif(raw: Path, out: Path) -> None:
+def to_gif(raw: Path, out: Path, speed: float) -> None:
+    """speed above 1 plays the recording faster (a tour that shows much in little time)."""
     graph = (
-        "split[a][b];[a]palettegen=max_colors=256:stats_mode=diff[p];"
+        f"setpts=PTS/{speed},fps={FPS},split[a][b];[a]palettegen=max_colors=256:stats_mode=diff[p];"
         "[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
     )
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(raw), "-vf", graph, str(out)], check=True)

@@ -23,10 +23,14 @@ Without a scene name it records them all, one after another (they share the demo
    Its output goes to Ghostty untouched; from the keyboard only Ghostty's answers to the program's queries (colors,
    image support, sizes) go through, so keys typed by hand never reach the recording.
 4. `record.py` captures the window 20 times a second straight from the window server (the window, not the screen, so
-   nothing else on the desktop shows), puts it on a plain backdrop and turns the frames into a GIF with ffmpeg.
+   nothing else on the desktop shows), cuts 14 points off each side (the rounded corners) and turns the frames into a
+   GIF with ffmpeg. The window has no title bar and a wider padding, so the GIF is the terminal from edge to edge.
 
-So the GIFs show lazyfinder exactly as Ghostty draws it: the theme colors reach the whole window, title bar
-included, and images are drawn with the Kitty graphics protocol.
+So the GIFs show lazyfinder exactly as Ghostty draws it, and images are drawn with the Kitty graphics protocol.
+
+`main.gif` is a tour of both modes in one tmux window: the full window (preview, an editor, columns, search with an
+image, tabs, go to a folder, themes, and the shell left in that folder on quit), then the sidebar next to the shell.
+Its scene sets `"speed": 1.25`, so the GIF plays faster than it was recorded.
 
 `feature-sidebar` and `feature-git` run tmux inside the window: `lazyfinder --sidebar` in a narrow pane on the left
 and a shell on the right, the way the sidebar is meant to be used. The keys `ctrl+a` and an arrow move between the
