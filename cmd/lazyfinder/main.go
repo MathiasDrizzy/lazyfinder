@@ -45,6 +45,8 @@ type Options struct {
 	ConfigPath string
 	ShellSetup ui.ShellSetup // the line cd_on_exit needs, when the shell function did not start lazyfinder
 	InTmux     bool          // tmux does not pass the Kitty graphics query on: the image preview says so
+	// HerdrDir is the folder of the pane next to the sidebar, when lazyfinder runs as the pane of its herdr plugin.
+	HerdrDir func() string
 }
 
 func main() {
@@ -66,6 +68,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	shellFlag := fs.String("completions", "", "print the completion script of `shell` (bash, zsh or fish) and exit")
 	noMouse := fs.Bool("no-mouse", false, "ignore the mouse for this run")
 	cwdFile := fs.String("cwd-file", "", "on exit, write the folder lazyfinder ends in to `file` (unless cd_on_exit is false)")
+	herdrAction := fs.String("herdr", "", "run a step of the herdr plugin and exit: `action` ensure or toggle (herdr-plugin.toml calls it)")
 	initShell := fs.String("shell-init", "", "print the function of `shell` (bash, zsh or fish) that leaves the shell in the last folder on exit, and exit")
 	fs.Usage = func() {
 		fmt.Fprintf(stderr, "Usage: lazyfinder [flags] [directory]\n       lazyfinder --sidebar [directory]\n\nFlags:\n")
@@ -106,6 +109,8 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	case *printDefault:
 		_, _ = stdout.Write(config.DefaultJSON(home))
 		return exitOK
+	case *herdrAction != "":
+		return runHerdr(*herdrAction, getenv, home, stderr)
 	}
 
 	args = fs.Args()
@@ -124,6 +129,9 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	opts := Options{Start: startDir, Home: home, NoColor: getenv("NO_COLOR") != "", Follow: *followDir != "" || *sidebarFlag}
 	opts.ConfigPath = config.ResolvePath(getenv, home)
 	opts.InTmux = getenv("TMUX") != ""
+	if dir := herdrFollower(getenv); dir != nil {
+		opts.Follow, opts.HerdrDir = true, dir
+	}
 	if *cwdFile == "" {
 		opts.ShellSetup = shellSetup(getenv("SHELL"))
 	}
@@ -236,7 +244,7 @@ func launch(o Options) (string, error) {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux}
+	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
 	}

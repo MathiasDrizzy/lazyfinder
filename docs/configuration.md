@@ -39,6 +39,9 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `popup_background` | `theme` paints popups with the theme background; `terminal` leaves the terminal's own behind them (a translucent terminal stays translucent) | `theme` |
 | `confirm_delete` | `false` never asks before moving to the Trash (`u` undoes it); `true` asks as `ops.confirm_trash_above` says | `true` |
 | `cd_on_exit` | With the function of `--shell-init` in the shell, quitting leaves the shell in the folder lazyfinder ends in; `false` leaves it where it was (Settings: "Stay in the folder on exit") | `true` |
+| `herdr.dock` | Edge of the tab where the [herdr plugin](../README.md#a-sidebar-in-every-herdr-tab) opens the sidebar: `left` or `right` (Settings: "Sidebar in herdr"); sidebars already open stay where they are | `left` |
+| `herdr.auto_open` | `true` opens the sidebar by itself in every herdr tab; `false` leaves it to the plugin's Toggle lazyfinder action | `true` |
+| `herdr.width` | Width of that sidebar in percent of the tab, 15 to 60 | `25` |
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
 | `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |
 | `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |
@@ -152,4 +155,5 @@ saved unless you change that same setting in the popup.
 | `--no-mouse` | Ignore the mouse |
 | `--cwd-file FILE` | On exit, write the folder lazyfinder ends in to `FILE` (nothing when `cd_on_exit` is `false`) |
 | `--shell-init SHELL` | Print the shell function (`bash`, `zsh` or `fish`) that runs lazyfinder with `--cwd-file` and moves the shell to that folder: `eval "$(lazyfinder --shell-init zsh)"` in `~/.zshrc` |
+| `--herdr ACTION` | A step of the herdr plugin, called by `herdr-plugin.toml`: `ensure` docks a sidebar in the tab of the event, `toggle` opens, focuses or closes it. It needs herdr's `HERDR_SOCKET_PATH` |
 | `--follow DIR` | Project sidebar mode (`Ctrl+B` toggles it inside the app): a narrow tree of `DIR` with live updates and git state, for a side pane |

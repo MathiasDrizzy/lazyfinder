@@ -1,0 +1,49 @@
+# lazyfinder as a herdr plugin: a lazyfinder sidebar docked at the left or right edge of every tab, in the sidebar
+# mode, following the folder of the pane next to it. Install: herdr plugin install MathiasDrizzy/lazyfinder
+# Settings (config.json of lazyfinder, or its Settings popup): herdr.dock (left or right), herdr.auto_open, herdr.width.
+
+id = "lazyfinder"
+name = "lazyfinder"
+version = "0.14.0"
+description = "Finder-like file manager as a herdr sidebar that follows the folder of the pane next to it."
+min_herdr_version = "0.9.0"
+platforms = ["linux", "macos"]
+
+# Builds bin/lazyfinder with Go, or links the lazyfinder already installed.
+[[build]]
+command = ["/bin/sh", "scripts/herdr-build.sh"]
+
+# The title is how the plugin tells its pane from the others (herdr.Label).
+[[panes]]
+id = "sidebar"
+title = "lazyfinder"
+placement = "split"
+command = ["./bin/lazyfinder", "--sidebar"]
+
+[[actions]]
+id = "toggle"
+title = "Toggle lazyfinder"
+description = "Open the lazyfinder sidebar at its edge; focus it if it is open; close it if it has the focus."
+command = ["./bin/lazyfinder", "--herdr", "toggle"]
+
+# Each hook docks a sidebar in its tab when it has none (idempotent, never takes the focus). A sidebar closed with
+# the toggle stays closed in that tab.
+[[events]]
+on = "tab.created"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]
+
+[[events]]
+on = "workspace.created"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]
+
+[[events]]
+on = "tab.focused"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]
+
+[[events]]
+on = "workspace.focused"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]
+
+[[events]]
+on = "pane.focused"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]

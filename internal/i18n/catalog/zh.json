@@ -408,5 +408,10 @@
  "needs shell": "需要 shell 配置",
  "Add to %s:": "添加到 %s：",
  "Cannot copy the path: %w": "无法复制路径：%w",
- "tmux does not pass images through. Press Q for Quick Look.": "tmux 不会传递图像。按 Q 打开快速查看。"
+ "tmux does not pass images through. Press Q for Quick Look.": "tmux 不会传递图像。按 Q 打开快速查看。",
+ "\"herdr.dock\" must be left or right (got %q)": "\"herdr.dock\" 必须是 left 或 right（当前为 %q）",
+ "\"herdr.width\" must be between %d and %d (got %d)": "\"herdr.width\" 必须在 %d 到 %d 之间（当前为 %d）",
+ "Sidebar in herdr": "herdr 中的侧栏",
+ "right": "右",
+ "left": "左"
 }

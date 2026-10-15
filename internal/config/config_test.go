@@ -310,3 +310,20 @@ func TestMoreColumnsAndDateFormat(t *testing.T) {
 		}
 	}
 }
+
+// Order 2026-10-15-16: inside herdr the sidebar opens by itself at the edge chosen in the settings.
+func TestHerdrDefaultsAndValidation(t *testing.T) {
+	h := Defaults("/home/u").Herdr
+	if h.Dock != "left" || !h.AutoOpen || h.Width != 25 {
+		t.Fatalf("defaults = %+v", h)
+	}
+	cfg, err := Parse([]byte(`{"version":1,"herdr":{"dock":"right","auto_open":false,"width":40}}`), "/home/u")
+	if err != nil || cfg.Herdr.Dock != "right" || cfg.Herdr.AutoOpen || cfg.Herdr.Width != 40 {
+		t.Fatalf("%v %+v", err, cfg.Herdr)
+	}
+	for _, js := range []string{`{"version":1,"herdr":{"dock":"top"}}`, `{"version":1,"herdr":{"width":5}}`, `{"version":1,"herdr":{"width":80}}`} {
+		if _, err := Parse([]byte(js), "/home/u"); err == nil || !strings.Contains(err.Error(), "herdr.") {
+			t.Errorf("%s: err = %v", js, err)
+		}
+	}
+}

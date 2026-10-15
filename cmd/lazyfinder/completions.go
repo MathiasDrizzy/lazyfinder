@@ -24,10 +24,11 @@ _lazyfinder() {
     --completions|--shell-init) COMPREPLY=($(compgen -W "bash zsh fish" -- "$cur")); return ;;
     --cwd-file) COMPREPLY=($(compgen -f -- "$cur")); return ;;
     --follow) COMPREPLY=($(compgen -d -- "$cur")); return ;;
+    --herdr) COMPREPLY=($(compgen -W "ensure toggle" -- "$cur")); return ;;
     --log) COMPREPLY=($(compgen -f -- "$cur")); return ;;
   esac
   if [[ "$cur" == -* ]]; then
-    COMPREPLY=($(compgen -W "--version --print-default-config --log --log-paths --lang --theme --follow --sidebar --no-mouse --completions --cwd-file --shell-init" -- "$cur"))
+    COMPREPLY=($(compgen -W "--version --print-default-config --log --log-paths --lang --theme --follow --sidebar --no-mouse --completions --cwd-file --shell-init --herdr" -- "$cur"))
   else
     COMPREPLY=($(compgen -d -- "$cur"))
   fi
@@ -50,6 +51,7 @@ _arguments \
   '--completions=[print a completion script]:shell:(bash zsh fish)' \
   '--cwd-file=[on exit, write the last folder to a file]:file:_files' \
   '--shell-init=[print the shell function that stays in the last folder]:shell:(bash zsh fish)' \
+  '--herdr=[run a step of the herdr plugin]:action:(ensure toggle)' \
   '1:directory:_files -/'
 `, langs, themes), true
 	case "fish":
@@ -66,6 +68,7 @@ complete -c lazyfinder -l no-mouse -d 'Ignore the mouse for this run'
 complete -c lazyfinder -l completions -x -a 'bash zsh fish' -d 'Print a completion script'
 complete -c lazyfinder -l cwd-file -r -F -d 'On exit, write the last folder to a file'
 complete -c lazyfinder -l shell-init -x -a 'bash zsh fish' -d 'Print the shell function that stays in the last folder'
+complete -c lazyfinder -l herdr -x -a 'ensure toggle' -d 'Run a step of the herdr plugin'
 `, langs, themes), true
 	}
 	return "", false

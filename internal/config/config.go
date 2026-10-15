@@ -77,6 +77,7 @@ type Config struct {
 	Git             Git            `json:"git"`
 	Search          Search         `json:"search"`
 	Ops             Ops            `json:"ops"`
+	Herdr           Herdr          `json:"herdr"`
 
 	// Language is "auto" or a code the i18n package knows. ScreenBackground is "theme" or "terminal".
 	Language         string `json:"language"`
@@ -143,6 +144,19 @@ type Search struct {
 	Kinds       string `json:"kinds"`        // both, files or folders
 	By          string `json:"by"`           // name or content
 }
+
+// Herdr configures the sidebar that the herdr plugin opens in every tab (herdr-plugin.toml).
+type Herdr struct {
+	Dock     string `json:"dock"`      // left or right: the edge of the tab where the sidebar opens
+	AutoOpen bool   `json:"auto_open"` // open it by itself in every new tab; false leaves it to the toggle action
+	Width    int    `json:"width"`     // percent of the tab, 15 to 60
+}
+
+// Limits of Herdr.Width, in percent of the tab.
+const (
+	HerdrMinWidth = 15
+	HerdrMaxWidth = 60
+)
 
 // Ops configures file operations.
 type Ops struct {
@@ -230,6 +244,7 @@ func Defaults(home string) Config {
 		Git:              Git{Enabled: true},
 		Search:           Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
 		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
+		Herdr:            Herdr{Dock: "left", AutoOpen: true, Width: 25},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -438,6 +453,12 @@ func validate(cfg *Config, home string) error {
 	}
 	if cfg.Search.ContentTool != "auto" && cfg.Search.ContentTool != "native" {
 		return i18n.Errorf(`"search.content_tool" debe ser auto o native (hay %q)`, `"search.content_tool" must be auto or native (got %q)`, cfg.Search.ContentTool)
+	}
+	if cfg.Herdr.Dock != "left" && cfg.Herdr.Dock != "right" {
+		return i18n.Errorf(`"herdr.dock" debe ser left o right (hay %q)`, `"herdr.dock" must be left or right (got %q)`, cfg.Herdr.Dock)
+	}
+	if cfg.Herdr.Width < HerdrMinWidth || cfg.Herdr.Width > HerdrMaxWidth {
+		return i18n.Errorf(`"herdr.width" debe estar entre %d y %d (hay %d)`, `"herdr.width" must be between %d and %d (got %d)`, HerdrMinWidth, HerdrMaxWidth, cfg.Herdr.Width)
 	}
 	if cfg.Search.Scope != "folder" && cfg.Search.Scope != "subfolders" && cfg.Search.Scope != "system" {
 		return i18n.Errorf(`"search.scope" debe ser folder, subfolders o system (hay %q)`, `"search.scope" must be folder, subfolders or system (got %q)`, cfg.Search.Scope)

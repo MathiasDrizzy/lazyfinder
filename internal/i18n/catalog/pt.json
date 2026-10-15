@@ -408,5 +408,10 @@
  "needs shell": "precisa do shell",
  "Add to %s:": "Adicione a %s:",
  "Cannot copy the path: %w": "Não foi possível copiar o caminho: %w",
- "tmux does not pass images through. Press Q for Quick Look.": "O tmux não deixa passar as imagens. Pressione Q para a Visualização Rápida."
+ "tmux does not pass images through. Press Q for Quick Look.": "O tmux não deixa passar as imagens. Pressione Q para a Visualização Rápida.",
+ "\"herdr.dock\" must be left or right (got %q)": "\"herdr.dock\" deve ser left ou right (há %q)",
+ "\"herdr.width\" must be between %d and %d (got %d)": "\"herdr.width\" deve estar entre %d e %d (há %d)",
+ "Sidebar in herdr": "Lateral no herdr",
+ "right": "direita",
+ "left": "esquerda"
 }

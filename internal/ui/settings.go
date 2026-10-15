@@ -39,6 +39,7 @@ const (
 	setSearchBy
 	setConfirmDelete
 	setCdOnExit
+	setHerdrDock
 	setSidebarMode
 	settingCount
 )
@@ -63,6 +64,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Confirmar al borrar", "Confirm deletion")
 	case setCdOnExit:
 		return i18n.T("Quedarse en la carpeta al salir", "Stay in the folder on exit")
+	case setHerdrDock:
+		return i18n.T("Lateral en herdr", "Sidebar in herdr")
 	case setSidebarMode:
 		return i18n.T("Modo lateral (proyecto)", "Side mode (project)")
 	case setIcons:
@@ -124,6 +127,11 @@ func (m *Model) settingValue(i int) string {
 			return onOff(c.CdOnExit) + " · " + i18n.T("falta shell", "needs shell")
 		}
 		return onOff(c.CdOnExit)
+	case setHerdrDock:
+		if c.Herdr.Dock == "right" {
+			return i18n.T("derecha", "right")
+		}
+		return i18n.T("izquierda", "left")
 	case setSidebarMode:
 		return onOff(m.projectMode())
 	case setIcons:
@@ -202,6 +210,9 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setCdOnExit:
 		m.deps.Cfg.CdOnExit = !m.deps.Cfg.CdOnExit
 		key, val = "cd_on_exit", m.deps.Cfg.CdOnExit
+	case setHerdrDock:
+		m.deps.Cfg.Herdr.Dock = cycle([]string{"left", "right"}, m.deps.Cfg.Herdr.Dock, dir)
+		key, val = "herdr.dock", m.deps.Cfg.Herdr.Dock
 	case setSidebarMode:
 		m.toggleProject()
 		return nil // a mode of this run, not a saved setting

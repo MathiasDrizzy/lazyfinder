@@ -10,6 +10,11 @@ All notable changes to this project are documented here. The format follows
 
 - A right click on a segment of the breadcrumb copies the path of that folder, and the status line says so. It uses
   pbcopy, wl-copy, xclip or xsel, and OSC 52 (the terminal's own clipboard) when none of them is installed.
+- lazyfinder is a [herdr](https://herdr.dev) plugin: `herdr plugin install MathiasDrizzy/lazyfinder` opens a
+  lazyfinder sidebar in every tab, next to the terminal, and the sidebar follows the folder of that terminal. "Sidebar
+  in herdr" in Settings (`herdr.dock`) puts it on the left or the right; `herdr.auto_open` and `herdr.width` turn the
+  automatic opening off and set its width; the Toggle lazyfinder action opens, focuses or closes it. New flag
+  `--herdr ensure|toggle`, used by the plugin.
 
 ### Fixed
 

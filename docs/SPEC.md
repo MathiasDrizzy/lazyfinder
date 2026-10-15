@@ -181,6 +181,13 @@ Requirement (2026-10-13): the same features as Finder and as the Windows file se
   tests of `internal/ui` and `internal/search`.
 - **R-54 Default openers (M1, extended M3, done).** A built-in table of defaults per extension that the config replaces
   (never run anything unconfigured stays true: defaults call `open`). AC: test of the table and an override.
+- **R-55 herdr plugin (2026-10-15).** `herdr-plugin.toml` at the root makes the repository a herdr plugin
+  (`herdr plugin install MathiasDrizzy/lazyfinder`). Every tab gets one lazyfinder pane in the sidebar mode at the edge
+  of `herdr.dock` (Settings: "Sidebar in herdr"), `herdr.width` percent wide, without taking the focus; the
+  `toggle` action opens, focuses or closes it, and a sidebar closed with it stays closed in that tab. The pane follows
+  the folder of the focused pane of its tab when that folder changes. Outside the plugin nothing changes. AC: unit
+  tests of `internal/herdr` against a fake socket, and an isolated herdr that docks it left and right and follows a
+  `cd` (ADR 0017).
 
 ## Out of scope for M1
 

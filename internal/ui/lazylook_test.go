@@ -360,3 +360,23 @@ func TestTheCdOnExitRowIsPlainWhenTheShellFunctionStartedIt(t *testing.T) {
 	e.mustNotHave("needs shell")
 	e.mustHave("←/→ change")
 }
+
+// Order 2026-10-15-16: the edge where the herdr plugin opens the sidebar is a setting, saved in config.json.
+func TestTheHerdrRowPicksTheEdgeOfTheSidebarAndSavesIt(t *testing.T) {
+	e := newEnv(t)
+	path := e.withConfigFile()
+	e.key(",")
+	e.pickSetting("Sidebar in herdr")
+	e.mustHave("‹ left ›")
+	e.key("right")
+	e.mustHave("‹ right ›")
+	if e.m.deps.Cfg.Herdr.Dock != "right" {
+		t.Fatalf("dock %q", e.m.deps.Cfg.Herdr.Dock)
+	}
+	cfg, err := config.Load(path, e.home)
+	if err != nil || cfg.Herdr.Dock != "right" {
+		t.Fatalf("saved %v %+v", err, cfg.Herdr)
+	}
+	e.key("right")
+	e.mustHave("‹ left ›")
+}

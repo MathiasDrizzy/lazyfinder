@@ -76,6 +76,10 @@ type Deps struct {
 
 	// InTmux is set when lazyfinder runs inside tmux, which does not pass the Kitty graphics query on.
 	InTmux bool
+
+	// HerdrDir is the folder of the herdr pane next to this one, when lazyfinder is the pane of its herdr plugin
+	// (empty when it has no answer); nil outside herdr.
+	HerdrDir func() string
 }
 
 // ShellSetup is one line to add to a shell's startup file.
@@ -99,6 +103,8 @@ type Model struct {
 	keys    keymap.Map
 	mouse   bool
 	set     settingsState
+
+	herdrSeen string // the last folder herdr gave for the pane next to the sidebar (herdrfollow.go)
 
 	w, h int
 
@@ -211,10 +217,11 @@ func New(d Deps) *Model {
 
 // Init asks the terminal whether it can show images, unless the config decides.
 func (m *Model) Init() tea.Cmd {
+	cmds := []tea.Cmd{waitEvent(m.deps.Watcher), m.pollHerdr(0)}
 	if m.deps.Cfg.Preview.Images == "auto" {
-		return tea.Batch(tea.Raw(termimg.QuerySequence()), waitEvent(m.deps.Watcher))
+		cmds = append(cmds, tea.Raw(termimg.QuerySequence()))
 	}
-	return waitEvent(m.deps.Watcher)
+	return tea.Batch(cmds...)
 }
 
 func (m *Model) dir() string { return m.hist.Current() }
@@ -453,6 +460,8 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.autoMode(prevW)
 		m.ensureVisible()
 		return m, m.refreshPreview()
+	case herdrDirMsg:
+		return m, m.followHerdr(msg.dir)
 	case actionsFadeMsg:
 		return m, m.fadeActions()
 	case tea.KeyPressMsg:

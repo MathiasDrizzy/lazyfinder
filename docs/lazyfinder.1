@@ -46,6 +46,10 @@ On exit, write the folder lazyfinder ends in to \fIfile\fR, unless \fBcd_on_exit
 .BI \-\-shell\-init " shell"
 Print the function of \fIshell\fR (bash, zsh or fish) that runs lazyfinder with \fB\-\-cwd\-file\fR and leaves
 the shell in that folder, and exit: \fBeval "$(lazyfinder \-\-shell\-init zsh)"\fR in \fI~/.zshrc\fR.
+.TP
+.BI \-\-herdr " action"
+A step of the herdr plugin (\fIherdr\-plugin.toml\fR) and exit: \fBensure\fR docks a sidebar in the tab of the
+event, \fBtoggle\fR opens, focuses or closes it. It runs inside herdr, which sets \fBHERDR_SOCKET_PATH\fR.
 .SH FILES
 .TP
 .I ~/.config/lazyfinder/config.json

@@ -72,6 +72,24 @@ stage there show up at once, each with its git letter (`M` modified, `U` new, `A
 
 <img src="assets/readme/feature-sidebar.gif" alt="lazyfinder in sidebar mode on the left of a split window; on the right, a terminal creates notes.md, stages it and edits index.html, and the tree shows each change at once; then a preview of menu.js" width="100%">
 
+### A sidebar in every herdr tab
+
+lazyfinder is also a [herdr](https://herdr.dev) plugin. Install it once:
+
+```sh
+herdr plugin install MathiasDrizzy/lazyfinder
+```
+
+Every tab then opens with lazyfinder in sidebar mode on one side and your terminal on the other. The sidebar follows
+the folder of the terminal next to it: `cd` there and the tree moves with you. A folder you open by hand in the
+sidebar stays until the terminal changes folder again. "Sidebar in herdr" in Settings puts it on the left or the right
+of new tabs, and the plugin's **Toggle lazyfinder** action (bind it to a key in herdr) opens, focuses or closes it;
+closed with the action, it stays closed in that tab. `herdr.auto_open` and `herdr.width` in `config.json` turn the
+automatic opening off and set its width. The plugin builds lazyfinder with Go, or uses the `lazyfinder` you installed.
+
+Run outside the plugin, lazyfinder starts in the normal window, and `ctrl+b` or `--sidebar` gives the sidebar mode as
+always.
+
 ### Git at a glance
 
 The **Git** tab of the sidebar lists what changed: staged files, changes and stashes. `Enter` shows the diff of a

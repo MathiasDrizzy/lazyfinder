@@ -408,5 +408,10 @@
  "needs shell": "シェル設定が必要",
  "Add to %s:": "%s に追加:",
  "Cannot copy the path: %w": "パスをコピーできません: %w",
- "tmux does not pass images through. Press Q for Quick Look.": "tmux は画像を通しません。Q でクイックルックを開きます。"
+ "tmux does not pass images through. Press Q for Quick Look.": "tmux は画像を通しません。Q でクイックルックを開きます。",
+ "\"herdr.dock\" must be left or right (got %q)": "\"herdr.dock\" は left か right にしてください（現在 %q）",
+ "\"herdr.width\" must be between %d and %d (got %d)": "\"herdr.width\" は %d から %d の間にしてください（現在 %d）",
+ "Sidebar in herdr": "herdr のサイドバー",
+ "right": "右",
+ "left": "左"
 }

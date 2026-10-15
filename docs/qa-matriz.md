@@ -15,7 +15,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | PageUp, PageDown (pgup pgdown ctrl+u ctrl+d) | T PageKeysHomeAndEndMoveTheSelection |
 | Open, Parent (enter → l / backspace ← h) | T KeyboardNavigation, T EnterOnAChildFolderGoesIntoIt, T BackspaceNeverLeavesTheProjectRoot |
 | Back, Forward (alt+← alt+→ [ ]) | T BackForwardButtonsAndKeys, T BracketsGoBackAndForward |
-| Preview (space), QuickLook (Q) | T SpacePreviewShowsTextAndClosesWithEsc, T ImagePreviewWithoutSupportOffersQuickLook, S preview |
+| Preview (space), QuickLook (Q) | T SpacePreviewShowsTextAndClosesWithEsc, T ImagePreviewWithoutSupportOffersQuickLook, T ImagePreviewInsideTmuxSaysTmuxDoesNotPassImages, S preview |
 | OpenWith (O) | T OpenWithMenuListsChoicesAndRunsSelection, T OpenWithMenuEscCancels, S open-with |
 | Sort, SortReverse (s S) | T SortKeys, T HeaderClickSortsAndReverses |
 | Hidden (.), Ignored (I), Reload (r) | T HiddenToggle, T HideIgnoredWithTheKey, T SettingsToggleHiddenReloads |
@@ -47,6 +47,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 |---|---|
 | Click selects, double click opens | T MouseClickSelectsAndDoubleClickEnters, T ReachNestedFolderWithClicksOnly, S clicks |
 | Breadcrumb, back/forward buttons, sidebar places | T BreadcrumbSegmentsAreClickable, T BackForwardButtonsAndKeys, T SidebarClickAndMissingPlace |
+| Right click on a breadcrumb segment copies its path (tool, OSC 52 without one, error) | T RightClickOnABreadcrumbCopiesThatFolder, T RightClickOnTheLastBreadcrumbCopiesTheCurrentFolder, T ACopyThatFailsSaysSo, T WithoutAClipboardToolTheTerminalTakesTheCopy, T CopyPipesTheTextIntoTheFirstToolFound, T PbcopyGoesBeforeTheOthers, T WithoutAToolCopySaysThereIsNone, S copy-path |
 | Header click sorts; right click chooses columns | T HeaderClickSortsAndReverses, T RightClickOnTheHeaderChoosesColumns, S columns-menu |
 | Drag the sidebar border, a column border, the box border, the preview border | T DraggingTheSidebarBorderResizesItAndSavesOnRelease, T DraggingAColumnBorderResizesThatColumn, T DraggingTheBorderBetweenTheBoxesResizesFavoritesAndIsRemembered, T DraggingThePreviewBorderOfTheColumnViewResizesIt |
 | Wheel scrolls the list, the Git tab and the diff | T WheelScrollsList, S sidebar-git |
@@ -126,6 +127,16 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | The sidebar tree always hides .git, as herdr-sidebar | T TheSidebarTreeAlwaysHidesDotGitLikeHerdr, S git-new-vs-committed |
 | Without git installed or outside a repository | T WithoutGitInstalledTheListStillWorks, T OutsideARepositoryTheGitTabSaysSo, T OutsideARepositoryThereIsNoGitGutter |
 | 24, 30, 36 and 80 columns | T ProjectModeFitsThirtyColumns, T FollowModeFitsANarrowTerminal, S sidebar-mode-30, S sidebar-mode-40 |
+
+## herdr plugin
+
+| Function | Proof |
+|---|---|
+| A sidebar docks by itself on the left or right of each tab, once, without the focus | T EnsureOpensTheSidebarOnTheLeftAndGivesTheFocusBack, T EnsureOnTheRightNeedsNoSwap, T EnsureIsIdempotent, T EnsureSkipsWhileAnotherHoldsTheLock, T EnsureDoesNothingWithAutoOpenOff |
+| Toggle opens, focuses or closes it; closed stays closed in that tab | T ToggleClosesAFocusedSidebarAndEnsureRespectsIt, T ToggleFocusesASidebarThatIsNotFocused |
+| Tab of the event, anchor pane, edge pane | T EventTabComesFromTheEventFirst, T TheAnchorIsTheFocusedPaneOfTheTabAndNeverTheSidebar, T TheEdgePaneIsTheTopmostOneOnTheDockSide |
+| The sidebar follows the folder of the pane next to it | T TheSidebarFollowsTheFocusedPaneOfItsTab, T TheSidebarFollowsTheFolderOfTheHerdrPane, T ThePaneOfThePluginStartsInTheSidebarAndFollowsHerdr |
+| Dock setting and config | T TheHerdrRowPicksTheEdgeOfTheSidebarAndSavesIt, T HerdrDefaultsAndValidation, T HerdrOutsideHerdrSaysSo |
 
 ## Git tab
 
