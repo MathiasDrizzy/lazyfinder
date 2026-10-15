@@ -1,0 +1,70 @@
+{
+ "output": "feature-open-with.gif",
+ "windows": [
+  {
+   "name": "lazyfinder",
+   "cols": 118,
+   "rows": 32,
+   "argv": [
+    "lazyfinder"
+   ],
+   "setup": [
+    {
+     "wait": "Favorites"
+    },
+    {
+     "sleep": 1
+    }
+   ],
+   "steps": [
+    {
+     "sleep": 1
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "up"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "O"
+     ],
+     "gap": 2
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 2.5
+    },
+    {
+     "keys": [
+      "ctrl+q"
+     ],
+     "gap": 1.5
+    },
+    {
+     "post": "end"
+    },
+    {
+     "keys": [
+      "q"
+     ]
+    }
+   ]
+  }
+ ]
+}

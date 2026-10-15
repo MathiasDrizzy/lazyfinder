@@ -1,6 +1,6 @@
 #!/bin/sh
-# Starts lazyfinder for the inline-image screenshot (feature-images.png), which needs a real Ghostty window: VHS
-# cannot draw Kitty graphics. Run it through a script that gives it an isolated HOME holding a copy of demo-home
+# Starts lazyfinder for the inline-image screenshot (feature-images.png), which needs a real Ghostty window
+# to draw Kitty graphics. Run it through a script that gives it an isolated HOME holding a copy of demo-home
 # (see CAPTURES.md). It copies the pictures to the same fixed folder as the GIFs, so the path bar matches them, and
 # fixes their dates. Usage: images-start.sh <lazyfinder binary>
 set -eu

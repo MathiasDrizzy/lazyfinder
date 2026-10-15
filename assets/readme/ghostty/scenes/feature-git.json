@@ -1,0 +1,137 @@
+{
+ "output": "feature-git.gif",
+ "windows": [
+  {
+   "name": "tmux",
+   "cols": 118,
+   "rows": 32,
+   "cwd": "Projects/website",
+   "argv": [
+    "tmux",
+    "-f",
+    "/tmp/lazyfinder-demo/tmux.conf",
+    "new-session",
+    "-s",
+    "demo",
+    "lazyfinder --sidebar .",
+    ";",
+    "select-pane",
+    "-T",
+    "lazyfinder --sidebar",
+    ";",
+    "split-window",
+    "-h",
+    "-l",
+    "62%",
+    ";",
+    "select-pane",
+    "-T",
+    "terminal"
+   ],
+   "setup": [
+    {
+     "wait": "WEBSITE"
+    },
+    {
+     "wait": "\\$ "
+    },
+    {
+     "sleep": 1
+    },
+    {
+     "raw": "\u001b[<0;14;3M\u001b[<0;14;3m"
+    },
+    {
+     "wait": "Staged"
+    },
+    {
+     "keys": [
+      "ctrl+a",
+      "right"
+     ],
+     "gap": 0.1
+    },
+    {
+     "sleep": 1
+    }
+   ],
+   "steps": [
+    {
+     "sleep": 2
+    },
+    {
+     "type": "git add style.css"
+    },
+    {
+     "sleep": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 2.2
+    },
+    {
+     "keys": [
+      "ctrl+a",
+      "left"
+     ],
+     "gap": 0.1
+    },
+    {
+     "sleep": 1
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 3.5
+    },
+    {
+     "keys": [
+      "esc"
+     ],
+     "gap": 1
+    },
+    {
+     "keys": [
+      "ctrl+a",
+      "right"
+     ],
+     "gap": 0.1
+    },
+    {
+     "sleep": 0.6
+    },
+    {
+     "type": "git commit -m \"Add the footer color\""
+    },
+    {
+     "sleep": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 3
+    },
+    {
+     "post": "end"
+    }
+   ],
+   "title": "website"
+  }
+ ]
+}

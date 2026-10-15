@@ -1,0 +1,21 @@
+{
+  "output": "main.gif",
+  "windows": [
+    {
+      "name": "lazyfinder", "cols": 118, "rows": 32, "argv": ["lazyfinder"],
+      "setup": [{"wait": "Favorites"}, {"sleep": 1}],
+      "steps": [
+        {"sleep": 1.2},
+        {"keys": ["down"], "gap": 0.5}, {"keys": ["enter"], "gap": 1.2},
+        {"keys": ["down"], "gap": 0.3}, {"keys": ["down"], "gap": 0.6},
+        {"keys": ["space"], "gap": 2.2}, {"keys": ["down"], "gap": 2}, {"keys": ["space"], "gap": 0.6},
+        {"keys": ["down"], "gap": 0.4}, {"keys": ["enter"], "gap": 2.5}, {"keys": ["ctrl+q"], "gap": 1.2},
+        {"keys": ["M"], "gap": 1.2}, {"keys": ["up"], "gap": 0.7}, {"keys": ["up"], "gap": 0.7},
+        {"keys": ["up"], "gap": 1.5}, {"keys": ["M"], "gap": 0.8},
+        {"keys": [","], "gap": 1.2}, {"keys": ["right"], "gap": 1.3}, {"keys": ["right"], "gap": 1.3},
+        {"keys": ["right"], "gap": 1.3}, {"keys": ["esc"], "gap": 1.8},
+        {"post": "end"}, {"keys": ["q"]}
+      ]
+    }
+  ]
+}

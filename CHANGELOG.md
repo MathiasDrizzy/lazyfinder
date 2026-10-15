@@ -16,8 +16,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
-- The README is shorter and explains each feature in plain words. Its GIFs are recorded again with compact rows,
-  text files opened in micro, a window frame, and the sidebar and Git tab in a split window next to a terminal.
+- The README is shorter and explains each feature in plain words. Its GIFs are recorded in real Ghostty windows
+  instead of VHS, so they show the real colors, title bar and images, with compact rows, text files opened in micro,
+  and the sidebar and Git tab in a tmux split next to a terminal.
 
 ## [0.13.1] - 2026-10-14
 

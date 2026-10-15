@@ -1,0 +1,118 @@
+{
+ "output": "feature-files.gif",
+ "windows": [
+  {
+   "name": "lazyfinder",
+   "cols": 118,
+   "rows": 32,
+   "argv": [
+    "lazyfinder"
+   ],
+   "setup": [
+    {
+     "wait": "Favorites"
+    },
+    {
+     "sleep": 1
+    }
+   ],
+   "steps": [
+    {
+     "sleep": 1
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "N"
+     ],
+     "gap": 0.8
+    },
+    {
+     "type": "Drafts"
+    },
+    {
+     "sleep": 0.5
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "keys": [
+      "n"
+     ],
+     "gap": 0.8
+    },
+    {
+     "type": "ideas.txt"
+    },
+    {
+     "sleep": 0.5
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "keys": [
+      "R"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "ctrl+u"
+     ],
+     "gap": 0.3
+    },
+    {
+     "type": "plan.txt"
+    },
+    {
+     "sleep": 0.5
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "keys": [
+      "d"
+     ],
+     "gap": 1.5
+    },
+    {
+     "keys": [
+      "u"
+     ],
+     "gap": 1.8
+    },
+    {
+     "post": "end"
+    },
+    {
+     "keys": [
+      "q"
+     ]
+    }
+   ]
+  }
+ ]
+}

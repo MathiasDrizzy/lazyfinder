@@ -219,8 +219,8 @@ go vet ./...
 go test -race ./...
 ```
 
-Design decisions are in [docs/adr](docs/adr) and the requirements in [docs/SPEC.md](docs/SPEC.md). The GIFs are made
-from the tapes in [assets/readme](assets/readme/CAPTURES.md), so they can be redone with `vhs`.
+Design decisions are in [docs/adr](docs/adr) and the requirements in [docs/SPEC.md](docs/SPEC.md). The GIFs are recorded
+in real Ghostty windows from the scenes in [assets/readme](assets/readme/CAPTURES.md), so they can be redone.
 
 ## License
 

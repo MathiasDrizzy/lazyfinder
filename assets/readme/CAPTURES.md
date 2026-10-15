@@ -2,18 +2,38 @@
 
 | File | Made with | Source |
 |---|---|---|
-| `main.gif` and every `feature-*.gif` | [VHS](https://github.com/charmbracelet/vhs) | `tapes/*.tape` |
+| `main.gif` and every `feature-*.gif` | Real [Ghostty](https://ghostty.org) windows, recorded by `ghostty/record.py` | `ghostty/scenes/*.json` |
 | `feature-images.png` | A real Ghostty window | the steps below |
 
 ## GIFs
 
-Run from the repository root:
+Run from the repository root, on macOS, with Ghostty, ffmpeg, uv, micro, tmux and lazygit installed, and the
+JetBrainsMono Nerd Font (the plain "JetBrains Mono" shows boxes instead of icons):
 
 ```sh
-for t in assets/readme/tapes/*.tape; do vhs "$t"; done
+uv run --with pyobjc-framework-Quartz --with pyobjc-framework-Cocoa python assets/readme/ghostty/record.py [scene ...]
 ```
 
-Run them one after another, not in parallel: they share the demo folder. Each tape sources `demo-env.sh`, which:
+Without a scene name it records them all, one after another (they share the demo folder). For each scene:
+
+1. `demo-env.sh` prepares a fresh demo environment (below).
+2. `record.py` opens a new Ghostty window (JetBrainsMono Nerd Font 16, Catppuccin Mocha, 118x32 cells, a fixed title)
+   whose command is `ghostty/driver.py`. The window takes the focus while it records.
+3. `driver.py` runs the scene's program in a pseudo-terminal of its own and types the scene's keys with fixed pauses.
+   Its output goes to Ghostty untouched; from the keyboard only Ghostty's answers to the program's queries (colors,
+   image support, sizes) go through, so keys typed by hand never reach the recording.
+4. `record.py` captures the window 20 times a second straight from the window server (the window, not the screen, so
+   nothing else on the desktop shows), puts it on a plain backdrop and turns the frames into a GIF with ffmpeg.
+
+So the GIFs show lazyfinder exactly as Ghostty draws it: the theme colors reach the whole window, title bar
+included, and images are drawn with the Kitty graphics protocol.
+
+`feature-sidebar` and `feature-git` run tmux inside the window: `lazyfinder --sidebar` in a narrow pane on the left
+and a shell on the right, the way the sidebar is meant to be used. The keys `ctrl+a` and an arrow move between the
+panes. The Git tab opens with a click, which the scene sends the way a terminal reports it (`ESC [<0;14;3M` and
+`ESC [<0;14;3m`, one row lower because of the pane title).
+
+`demo-env.sh`:
 
 - builds lazyfinder into `/tmp/lazyfinder-demo/.bin` and puts it first on `PATH`;
 - uses `/tmp/lazyfinder-demo/home` as `HOME`, with a copy of `demo-home/` (invented files, nothing personal), so
@@ -35,22 +55,9 @@ Run them one after another, not in parallel: they share the demo folder. Each ta
   same whichever day you record. Files the GIFs create (in `feature-files.gif`) carry the day of the recording;
 - turns off lazygit's first-run popups in that `HOME`, so `L` shows lazygit itself.
 
-All tapes share `tapes/lib/common.tape`: Catppuccin Mocha, JetBrainsMono Nerd Font (install it first: the plain
-"JetBrains Mono" shows boxes instead of icons), font size 16, a window bar with rounded corners, the same typing
-speed and frame rate. Every tape is 1200x640. The tapes that change the theme (`main`, `feature-settings`) set the
-padding to 0: VHS paints the padding in the tape's theme, which would frame the window in Mocha after the change.
-
-The sidebar is recorded inside tmux, next to a shell, the way it is meant to be used. `micro`, `tmux` and `lazygit`
-must be installed before recording.
-
-VHS has no mouse command, and the Git tab of the sidebar opens with a click. `feature-git.tape` types the click the way
-a terminal reports it (`ESC [<0;14;3M` and `ESC [<0;14;3m`, an SGR mouse report, one row lower than without tmux
-because of the pane title), with the escape character written as is inside the string.
-
 ## Image screenshot
 
-VHS draws with xterm.js, which does not draw Kitty graphics, so the image preview is a screenshot of a real terminal
-window: Ghostty, 120x35, Catppuccin Mocha, opaque background. To redo it:
+The image preview is also a screenshot of a real terminal window: Ghostty, 120x35, Catppuccin Mocha, opaque background. To redo it:
 
 1. Build lazyfinder: `go build -o /tmp/lazyfinder-img ./cmd/lazyfinder`.
 2. Open Ghostty with a temporary `HOME` that holds a copy of `demo-home/` and `LANG=en_US.UTF-8`, and run

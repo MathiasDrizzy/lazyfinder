@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # Isolated demo environment for recording the README GIFs. Use it with `source`
-# from the repository root (the tapes do it for you):
+# from the repository root (ghostty/record.py does it for you):
 #   - builds lazyfinder into a temporary folder and puts it on PATH;
 #   - uses a temporary HOME with a copy of assets/readme/demo-home (invented files,
 #     nothing personal), so recording never touches real files or writes inside the
@@ -31,7 +31,7 @@ cat >"$XDG_CONFIG_HOME/lazyfinder/config.json" <<'JSON'
   "open_with": { "md": "micro", "txt": "micro", "csv": "micro" }
 }
 JSON
-# micro with the Catppuccin Mocha colors of the tapes (assets/readme/micro, MIT, from catppuccin/micro).
+# micro with the Catppuccin Mocha colors of the recordings (assets/readme/micro, MIT, from catppuccin/micro).
 mkdir -p "$XDG_CONFIG_HOME/micro/colorschemes"
 cp assets/readme/micro/catppuccin-mocha.micro "$XDG_CONFIG_HOME/micro/colorschemes/"
 cat >"$XDG_CONFIG_HOME/micro/settings.json" <<'JSON'
@@ -64,6 +64,10 @@ set -g pane-border-format " #{pane_title} "
 set -g allow-set-title off
 set -g pane-border-style "fg=#45475a"
 set -g pane-active-border-style "fg=#89b4fa"
+# the window title (Ghostty shows it) and no "default shell is now zsh" notice from macOS's bash
+set -g set-titles on
+set -g set-titles-string "website"
+set-environment -g BASH_SILENCE_DEPRECATION_WARNING 1
 set-environment -g PS1 '\[\e[38;2;137;180;250m\]website\[\e[0m\] $ '
 TMUX
 # lazygit without its first-run popups (the welcome and the notes of a new version).
@@ -76,7 +80,7 @@ unset lg_version
 for p in open qlmanage osascript xdg-open; do printf '#!/bin/sh\nexit 0\n' >"$DEMO_TMP/.bin/$p"; done
 chmod +x "$DEMO_TMP/.bin/"*
 export PATH="$DEMO_TMP/.bin:$PATH"
-export LANG=en_US.UTF-8
+export LANG=en_US.UTF-8 BASH_SILENCE_DEPRECATION_WARNING=1
 unset LC_ALL LC_MESSAGES
 
 # Projects/website: one commit, then a changed file, a new one and a staged one.

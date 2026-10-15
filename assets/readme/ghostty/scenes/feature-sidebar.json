@@ -1,0 +1,177 @@
+{
+ "output": "feature-sidebar.gif",
+ "windows": [
+  {
+   "name": "tmux",
+   "cols": 118,
+   "rows": 32,
+   "cwd": "Projects/website",
+   "argv": [
+    "tmux",
+    "-f",
+    "/tmp/lazyfinder-demo/tmux.conf",
+    "new-session",
+    "-s",
+    "demo",
+    "lazyfinder --sidebar .",
+    ";",
+    "select-pane",
+    "-T",
+    "lazyfinder --sidebar",
+    ";",
+    "split-window",
+    "-h",
+    "-l",
+    "74%",
+    ";",
+    "select-pane",
+    "-T",
+    "terminal"
+   ],
+   "setup": [
+    {
+     "wait": "WEBSITE"
+    },
+    {
+     "wait": "\\$ "
+    },
+    {
+     "sleep": 1.2
+    }
+   ],
+   "steps": [
+    {
+     "sleep": 1.5
+    },
+    {
+     "type": "echo \"Ideas for the menu\" > notes.md"
+    },
+    {
+     "sleep": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 2
+    },
+    {
+     "type": "git add notes.md"
+    },
+    {
+     "sleep": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 2
+    },
+    {
+     "type": "micro index.html"
+    },
+    {
+     "sleep": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "keys": [
+      "down",
+      "down",
+      "down",
+      "down",
+      "down",
+      "down",
+      "down",
+      "down",
+      "down",
+      "down"
+     ],
+     "gap": 0.08
+    },
+    {
+     "sleep": 0.3
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.2
+    },
+    {
+     "keys": [
+      "up"
+     ],
+     "gap": 0.2
+    },
+    {
+     "type": "  <p>Open every day.</p>"
+    },
+    {
+     "sleep": 0.5
+    },
+    {
+     "keys": [
+      "ctrl+s"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "ctrl+q"
+     ],
+     "gap": 2.2
+    },
+    {
+     "keys": [
+      "ctrl+a",
+      "left"
+     ],
+     "gap": 0.1
+    },
+    {
+     "sleep": 1
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 3
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 1.2
+    },
+    {
+     "post": "end"
+    }
+   ],
+   "title": "website"
+  }
+ ]
+}

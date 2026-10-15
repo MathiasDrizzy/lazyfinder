@@ -1,0 +1,133 @@
+{
+ "output": "feature-cd-on-exit.gif",
+ "windows": [
+  {
+   "name": "shell",
+   "cols": 118,
+   "rows": 32,
+   "argv": [
+    "bash",
+    "--norc",
+    "--noprofile"
+   ],
+   "setup": [
+    {
+     "wait": "\\$ "
+    },
+    {
+     "type": "eval \"$(lazyfinder --shell-init bash)\"",
+     "speed": 0
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.5
+    },
+    {
+     "type": "clear",
+     "speed": 0
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.8
+    }
+   ],
+   "steps": [
+    {
+     "sleep": 0.6
+    },
+    {
+     "type": "pwd"
+    },
+    {
+     "sleep": 0.3
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1
+    },
+    {
+     "type": "lazyfinder"
+    },
+    {
+     "sleep": 0.3
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.1
+    },
+    {
+     "wait": "Favorites"
+    },
+    {
+     "sleep": 1
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.7
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 1.2
+    },
+    {
+     "keys": [
+      "q"
+     ],
+     "gap": 0.8
+    },
+    {
+     "type": "pwd"
+    },
+    {
+     "sleep": 0.3
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 2.5
+    },
+    {
+     "post": "end"
+    }
+   ],
+   "title": "bash"
+  }
+ ]
+}

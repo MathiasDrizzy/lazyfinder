@@ -1,0 +1,160 @@
+{
+ "output": "feature-preview.gif",
+ "windows": [
+  {
+   "name": "lazyfinder",
+   "cols": 118,
+   "rows": 32,
+   "argv": [
+    "lazyfinder"
+   ],
+   "setup": [
+    {
+     "wait": "Favorites"
+    },
+    {
+     "sleep": 1
+    }
+   ],
+   "steps": [
+    {
+     "sleep": 1
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 2.2
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 1.8
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 1.8
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "backspace"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 2.5
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 0.5
+    },
+    {
+     "keys": [
+      "backspace"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.3
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.6
+    },
+    {
+     "keys": [
+      "enter"
+     ],
+     "gap": 0.8
+    },
+    {
+     "keys": [
+      "down"
+     ],
+     "gap": 0.4
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 2.5
+    },
+    {
+     "keys": [
+      "space"
+     ],
+     "gap": 0.5
+    },
+    {
+     "post": "end"
+    },
+    {
+     "keys": [
+      "q"
+     ]
+    }
+   ]
+  }
+ ]
+}
