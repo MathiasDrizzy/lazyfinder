@@ -10,125 +10,99 @@ Columns, a sidebar, a Space preview popup and open-with, with keyboard and mouse
 [![Go version](https://img.shields.io/github/go-mod/go-version/MathiasDrizzy/lazyfinder)](go.mod)
 [![License: MIT](https://img.shields.io/github/license/MathiasDrizzy/lazyfinder)](LICENSE)
 
-<img src="assets/readme/main.gif" alt="lazyfinder entering a folder, previewing a Markdown note, a reading list and a text file with Space, opening a git project with its changed files marked, and switching the theme in the settings" width="100%">
+<img src="assets/readme/main.gif" alt="lazyfinder entering the Documents folder, previewing two Markdown notes with Space, opening a text file in micro and coming back, switching to the column view and changing the theme in Settings" width="100%">
 
 [Install](#install) · [Quick start](#quick-start) · [Keys](#keys) · [Configuration](#configuration)
 
 </div>
 
-## Why lazyfinder
+## What is lazyfinder?
 
-- **Looks like Finder.** A sidebar of Favorites and Locations, sortable columns, folders marked with `>`, a
-  breadcrumb at the bottom and back and forward buttons.
-- **Keyboard or mouse.** Click to select, double click to enter or open, wheel to scroll; every action also has a key.
-- **Open with what you choose.** A `.txt` in your editor, a `.xlsx` in Excel or LibreOffice, a photo in Preview.
-  Nothing runs unless you configured it.
-- **Space shows what is inside.** Highlighted text, rendered Markdown, images, archives and folders, without opening
-  anything.
-- **Safe by default.** Deleting moves to the Trash, a taken name gets a `copy` suffix and every operation can be
-  undone. Programs start without a shell, so file names cannot inject commands.
+A file manager that runs inside your terminal and looks like the macOS Finder: Favorites on the left, your files in
+sortable columns, and the path at the bottom. Move with the arrow keys or the mouse, press `Space` to look inside a
+file, and `Enter` to open it with the program you choose. You never leave the terminal.
+
+- **Nothing to learn.** If you have used Finder, you already know the layout. `?` lists every key.
+- **Safe.** Deleting moves to the Trash, and `u` undoes the last change.
+- **Works next to your editor.** A narrow sidebar mode follows your project as you work.
 
 ## What it does
 
-### Browse and open
+### Look inside files with Space
 
-Enter folders with `Enter` or `→`, go up with `Backspace` or `←`, back and forward in history with `[` and `]`.
-`Enter` on a file opens it with the program set for its extension (the system `open` by default). `M` switches to a
-column view with the parent folder, the folder and a preview of the selection.
+`Space` opens a preview without starting any program: rendered Markdown, highlighted code, the contents of a zip,
+pictures in terminals that can draw them. `↑` `↓` move to the next file while the preview stays open.
 
-<img src="assets/readme/feature-browse.gif" alt="Entering the Documents folder, opening a text file in less, going back and forward, and switching to the column view and back" width="100%">
+<img src="assets/readme/feature-preview.gif" alt="Previewing Markdown notes, a text file, the contents of a zip archive and an HTML file with highlighted code" width="100%">
 
-### Preview with Space
+### Open with the program you choose
 
-Press `Space` on a file or folder for a popup, and `↑`/`↓` to look at the next one without closing it. Text is
-highlighted, Markdown is rendered, zip and tar archives list their contents (nothing is extracted), binary files show
-a hex dump, audio and video show their duration and codecs, and a PDF shows its first page where the terminal can
-draw images.
+`Enter` opens a file with its program: your editor for text, Preview for pictures, Excel for a spreadsheet. `O` shows
+every program that can open it, so you can pick another one. A program runs only if you set it up; in these GIFs text
+files open in [micro](https://micro-editor.github.io).
 
-<img src="assets/readme/feature-preview.gif" alt="Previewing a Markdown note, a reading list and a text file one after another, the list of a zip archive and an HTML file with syntax highlighting" width="100%">
+<img src="assets/readme/feature-open-with.gif" alt="Pressing O on a text file, choosing micro in the Open With menu, reading the file and coming back to lazyfinder" width="100%">
 
-### Images in the preview
+### Create, rename, copy and delete
 
-Pictures show inside the popup in terminals that speak the Kitty graphics protocol (Ghostty, kitty, WezTerm). Where
-the terminal cannot draw them, the popup says so and `Q` opens Quick Look on macOS.
-
-<img src="assets/readme/feature-images.png" alt="The preview popup showing a picture of a sunset over the sea, with its kind, size, date and dimensions below it" width="100%">
-
-### Open with
-
-`O` lists every program that can open the selected file, the ones you configured and a few built in (`textedit`,
-`preview` and `vscode` when they are installed, and `vim`), and runs the one you pick.
-
-<img src="assets/readme/feature-open-with.gif" alt="Pressing O on a text file, choosing less from the Open With menu, reading the file and coming back" width="100%">
-
-### File operations
-
-`N` makes a new folder and `n` a new file, `F2` or `R` renames, `c`, `x` and `p` copy, cut and paste, `D` duplicates,
-`d` moves to the Trash and `u` undoes, on the selected row or on the rows you marked with `v`, `ctrl+a` or
-ctrl-click. Nothing is deleted or overwritten for good ([ADR 0010](docs/adr/0010-file-operations.md)). `i` shows Get
-Info.
+`N` makes a folder and `n` a file, `R` renames, `c` `x` `p` copy, cut and paste, `d` moves to the Trash and `u`
+undoes. Nothing is overwritten or deleted for good.
 
 <img src="assets/readme/feature-files.gif" alt="Creating a folder and a file, renaming the file, moving it to the Trash and undoing that" width="100%">
 
-### Search
+### Find files
 
-`/` searches while you type, by name or by what is inside the files. `Tab` widens it from this folder to its
-subfolders or the whole system, and filters such as `kind:image`, `size:` and dates narrow it; the chips under the
-list add them with a click. See [docs/search.md](docs/search.md).
+`/` searches while you type. `Tab` widens the search from this folder to its subfolders or the whole disk, and
+filters such as `kind:image` narrow it. More in [docs/search.md](docs/search.md).
 
-<img src="assets/readme/feature-search.gif" alt="Searching for md in the subfolders, then for kind:image, and previewing one of the images found" width="100%">
+<img src="assets/readme/feature-search.gif" alt="Searching the subfolders, then for kind:image, and previewing one of the pictures found" width="100%">
 
-### Tabs, favorites and recents
+### Tabs and favorites
 
-`ctrl+t` opens a tab and `{` `}` move between them, `b` adds a folder to Favorites in the sidebar, `E` lists the
-recent files and folders. `f` filters the folder by name, `t` tags files, `F` runs saved searches and `!` runs your
-own commands from `config.json`. See [docs/keybindings.md](docs/keybindings.md).
+`ctrl+t` opens a tab and `{` `}` move between tabs. `b` adds a folder to Favorites, `E` lists the files and folders
+you opened lately.
 
-<img src="assets/readme/feature-tabs.gif" alt="Opening a second tab on the Pictures folder, switching between the tabs, adding Projects to Favorites and opening the recent folders" width="100%">
+<img src="assets/readme/feature-tabs.gif" alt="Opening a second tab on the Pictures folder, moving between the tabs and adding Projects to Favorites" width="100%">
 
-### Sidebar mode
+### A sidebar next to your terminal
 
-A narrow panel meant to sit next to your editor, like the VS Code explorer and the herdr sidebar. Start it with
-`lazyfinder --sidebar [dir]`, with `Ctrl+B` in any window, or from Settings. The window switches by itself when you
-resize the terminal: below 60 columns it becomes the sidebar, from 62 columns up the sidebar becomes the window again.
-It works from 24 columns. The tree updates by itself (a file another program writes appears at once), shows the git
-letter of each file at the right edge (`M` modified, `U` new, `A` added, `D` deleted, `R` renamed, `!` conflict) and
-the branch at the bottom, and never lists `.git`.
+`lazyfinder --sidebar` is a narrow tree of your project, like the file explorer of VS Code. Put it on the left of
+your terminal (a split in Ghostty, tmux or any terminal) and keep working on the right: files you create, edit or
+stage there show up at once, each with its git letter (`M` modified, `U` new, `A` staged).
 
-<img src="assets/readme/feature-sidebar.gif" alt="The sidebar mode of a website project: opening the src folder, previewing index.html, and a notes.md file written by another program appearing in the tree" width="100%">
+<img src="assets/readme/feature-sidebar.gif" alt="lazyfinder in sidebar mode on the left of a split window; on the right, a terminal creates notes.md, stages it and edits index.html, and the tree shows each change at once; then a preview of menu.js" width="100%">
 
-### Git
+### Git at a glance
 
-The open folder shows the git state of each file and the branch. In the sidebar, the **Git** tab is a quick look at
-what changed: the staged and unstaged changes with their counts, the stashes, the branch, and the diff of a file
-(`Enter` or the `↗` button). It changes nothing: staging, committing, switching branches, pulling and pushing are left
-to [lazygit](https://github.com/jesseduffield/lazygit), which `L` opens. The normal window also has a branch menu
-(`B`) and a right-click menu with Stage, Unstage and Discard changes.
+The **Git** tab of the sidebar lists what changed: staged files, changes and stashes. `Enter` shows the diff of a
+file. It only shows; you commit in your terminal, or press `L` to open [lazygit](https://github.com/jesseduffield/lazygit).
 
-<img src="assets/readme/feature-git.gif" alt="The sidebar of a project with M and U letters, the Git tab with its staged changes and changes, the diff of style.css, and lazygit opened with L" width="100%">
+<img src="assets/readme/feature-git.gif" alt="The Git tab of the sidebar next to a terminal: git add moves style.css to Staged Changes, its diff opens with Enter, and after git commit the list empties" width="100%">
 
-### Settings and themes
+### Themes and languages
 
-Press `,` (or click the gear). The 14 [lazymark](https://github.com/MathiasDrizzy/lazymark) themes
-(`catppuccin-mocha` by default) and your own from `<config dir>/themes`, eight languages (English, Spanish,
-Portuguese, French, German, Italian, Japanese and Chinese), the columns, the icons, the row density and more. Changes
-apply at once and are saved. For one run only: `lazyfinder --theme nord --lang es --no-mouse`.
+`,` opens Settings. Pick one of 14 themes (Catppuccin, Nord, Tokyo Night and more), one of eight languages, the
+columns, the icons and the row density. Changes apply at once and are saved.
 
 <img src="assets/readme/feature-settings.gif" alt="Switching between the Catppuccin themes live, then the language to Spanish and back" width="100%">
 
-### Stay in the folder on exit
+### Stay in the folder when you quit
 
-A program cannot change the folder of the shell that started it, so lazyfinder ships a shell function, as yazi and
-lf do: with it, quitting leaves the shell in the folder lazyfinder ends in. Add this line to `~/.zshrc` (or `bash`, or
-`fish` with `| source`):
+Add this line to `~/.zshrc` (there is also `bash` and `fish`), and quitting lazyfinder leaves your shell in the
+folder you were looking at:
 
 ```sh
 eval "$(lazyfinder --shell-init zsh)"
 ```
 
-Settings → "Stay in the folder on exit" (`cd_on_exit`) turns it off.
-
 <img src="assets/readme/feature-cd-on-exit.gif" alt="pwd prints the home folder, lazyfinder goes to Projects/website and quits, and pwd now prints that folder" width="100%">
+
+### Pictures in the preview
+
+In Ghostty, kitty and WezTerm the preview shows the picture itself. In other terminals it says so, and `Q` opens Quick
+Look on macOS.
+
+<img src="assets/readme/feature-images.png" alt="The preview popup showing a picture of a sunset over the sea, with its kind, size, date and dimensions below it" width="100%">
 
 ## Install
 

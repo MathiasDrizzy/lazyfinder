@@ -1,7 +1,7 @@
 # Search: "/" finds files while you type; Tab looks in the subfolders too.
 Output assets/readme/feature-search.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
 Type "lazyfinder" Enter
 Wait+Screen@20s /Favorites/

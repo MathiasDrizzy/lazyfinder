@@ -5,8 +5,13 @@
 Set Shell "bash"
 Set FontFamily "JetBrainsMono Nerd Font"
 Set FontSize 16
-Set Padding 16
+Set Padding 14
 Set Theme "Catppuccin Mocha"
+# a window with its title bar, so each GIF reads as a terminal on a desktop
+Set WindowBar Colorful
+Set BorderRadius 10
+Set Margin 18
+Set MarginFill "#45475a"
 Set TypingSpeed 60ms
 Set Framerate 25
 

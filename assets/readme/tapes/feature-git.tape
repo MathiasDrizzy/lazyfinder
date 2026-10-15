@@ -1,30 +1,47 @@
-# Git in the sidebar: the git letters in the tree, the Git tab (a quick look, it changes nothing),
-# the diff of a file, and L for lazygit. The Git tab opens with a click: VHS has no mouse command, so
-# the tape types the terminal's mouse report (ESC [<0;x;y M, then m to release).
+# Git next to a terminal: the Git tab of the sidebar (a quick look, it changes nothing) on the left of a tmux window,
+# git commands on the right. The tab follows what the commands do; Enter shows the diff of a file.
+# The Git tab opens with a click: VHS has no mouse command, so the tape types the terminal's mouse report
+# (ESC [<0;x;y M, then m to release), here at the tab's icon below the pane title.
 Output assets/readme/feature-git.gif
-Set Width 520
-Set Height 700
+Set Width 1200
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
-Type "lazyfinder --sidebar Projects/website" Enter
-Wait+Screen@20s /style/
+Type "cd Projects/website && tmux -f $DEMO_TMP/tmux.conf new-session -s demo 'lazyfinder --sidebar .' \; select-pane -T 'lazyfinder --sidebar' \; split-window -h -l 62% \; select-pane -T terminal" Enter
+Wait+Screen@20s /terminal/
+Sleep 1s
+Type@0ms "[<0;14;3M[<0;14;3m"
+Wait+Screen@10s /Staged/
+Ctrl+A
+Right
+Sleep 1s
 Show
 Sleep 2s
 
-Type@0ms "[<0;14;2M[<0;14;2m"
-Sleep 2s
-Down
+Type "git add style.css"
 Sleep 400ms
+Enter
+Sleep 2.2s
+Ctrl+A
+Left
+Sleep 1s
 Down
-Sleep 400ms
+Sleep 500ms
 Down
 Sleep 800ms
 Enter
-Sleep 3s
+Sleep 3.5s
 Escape
-Sleep 800ms
-Type "L"
+Sleep 1s
+Ctrl+A
+Right
+Sleep 600ms
+Type 'git commit -m "Add the footer color"'
+Sleep 400ms
+Enter
 Sleep 3s
+Ctrl+A
+Left
 Type "q"
-Sleep 1.2s
-
-Type "q"
+Sleep 300ms
+Hide
+Type "exit" Enter

@@ -1,7 +1,7 @@
 # Stay in the folder on exit: with the shell function, quitting leaves the shell where lazyfinder was.
 Output assets/readme/feature-cd-on-exit.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
 Type 'eval "$(lazyfinder --shell-init bash)"' Enter
 Type "clear" Enter

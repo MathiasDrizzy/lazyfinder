@@ -1,7 +1,7 @@
 # Preview with Space: rendered Markdown, plain text, the list of a zip and highlighted code, without opening anything.
 Output assets/readme/feature-preview.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
 Type "lazyfinder" Enter
 Wait+Screen@20s /Favorites/

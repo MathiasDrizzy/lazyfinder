@@ -1,7 +1,7 @@
 # File operations: a new folder and a new file, rename, move to the Trash and undo.
 Output assets/readme/feature-files.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
 Type "lazyfinder" Enter
 Wait+Screen@20s /Favorites/

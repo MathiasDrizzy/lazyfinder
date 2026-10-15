@@ -1,8 +1,10 @@
 # Settings and themes: "," opens the settings; themes and languages change at once.
 Output assets/readme/feature-settings.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
+# no padding: VHS draws it in the tape theme, which would frame the window in Mocha after the theme changes
+Set Padding 0
 Type "lazyfinder" Enter
 Wait+Screen@20s /Favorites/
 Show

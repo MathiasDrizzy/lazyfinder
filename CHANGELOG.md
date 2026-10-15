@@ -14,6 +14,11 @@ All notable changes to this project are documented here. The format follows
 - Switching the language in Settings translates the Kind column at once; it kept the previous language until the
   folder was read again.
 
+### Changed
+
+- The README is shorter and explains each feature in plain words. Its GIFs are recorded again with compact rows,
+  text files opened in micro, a window frame, and the sidebar and Git tab in a split window next to a terminal.
+
 ## [0.13.1] - 2026-10-14
 
 Completes the 0.13.0 release, whose workflow stopped before publishing the Homebrew cask and the build provenance

@@ -1,7 +1,7 @@
-# Open With: O lists the programs that can open the file; Enter runs the chosen one (less, in the demo).
+# Open With: O lists the programs that can open the file; Enter runs the chosen one (micro, in the demo).
 Output assets/readme/feature-open-with.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
 Type "lazyfinder" Enter
 Wait+Screen@20s /Favorites/
@@ -18,7 +18,7 @@ Type "O"
 Sleep 2s
 Enter
 Sleep 2.5s
-Type "q"
+Ctrl+Q
 Sleep 1.5s
 
 Type "q"

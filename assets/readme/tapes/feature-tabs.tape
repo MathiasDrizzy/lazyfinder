@@ -1,7 +1,7 @@
 # Tabs and favorites: a new tab, moving between tabs, and a folder added to Favorites.
 Output assets/readme/feature-tabs.gif
 Set Width 1200
-Set Height 700
+Set Height 640
 Source assets/readme/tapes/lib/common.tape
 Type "lazyfinder" Enter
 Wait+Screen@20s /Favorites/
