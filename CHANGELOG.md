@@ -6,6 +6,40 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Security
+
+- A file name or previewed text can no longer send terminal commands: the frame keeps only color and style sequences,
+  drops C0 and C1 controls by whole characters and shows invalid bytes as U+FFFD. Before, a name with ESC c, CSI 2J or
+  CSI ?1049l could reset or clear the terminal or leave the alternate screen.
+- The preview of a small tar.gz holding a huge entry, or of a zip with millions of entries, no longer inflates
+  gigabytes or fills memory: archives have a byte budget and the zip entry count is read first.
+- `$LAZYFINDER_CONFIG` must name a regular file of 1 MiB at most; a FIFO hung the start and /dev/zero filled memory.
+- Move, rename and undo use an exclusive rename, so a file created at the target name in between is never replaced.
+  A copy that finds its target taken no longer removes what is there.
+- A folder can no longer be copied into itself through a link to it.
+
+### Fixed
+
+- Quitting, a SIGHUP or handing the terminal to another program no longer leaves a preview image over the shell or
+  the terminal in raw mode.
+- Paste and Duplicate no longer freeze the program on a big copy: they run apart, show the bytes copied in the status
+  line, and `esc` cancels without leaving a half copy. Get Info counts a folder apart ("Counting…") instead of
+  freezing on a big one.
+- An undo of several items that failed halfway can be tried again: it resumes where it stopped.
+- Saving a setting keeps a `config.json` that is a link to dotfiles as a link, and syncs it first.
+- On Linux: the XDG Trash with its `.trashinfo`, Linux places in the sidebar, and `xdg-open` to open files.
+- Text on the selection, hover and chip backgrounds reads at 3:1 at least in every theme.
+- The search bar no longer leaks a goroutine per keystroke.
+- Leaving the sidebar mode stops watching its folded folders; a click on a sidebar tab no longer drops its refresh.
+- The man page documents `--sidebar`, and the keys docs the Favorites resize keys.
+
+### Added
+
+- `y` copies the path of the selection, or of the marked rows one per line, to the clipboard.
+- Get Info shows the owner.
+- A `high-contrast` theme: every text color at 7:1 at least (WCAG AAA).
+- Fuzz tests for the frame sanitizer, the search query, the config parser and the zip end record.
+
 ## [0.14.0] - 2026-10-15
 
 ### Added
