@@ -17,7 +17,8 @@ All notable changes to this project are documented here. The format follows
   and Gatekeeper still asks before it runs; Finder tags and resource forks stay too. A move that cannot keep one the
   destination can hold keeps its source.
 - The first page of a PDF is drawn at most 1600 pixels on its long side, with pdftoppm or Quick Look: a tiny PDF
-  with a huge page took 2 GB to preview.
+  with a huge page took 2 GB to preview. Coloring a file stops after half a second and shows it plain: a hostile
+  .cpp file kept a core busy for half an hour.
 - Bidi controls in a file name or previewed text show as �, so a name cannot be drawn with another extension.
 - A copy no longer follows an item swapped for a link while it runs, so it cannot read from or change the mode of
   what the link points to; and diff lines, stash messages, link targets and popup titles show their escape sequences
