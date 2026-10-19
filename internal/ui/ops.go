@@ -262,14 +262,15 @@ func (m *Model) startNew(kind promptKind, base string, mk func(dir, name string)
 	return cmd
 }
 
-// cancelNew takes back the folder or file the prompt made, while it is still empty: the undo of its creation.
+// cancelNew takes back the folder or file the prompt made, while it is still empty: the undo of its creation, with
+// nothing left to redo.
 func (m *Model) cancelNew() tea.Cmd {
 	p := m.prompt
 	m.prompt = promptState{}
 	if p.made == "" {
 		return nil
 	}
-	if _, err := m.ops.Undo(); err != nil {
+	if _, err := m.ops.Retract(); err != nil {
 		m.setError(err)
 	}
 	return m.refresh("")

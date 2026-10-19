@@ -68,7 +68,13 @@ func (o *Ops) push(s step) {
 }
 
 // Undo reverses the last operation and returns what it undid. The operation can then be redone.
-func (o *Ops) Undo() (string, error) {
+func (o *Ops) Undo() (string, error) { return o.undoLast(true) }
+
+// Retract undoes the last change and forgets it, with nothing to redo: for a change the user takes back before it is
+// done, as Esc on the name of a new folder.
+func (o *Ops) Retract() (string, error) { return o.undoLast(false) }
+
+func (o *Ops) undoLast(redoable bool) (string, error) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 	if len(o.undo) == 0 {
@@ -79,7 +85,7 @@ func (o *Ops) Undo() (string, error) {
 		return "", fmt.Errorf("undo %s: %w", s.desc(), err)
 	}
 	o.undo = o.undo[:len(o.undo)-1]
-	if s.redo != nil {
+	if redoable && s.redo != nil {
 		o.redo = append(o.redo, s)
 	}
 	return s.desc(), nil
