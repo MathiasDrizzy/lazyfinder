@@ -175,3 +175,20 @@ func TestEveryCompletionOffersEveryFlag(t *testing.T) {
 		}
 	}
 }
+
+// Every decision record is listed in docs/adr/README.md: 0017 was left out of it.
+func TestTheADRIndexListsEveryRecord(t *testing.T) {
+	index, err := os.ReadFile("../../docs/adr/README.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	records, err := filepath.Glob("../../docs/adr/[0-9][0-9][0-9][0-9]-*.md")
+	if err != nil || len(records) == 0 {
+		t.Fatalf("no records: %v", err)
+	}
+	for _, r := range records {
+		if !strings.Contains(string(index), "("+filepath.Base(r)+")") {
+			t.Errorf("docs/adr/README.md lacks %s", filepath.Base(r))
+		}
+	}
+}
