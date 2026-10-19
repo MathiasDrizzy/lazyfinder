@@ -43,6 +43,19 @@ the commit. It ends with no open rows.
   `go vet ./...` rc 0, `go test -race ./...` ok in all 18 packages, `golangci-lint run` 0 issues, `govulncheck ./...`
   no vulnerabilities.
 
+## Second pass over the six improvements (2026-10-19)
+
+- Code and security review of `d5d6764..HEAD` (the bar, CSV tables, chmod, marks, redo and history, the palette):
+  rows 42 to 46, all fixed with a test seen red first. Hostile names in the new popups and the prompt go through
+  `fit`, which shows control characters as pictures; the CSV cells through the frame filter that keeps only colors;
+  `marks.json` is written 0600 like the other state files and a mark whose folder is gone says so.
+- New fuzz test `FuzzRenderTable` (60 s clean after the fix of row 45); every palette action runs from the palette
+  without a panic (`TestEveryPaletteActionRuns`).
+- The TUI run for real (tui_captura, fake clipboard and openers) at 24x10, 60x16, 120x40 and 300x80 with each new key:
+  the CSV table, `m a`, `'`, `P`, `H`, `U` and the palette show what they should at every size.
+- Debug of the logs: a session with `--log` through the CSV preview, marks, the palette, chmod, undo, redo and the
+  history logged only `start`, with no WARN or ERROR.
+
 ## Findings
 
 | # | Severity | Where | Finding | Fix | Commit | State |
@@ -89,3 +102,7 @@ the commit. It ends with no open rows.
 | 40 | Low | docs/adr/README.md | ADR 0017 was missing from the index. | Listed; a test checks the index lists every record (red seen). | 6e12506 | Fixed |
 | 41 | Info | Phase 4 | Improvements of the plan. | Shipped: cancellable copies with progress (ad76919), counted Get Info and owner (ee94099, 2e71868), copy path with y (e4b7480), high-contrast theme (9e2552e), XDG Trash and xdg-open (43f5a36, 7928d33). The six first turned down in ADR 0018 shipped too, at the owner's request: drawn progress bar (32bd64f), CSV and TSV tables (5d9c865), chmod with P (9213389), Vim-style marks (a472b01), redo and history (0259d41), command palette (58e960f); ADR 0018 updated. | e2edfa8 | Closed |
 | 42 | Medium | internal/ui/history.go (redo) | Found by the review of the new code: a redo of a copy or a move ran inside the UI, so a large one froze the program, as paste did before row 38. | A redo runs apart like a paste, with Esc to cancel and other changes waiting; RedoContext reports bytes and keeps a redo that was cancelled before it wrote anything; tests (red seen). | 0c06109 | Fixed |
+| 43 | Medium | internal/fileops/chmod.go:81 | Found by the second security pass: P checked for a link and then called os.Chmod, which follows one, and its undo did not check at all. An item swapped for a link after a P made the undo change the mode of what the link points to. | Set and undo refuse a link and use fchmodat with AT_SYMLINK_NOFOLLOW; where the system lacks it, a check right before os.Chmod. Test (red seen: the target's mode changed). | a59572b | Fixed |
+| 44 | Medium | internal/preview/table.go:22 | Found by the second security pass: every row of a CSV table was padded to the widest one, so a small hostile CSV grew into gigabytes (210 KB into 5 GB in the test) and hung the preview. | At most 64 columns with a last … column, and the output stops with a … row past four times the bytes read. Tests (red seen). | 14bc1ca | Fixed |
+| 45 | Low | internal/preview/table.go:95 | Found by a new fuzz test: a cell was measured before its line breaks became spaces, so a multi-line quoted cell showed cut (x… for x y); on bytes that are not valid UTF-8 the padding went negative and panicked (not reachable from the UI, which cleans such bytes first). | A cell is made one line of valid text once, measured and drawn the same; padding never below zero. Regression test, fuzz corpus entry, 60 s of fuzzing clean. | 96eee73 | Fixed |
+| 46 | Low | docs/qa-matriz.md | Found by the second documentation pass: the QA matrix promises one row per action, but redo, history, copy path, chmod, marks and the palette had none, and it said 14 themes. | Rows with their tests added (the matrix test checks every name exists); 15 themes. | 16007ee | Fixed |
