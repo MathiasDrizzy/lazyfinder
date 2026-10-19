@@ -92,3 +92,17 @@ func TestTheEntriesOfAZip64AreCountedFromItsRecord(t *testing.T) {
 		t.Fatalf("zipEntries = %d, %v; want %d", got, ok, n)
 	}
 }
+
+// The end record of a zip is read from untrusted bytes: any of them must give a count or nothing, never a panic.
+func FuzzZipEntries(f *testing.F) {
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	_, _ = zw.Create("a")
+	_ = zw.Close()
+	f.Add(buf.Bytes())
+	f.Add([]byte("PK\x05\x06"))
+	f.Add(append(make([]byte, 20), []byte("PK\x06\x07PK\x05\x06\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff")...))
+	f.Fuzz(func(t *testing.T, data []byte) {
+		zipEntries(bytes.NewReader(data), int64(len(data)))
+	})
+}
