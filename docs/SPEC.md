@@ -180,8 +180,8 @@ Requirement (2026-10-13): the same features as Finder and as the Windows file se
   typing and can be cancelled with `esc`. AC: unit tests of the parser and the matcher; a tuiqa scenario types a
   query and clicks a chip.
 - **R-51 Operations parity (M4, done).** Copy, cut, paste, duplicate, rename, new folder, move to Trash, select many,
-  Get Info popup, permissions in octal (`P`, undoable, never through a link). A paste or a duplicate runs apart from the
-  UI with a bar of its progress, and Esc cancels it without a half copy; Get Info counts a folder apart too. AC: fixture
+  Get Info popup, permissions in octal (`P`, undoable, never through a link). A paste, a duplicate, a move to Trash, an
+  undo and a redo run apart from the UI with their progress, and Esc cancels them without a half copy; Get Info counts a folder apart too. AC: fixture
   tests for each; Trash never deletes for good.
 - **R-52 Go to folder (M3, done).** `ctrl+g` prompts for a path (with `~` and completion). AC: scenario.
 - **R-53 Tabs, tags, saved searches, recents (M6, done).** Tabs, bookmarks, recent folders, quick filter, saved
