@@ -161,6 +161,7 @@ type Model struct {
 	prompt promptState
 	info   infoState
 	infoID int // id of the last Get Info, so a late count is dropped
+	op     opState
 	scm    scmState
 	diff   diffState
 	gm     gitMenuState
@@ -492,6 +493,10 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.onGitDone(msg)
 	case infoCountMsg:
 		return m, m.onInfoCount(msg)
+	case opDoneMsg:
+		return m, m.onOpDone(msg)
+	case opTickMsg:
+		return m, m.onOpTick()
 	case execDoneMsg:
 		if msg.err != nil {
 			m.setError(msg.err)

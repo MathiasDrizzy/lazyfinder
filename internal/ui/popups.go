@@ -87,8 +87,14 @@ func (m *Model) closePreview() tea.Cmd {
 func (m *Model) ImageShown() bool { return m.pv.img != nil }
 
 // quit leaves lazyfinder. An image of the preview is deleted first: it lives in the terminal, not in the frame, and
-// would stay drawn over the shell.
+// would stay drawn over the shell. A copy or a move that is running is stopped first, so it leaves no half copy, and
+// lazyfinder quits when it has; quitting again does not wait.
 func (m *Model) quit() tea.Cmd {
+	if m.op.busy && !m.op.quit {
+		m.op.quit = true
+		m.cancelOp()
+		return nil
+	}
 	return tea.Sequence(m.closePreview(), tea.Quit)
 }
 

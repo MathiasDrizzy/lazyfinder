@@ -61,6 +61,10 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 			return cmd
 		}
 	}
+	if key == "esc" && m.op.busy {
+		m.cancelOp()
+		return nil
+	}
 	if key == "esc" && m.markCount() > 0 {
 		clear(m.marked)
 		return nil

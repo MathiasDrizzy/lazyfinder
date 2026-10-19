@@ -79,6 +79,10 @@ func (m *Model) markCount() int { return len(m.marked) }
 
 // canWrite refuses a change while the list shows search results, since there is no folder to refresh.
 func (m *Model) canWrite() bool {
+	if m.op.busy {
+		m.setStatus(i18n.T("Espera a que termine la operación en curso (Esc la cancela)", "Wait for the running operation to end (Esc cancels it)"))
+		return false
+	}
 	if m.searchOn() {
 		m.setStatus(i18n.T("Cierra la búsqueda primero", "Close the search first"))
 		return false
@@ -156,22 +160,11 @@ func (m *Model) paste() tea.Cmd {
 		m.setStatus(i18n.T("No hay nada que pegar", "Nothing to paste"))
 		return nil
 	}
-	var made []string
-	var err error
+	kind := opCopy
 	if m.clip.cut {
-		made, err = m.ops.Move(m.clip.paths, m.dir())
-	} else {
-		made, err = m.ops.Copy(m.clip.paths, m.dir())
+		kind = opMove
 	}
-	if err != nil {
-		m.setError(err)
-	} else {
-		m.setStatus(fmt.Sprintf(i18n.T("Pegado: %s", "Pasted %s"), subject(m.clip.paths)))
-	}
-	if m.clip.cut && err == nil {
-		m.clip = clipboard{}
-	}
-	return m.refresh(last(made))
+	return m.runOp(kind, m.clip.paths, m.dir())
 }
 
 func last(ps []string) string {
@@ -186,13 +179,7 @@ func (m *Model) duplicate() tea.Cmd {
 	if len(ps) == 0 || !m.canWrite() {
 		return nil
 	}
-	made, err := m.ops.Copy(ps, filepath.Dir(ps[0]))
-	if err != nil {
-		m.setError(err)
-	} else {
-		m.setStatus(fmt.Sprintf(i18n.T("Duplicado: %s", "Duplicated %s"), subject(ps)))
-	}
-	return m.refresh(last(made))
+	return m.runOp(opDuplicate, ps, filepath.Dir(ps[0]))
 }
 
 func (m *Model) startRename() tea.Cmd {
