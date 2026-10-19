@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -24,6 +25,7 @@ const (
 	promptTag
 	promptPlace   // renaming a favorite of the sidebar
 	promptConfirm // a yes/no question with its own answer (git operations that throw work away)
+	promptChmod   // the permissions of paths, in octal
 )
 
 // promptState is the one-line question on the bottom row: a name to type, or a yes/no.
@@ -121,6 +123,8 @@ func (m *Model) opsKey(act keymap.Action) (tea.Cmd, bool) {
 		return m.duplicate(), true
 	case keymap.Rename:
 		return m.startRename(), true
+	case keymap.Chmod:
+		return m.startChmod(), true
 	case keymap.NewFolder:
 		return m.startNewFolder(), true
 	case keymap.NewFile:
@@ -187,6 +191,21 @@ func (m *Model) duplicate() tea.Cmd {
 		return nil
 	}
 	return m.runOp(opDuplicate, ps, filepath.Dir(ps[0]))
+}
+
+// startChmod asks for the permissions of the marked rows, else of the selected one, starting from those of the first.
+func (m *Model) startChmod() tea.Cmd {
+	ps := m.targets()
+	if len(ps) == 0 || !m.canWrite() {
+		return nil
+	}
+	fi, err := os.Lstat(ps[0])
+	if err != nil {
+		m.setError(err)
+		return nil
+	}
+	m.prompt = promptState{kind: promptChmod, input: fmt.Sprintf("%03o", fi.Mode().Perm()), paths: ps}
+	return nil
 }
 
 func (m *Model) startRename() tea.Cmd {
@@ -366,6 +385,8 @@ func (m *Model) promptSubmit() tea.Cmd {
 	case promptPlace:
 		m.prompt = promptState{}
 		return m.renameFavorite(p.target, p.input)
+	case promptChmod:
+		return m.submitChmod(p)
 	}
 	if err != nil {
 		m.setError(err) // the prompt stays open, so the name can be fixed
@@ -398,6 +419,9 @@ func (m *Model) promptBar() string {
 		return fit(m.styles.accent(" "+i18n.T("Nombre del favorito: ", "Favorite name: "))+m.prompt.input+"▏", m.w)
 	case promptFilter:
 		return fit(m.styles.accent(" "+i18n.T("Filtro: ", "Filter: "))+m.prompt.input+"▏", m.w)
+	case promptChmod:
+		label := fmt.Sprintf(i18n.T("Permisos de %s (octal): ", "Permissions of %s (octal): "), subject(m.prompt.paths))
+		return fit(m.styles.accent(" "+label)+m.prompt.input+"▏", m.w)
 	case promptConfirm:
 		return fit(m.styles.accent(" "+m.prompt.ask+i18n.T(" (s/n)", " (y/n)")), m.w)
 	}
@@ -436,3 +460,18 @@ func (m *Model) editing(path string) bool {
 
 // editedName is the name cell of the row being named: the text typed so far and the caret.
 func (m *Model) editedName() string { return m.prompt.input + "▏" }
+
+// submitChmod sets the permissions typed in the prompt; a mode that is not octal keeps the prompt open.
+func (m *Model) submitChmod(p promptState) tea.Cmd {
+	perm, err := fileops.ParseMode(p.input)
+	if err == nil {
+		err = m.ops.Chmod(p.paths, perm)
+	}
+	if err != nil {
+		m.setError(err)
+		return nil
+	}
+	m.prompt = promptState{}
+	m.setStatus(fmt.Sprintf(i18n.T("Permisos de %s: %03o", "Permissions of %s set to %03o"), subject(p.paths), perm))
+	return m.refresh(p.paths[0])
+}
