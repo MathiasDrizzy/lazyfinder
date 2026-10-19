@@ -60,3 +60,18 @@ func TestQuitFilterSendsASignalQuitToTheModelWhileACopyRuns(t *testing.T) {
 	}
 	t.Fatal("the model did not quit once the copy stopped")
 }
+
+// SIGINT reaches Bubble Tea's loop as an InterruptMsg, which ended the program skipping the model like SIGTERM did;
+// and a signal that came after q, while the copy was being stopped, quit at once and left the half copy.
+func TestAnInterruptOrASecondSignalWaitsForTheCopyToStop(t *testing.T) {
+	e := newEnv(t)
+	e.pick("notes.txt")
+	e.m.duplicate()
+	if _, ok := QuitFilter(e.m, tea.InterruptMsg{}).(SignalMsg); !ok {
+		t.Fatal("during a copy an interrupt must reach the model")
+	}
+	e.m.Update(SignalMsg{})
+	if _, cmd := e.m.Update(SignalMsg{}); quits(cmd) {
+		t.Fatal("a second signal quit before the copy stopped")
+	}
+}

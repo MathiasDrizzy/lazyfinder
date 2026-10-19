@@ -461,7 +461,8 @@ type SignalMsg struct{}
 // while a copy runs that quit becomes a SignalMsg, so the copy is stopped and cleaned up first. A quit the model asked
 // for goes through.
 func QuitFilter(model tea.Model, msg tea.Msg) tea.Msg {
-	if _, ok := msg.(tea.QuitMsg); ok {
+	switch msg.(type) {
+	case tea.QuitMsg, tea.InterruptMsg:
 		if m, ok := model.(*Model); ok && m.op.busy && !m.quitting {
 			return SignalMsg{}
 		}
@@ -487,6 +488,9 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case herdrDirMsg:
 		return m, m.followHerdr(msg.dir)
 	case SignalMsg:
+		if m.op.busy && m.op.quit {
+			return m, nil // already stopping the copy; it quits when that is done
+		}
 		return m, m.quit()
 	case actionsFadeMsg:
 		return m, m.fadeActions()
