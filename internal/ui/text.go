@@ -2,6 +2,7 @@ package ui
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/charmbracelet/x/ansi"
 )
@@ -61,11 +62,21 @@ func safeFrame(s string) string {
 		if c < 0x20 && c != '\n' || c == 0x7f {
 			continue
 		}
-		if c == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] < 0xa0 { // a C1 control in UTF-8
-			i++
+		if c < utf8.RuneSelf {
+			b.WriteByte(c)
 			continue
 		}
-		b.WriteByte(c)
+		// Whole characters only: a C1 control (U+0080 to U+009F) is dropped, and a byte that is not part of a valid
+		// character becomes U+FFFD, so it cannot join a byte after a dropped control into a C1 control.
+		r, size := utf8.DecodeRuneInString(s[i:])
+		switch {
+		case r == utf8.RuneError && size == 1:
+			b.WriteRune(utf8.RuneError)
+		case r >= 0x80 && r < 0xa0:
+		default:
+			b.WriteString(s[i : i+size])
+		}
+		i += size - 1
 	}
 	return b.String()
 }
