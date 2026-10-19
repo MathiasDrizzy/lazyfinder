@@ -95,7 +95,7 @@ follow mode, in the spirit of lazymark: stop using Finder and still have everyth
 - **R-16 Directory preview (M1).** A directory shows its first entries (name, kind, size) and the entry count.
 - **R-17 Image preview (M1).** Where the terminal supports the Kitty graphics protocol (detected by query, ADR 0006),
   images render inline in the popup. Elsewhere the popup shows file facts and the key `Q` launches Quick Look
-  (`qlmanage -p`) as a separate window. AC: unit test of the Kitty escape sequence output; capture in Ghostty of the
+  (`qlmanage -p`) as a separate window (on Linux, which has no Quick Look, the default app through `xdg-open`). AC: unit test of the Kitty escape sequence output; capture in Ghostty of the
   popup; fallback path tested with a stub for `qlmanage`.
 - **R-18 Preview never blocks (M1).** Preview loading is asynchronous and cancelable; moving the selection cancels
   the previous load; the UI stays responsive for a 1 GiB file. AC: test with a FIFO and a large sparse file.
