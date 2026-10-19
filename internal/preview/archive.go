@@ -3,10 +3,8 @@ package preview
 import (
 	"archive/tar"
 	"archive/zip"
-	"bytes"
 	"compress/gzip"
 	"context"
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -19,8 +17,7 @@ import (
 const maxArchiveEntries = 500 // lines shown
 
 var (
-	// maxArchiveScan is how many entries are counted in a tar before giving up on the total, and the most a zip may
-	// have to be loaded at all: zip.NewReader keeps its whole central directory in memory.
+	// maxArchiveScan is how many entries are counted in an archive before giving up on the total.
 	maxArchiveScan = 200000
 	// maxArchiveBytes is how much of a compressed tar is inflated: skipping an entry means inflating it, and a small
 	// archive may hold gigabytes.
@@ -51,41 +48,6 @@ func (b *budgetReader) Read(p []byte) (int, error) {
 
 func tooManyToList() string {
 	return i18n.T("Demasiadas entradas para listarlas", "Too many entries to list")
-}
-
-// zipEntries reads the number of entries from the end record of a zip, or from its zip64 record, without loading the
-// central directory. ok is false when there is no such record; zip.NewReader then says what is wrong.
-func zipEntries(r io.ReaderAt, size int64) (n uint64, ok bool) {
-	const eocdLen, maxComment, locatorLen, zip64Len = 22, 65535, 20, 56
-	tail := min(size, eocdLen+maxComment)
-	buf := make([]byte, tail)
-	if _, err := r.ReadAt(buf, size-tail); err != nil && err != io.EOF {
-		return 0, false
-	}
-	i := bytes.LastIndex(buf, []byte("PK\x05\x06"))
-	if i < 0 || len(buf)-i < eocdLen {
-		return 0, false
-	}
-	if n = uint64(binary.LittleEndian.Uint16(buf[i+10:])); n != 0xffff {
-		return n, true
-	}
-	var loc [locatorLen]byte // a zip64 locator sits right before the end record
-	at := size - tail + int64(i) - locatorLen
-	if at < 0 {
-		return 0, false
-	}
-	if _, err := r.ReadAt(loc[:], at); err != nil || string(loc[:4]) != "PK\x06\x07" {
-		return 0, false
-	}
-	off := int64(binary.LittleEndian.Uint64(loc[8:]))
-	var rec [zip64Len]byte
-	if off < 0 || off > size-zip64Len {
-		return 0, false
-	}
-	if _, err := r.ReadAt(rec[:], off); err != nil || string(rec[:4]) != "PK\x06\x06" {
-		return 0, false
-	}
-	return binary.LittleEndian.Uint64(rec[32:]), true
 }
 
 type archiveKind int
@@ -130,15 +92,22 @@ func listArchive(ctx context.Context, path string, kind archiveKind) (lines []st
 	}
 	defer func() { _ = f.Close() }()
 	if kind == zipArchive {
-		if n, ok := zipEntries(f, info.Size()); ok && n > uint64(maxArchiveScan) {
-			return []string{tooManyToList()}, int(min(n, uint64(1<<62))), false, nil
+		dir, ok := zipDirectory(f, info.Size())
+		if !ok {
+			return nil, 0, false, zip.ErrFormat
 		}
-		zr, err := zip.NewReader(f, info.Size())
+		if dir.records > uint64(maxArchiveScan) {
+			return []string{tooManyToList()}, int(min(dir.records, uint64(1<<62))), false, nil
+		}
+		stopped, err := walkZip(ctx, f, info.Size(), dir.start, func(name string, size int64, isDir bool) bool {
+			add(name, size, isDir)
+			return total <= maxArchiveScan
+		})
 		if err != nil {
 			return nil, 0, false, err
 		}
-		for _, f := range zr.File {
-			add(f.Name, int64(f.UncompressedSize64), f.FileInfo().IsDir())
+		if stopped {
+			return []string{tooManyToList()}, total, true, nil
 		}
 		return lines, total, false, nil
 	}
