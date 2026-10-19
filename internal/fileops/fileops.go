@@ -165,87 +165,17 @@ func describe(paths []string) string {
 }
 
 // copyNew copies src to dst, which must not exist, and removes the unfinished copy when it fails or is cancelled.
-// When dst itself could not be made, something else is there (it appeared after the name was chosen): it is not this
-// copy's and stays.
+// When it failed before dst was made (on its source, or because something else took dst after the name was chosen),
+// what is at dst is not this copy's and stays.
 func copyNew(ctx context.Context, src, dst string, onBytes Progress) error {
 	err := copyTree(ctx, src, dst, onBytes)
-	if err != nil && !madeNothingAt(err, dst) {
+	var u untouched
+	if errors.As(err, &u) {
+		return u.error
+	}
+	if err != nil {
 		_ = os.RemoveAll(dst)
 	}
-	return err
-}
-
-// madeNothingAt says whether err is the failure to create dst itself, so the copy made nothing there.
-func madeNothingAt(err error, dst string) bool {
-	if !errors.Is(err, fs.ErrExist) {
-		return false
-	}
-	var pe *fs.PathError
-	var le *os.LinkError
-	return errors.As(err, &pe) && pe.Path == dst || errors.As(err, &le) && le.New == dst
-}
-
-// copyTree copies src to dst, which must not exist.
-func copyTree(ctx context.Context, src, dst string, onBytes Progress) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	fi, err := os.Lstat(src)
-	if err != nil {
-		return err
-	}
-	switch {
-	case fi.Mode()&fs.ModeSymlink != 0:
-		target, err := os.Readlink(src)
-		if err != nil {
-			return err
-		}
-		return os.Symlink(target, dst)
-	case fi.IsDir():
-		if err := os.Mkdir(dst, fi.Mode().Perm()|0o700); err != nil {
-			return err
-		}
-		des, err := os.ReadDir(src)
-		if err != nil {
-			return err
-		}
-		for _, de := range des {
-			if err := copyTree(ctx, filepath.Join(src, de.Name()), filepath.Join(dst, de.Name()), onBytes); err != nil {
-				return err
-			}
-		}
-		if err := os.Chmod(dst, fi.Mode().Perm()); err != nil {
-			return err
-		}
-		return os.Chtimes(dst, fi.ModTime(), fi.ModTime())
-	case fi.Mode().IsRegular():
-		return copyFile(ctx, src, dst, fi, onBytes)
-	}
-	return fmt.Errorf("%q is not a regular file, folder or link", filepath.Base(src))
-}
-
-func copyFile(ctx context.Context, src, dst string, fi fs.FileInfo, onBytes Progress) (err error) {
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = in.Close() }() // read only: nothing to lose
-	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, fi.Mode().Perm()|0o600)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if cerr := out.Close(); err == nil {
-			err = cerr
-		}
-		if err == nil {
-			err = os.Chmod(dst, fi.Mode().Perm())
-		}
-		if err == nil {
-			err = os.Chtimes(dst, fi.ModTime(), fi.ModTime())
-		}
-	}()
-	_, err = io.Copy(out, progressReader{ctx: ctx, r: in, onBytes: onBytes})
 	return err
 }
 
