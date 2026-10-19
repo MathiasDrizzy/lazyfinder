@@ -44,6 +44,7 @@ look at are not. In scope:
 - running anything that is not configured, or shell or argument injection through file names;
 - terminal escape sequence injection through file names, archive entries or file content;
 - a git repository from somewhere else running a program from its own `.git/config` (fsmonitor, filters, textconv)
-  while lazyfinder only reads it;
+  while lazyfinder only reads it. A git operation you ask for (stage, discard, stash, switch, fetch, pull, push) runs
+  the repository's config as `git` does in a terminal, and is out of scope ([ADR 0019](docs/adr/0019-git-writes-trust-the-repository.md));
 - a FIFO, a device or a huge file in a folder blocking or exhausting the app, and decompression or image "bombs";
 - a file operation that deletes for good, overwrites, or writes outside the folder you chose.
