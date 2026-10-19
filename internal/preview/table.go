@@ -32,7 +32,7 @@ func renderTable(body string, sep rune, noColor bool) (lines []string, ok bool) 
 			if i >= len(widths) {
 				widths = append(widths, 0)
 			}
-			widths[i] = max(widths[i], min(ansi.StringWidth(cell), maxCellWidth))
+			widths[i] = max(widths[i], min(ansi.StringWidth(cellText(cell)), maxCellWidth))
 		}
 	}
 	cut := len(widths) > maxTableColumns
@@ -62,9 +62,9 @@ func tableRow(row []string, widths []int, cut, bold bool) string {
 	for i, w := range widths {
 		cell := ""
 		if i < len(row) {
-			cell = ansi.Truncate(strings.ReplaceAll(row[i], "\n", " "), w, "…")
+			cell = ansi.Truncate(cellText(row[i]), w, "…")
 		}
-		cells[i] = cell + strings.Repeat(" ", w-ansi.StringWidth(cell))
+		cells[i] = cell + strings.Repeat(" ", max(0, w-ansi.StringWidth(cell)))
 	}
 	if cut {
 		cells = append(cells, "…")
@@ -90,3 +90,9 @@ func wholeRows(body string, truncated bool) string {
 // tableOutputBudget is the most bytes a table of a body of n bytes lays out: padding the columns may grow the text,
 // but only by a bounded factor.
 func tableOutputBudget(n int) int { return 4*n + 64<<10 }
+
+// cellText is a cell as one line of valid text: a quoted cell may hold line breaks, and a file any bytes.
+func cellText(cell string) string {
+	cell = strings.ToValidUTF8(cell, "\uFFFD")
+	return strings.NewReplacer("\r\n", " ", "\n", " ", "\r", " ").Replace(cell)
+}

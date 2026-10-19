@@ -91,3 +91,12 @@ func TestATableOfManyShortRowsStaysSmall(t *testing.T) {
 		t.Fatalf("%d bytes became %d in %d lines, last %q", len(body), size, len(lines), lines[len(lines)-1])
 	}
 }
+
+// A quoted cell may hold line breaks, as CSV allows; laid out on one line, it crashed the program with a negative
+// padding, since its width was measured before the breaks became spaces.
+func TestACellWithLineBreaksDoesNotCrash(t *testing.T) {
+	lines, ok := renderTable("\"x\ny\",z\n\"a\r\nb\",c\n", ',', true)
+	if !ok || len(lines) != 3 || lines[0] != "x y │ z" || lines[2] != "a b │ c" {
+		t.Fatalf("ok %v, lines %q", ok, lines)
+	}
+}
