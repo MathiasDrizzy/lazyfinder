@@ -29,7 +29,7 @@ func Picture(r rune) rune {
 		return '␡'
 	case r >= 0x80 && r < 0xa0: // C1 controls: some terminals read U+009B as CSI and U+009D as OSC
 		return '�'
-	case r == 0x061c, r == 0x200e, r == 0x200f, r >= 0x202a && r <= 0x202e, r >= 0x2066 && r <= 0x2069:
+	case r >= 0x202a && r <= 0x202e, r >= 0x2066 && r <= 0x2069: // embeddings, overrides and isolates
 		return '�'
 	}
 	return r
