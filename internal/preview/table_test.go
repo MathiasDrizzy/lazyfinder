@@ -53,3 +53,41 @@ func TestATruncatedCSVShowsItsWholeRows(t *testing.T) {
 		t.Fatalf("truncated=%v lines=%q", r.Truncated, lines)
 	}
 }
+
+// One row with a huge number of columns padded every other row to that width: a hostile CSV of a few hundred KB grew
+// into gigabytes of preview. The table keeps the first maxTableColumns columns and says how many it left out.
+func TestATableWithTooManyColumnsStaysSmall(t *testing.T) {
+	body := strings.Repeat(",", 200_000) + "\n" + strings.Repeat("a\n", 5_000)
+	lines, ok := renderTable(body, ',', true)
+	if !ok {
+		t.Fatal("the body is valid CSV")
+	}
+	size := 0
+	for _, l := range lines {
+		size += len(l)
+	}
+	if size > 4<<20 {
+		t.Fatalf("the preview of %d bytes grew to %d bytes", len(body), size)
+	}
+	if !strings.Contains(lines[0], "…") {
+		t.Fatalf("the header must say columns were left out: %q", lines[0][:min(len(lines[0]), 80)])
+	}
+}
+
+// A wide header over many short rows padded each row to the header: the output is capped near the size of the input,
+// and the table then ends with a "…" row.
+func TestATableOfManyShortRowsStaysSmall(t *testing.T) {
+	header := strings.TrimSuffix(strings.Repeat(strings.Repeat("h", 40)+",", 64), ",")
+	body := header + "\n" + strings.Repeat("a\n", 100_000)
+	lines, ok := renderTable(body, ',', true)
+	if !ok {
+		t.Fatal("the body is valid CSV")
+	}
+	size := 0
+	for _, l := range lines {
+		size += len(l)
+	}
+	if size > tableOutputBudget(len(body)) || lines[len(lines)-1] != "…" {
+		t.Fatalf("%d bytes became %d in %d lines, last %q", len(body), size, len(lines), lines[len(lines)-1])
+	}
+}

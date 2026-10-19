@@ -37,7 +37,8 @@ A first draft turned the six items below down; the owner asked for all of them, 
 * **chmod from the UI** (`P`). Three octal digits, starting from the current mode; it keeps setuid, setgid and sticky,
   never acts through a link, and is undoable.
 * **CSV and TSV as a table** in the preview. It reads only what the preview already reads (the byte budget), drops a
-  last row cut by that budget, caps a cell at 40 columns and falls back to text when the file is not valid CSV.
+  last row cut by that budget, caps a cell at 40 columns and a table at 64 columns, keeps what it lays out within a
+  few times the bytes it read, and falls back to text when the file is not valid CSV.
 * **A drawn progress bar** for a long copy, in the status line next to the bytes copied, so it takes no row.
 
 ## Consequences

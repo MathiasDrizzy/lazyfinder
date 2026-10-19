@@ -10,6 +10,10 @@ import (
 // maxCellWidth is the widest a column of a table preview gets, in cells; a longer value is cut with an ellipsis.
 const maxCellWidth = 40
 
+// maxTableColumns is how many columns a table preview shows. Every row is padded to the widest one, so without a
+// cap a single row of many thousands of separators grew the preview of a small file into gigabytes.
+const maxTableColumns = 64
+
 // tableSeparators are the extensions shown as a table and the separator of each.
 var tableSeparators = map[string]rune{"csv": ',', "tsv": '\t'}
 
@@ -31,20 +35,29 @@ func renderTable(body string, sep rune, noColor bool) (lines []string, ok bool) 
 			widths[i] = max(widths[i], min(ansi.StringWidth(cell), maxCellWidth))
 		}
 	}
+	cut := len(widths) > maxTableColumns
+	widths = widths[:min(len(widths), maxTableColumns)]
+	budget, size := tableOutputBudget(len(body)), 0
 	for n, row := range rows {
-		lines = append(lines, tableRow(row, widths, n == 0 && !noColor))
+		line := tableRow(row, widths, cut, n == 0 && !noColor)
+		if size += len(line) + 1; size > budget {
+			return append(lines, "…"), true
+		}
+		lines = append(lines, line)
 		if n == 0 {
 			rule := make([]string, len(widths))
 			for i, w := range widths {
 				rule[i] = strings.Repeat("─", w)
 			}
 			lines = append(lines, strings.Join(rule, "─┼─"))
+			size += len(lines[len(lines)-1]) + 1
 		}
 	}
 	return lines, true
 }
 
-func tableRow(row []string, widths []int, bold bool) string {
+// tableRow lays out one row in the columns of widths; cut adds a last "…" column for those left out.
+func tableRow(row []string, widths []int, cut, bold bool) string {
 	cells := make([]string, len(widths))
 	for i, w := range widths {
 		cell := ""
@@ -52,6 +65,9 @@ func tableRow(row []string, widths []int, bold bool) string {
 			cell = ansi.Truncate(strings.ReplaceAll(row[i], "\n", " "), w, "…")
 		}
 		cells[i] = cell + strings.Repeat(" ", w-ansi.StringWidth(cell))
+	}
+	if cut {
+		cells = append(cells, "…")
 	}
 	line := strings.TrimRight(strings.Join(cells, " │ "), " ")
 	if bold {
@@ -70,3 +86,7 @@ func wholeRows(body string, truncated bool) string {
 	}
 	return ""
 }
+
+// tableOutputBudget is the most bytes a table of a body of n bytes lays out: padding the columns may grow the text,
+// but only by a bounded factor.
+func tableOutputBudget(n int) int { return 4*n + 64<<10 }
