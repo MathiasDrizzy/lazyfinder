@@ -74,3 +74,27 @@ func TestADiffOfAHostileRepositoryRunsNothingFromItsConfig(t *testing.T) {
 		t.Fatalf("the diff ran commands from the repository config: %v", got)
 	}
 }
+
+// readOnly switched settings off with -c key=, which git splits at the first =: for a filter named "x=y" it set
+// filter.x to "y.clean=" and left filter.x=y.clean on, so showing the folder ran the repository's clean filter.
+func TestAFilterWithAnEqualsSignInItsNameRunsNothing(t *testing.T) {
+	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
+	t.Setenv("GIT_CONFIG_NOSYSTEM", "1")
+	repo := fixture(t)
+	marks := t.TempDir()
+	put(t, filepath.Join(repo, ".gitattributes"), "*.txt filter=x=y\n")
+	run(t, repo, "config", "filter.x=y.clean", "touch "+filepath.Join(marks, "clean")+"; cat")
+	old := time.Now().Add(-time.Hour)
+	if err := os.Chtimes(filepath.Join(repo, "kept.txt"), old, old); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok, err := Read(repo); err != nil || !ok {
+		t.Fatalf("Read = %v, %v", ok, err)
+	}
+	if _, err := Diff(repo, Change{Path: "edited.txt", Code: Modified}, false); err != nil {
+		t.Fatal(err)
+	}
+	if got := ran(t, marks); len(got) > 0 {
+		t.Fatalf("a filter named x=y ran: %v", got)
+	}
+}

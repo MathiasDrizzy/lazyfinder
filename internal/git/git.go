@@ -81,8 +81,7 @@ func Read(dir string) (Status, bool, error) {
 	if r, err := filepath.EvalSymlinks(root); err == nil {
 		root = r
 	}
-	args := append(readOnly(ctx, root), "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "--ignore-submodules=dirty", "-z")
-	out, err := git(ctx, root, args...)
+	out, err := gitEnv(ctx, root, readOnly(ctx, root), "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "--ignore-submodules=dirty", "-z")
 	if err != nil {
 		return Status{}, false, err
 	}
@@ -95,9 +94,14 @@ func Read(dir string) (Status, bool, error) {
 }
 
 func git(ctx context.Context, dir string, args ...string) ([]byte, error) {
+	return gitEnv(ctx, dir, nil, args...)
+}
+
+// gitEnv is git with env added to the environment.
+func gitEnv(ctx context.Context, dir string, env []string, args ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = dir
-	cmd.Env = append(cmd.Environ(), "LC_ALL=C", "GIT_OPTIONAL_LOCKS=0")
+	cmd.Env = append(append(cmd.Environ(), "LC_ALL=C", "GIT_OPTIONAL_LOCKS=0"), env...)
 	return cmd.Output()
 }
 

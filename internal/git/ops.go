@@ -53,11 +53,16 @@ const (
 // do runs git for an operation that may change the repository. Prompts are off: a credential question would hang a
 // terminal app that has no place to show it. The error carries what git said.
 func do(timeout time.Duration, dir string, args ...string) (string, error) {
+	return doEnv(timeout, dir, nil, args...)
+}
+
+// doEnv is do with env added to the environment.
+func doEnv(timeout time.Duration, dir string, env []string, args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = dir
-	cmd.Env = append(cmd.Environ(), "LC_ALL=C", "GIT_TERMINAL_PROMPT=0", "GIT_EDITOR=true")
+	cmd.Env = append(append(cmd.Environ(), "LC_ALL=C", "GIT_TERMINAL_PROMPT=0", "GIT_EDITOR=true"), env...)
 	var out, errb bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &out, &errb
 	if err := cmd.Run(); err != nil {
@@ -160,7 +165,8 @@ func Diff(root string, c Change, staged bool) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), writeTimeout)
 	defer cancel()
-	args := append(readOnly(ctx, root), "diff", "--no-color", "--no-ext-diff", "--no-textconv", "--ignore-submodules=dirty")
+	env := readOnly(ctx, root)
+	args := []string{"diff", "--no-color", "--no-ext-diff", "--no-textconv", "--ignore-submodules=dirty"}
 	switch {
 	case staged:
 		args = append(args, "--cached", "--", literal(p))
@@ -169,7 +175,7 @@ func Diff(root string, c Change, staged bool) (string, error) {
 	default:
 		args = append(args, "--", literal(p))
 	}
-	out, err := do(writeTimeout, root, args...)
+	out, err := doEnv(writeTimeout, root, env, args...)
 	if c.Code == Untracked && out != "" {
 		err = nil // --no-index exits 1 when the files differ, which they always do here
 	}
