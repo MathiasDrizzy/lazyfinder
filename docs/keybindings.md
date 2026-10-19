@@ -48,7 +48,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `Tab` | Move focus between the sidebar and the list | `focus` |
 | `Space` | Preview popup | `preview` |
 | `O` | Open With menu | `open_with` |
-| `Q` | Quick Look for the selection | `quick_look` |
+| `Q` | Quick Look for the selection (on Linux, the default app through `xdg-open`) | `quick_look` |
 | `Ctrl+B` | Project mode: the folder as a tree with git state, like the VS Code explorer (again to leave) | `project` |
 | `B` | Branch menu of the normal window: type to search, `Enter` switches, "Create branch" makes a new one; changes you have not saved are named before the switch. The branch in the toolbar opens it too. The sidebar mode has none | `branch` |
 | `,` | Settings popup | `settings` |

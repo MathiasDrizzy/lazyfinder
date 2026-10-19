@@ -17,7 +17,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `show_hidden` | Start with dotfiles visible | `false` |
 | `sidebar.favorites`, `sidebar.locations` | Lists of `{ "name", "path" }`; `~` is your home | Finder-like set |
 | `openers` | Named programs, see below | none |
-| `open_with` | Extension to opener name, e.g. `"txt": "edit"` | none (system `open`) |
+| `open_with` | Extension to opener name, e.g. `"txt": "edit"` | none (system `open`, `xdg-open` on Linux) |
 | `preview.max_text_bytes` | Bytes read for a text preview | `524288` |
 | `preview.images` | `auto` (ask the terminal), `kitty` (force) or `off` | `auto` |
 | `preview.markdown` | `render` shows Markdown formatted, `raw` shows the source | `render` |
@@ -81,7 +81,7 @@ stays readable.
 - `argv` is a program and its arguments. It is **never** run through a shell. `{file}` must be a whole element and
   is replaced by the selected path; a path that starts with `-` is passed as `./path`.
 - `mode` is `gui` (started in the background) or `terminal` (lazyfinder hands the terminal over until it exits).
-- An extension without an entry opens with `open -- <path>`. Nothing else is ever run.
+- An extension without an entry opens with `open -- <path>` (`xdg-open <path>` on Linux). Nothing else is ever run.
 - These openers ship built in, so Open With is useful before any configuration, and `open_with` can name them without
   defining them: `textedit`, `preview`, `vscode` (these three are listed in the menu only when the application is
   installed) and `vim` (terminal). An opener of yours with the same name replaces the built-in one.

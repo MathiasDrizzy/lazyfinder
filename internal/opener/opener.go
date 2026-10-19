@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
@@ -66,7 +67,15 @@ func (r Resolver) named(name, path string) Command {
 	return Command{Name: name, Mode: op.Mode, Argv: argv}
 }
 
+// goos is the system the commands are for; a variable so the tests can ask for the other one.
+var goos = runtime.GOOS
+
+// systemDefault opens path with the app the system picks: open(1) on macOS, xdg-open on Linux, where open(1) is
+// missing or is openvt. xdg-open takes no "--"; the path is absolute, so it never starts with a dash.
 func systemDefault(path string) Command {
+	if goos == "linux" {
+		return Command{Name: DefaultName, Mode: config.ModeGUI, Argv: []string{"xdg-open", safeArg(path)}}
+	}
 	return Command{Name: DefaultName, Mode: config.ModeGUI, Argv: []string{"open", "--", path}}
 }
 
@@ -137,8 +146,12 @@ func (Resolver) Open(run Runner, c Command) error {
 }
 
 // QuickLook is the documented fallback for previews the terminal cannot draw: macOS Quick Look in its own window,
-// started only when the user presses Q (docs/adr/0006-preview-and-images.md).
+// started only when the user presses Q (docs/adr/0006-preview-and-images.md). Linux has no Quick Look: the file
+// opens in the desktop's default app instead.
 func QuickLook(path string) Command {
+	if goos == "linux" {
+		return Command{Name: "quicklook", Mode: config.ModeGUI, Argv: []string{"xdg-open", safeArg(path)}}
+	}
 	return Command{Name: "quicklook", Mode: config.ModeGUI, Argv: []string{"qlmanage", "-p", safeArg(path)}}
 }
 

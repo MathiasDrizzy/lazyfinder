@@ -244,7 +244,7 @@ icons and keys.
 |---|---|
 | Ghostty | ✓ tested |
 | kitty, WezTerm | ✓ support the protocol, not tested |
-| Any other | ✗ the popup says so; `Q` opens Quick Look on macOS |
+| Any other | ✗ the popup says so; `Q` opens Quick Look on macOS, the default app (`xdg-open`) on Linux |
 
 The window needs at least 60 columns by 16 rows; the sidebar mode works from 24 columns.
 

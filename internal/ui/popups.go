@@ -208,11 +208,16 @@ func (m *Model) quickLook() tea.Cmd {
 	if !ok || e.IsDir {
 		return nil
 	}
-	if err := m.deps.Runner.Start(opener.QuickLook(e.Path).Argv); err != nil {
+	c := opener.QuickLook(e.Path)
+	if err := m.deps.Runner.Start(c.Argv); err != nil {
 		m.setError(err)
 		return nil
 	}
-	m.setStatus(i18n.T("Abierto en Vista rápida", "Opened in Quick Look"))
+	if c.Argv[0] == "qlmanage" {
+		m.setStatus(i18n.T("Abierto en Vista rápida", "Opened in Quick Look"))
+	} else { // no Quick Look on Linux: the default app opened it
+		m.setStatus(fmt.Sprintf(i18n.T("Abierto con %s", "Opened with %s"), c.Argv[0]))
+	}
 	return nil
 }
 
