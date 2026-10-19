@@ -112,7 +112,8 @@ They are plain JSON and safe to delete. Tags are lazyfinder's own, not Finder's 
 
 `theme` takes one of the 14 palettes of lazymark: `catppuccin-mocha`, `catppuccin-latte`, `catppuccin-frappe`,
 `catppuccin-macchiato`, `tokyo-night`, `gruvbox-dark`, `nord`, `dracula`, `one-dark`, `rose-pine`, `kanagawa`,
-`everforest-dark`, `solarized-dark` or `solarized-light`; or `terminal`, which uses only the terminal's own 16
+`everforest-dark`, `solarized-dark` or `solarized-light`; `high-contrast`, white text and light accents on black with
+every text at 7:1 at least (WCAG AAA), for low vision; or `terminal`, which uses only the terminal's own 16
 colors. `NO_COLOR` turns every color off whatever the theme says; the selection then shows as reverse video.
 
 Your own theme is one file, `<config dir>/themes/<name>.json` (the folder next to `config.json`), with the 14

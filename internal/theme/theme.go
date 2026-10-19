@@ -333,6 +333,27 @@ var SolarizedLight = Palette{
 	Yellow:   lipgloss.Color("#b58900"),
 }
 
+// HighContrast is lazyfinder's own theme for low vision (dark): white text and light accents on black, every text
+// color at 7:1 at least (WCAG AAA) on the background and on both selections.
+var HighContrast = Palette{
+	Name:     "high-contrast",
+	Source:   "https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html",
+	Base:     lipgloss.Color("#000000"),
+	Mantle:   lipgloss.Color("#000000"),
+	Surface0: lipgloss.Color("#1a1a1a"),
+	Surface1: lipgloss.Color("#303030"),
+	Overlay0: lipgloss.Color("#c0c0c0"),
+	Text:     lipgloss.Color("#ffffff"),
+	Subtext0: lipgloss.Color("#e4e4e4"),
+	Peach:    lipgloss.Color("#ffbf80"),
+	Mauve:    lipgloss.Color("#e0bfff"),
+	Teal:     lipgloss.Color("#80ffe0"),
+	Green:    lipgloss.Color("#90ff90"),
+	Red:      lipgloss.Color("#ffb0b0"),
+	Blue:     lipgloss.Color("#a8c8ff"),
+	Yellow:   lipgloss.Color("#ffff80"),
+}
+
 // AvailableThemes holds every built-in theme by name.
 var AvailableThemes = map[string]Palette{
 	"catppuccin-mocha":     CatppuccinMocha,
@@ -349,6 +370,7 @@ var AvailableThemes = map[string]Palette{
 	"everforest-dark":      EverforestDark,
 	"solarized-dark":       SolarizedDark,
 	"solarized-light":      SolarizedLight,
+	"high-contrast":        HighContrast,
 }
 
 // ThemeNames returns the theme names in the order of the picker: the built-in ones, then the user's
@@ -369,6 +391,7 @@ func ThemeNames() []string {
 		"everforest-dark",
 		"solarized-dark",
 		"solarized-light",
+		"high-contrast",
 	}, userNames...)
 }
 

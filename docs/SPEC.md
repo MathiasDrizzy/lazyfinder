@@ -133,7 +133,7 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
   list panel has the title `<folder>` and a counter `n of m` in its bottom border, and a bar of keys closes the
   screen (`Label: key | ...`, keys in the accent color). The selected row is a solid bar. AC: goldens at 120x40,
   80x24 and 60x16; real Ghostty capture.
-- **R-41 Themes (M1).** `theme` names one of the 14 built-in palettes (default `catppuccin-mocha`), a user theme
+- **R-41 Themes (M1).** `theme` names one of the 15 built-in palettes (default `catppuccin-mocha`; `high-contrast` keeps every text at 7:1), a user theme
   (`<config dir>/themes/<name>.json`, 14 `#rrggbb` colors) or `terminal` (the terminal's own colors). The whole
   screen is painted with the theme unless `screen_background` is `terminal`. An invalid user theme is skipped with
   a warning. `--theme <name>` overrides for one run. AC: unit tests on the loader; scenario with `assert_color`

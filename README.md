@@ -113,8 +113,8 @@ file. It only shows; you commit in your terminal, or press `L` to open [lazygit]
 
 ### Themes and languages
 
-`,` opens Settings. Pick one of 14 themes (Catppuccin, Nord, Tokyo Night and more), one of eight languages, the
-columns, the icons and the row density. Changes apply at once and are saved.
+`,` opens Settings. Pick one of 15 themes (Catppuccin, Nord, Tokyo Night, a high-contrast one and more), one of
+eight languages, the columns, the icons and the row density. Changes apply at once and are saved.
 
 <img src="assets/readme/feature-settings.gif" alt="Switching between the Catppuccin themes live, then the language to Spanish and back" width="100%">
 

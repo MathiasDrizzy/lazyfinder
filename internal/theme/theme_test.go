@@ -34,8 +34,8 @@ func cleanUserThemes(t *testing.T) {
 
 func TestBuiltInThemesAreComplete(t *testing.T) {
 	names := ThemeNames()
-	if len(names) != 14 {
-		t.Fatalf("want 14 built-in themes, got %d: %v", len(names), names)
+	if len(names) != 15 {
+		t.Fatalf("want 15 built-in themes, got %d: %v", len(names), names)
 	}
 	for _, n := range names {
 		p, ok := Lookup(n)
@@ -71,8 +71,8 @@ func TestUserThemeLoadsAfterBuiltInOnes(t *testing.T) {
 		t.Fatalf("unexpected problems: %v", problems)
 	}
 	names := ThemeNames()
-	if len(names) != 15 || names[14] != "night" || !Valid("night") {
-		t.Fatalf("night should follow the 14 built-in themes: %v", names)
+	if len(names) != 16 || names[15] != "night" || !Valid("night") {
+		t.Fatalf("night should follow the 15 built-in themes: %v", names)
 	}
 }
 
