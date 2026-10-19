@@ -373,6 +373,7 @@
  "limit reached": "limite atingido",
  "modified: and created: the date (today, week, 2026-10-01…)": "modified: e created: a data (today, week, 2026-10-01…)",
  "more than %d entries": "mais de %d entradas",
+ "Too many entries to list": "Entradas demais para listar",
  "no git": "sem git",
  "normal": "normal",
  "not saving: %s is not valid JSON, fix it first": "não foi salvo: %s não é um JSON válido, corrija-o primeiro",

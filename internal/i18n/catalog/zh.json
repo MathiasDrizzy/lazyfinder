@@ -373,6 +373,7 @@
  "limit reached": "已达上限",
  "modified: and created: the date (today, week, 2026-10-01…)": "modified: 和 created: 日期（today、week、2026-10-01…）",
  "more than %d entries": "超过 %d 个条目",
+ "Too many entries to list": "条目太多，无法列出",
  "no git": "无 git",
  "normal": "标准",
  "not saving: %s is not valid JSON, fix it first": "未保存:%s 不是有效的 JSON,请先修正",
