@@ -393,10 +393,15 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 		_, err := o.Mkdir(dir, name)
 		return err
 	}, undo: func() error {
-		if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
+		// Only the folder made here may go for good, and only empty: os.Remove would take a file that took its name.
+		if fi, err := os.Lstat(p); errors.Is(err, fs.ErrNotExist) {
 			return nil
+		} else if err == nil && fi.IsDir() {
+			if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
+				return nil
+			}
 		}
-		_, err := o.discard([]string{p}) // it gained content since: keep it, in the trash
+		_, err := o.discard([]string{p}) // it gained content or became something else since: keep it, in the trash
 		return err
 	}})
 	return p, nil
