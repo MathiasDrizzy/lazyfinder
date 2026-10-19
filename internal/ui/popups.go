@@ -217,7 +217,7 @@ func (m *Model) quickLook() tea.Cmd {
 }
 
 func (m *Model) previewBox() (x, y int, lines []string) {
-	x, y, pw, ph, iw, bodyH := m.previewGeom()
+	x, y, _, _, iw, bodyH := m.previewGeom()
 	title := i18n.T("Vista previa", "Preview")
 	if e, ok := m.selected(); ok {
 		title = e.Name
@@ -231,8 +231,6 @@ func (m *Model) previewBox() (x, y int, lines []string) {
 		facts = strings.Join(m.pv.res.Facts, "  ·  ")
 	}
 	content := append(body[:bodyH:bodyH], m.styles.dim(fit(facts, iw)), m.styles.dim(fit(hints, iw)))
-	_ = pw
-	_ = ph
 	return x, y, m.box(title, content, iw)
 }
 
