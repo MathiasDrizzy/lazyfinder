@@ -74,6 +74,9 @@ func (o *Ops) Chmod(paths []string, perm fs.FileMode) error {
 	return firstErr
 }
 
+// fchmodat is unix.Fchmodat; a test swaps it to take the path of a system without the flag.
+var fchmodat = unix.Fchmodat
+
 // chmodNoFollow sets the mode of path itself and refuses a link, whose change would reach the item it points to.
 // A link swapped in after the check is not followed either: fchmodat with AT_SYMLINK_NOFOLLOW changes only the link
 // on macOS and fails on Linux. Where the system lacks it (Linux before fchmodat2), the check right before the change
@@ -82,7 +85,7 @@ func chmodNoFollow(path string, mode fs.FileMode) error {
 	if isLink(path) {
 		return linkError(path)
 	}
-	err := unix.Fchmodat(unix.AT_FDCWD, path, unixMode(mode), unix.AT_SYMLINK_NOFOLLOW)
+	err := fchmodat(unix.AT_FDCWD, path, unixMode(mode), unix.AT_SYMLINK_NOFOLLOW)
 	// A container's seccomp filter may answer EPERM or ENOSYS for fchmodat2; a real EPERM comes back from os.Chmod.
 	if err == nil || !slices.ContainsFunc([]error{unix.EOPNOTSUPP, unix.ENOTSUP, unix.EPERM, unix.ENOSYS},
 		func(e error) bool { return errors.Is(err, e) }) {

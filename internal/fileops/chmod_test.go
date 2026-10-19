@@ -4,6 +4,8 @@ import (
 	"io/fs"
 	"os"
 	"testing"
+
+	"golang.org/x/sys/unix"
 )
 
 func mode(t *testing.T, p string) fs.FileMode {
@@ -78,5 +80,26 @@ func TestUndoOfAChmodDoesNotFollowALinkPutInPlace(t *testing.T) {
 	}
 	if got := mode(t, target); got != 0o640 {
 		t.Fatalf("the undo changed the link's target to %o", got)
+	}
+}
+
+// Where the system cannot set a mode without following links (Linux before fchmodat2, or a seccomp filter), chmod
+// still works on a file and still refuses a link.
+func TestChmodWithoutTheNoFollowFlag(t *testing.T) {
+	for _, refusal := range []error{unix.EOPNOTSUPP, unix.EPERM, unix.ENOSYS} {
+		saved := fchmodat
+		fchmodat = func(int, string, uint32, int) error { return refusal }
+		w := newWorld(t)
+		p, target := w.path("src/a.txt"), w.path("src/target")
+		w.must(os.WriteFile(target, []byte("theirs"), 0o640))
+		w.must(os.Chmod(target, 0o640))
+		w.must(os.Symlink(target, w.path("src/link")))
+		if err := w.ops.Chmod([]string{p}, 0o600); err != nil || mode(t, p) != 0o600 {
+			t.Errorf("%v: chmod of a file: %v, mode %o", refusal, err, mode(t, p))
+		}
+		if err := chmodNoFollow(w.path("src/link"), 0o600); err == nil || mode(t, target) != 0o640 {
+			t.Errorf("%v: a link must be refused: %v, target %o", refusal, err, mode(t, target))
+		}
+		fchmodat = saved
 	}
 }
