@@ -4,7 +4,10 @@ import (
 	"context"
 	"io/fs"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -17,6 +20,7 @@ type Details struct {
 	Files       int64  // files below a folder, from Count
 	Total       int64  // bytes of those files, from Count
 	Mode        fs.FileMode
+	Owner       string // the user that owns it, by name or else by number
 	Modified    time.Time
 }
 
@@ -27,6 +31,9 @@ func Info(path string) (Details, error) {
 		return Details{}, err
 	}
 	d := Details{Name: filepath.Base(path), Where: filepath.Dir(path), Size: fi.Size(), Mode: fi.Mode(), Modified: fi.ModTime()}
+	if st, ok := fi.Sys().(*syscall.Stat_t); ok {
+		d.Owner = ownerName(st.Uid)
+	}
 	if fi.Mode()&fs.ModeSymlink != 0 {
 		d.Link, _ = os.Readlink(path)
 		if target, err := os.Stat(path); err == nil {
@@ -55,4 +62,13 @@ func Count(ctx context.Context, path string) (files, total int64, err error) {
 		return nil
 	})
 	return files, total, err
+}
+
+// ownerName is the name of the user uid, or uid as a number when the system does not know it.
+func ownerName(uid uint32) string {
+	id := strconv.FormatUint(uint64(uid), 10)
+	if u, err := user.LookupId(id); err == nil && u.Username != "" {
+		return u.Username
+	}
+	return id
 }

@@ -108,6 +108,9 @@ func (m *Model) infoLines() []string {
 	lines = append(lines,
 		row(i18n.T("Modificado", "Modified"), d.Modified.Format("2006-01-02 15:04")),
 		row(i18n.T("Permisos", "Permissions"), d.Mode.String()))
+	if d.Owner != "" {
+		lines = append(lines, row(i18n.T("Propietario", "Owner"), d.Owner))
+	}
 	return lines
 }
 
