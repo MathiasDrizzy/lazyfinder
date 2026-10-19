@@ -60,3 +60,30 @@ func TestATrashThatIsNotXDGGetsNoInfoFiles(t *testing.T) {
 		t.Fatal("info files outside an XDG trash")
 	}
 }
+
+// An undo that put the file back but could not drop its .trashinfo stopped there and kept the item to be put back, so
+// every later undo failed on a file no longer in the Trash and the whole undo list was stuck. The item now counts as
+// put back once it is; the stale .trashinfo is reported, and the next undo only tries to remove it again.
+func TestAnUndoThatCannotDropTheInfoDoesNotGetStuck(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root writes into a read-only folder")
+	}
+	w := xdgWorld(t)
+	w.put("src/a.txt", "a")
+	w.put("src/b.txt", "b")
+	w.must(w.ops.Trash([]string{w.path("src/a.txt")}))
+	w.must(w.ops.Trash([]string{w.path("src/b.txt")}))
+	info := filepath.Join(w.root, "share", "Trash", "info")
+	w.must(os.Chmod(info, 0o500))
+	t.Cleanup(func() { _ = os.Chmod(info, 0o700) })
+	if _, err := w.ops.Undo(); err == nil || !w.exists("src/b.txt") {
+		t.Fatalf("the undo must put b back and say the info stayed: %v", err)
+	}
+	w.must(os.Chmod(info, 0o700))
+	if _, err := w.ops.Undo(); err != nil || w.exists("share/Trash/info/b.txt.trashinfo") || !w.exists("src/b.txt") || w.exists("src/b copy.txt") {
+		t.Fatalf("the next undo must only drop the stale info: %v", err)
+	}
+	if _, err := w.ops.Undo(); err != nil || !w.exists("src/a.txt") {
+		t.Fatalf("the undo list is stuck: %v", err)
+	}
+}

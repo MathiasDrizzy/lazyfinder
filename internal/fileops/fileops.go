@@ -427,8 +427,8 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 func (o *Ops) Trash(paths []string) error {
 	moved, err := o.toTrash(paths)
 	if len(moved) > 0 {
-		left := len(moved) // a failed undo is tried again from the item it stopped at
-		var backs []string
+		left := len(moved)        // a failed undo is tried again from the item it stopped at
+		var backs, stale []string // stale: .trashinfo files of items already back that could not be removed
 		o.push(step{kind: KindTrash, subject: describe(originals(moved)), undo: func() error {
 			for ; left > 0; left-- {
 				p := moved[left-1]
@@ -438,11 +438,17 @@ func (o *Ops) Trash(paths []string) error {
 					return err
 				}
 				backs = append(backs, back)
-				if err := dropInfo(p.info); err != nil {
-					return err
+				stale = append(stale, p.info)
+			}
+			var errs []error
+			kept := stale[:0]
+			for _, info := range stale {
+				if err := dropInfo(info); err != nil {
+					errs, kept = append(errs, err), append(kept, info)
 				}
 			}
-			return nil
+			stale = kept
+			return errors.Join(errs...)
 		}, redo: func(context.Context, Progress) error { return o.Trash(backs) }})
 	}
 	return err
