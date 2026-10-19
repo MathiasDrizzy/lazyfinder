@@ -22,7 +22,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `preview.images` | `auto` (ask the terminal), `kitty` (force) or `off` | `auto` |
 | `preview.markdown` | `render` shows Markdown formatted, `raw` shows the source | `render` |
 | `preview.hex_bytes` | Bytes of a binary file shown as a hex dump | `4096` |
-| `preview.external_tools` | `auto` lets previews run `mdls`, `pdftoppm` or `sips` (media facts, PDF first page); `off` never runs them | `auto` |
+| `preview.external_tools` | `auto` lets previews run `mdls`, `pdftoppm` or `qlmanage` (media facts, PDF first page, at most 1600 pixels on its long side); `off` never runs them | `auto` |
 | `theme` | A built-in theme, a user theme (see below) or `terminal` | `catppuccin-mocha` |
 | `icons` | `nerd` draws a colored Nerd Font glyph per kind (the herdr-sidebar table: folders open and closed, files by name and extension, apps, links), `emoji` one emoji per kind for fonts without Nerd Font glyphs, `ascii` a plain character, `off` nothing | `nerd` |
 | `keybinding_mode` | `dual` (arrows and Vim letters) or `lazy` (arrows only) | `dual` |

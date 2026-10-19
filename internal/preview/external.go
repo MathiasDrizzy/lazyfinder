@@ -26,6 +26,8 @@ type Raster func(ctx context.Context, path string) (string, error)
 const (
 	toolTimeout = 5 * time.Second
 	rasterDir   = "lazyfinder-page-"
+	// maxRasterSide is the long side, in pixels, of a PDF page drawn for the preview, whatever the page's size.
+	maxRasterSide = 1600
 )
 
 var mediaExts = map[string]bool{
@@ -96,7 +98,8 @@ func ParseMdls(out string) []string {
 	return facts
 }
 
-// SystemRaster renders page 1 of a PDF with pdftoppm when it is installed, else with sips (macOS).
+// SystemRaster renders page 1 of a PDF with pdftoppm when it is installed, else with Quick Look (macOS), at most
+// maxRasterSide pixels on its long side: drawn at a fixed resolution, a 200-inch page took 2 GB.
 func SystemRaster(ctx context.Context, path string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, toolTimeout*2)
 	defer cancel()
@@ -105,16 +108,8 @@ func SystemRaster(ctx context.Context, path string) (string, error) {
 		return "", err
 	}
 	out := filepath.Join(dir, "page.png")
-	var cmd *exec.Cmd
-	if tool, err := exec.LookPath("pdftoppm"); err == nil {
-		cmd = exec.CommandContext(ctx, tool, "-png", "-f", "1", "-l", "1", "-r", "110", "-singlefile", path, filepath.Join(dir, "page"))
-	} else if tool, err := exec.LookPath("sips"); err == nil {
-		cmd = exec.CommandContext(ctx, tool, "-s", "format", "png", path, "--out", out)
-	} else {
-		_ = os.RemoveAll(dir)
-		return "", errors.New("neither pdftoppm nor sips is installed")
-	}
-	if err := cmd.Run(); err != nil {
+	side := strconv.Itoa(maxRasterSide)
+	if err := rasterize(ctx, path, dir, side); err != nil {
 		_ = os.RemoveAll(dir)
 		return "", err
 	}
@@ -123,6 +118,22 @@ func SystemRaster(ctx context.Context, path string) (string, error) {
 		return "", err
 	}
 	return out, nil
+}
+
+// rasterize draws page 1 of the PDF at path as dir/page.png, side pixels on its long side at most.
+func rasterize(ctx context.Context, path, dir, side string) error {
+	if tool, err := exec.LookPath("pdftoppm"); err == nil {
+		return exec.CommandContext(ctx, tool, "-png", "-f", "1", "-l", "1", "-scale-to", side, "-singlefile", path, filepath.Join(dir, "page")).Run()
+	}
+	tool, err := exec.LookPath("qlmanage")
+	if err != nil {
+		return errors.New("neither pdftoppm nor qlmanage is installed")
+	}
+	// qlmanage names its thumbnail after the file, "<name>.png", in a folder that holds nothing else.
+	if err := exec.CommandContext(ctx, tool, "-t", "-s", side, "-o", dir, path).Run(); err != nil {
+		return err
+	}
+	return os.Rename(filepath.Join(dir, filepath.Base(path)+".png"), filepath.Join(dir, "page.png"))
 }
 
 // Discard removes a page image made by SystemRaster together with its private folder. It refuses anything else.

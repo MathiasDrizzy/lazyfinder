@@ -11,7 +11,7 @@ import (
 )
 
 // The tests here run the real tools on files made inside t.TempDir(), never on the user's own files. A tool that is
-// not installed skips its test: the CI on Linux has no mdls or sips.
+// not installed skips its test: the CI on Linux has no mdls or qlmanage.
 
 const minimalPDF = "%PDF-1.4\n" +
 	"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n" +
@@ -54,16 +54,16 @@ func TestSystemRasterDrawsAPdfPageWithPdftoppm(t *testing.T) {
 	}
 }
 
-func TestSystemRasterFallsBackToSipsWhenThereIsNoPdftoppm(t *testing.T) {
-	sips, err := exec.LookPath("sips")
+func TestSystemRasterFallsBackToQuickLookWhenThereIsNoPdftoppm(t *testing.T) {
+	ql, err := exec.LookPath("qlmanage")
 	if err != nil {
-		t.Skip("sips is not installed")
+		t.Skip("qlmanage is not installed")
 	}
 	bin := t.TempDir()
-	if err := os.Symlink(sips, filepath.Join(bin, "sips")); err != nil {
+	if err := os.Symlink(ql, filepath.Join(bin, "qlmanage")); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("PATH", bin) // only sips is on the path
+	t.Setenv("PATH", bin) // only qlmanage is on the path
 	png, err := SystemRaster(context.Background(), writePDF(t))
 	if err != nil {
 		t.Fatal(err)

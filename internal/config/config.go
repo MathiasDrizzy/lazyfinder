@@ -136,7 +136,7 @@ type Preview struct {
 	Images        string `json:"images"`
 	Markdown      string `json:"markdown"`       // render or raw
 	HexBytes      int    `json:"hex_bytes"`      // bytes of a binary file shown as hex
-	ExternalTools string `json:"external_tools"` // auto lets previews use mdls, pdftoppm or sips; off never runs them
+	ExternalTools string `json:"external_tools"` // auto lets previews use mdls, pdftoppm or qlmanage; off never runs them
 }
 
 // Search configures the search bar.
