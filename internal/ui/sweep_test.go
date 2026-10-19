@@ -18,7 +18,7 @@ import (
 // The sweep is the exploratory QA of order 07 point O, made repeatable: every default key, clicks, right clicks,
 // hover and wheel at random places, and resizes, in both modes, at several sizes and in several git states. After
 // every event the screen must fit the terminal and nothing may panic.
-var sweepSizes = [][2]int{{20, 8}, {36, 16}, {50, 24}, {80, 24}, {120, 40}, {200, 50}}
+var sweepSizes = [][2]int{{20, 8}, {24, 10}, {36, 16}, {50, 24}, {60, 16}, {80, 24}, {120, 40}, {200, 50}, {300, 80}}
 
 func sweepKeys() []string {
 	var keys []string
