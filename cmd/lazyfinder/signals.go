@@ -13,21 +13,22 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/ui"
 )
 
-// hangupGrace is how long a hangup waits for the program to end the way q does before it is killed.
-const hangupGrace = 10 * time.Second
+// signalGrace is how long a hangup or a kill waits for the program to end the way q does before it is killed.
+const signalGrace = 10 * time.Second
 
-// stopOnHangup ends p on SIGHUP the way q does: the model is told first (ui.SignalMsg), so a copy under way is stopped
-// and its half copy removed, and the terminal is given back in its normal mode with the deferred cleanups run. A
-// program still running grace after the model read it is killed. SIGTERM and SIGINT stay with Bubble Tea, which ignores
-// them while another program has the terminal; ui.QuitFilter routes their quit to the model while a copy runs. stop
-// undoes it.
-func stopOnHangup(p *tea.Program, grace time.Duration) (stop func()) {
-	hup := make(chan os.Signal, 1)
-	signal.Notify(hup, syscall.SIGHUP)
+// stopOnSignal ends p on SIGHUP or SIGTERM the way q does: the model is told first (ui.SignalMsg), so a copy under way
+// is stopped and its half copy removed, and the terminal is given back in its normal mode with the deferred cleanups
+// run. A program still running grace after the model read it is killed. Bubble Tea also answers SIGTERM and SIGINT,
+// ignoring them while another program has the terminal, and ui.QuitFilter routes its quit to the model while a copy
+// runs; but it listens only once, so SIGTERM is caught here too and a second one does not take the default action,
+// which kills the process in raw mode. stop undoes it.
+func stopOnSignal(p *tea.Program, grace time.Duration) (stop func()) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGHUP, syscall.SIGTERM)
 	done := make(chan struct{})
 	go func() {
 		select {
-		case <-hup:
+		case <-sig:
 		case <-done:
 			return
 		}
@@ -42,12 +43,12 @@ func stopOnHangup(p *tea.Program, grace time.Duration) (stop func()) {
 		}
 	}()
 	return func() {
-		signal.Stop(hup)
+		signal.Stop(sig)
 		close(done)
 	}
 }
 
-// clearImages deletes a preview image still in the terminal: a kill after hangupGrace skips the model, which deletes it on
+// clearImages deletes a preview image still in the terminal: a kill after signalGrace skips the model, which deletes it on
 // every other way out.
 func clearImages(out io.Writer, shown bool) {
 	if shown {

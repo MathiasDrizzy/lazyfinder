@@ -54,25 +54,36 @@ func (h holding) Init() tea.Cmd {
 	return nil
 }
 
-// hangUp starts m with stopOnHangup, sends SIGHUP to the process and returns what Run returned, or fails the test
+// hangUp starts m with stopOnSignal, sends SIGHUP to the process and returns what Run returned, or fails the test
 // if the program is still running after limit.
 func hangUp(t *testing.T, m tea.Model, grace, limit time.Duration) error {
 	t.Helper()
+	return signalled(t, m, grace, limit, nil, syscall.SIGHUP)
+}
+
+// signalled starts m with stopOnSignal and the given options, sends sigs to the process one after another and returns
+// what Run returned, or fails the test if the program is still running after limit.
+func signalled(t *testing.T, m tea.Model, grace, limit time.Duration, opts []tea.ProgramOption, sigs ...syscall.Signal) error {
+	t.Helper()
 	ready := make(chan struct{})
-	p := tea.NewProgram(started{m, ready}, tea.WithInput(strings.NewReader("")), tea.WithOutput(io.Discard))
-	stop := stopOnHangup(p, grace)
+	opts = append([]tea.ProgramOption{tea.WithInput(strings.NewReader("")), tea.WithOutput(io.Discard)}, opts...)
+	p := tea.NewProgram(started{m, ready}, opts...)
+	stop := stopOnSignal(p, grace)
 	defer stop()
 	done := make(chan error, 1)
 	go func() { _, err := p.Run(); done <- err }()
 	<-ready
-	if err := syscall.Kill(os.Getpid(), syscall.SIGHUP); err != nil {
-		t.Fatal(err)
+	for _, sig := range sigs {
+		if err := syscall.Kill(os.Getpid(), sig); err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(50 * time.Millisecond) // one at a time, as a user would send them
 	}
 	select {
 	case err := <-done:
 		return err
 	case <-time.After(limit):
-		t.Fatal("the program is still running after SIGHUP")
+		t.Fatal("the program is still running after the signal")
 		return nil
 	}
 }
@@ -105,6 +116,21 @@ func TestTheGraceTimeStartsWhenTheModelReadsTheHangup(t *testing.T) {
 	told := make(chan struct{})
 	if err := hangUp(t, holding{polite{told}}, 100*time.Millisecond, 3*time.Second); err != nil {
 		t.Fatalf("err = %v, want the program to end the way q does", err)
+	}
+}
+
+// Bubble Tea stops listening after the first SIGTERM. While a copy was being stopped, a second SIGTERM then took the
+// default action and killed lazyfinder on the spot, in raw mode and with the half copy. It now waits like the first.
+func TestASecondTermSignalDoesNotKillTheProcess(t *testing.T) {
+	toModel := tea.WithFilter(func(_ tea.Model, msg tea.Msg) tea.Msg {
+		if _, ok := msg.(tea.QuitMsg); ok {
+			return ui.SignalMsg{} // as ui.QuitFilter does while a copy runs
+		}
+		return msg
+	})
+	err := signalled(t, idle{}, 300*time.Millisecond, 3*time.Second, []tea.ProgramOption{toModel}, syscall.SIGTERM, syscall.SIGTERM)
+	if !errors.Is(err, tea.ErrProgramKilled) {
+		t.Fatalf("err = %v, want the program killed after the grace time", err)
 	}
 }
 

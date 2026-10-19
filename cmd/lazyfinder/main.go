@@ -254,7 +254,7 @@ func launch(o Options) (string, error) {
 	d.Index = search.Spotlight
 	m := ui.New(d)
 	p := tea.NewProgram(m, tea.WithFilter(ui.QuitFilter))
-	stop := stopOnHangup(p, hangupGrace)
+	stop := stopOnSignal(p, signalGrace)
 	_, err := p.Run()
 	stop()
 	clearImages(os.Stdout, m.ImageShown())
