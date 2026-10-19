@@ -81,7 +81,11 @@ func Read(dir string) (Status, bool, error) {
 	if r, err := filepath.EvalSymlinks(root); err == nil {
 		root = r
 	}
-	out, err := gitEnv(ctx, root, readOnly(ctx, root), "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "--ignore-submodules=dirty", "-z")
+	opts, env, err := readOnly(ctx, root)
+	if err != nil {
+		return Status{}, false, err
+	}
+	out, err := gitEnv(ctx, root, env, append(opts, "--no-optional-locks", "status", "--porcelain=v2", "--branch", "--ignored=matching", "--untracked-files=all", "--ignore-submodules=dirty", "-z")...)
 	if err != nil {
 		return Status{}, false, err
 	}

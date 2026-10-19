@@ -98,3 +98,31 @@ func TestAFilterWithAnEqualsSignInItsNameRunsNothing(t *testing.T) {
 		t.Fatalf("a filter named x=y ran: %v", got)
 	}
 }
+
+// GIT_CONFIG_KEY_n only exists since git 2.31; an older git ignores it, so row 73 left every hostile setting on there.
+// Settings whose name has no = go as -c, which every git reads, and a repository with a filter named with = is not
+// read at all by a git that cannot switch it off.
+func TestAnOldGitSwitchesHostileSettingsOffOrRefuses(t *testing.T) {
+	old := configEnvWorks
+	configEnvWorks = func() bool { return false }
+	t.Cleanup(func() { configEnvWorks = old })
+	repo, marks := hostile(t)
+	t.Setenv("GIT_CONFIG_COUNT", "")
+	if _, ok, err := Read(repo); err != nil || !ok {
+		t.Fatalf("Read = %v, %v", ok, err)
+	}
+	if _, err := Diff(repo, Change{Path: "edited.txt", Code: Modified}, false); err != nil {
+		t.Fatal(err)
+	}
+	put(t, filepath.Join(repo, ".gitattributes"), "*.txt filter=x=y\n")
+	run(t, repo, "config", "filter.x=y.clean", "touch "+filepath.Join(marks, "eq")+"; cat")
+	if _, _, err := Read(repo); err == nil {
+		t.Fatal("a git that cannot switch a filter named x=y off must not read the repository")
+	}
+	if _, err := Diff(repo, Change{Path: "edited.txt", Code: Modified}, false); err == nil {
+		t.Fatal("nor diff it")
+	}
+	if got := ran(t, marks); len(got) > 0 {
+		t.Fatalf("an old git ran commands from the repository config: %v", got)
+	}
+}
