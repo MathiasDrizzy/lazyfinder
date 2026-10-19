@@ -59,23 +59,27 @@ func (o *Ops) Undo() (string, error) {
 // UniqueName returns name, or "name copy.ext", "name copy 2.ext"… when it is taken in dir, the way Finder names
 // duplicates. A leading dot is part of the name, not an extension.
 func UniqueName(dir, name string) string {
-	if !exists(filepath.Join(dir, name)) {
+	for n := 0; ; n++ {
+		if cand := candidate(name, n); !exists(filepath.Join(dir, cand)) {
+			return cand
+		}
+	}
+}
+
+// candidate is the n-th name UniqueName tries for name: name itself, then "name copy.ext", "name copy 2.ext"…
+func candidate(name string, n int) string {
+	if n == 0 {
 		return name
 	}
 	ext := filepath.Ext(name)
 	if ext == name { // a dotfile
 		ext = ""
 	}
-	stem := strings.TrimSuffix(name, ext)
-	for n := 1; ; n++ {
-		suffix := " copy"
-		if n > 1 {
-			suffix = fmt.Sprintf(" copy %d", n)
-		}
-		if cand := stem + suffix + ext; !exists(filepath.Join(dir, cand)) {
-			return cand
-		}
+	suffix := " copy"
+	if n > 1 {
+		suffix = fmt.Sprintf(" copy %d", n)
 	}
+	return strings.TrimSuffix(name, ext) + suffix + ext
 }
 
 func exists(p string) bool {
@@ -369,6 +373,9 @@ func (o *Ops) Trash(paths []string) error {
 				if err := move(p.to, back); err != nil {
 					return err
 				}
+				if err := dropInfo(p.info); err != nil {
+					return err
+				}
 			}
 			return nil
 		})
@@ -376,7 +383,7 @@ func (o *Ops) Trash(paths []string) error {
 	return err
 }
 
-type moved struct{ from, to string }
+type moved struct{ from, to, info string } // info is the item's .trashinfo in an XDG trash
 
 func originals(ms []moved) []string {
 	out := make([]string, len(ms))
@@ -398,11 +405,16 @@ func (o *Ops) toTrash(paths []string) ([]moved, error) {
 		if _, err := os.Lstat(p); err != nil {
 			return done, err
 		}
-		dst := filepath.Join(o.trashDir, UniqueName(o.trashDir, filepath.Base(p)))
-		if err := move(p, dst); err != nil {
+		name, info, err := o.reserveTrashName(p)
+		if err != nil {
 			return done, err
 		}
-		done = append(done, moved{p, dst})
+		dst := filepath.Join(o.trashDir, name)
+		if err := move(p, dst); err != nil {
+			_ = dropInfo(info) // the item stayed where it was: its info would describe nothing
+			return done, err
+		}
+		done = append(done, moved{p, dst, info})
 	}
 	return done, nil
 }
