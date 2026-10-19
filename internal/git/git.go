@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -74,8 +75,9 @@ func Read(dir string) (Status, bool, error) {
 	top, err := git(ctx, dir, "rev-parse", "--show-toplevel")
 	if err != nil {
 		var ee *exec.ExitError
-		// Not a repository, no git at all, or a folder git cannot enter (listed, but without x), so cannot read.
-		if errors.As(err, &ee) || errors.Is(err, exec.ErrNotFound) || errors.Is(err, fs.ErrPermission) {
+		// Not a repository, no git at all, or a folder git cannot enter (listed but without x, or gone in between).
+		if errors.As(err, &ee) || errors.Is(err, exec.ErrNotFound) || errors.Is(err, fs.ErrPermission) ||
+			errors.Is(err, fs.ErrNotExist) || errors.Is(err, syscall.ENOTDIR) {
 			return Status{}, false, nil
 		}
 		return Status{}, false, err

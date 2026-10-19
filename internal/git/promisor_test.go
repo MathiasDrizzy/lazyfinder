@@ -75,3 +75,15 @@ func TestAFolderGitCannotEnterIsNoRepository(t *testing.T) {
 		t.Fatalf("Read = %v, %v", ok, err)
 	}
 }
+
+// A folder removed just before git starts in it is no repository either: Read reported "chdir: no such file or
+// directory", which the status line showed until the next event.
+func TestAFolderThatIsGoneIsNoRepository(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "f")
+	put(t, file, "x")
+	for _, dir := range []string{filepath.Join(t.TempDir(), "gone"), filepath.Join(file, "sub")} {
+		if _, ok, err := Read(dir); ok || err != nil {
+			t.Errorf("%s: Read = %v, %v", dir, ok, err)
+		}
+	}
+}
