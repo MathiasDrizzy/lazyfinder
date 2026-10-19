@@ -26,7 +26,9 @@ installed. The preview popup must stay fast, must never run a shell, and must ne
   `preview.Raster`): `mdls` for duration, dimensions and codecs; `pdftoppm` if present, else `sips`, for page one,
   drawn through the existing Kitty image path. Arguments are fixed argv (no shell), each call has a timeout, the
   temporary page lives in a private folder that only `preview.Discard` removes, and any failure falls back to the
-  hex view. `preview.external_tools: "off"` never runs any of them.
+  hex view. `preview.external_tools: "off"` never runs any of them. *Update 2026-10-19:* the page is drawn at most
+  1600 pixels on its long side, and Quick Look (`qlmanage -t -s`) replaces `sips`, which drew a huge page at full
+  size (AUDIT.md row 94).
 * **Sixel and iTerm2 are not implemented.** The popup is drawn over the list and must survive redraws, scrolling and
   multiplexers. Kitty Unicode placeholders are text cells, so they compose with the popup and clear when it closes;
   Sixel and iTerm2 images are painted at the cursor and would need their own erase and compositing logic per
