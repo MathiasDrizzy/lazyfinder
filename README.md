@@ -237,7 +237,7 @@ icons and keys.
 | | Status |
 |---|---|
 | macOS | Developed and tested here, including the interface. |
-| Linux | Builds, and its tests run on every change. Not used interactively by the author yet. |
+| Linux | Builds, and its tests run on every change. The Trash is the XDG one the desktop shows. Not used interactively by the author yet. |
 | Windows | Not supported. |
 
 | Terminal | Images in the preview |

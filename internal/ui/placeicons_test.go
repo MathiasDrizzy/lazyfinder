@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/icons"
 )
 
@@ -38,5 +39,19 @@ func TestEverySidebarEntryHasItsOwnGlyph(t *testing.T) {
 		if !strings.Contains(glyph, c.want) {
 			t.Errorf("%s: glyph %q, want U+%04X", c.name, glyph, []rune(c.want)[0])
 		}
+	}
+}
+
+// On Linux the Trash is ~/.local/share/Trash/files, which is not a folder of the home: it is still the Trash.
+func TestTheConfiguredTrashGetsTheTrashGlyphAndTheComputerIsLocalized(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.Cfg.Ops.TrashDir = filepath.Join(e.home, ".local", "share", "Trash", "files")
+	if g, ok := e.m.placeGlyph(place{name: "Trash", path: e.m.deps.Cfg.Ops.TrashDir}); !ok || g != "" {
+		t.Fatalf("glyph = %q, %v", g, ok)
+	}
+	i18n.SetLanguage("es")
+	t.Cleanup(func() { i18n.SetLanguage("en") })
+	if got := localName("Computer"); got != "Equipo" {
+		t.Fatalf("Computer reads %q in Spanish", got)
 	}
 }

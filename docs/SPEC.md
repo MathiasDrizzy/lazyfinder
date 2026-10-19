@@ -61,6 +61,7 @@ follow mode, in the spirit of lazymark: stop using Finder and still have everyth
 
 - **R-09 Sidebar (M1).** A left sidebar lists **Favorites** and **Locations** read from `config.json`; defaults:
   Home, Desktop, Documents, Downloads, Applications under Favorites; `/` and mounted volumes (`/Volumes/*`) under
+  Locations. On Linux: Home, Desktop, Documents, Downloads under Favorites; `/` (Computer) and the Trash under
   Locations. Click or `Enter` jumps there; `Tab` moves focus between sidebar and list. Missing paths are shown
   dimmed and are not an error. AC: scenario with a fixture config; unit test for missing paths.
 

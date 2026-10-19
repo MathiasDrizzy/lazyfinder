@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"sort"
 	"strings"
@@ -226,12 +227,16 @@ func ResolvePath(getenv func(string) string, home string) string {
 }
 
 // Defaults returns the configuration used when there is no file.
-func Defaults(home string) Config {
+func Defaults(home string) Config { return DefaultsFor(runtime.GOOS, home) }
+
+// DefaultsFor is the default configuration on the system goos: the sidebar places and the Trash differ between
+// macOS and Linux.
+func DefaultsFor(goos, home string) Config {
 	return Config{
 		Version:    currentVersion,
 		Columns:    []string{"name", "modified", "created", "size", "kind"},
 		Sort:       SortConfig{By: "name", FoldersFirst: true},
-		Sidebar:    defaultSidebar(home),
+		Sidebar:    defaultSidebar(goos, home),
 		Openers:    map[string]Opener{},
 		Commands:   map[string]Opener{},
 		OpenWith:   map[string]string{},
@@ -245,7 +250,7 @@ func Defaults(home string) Config {
 		Watch:            Watch{MaxDirs: 64, PollIntervalMS: 2000},
 		Git:              Git{Enabled: true},
 		Search:           Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
-		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: filepath.Join(home, ".Trash")},
+		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: trashDir(goos, home)},
 		Herdr:            Herdr{Dock: "left", AutoOpen: true, Width: 25},
 
 		Language:         "auto",
@@ -258,8 +263,22 @@ func Defaults(home string) Config {
 	}
 }
 
-func defaultSidebar(home string) Sidebar {
+// trashDir is the Trash of the system: ~/.Trash on macOS, the XDG trash the desktop shows on Linux.
+func trashDir(goos, home string) string {
+	if goos == "linux" {
+		return filepath.Join(home, ".local", "share", "Trash", "files")
+	}
+	return filepath.Join(home, ".Trash")
+}
+
+func defaultSidebar(goos, home string) Sidebar {
 	j := func(n string) string { return filepath.Join(home, n) }
+	if goos == "linux" {
+		return Sidebar{
+			Favorites: []Place{{"Home", home}, {"Desktop", j("Desktop")}, {"Documents", j("Documents")}, {"Downloads", j("Downloads")}},
+			Locations: []Place{{"Computer", "/"}, {"Trash", trashDir(goos, home)}},
+		}
+	}
 	return Sidebar{
 		Favorites: []Place{
 			{"Home", home}, {"Desktop", j("Desktop")}, {"Documents", j("Documents")},

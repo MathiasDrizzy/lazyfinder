@@ -55,6 +55,8 @@ func (m *Model) placeGlyph(p place) (string, bool) {
 		return "\uf0a0", true // disk
 	case p.path == "/Applications":
 		return "\uf135", true // rocket
+	case p.path == m.deps.Cfg.Ops.TrashDir:
+		return "\uf1f8", true // the Trash, wherever it is (on Linux it is not a folder of the home)
 	case home != "" && filepath.Dir(p.path) == home:
 		g, ok := userFolderGlyphs[filepath.Base(p.path)]
 		return g, ok
