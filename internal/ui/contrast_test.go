@@ -116,7 +116,8 @@ func TestTextReadsInEveryTheme(t *testing.T) {
 		name string
 		keys []string
 	}{{"list", nil}, {"columns", []string{"M"}}, {"search", []string{"/", "n", "o"}}, {"info", []string{"i"}}, {"preview", []string{"space"}},
-		{"settings", []string{","}}, {"open with", []string{"O"}}, {"recents", []string{"E"}}, {"marked", []string{"v", "v"}}}
+		{"settings", []string{","}}, {"open with", []string{"O"}}, {"recents", []string{"E"}}, {"marked", []string{"v", "v"}},
+		{"help", []string{"?"}}, {"sidebar", []string{"ctrl+b"}}, {"sidebar tree", []string{"ctrl+b", "j", "l"}}}
 	var failures []string
 	for _, name := range theme.ThemeNames() {
 		for _, v := range screens {

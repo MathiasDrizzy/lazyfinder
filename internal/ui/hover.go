@@ -195,11 +195,13 @@ func (m *Model) withHover(lines []string) []string {
 // paintHover paints the area r of lines with the hover background.
 func (m *Model) paintHover(lines []string, r hoverRect) []string {
 	seq := "\x1b[4m" // without a palette the pointer underlines what it is on
+	var bg color.Color
 	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
-		seq = theme.BackgroundSeq(hoverBg(p))
+		bg = hoverBg(p)
 		if m.onChip() {
-			seq = theme.BackgroundSeq(chipHoverBg(p))
+			bg = chipHoverBg(p)
 		}
+		seq = theme.BackgroundSeq(bg)
 	}
 	if p, found := theme.Lookup(m.deps.Cfg.Theme); found {
 		if g, ok := m.chipGlyphUnderPointer(); ok {
@@ -220,7 +222,7 @@ func (m *Model) paintHover(lines []string, r hoverRect) []string {
 		mid := ansi.Cut(line, r.x, r.x+r.w)
 		mid += strings.Repeat(" ", max(0, r.w-ansi.StringWidth(mid)))
 		right := ansi.TruncateLeft(line, r.x+r.w, "")
-		painted := left + "\x1b[0m" + seq + dropBackgrounds(mid, seq) + "\x1b[0m" + right
+		painted := left + "\x1b[0m" + seq + dropBackgrounds(mid, seq, bg) + "\x1b[0m" + right
 		// a wide glyph cut by the edge of the area changes the width by a cell either way
 		want := ansi.StringWidth(line)
 		if ansi.StringWidth(painted) > want {
@@ -236,7 +238,7 @@ func (m *Model) paintHover(lines []string, r hoverRect) []string {
 
 // dropBackgrounds removes the background colors set inside s and puts seq after every reset, so the hover color
 // reaches the whole area whatever stripe or selection was under it.
-func dropBackgrounds(s, seq string) string {
+func dropBackgrounds(s, seq string, bg color.Color) string {
 	var b strings.Builder
 	for len(s) > 0 {
 		i := strings.Index(s, "\x1b[")
@@ -259,7 +261,7 @@ func dropBackgrounds(s, seq string) string {
 			b.WriteString(seqText + seq)
 			continue
 		}
-		if kept := stripBackground(params); kept != "" {
+		if kept := readableOn(stripBackground(params), bg); kept != "" {
 			b.WriteString("\x1b[" + kept + "m")
 		}
 	}
@@ -296,4 +298,31 @@ func stripBackground(params string) string {
 		}
 	}
 	return strings.Join(keep, ";")
+}
+
+// readableOn lifts every true color text color of the SGR parameters params that would read under minReadable on bg,
+// the background the text is now drawn on: a folder blue on the selection of a dark theme. A nil bg keeps them.
+func readableOn(params string, bg color.Color) string {
+	if bg == nil {
+		return params
+	}
+	parts := strings.Split(params, ";")
+	for i := 0; i+4 < len(parts); i++ {
+		if parts[i] != "38" || parts[i+1] != "2" {
+			continue
+		}
+		var rgb [3]uint8
+		ok := true
+		for j := range rgb {
+			n, err := strconv.Atoi(parts[i+2+j])
+			ok = ok && err == nil && n >= 0 && n <= 255
+			rgb[j] = uint8(n) //nolint:gosec // checked just above
+		}
+		if ok {
+			r, g, b, _ := theme.Readable(color.RGBA{R: rgb[0], G: rgb[1], B: rgb[2], A: 255}, bg, minReadable).RGBA()
+			parts[i+2], parts[i+3], parts[i+4] = strconv.Itoa(int(r>>8)), strconv.Itoa(int(g>>8)), strconv.Itoa(int(b>>8))
+		}
+		i += 4
+	}
+	return strings.Join(parts, ";")
 }

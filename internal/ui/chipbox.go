@@ -123,7 +123,7 @@ func paintChip(lines []string, r hoverRect, box chipBox, bg color.Color) []strin
 		end, tail = end+1, edge(leftEighths[box.tail])
 	}
 	right := ansi.TruncateLeft(line, end, "")
-	painted := left + "\x1b[0m" + head + seq + dropBackgrounds(mid, seq) + "\x1b[0m" + tail + right
+	painted := left + "\x1b[0m" + head + seq + dropBackgrounds(mid, seq, bg) + "\x1b[0m" + tail + right
 	if ansi.StringWidth(painted) > want {
 		painted = ansi.Truncate(painted, want, "")
 	}

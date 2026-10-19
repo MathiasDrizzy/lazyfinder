@@ -282,9 +282,11 @@ func (m *Model) rowBackground(line string, strong bool) string {
 	case !ok:
 		return m.styles.selectedInactive(ansi.Strip(line))
 	}
-	seq := theme.BackgroundSeq(p.Surface0)
+	bg := p.Surface0
+	seq := theme.BackgroundSeq(bg)
 	if strong {
-		seq = theme.BackgroundSeq(p.Surface1) + "\x1b[1m"
+		bg = p.Surface1
+		seq = theme.BackgroundSeq(bg) + "\x1b[1m"
 	}
-	return "\x1b[0m" + seq + dropBackgrounds(line, seq) + "\x1b[0m"
+	return "\x1b[0m" + seq + dropBackgrounds(line, seq, bg) + "\x1b[0m"
 }
