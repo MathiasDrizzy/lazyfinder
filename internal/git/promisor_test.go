@@ -40,9 +40,13 @@ func TestReadingAPartialCloneFetchesNothing(t *testing.T) {
 	} {
 		run(t, repo, "config", key, value)
 	}
-	_, _, _ = Read(repo)
+	// The read fails closed, and says what git said, not only its exit status.
+	if _, _, err := Read(repo); err == nil || !strings.Contains(err.Error(), "exit status 128: ") {
+		t.Errorf("Read = %v, want the failure with git's message", err)
+	}
 	_, _ = Diff(repo, Change{Path: "new.txt", Code: Renamed, Orig: "old.txt"}, true)
 	if got := ran(t, marks); len(got) > 0 {
 		t.Fatalf("reading a partial clone fetched from its promisor remote: %v", got)
 	}
 }
+

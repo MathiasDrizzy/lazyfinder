@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -106,7 +107,12 @@ func gitEnv(ctx context.Context, dir string, env []string, args ...string) ([]by
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = dir
 	cmd.Env = append(append(cmd.Environ(), "LC_ALL=C", "GIT_OPTIONAL_LOCKS=0"), env...)
-	return cmd.Output()
+	out, err := cmd.Output()
+	var ee *exec.ExitError
+	if errors.As(err, &ee) && len(bytes.TrimSpace(ee.Stderr)) > 0 { // say what git said, not only "exit status 128"
+		return out, fmt.Errorf("%w: %s", err, firstLines(string(bytes.TrimSpace(ee.Stderr)), 1))
+	}
+	return out, err
 }
 
 func parse(out []byte) Status {
