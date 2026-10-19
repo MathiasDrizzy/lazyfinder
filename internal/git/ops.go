@@ -50,7 +50,7 @@ const (
 	maxDiffBytes   = 256 << 10
 )
 
-// exec runs git for an operation that may change the repository. Prompts are off: a credential question would hang a
+// do runs git for an operation that may change the repository. Prompts are off: a credential question would hang a
 // terminal app that has no place to show it. The error carries what git said.
 func do(timeout time.Duration, dir string, args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -84,6 +84,10 @@ func firstLines(s string, n int) string {
 	return strings.Join(lines, " · ")
 }
 
+// literal makes a path a pathspec that names that file only: without it *, ? and [..] in a name are patterns, and
+// discarding the untracked "[ab].txt" cleaned a.txt and b.txt too.
+func literal(p string) string { return ":(literal)" + p }
+
 // cleanPath refuses anything that is not a path inside the repository.
 func cleanPath(p string) (string, error) {
 	c := filepath.ToSlash(filepath.Clean(filepath.FromSlash(p)))
@@ -101,7 +105,7 @@ func Stage(root string, paths ...string) error {
 		if err != nil {
 			return err
 		}
-		args = append(args, c)
+		args = append(args, literal(c))
 	}
 	_, err := do(writeTimeout, root, args...)
 	return err
@@ -124,7 +128,7 @@ func Unstage(root string, paths ...string) error {
 		if err != nil {
 			return err
 		}
-		args = append(args, c)
+		args = append(args, literal(c))
 	}
 	_, err := do(writeTimeout, root, args...)
 	return err
@@ -139,11 +143,11 @@ func Discard(root string, c Change) error {
 	}
 	switch c.Code {
 	case Untracked:
-		_, err = do(writeTimeout, root, "clean", "-f", "--", p)
+		_, err = do(writeTimeout, root, "clean", "-f", "--", literal(p))
 	case Conflicted:
 		return errors.New("resolve the conflict first")
 	default:
-		_, err = do(writeTimeout, root, "restore", "--", p)
+		_, err = do(writeTimeout, root, "restore", "--", literal(p))
 	}
 	return err
 }
@@ -159,11 +163,11 @@ func Diff(root string, c Change, staged bool) (string, error) {
 	args := append(readOnly(ctx, root), "diff", "--no-color", "--no-ext-diff", "--no-textconv", "--ignore-submodules=dirty")
 	switch {
 	case staged:
-		args = append(args, "--cached", "--", p)
+		args = append(args, "--cached", "--", literal(p))
 	case c.Code == Untracked:
 		args = append(args, "--no-index", "--", os.DevNull, p)
 	default:
-		args = append(args, "--", p)
+		args = append(args, "--", literal(p))
 	}
 	out, err := do(writeTimeout, root, args...)
 	if c.Code == Untracked && out != "" {
