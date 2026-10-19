@@ -8,6 +8,9 @@ import (
 // An undo that fails halfway (a folder that cannot be written for a moment) used to stay on the stack as it was, so
 // the next try moved the items it had already put back again, failed on them, and the rest could never come back.
 func TestAnUndoThatFailsHalfwayResumesWhereItStopped(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root writes into a read-only folder")
+	}
 	w := newWorld(t)
 	w.put("dst/b.txt", "beta")
 	w.must(w.ops.Trash([]string{w.path("src/a.txt"), w.path("dst/b.txt")}))

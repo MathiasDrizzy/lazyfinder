@@ -19,19 +19,19 @@ func TestACopyReportsItsBytesAndStopsWhenCancelled(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	calls := 0
-	_, err = w.ops.CopyContext(ctx, []string{w.path("src/a.txt"), w.path("src/tree")}, w.dst, func(int64) {
-		if calls++; calls == 1 {
+	made, err = w.ops.CopyContext(ctx, []string{w.path("src/a.txt"), w.path("src/tree")}, w.dst, func(int64) {
+		if calls++; calls == 2 { // the first bytes of tree: a.txt is whole by then
 			cancel()
 		}
 	})
-	if !errors.Is(err, context.Canceled) {
-		t.Fatalf("err = %v, want context.Canceled", err)
+	if !errors.Is(err, context.Canceled) || len(made) != 1 || !w.exists("dst/a.txt") {
+		t.Fatalf("made=%v err=%v, want a.txt copied and then context.Canceled", made, err)
 	}
 	if w.exists("dst/tree copy") {
 		t.Fatal("the cancelled copy left a half copy")
 	}
-	if _, err := w.ops.Undo(); err != nil || w.exists("dst/a.txt") {
-		t.Fatalf("the item copied before the cancel must be undoable: %v", err)
+	if _, err := w.ops.Undo(); err != nil || w.exists("dst/a.txt") || !w.exists("dst/tree") {
+		t.Fatalf("the undo must take back a.txt, copied before the cancel, and only it: %v", err)
 	}
 }
 
