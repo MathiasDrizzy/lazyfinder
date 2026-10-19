@@ -269,7 +269,7 @@ func (m *Model) change(i, dir int) tea.Cmd {
 func (m *Model) settingsKey(key string, act keymap.Action) tea.Cmd {
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case key == "esc" || act == keymap.Settings:
 		m.set = settingsState{}
 	case act == keymap.Up:

@@ -433,7 +433,7 @@ func (m *Model) run(c opener.Command) tea.Cmd {
 	if c.Mode == config.ModeTerminal {
 		cmd := exec.Command(c.Argv[0], c.Argv[1:]...)
 		cmd.Dir = c.Dir
-		return tea.ExecProcess(cmd, func(err error) tea.Msg { return execDoneMsg{err: err} })
+		return m.handOver(cmd)
 	}
 	if err := m.resolve.Open(m.deps.Runner, c); err != nil {
 		m.setError(err)

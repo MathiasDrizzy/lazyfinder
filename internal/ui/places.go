@@ -217,7 +217,7 @@ func (m *Model) ctxKey(key string, act keymap.Action) tea.Cmd {
 	n := len(m.ctx.items)
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case key == "esc":
 		m.ctx = ctxState{}
 	case act == keymap.Up:

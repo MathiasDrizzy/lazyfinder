@@ -14,7 +14,7 @@ var sortCycle = []fsmodel.Column{fsmodel.ColName, fsmodel.ColModified, fsmodel.C
 func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 	key := k.String()
 	if key == "ctrl+c" {
-		return tea.Quit
+		return m.quit()
 	}
 	m.setStatus("")
 	act, _ := m.keys.Lookup(key)
@@ -89,7 +89,7 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		}
 		return m.openGitMenu()
 	case keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case keymap.Up:
 		return m.setSelection(wrap(m.sel-1, len(m.entries())))
 	case keymap.Down:
@@ -196,7 +196,7 @@ func (m *Model) sidebarKey(key string, act keymap.Action) tea.Cmd {
 	}
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case act == keymap.Up:
 		m.sideSel = wrap(m.sideSel-1, len(dests))
 	case act == keymap.Down:

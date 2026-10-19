@@ -66,5 +66,5 @@ func (m *Model) openLazygit() tea.Cmd {
 	}
 	cmd := exec.Command(p)
 	cmd.Dir = m.git.st.Root
-	return tea.ExecProcess(cmd, func(err error) tea.Msg { return execDoneMsg{err: err} })
+	return m.handOver(cmd)
 }

@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"os/exec"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
@@ -82,6 +83,17 @@ func (m *Model) closePreview() tea.Cmd {
 	return nil
 }
 
+// quit leaves lazyfinder. An image of the preview is deleted first: it lives in the terminal, not in the frame, and
+// would stay drawn over the shell.
+func (m *Model) quit() tea.Cmd {
+	return tea.Sequence(m.closePreview(), tea.Quit)
+}
+
+// handOver gives the terminal to a program (an editor, lazygit) once the preview and its image are gone.
+func (m *Model) handOver(cmd *exec.Cmd) tea.Cmd {
+	return tea.Sequence(m.closePreview(), tea.ExecProcess(cmd, func(err error) tea.Msg { return execDoneMsg{err: err} }))
+}
+
 // refreshPreview (re)starts loading the preview of the selection; stale loads are cancelled and their results ignored.
 func (m *Model) refreshPreview() tea.Cmd {
 	if !m.pv.open {
@@ -155,7 +167,7 @@ func (m *Model) onImage(msg imageMsg) tea.Cmd {
 func (m *Model) previewKey(key string, act keymap.Action) tea.Cmd {
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case key == "esc" || act == keymap.Preview:
 		return m.closePreview()
 	case act == keymap.Up:
@@ -317,7 +329,7 @@ func (m *Model) menuKey(key string, act keymap.Action) tea.Cmd {
 	n := len(m.menu.items)
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case key == "esc" || act == keymap.OpenWith:
 		m.menu = menuState{}
 	case act == keymap.Up:

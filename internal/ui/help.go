@@ -92,7 +92,7 @@ func (m *Model) helpKey(key string, act keymap.Action) tea.Cmd {
 	n := len(m.helpRows()) - m.helpRowsShown()
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case key == "esc" || act == keymap.Help:
 		m.help = helpState{}
 	case act == keymap.Up:

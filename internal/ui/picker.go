@@ -69,7 +69,7 @@ func (m *Model) pickerKey(key string, act keymap.Action) tea.Cmd {
 	n := len(m.picker.items)
 	switch {
 	case act == keymap.Quit:
-		return tea.Quit
+		return m.quit()
 	case key == "esc":
 		m.picker = pickerState{}
 	case act == keymap.Up:
