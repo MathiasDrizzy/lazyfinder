@@ -6,7 +6,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
 
-// redo does again what the last undo reversed.
+// redo does again what the last undo reversed, apart from the UI like a paste, since it may copy as much.
 func (m *Model) redo() tea.Cmd {
 	if !m.canWrite() {
 		return nil
@@ -15,12 +15,7 @@ func (m *Model) redo() tea.Cmd {
 		m.setStatus(i18n.T("No hay nada que rehacer", "Nothing to redo"))
 		return nil
 	}
-	if _, err := m.ops.Redo(); err != nil {
-		m.setError(err)
-	} else {
-		m.setStatus(i18n.T("Rehecho", "Redone"))
-	}
-	return m.refresh("")
+	return m.runOp(opRedo, nil, "")
 }
 
 // showHistory lists what u can undo, the next one first, and then what U can redo. It only shows: the keys act.

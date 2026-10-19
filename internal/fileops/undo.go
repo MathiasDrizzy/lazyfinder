@@ -1,6 +1,7 @@
 package fileops
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"slices"
@@ -26,7 +27,7 @@ type step struct {
 	kind    Kind
 	subject string // what it acted on: a quoted name or "N items"
 	undo    func() error
-	redo    func() error
+	redo    func(ctx context.Context, onBytes Progress) error
 }
 
 func (s step) desc() string { return fmt.Sprintf("%s of %s", s.kind, s.subject) }
@@ -84,10 +85,13 @@ func (o *Ops) Undo() (string, error) {
 	return s.desc(), nil
 }
 
-// Redo does again the operation the last undo reversed, and returns what it redid. It runs the operation without
-// the lock, which records its own step. A redo that fails stays to redo, unless it did part of its work: that part is
-// then an operation to undo.
-func (o *Ops) Redo() (string, error) {
+// Redo does again the operation the last undo reversed, and returns what it redid.
+func (o *Ops) Redo() (string, error) { return o.RedoContext(context.Background(), nil) }
+
+// RedoContext is Redo that tells onBytes what a copy writes and stops once ctx is cancelled, the way CopyContext
+// does. It runs the operation without the lock, which records its own step. A redo that fails stays to redo, unless
+// it did part of its work: that part is then an operation to undo.
+func (o *Ops) RedoContext(ctx context.Context, onBytes Progress) (string, error) {
 	o.mu.Lock()
 	if len(o.redo) == 0 {
 		o.mu.Unlock()
@@ -99,7 +103,7 @@ func (o *Ops) Redo() (string, error) {
 	before := o.pushed
 	o.mu.Unlock()
 
-	err := s.redo()
+	err := s.redo(ctx, onBytes)
 
 	o.mu.Lock()
 	defer o.mu.Unlock()

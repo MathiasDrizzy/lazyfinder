@@ -1,6 +1,8 @@
 package fileops
 
 import (
+	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -89,5 +91,24 @@ func TestHistoryListsTheUndosAndTheRedos(t *testing.T) {
 	}
 	if filepath.Base(w.path("dst/one")) != "one" || !w.exists("dst/one") {
 		t.Fatal("setup")
+	}
+}
+
+// Redoing a copy can take as long as the copy: RedoContext reports its bytes and stops when cancelled. Cancelled
+// before it wrote anything, the copy stays to redo.
+func TestARedoOfACopyReportsItsBytesAndCanBeCancelled(t *testing.T) {
+	w := newWorld(t)
+	_, err := w.ops.Copy([]string{w.path("src/tree")}, w.dst)
+	w.must(err)
+	_, err = w.ops.Undo()
+	w.must(err)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := w.ops.RedoContext(ctx, nil); !errors.Is(err, context.Canceled) || !w.ops.CanRedo() {
+		t.Fatalf("cancelled redo: %v, can redo %v", err, w.ops.CanRedo())
+	}
+	var got int64
+	if _, err := w.ops.RedoContext(context.Background(), func(n int64) { got += n }); err != nil || got == 0 {
+		t.Fatalf("redo: %v, bytes %d", err, got)
 	}
 }

@@ -47,3 +47,31 @@ func TestHWithoutHistory(t *testing.T) {
 		t.Fatalf("open %v, status %q", e.m.picker.open, e.m.status)
 	}
 }
+
+// A redo can copy as much as a paste, so it runs apart from the UI the same way: the status line shows it, Esc can
+// cancel it, and no other change to the files starts until it ends.
+func TestARedoRunsApartFromTheUI(t *testing.T) {
+	e := newEnv(t)
+	e.pick("notes.txt")
+	e.key("c")
+	e.key("p")
+	e.key("u")
+	cmd := e.m.onKey(keyMsg("U"))
+	if !e.m.op.busy || !strings.Contains(e.m.status, "Redoing") || cmd == nil {
+		t.Fatalf("redo: busy %v, status %q", e.m.op.busy, e.m.status)
+	}
+	if e.m.onKey(keyMsg("N")); !strings.Contains(e.m.status, "Wait") {
+		t.Fatalf("a change during the redo: %q", e.m.status)
+	}
+	for _, msg := range flatten(cmd) {
+		if done, ok := msg.(opDoneMsg); ok {
+			e.send(done)
+		}
+	}
+	if e.m.op.busy || !strings.Contains(e.m.status, "Redone") {
+		t.Fatalf("after the redo: busy %v, status %q", e.m.op.busy, e.m.status)
+	}
+	if _, err := os.Stat(filepath.Join(e.root, "notes copy.txt")); err != nil {
+		t.Fatal("the redo did not copy again:", err)
+	}
+}

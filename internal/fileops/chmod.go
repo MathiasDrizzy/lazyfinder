@@ -1,6 +1,7 @@
 package fileops
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -69,7 +70,7 @@ func (o *Ops) Chmod(paths []string, perm fs.FileMode) error {
 				errs = append(errs, os.Chmod(c.path, c.old))
 			}
 			return errors.Join(errs...)
-		}, redo: func() error { return o.Chmod(names, perm) }})
+		}, redo: func(context.Context, Progress) error { return o.Chmod(names, perm) }})
 	}
 	return firstErr
 }

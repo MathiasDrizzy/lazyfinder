@@ -38,7 +38,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `n` | New empty file (the name is asked, `untitled file` by default) | `new_file` |
 | `d`, `Delete` | Move to the Trash (asks above `ops.confirm_trash_above` items) | `trash` |
 | `u`, `ctrl+z` | Undo the last operation | `undo` |
-| `U`, `ctrl+r` | Redo what the last undo reversed; a new operation drops what could be redone | `redo` |
+| `U`, `ctrl+r` | Redo what the last undo reversed; a new operation drops what could be redone. A redo runs apart from the UI like a paste, and `esc` cancels it | `redo` |
 | `H` | History: what `u` can undo, the next one first, and then what `U` can redo | `history` |
 | `i` | Get Info popup | `info` |
 | `r` | Reload the folder | `reload` |

@@ -27,6 +27,7 @@ const (
 	opCopy opKind = iota
 	opMove
 	opDuplicate
+	opRedo // the last undo done again, which may be a copy or a move as long as the first
 )
 
 // opState is a copy or a move running apart from the UI: its progress shows in the status line, Esc cancels it, and
@@ -64,6 +65,10 @@ func (m *Model) runOp(kind opKind, paths []string, dstDir string) tea.Cmd {
 		defer cancel()
 		onBytes := func(n int64) { done.Add(n) }
 		msg := opDoneMsg{kind: kind, paths: paths}
+		if kind == opRedo {
+			_, msg.err = ops.RedoContext(ctx, onBytes)
+			return msg
+		}
 		if kind == opMove {
 			msg.made, msg.err = ops.MoveContext(ctx, paths, dstDir, onBytes)
 			return msg
@@ -88,7 +93,10 @@ func (m *Model) opProgress() string {
 	case opDuplicate:
 		format = i18n.T("Duplicando %s…", "Duplicating %s…")
 	}
-	text := fmt.Sprintf(format, subject(m.op.paths))
+	text := i18n.T("Rehaciendo…", "Redoing…")
+	if m.op.kind != opRedo {
+		text = fmt.Sprintf(format, subject(m.op.paths))
+	}
 	if total := m.op.total.Load(); total > 0 {
 		done := min(m.op.done.Load(), total)
 		full := int(done * progressWidth / total)
@@ -123,6 +131,8 @@ func (m *Model) onOpDone(msg opDoneMsg) tea.Cmd {
 		m.setStatus(i18n.T("Cancelado", "Cancelled"))
 	case msg.err != nil:
 		m.setError(msg.err)
+	case msg.kind == opRedo:
+		m.setStatus(i18n.T("Rehecho", "Redone"))
 	case msg.kind == opDuplicate:
 		m.setStatus(fmt.Sprintf(i18n.T("Duplicado: %s", "Duplicated %s"), subject(msg.paths)))
 	default:

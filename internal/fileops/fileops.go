@@ -129,8 +129,8 @@ func (o *Ops) CopyContext(ctx context.Context, srcs []string, dstDir string, onB
 			n, err := o.discard(created)
 			created = created[n:] // a failed undo is tried again from the first copy still there
 			return err
-		}, redo: func() error {
-			_, err := o.CopyContext(context.Background(), copied, dstDir, nil)
+		}, redo: func(ctx context.Context, onBytes Progress) error {
+			_, err := o.CopyContext(ctx, copied, dstDir, onBytes)
 			return err
 		}})
 	}
@@ -302,8 +302,8 @@ func (o *Ops) MoveContext(ctx context.Context, srcs []string, dstDir string, onB
 				backs = append(backs, back)
 			}
 			return nil
-		}, redo: func() error {
-			_, err := o.Move(backs, dstDir)
+		}, redo: func(ctx context.Context, onBytes Progress) error {
+			_, err := o.MoveContext(ctx, backs, dstDir, onBytes)
 			return err
 		}})
 	}
@@ -357,7 +357,7 @@ func (o *Ops) Rename(path, name string) (string, error) {
 			return fmt.Errorf("%q exists again", filepath.Base(path))
 		}
 		return renameNoReplace(dst, path)
-	}, redo: func() error {
+	}, redo: func(context.Context, Progress) error {
 		_, err := o.Rename(path, name)
 		return err
 	}})
@@ -376,7 +376,7 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 	if err := os.Mkdir(p, 0o755); err != nil {
 		return "", err
 	}
-	o.push(step{kind: KindMkdir, subject: fmt.Sprintf("%q", name), redo: func() error {
+	o.push(step{kind: KindMkdir, subject: fmt.Sprintf("%q", name), redo: func(context.Context, Progress) error {
 		_, err := o.Mkdir(dir, name)
 		return err
 	}, undo: func() error {
@@ -406,7 +406,7 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 	if err := f.Close(); err != nil {
 		return "", err
 	}
-	o.push(step{kind: KindTouch, subject: fmt.Sprintf("%q", name), redo: func() error {
+	o.push(step{kind: KindTouch, subject: fmt.Sprintf("%q", name), redo: func(context.Context, Progress) error {
 		_, err := o.Touch(dir, name)
 		return err
 	}, undo: func() error {
@@ -443,7 +443,7 @@ func (o *Ops) Trash(paths []string) error {
 				}
 			}
 			return nil
-		}, redo: func() error { return o.Trash(backs) }})
+		}, redo: func(context.Context, Progress) error { return o.Trash(backs) }})
 	}
 	return err
 }
