@@ -26,7 +26,7 @@ All notable changes to this project are documented here. The format follows
 
 - Quitting, a SIGHUP or handing the terminal to another program no longer leaves a preview image over the shell or
   the terminal in raw mode. SIGHUP, SIGTERM and SIGINT stop a paste under way first, so it leaves no half copy, and a
-  hangup while an editor has the terminal waits for it to close.
+  hangup while an editor has the terminal waits for it to close. A repeated signal still ends a lazyfinder that hangs.
 - Paste and Duplicate no longer freeze the program on a big copy: they run apart, show the bytes copied in the status
   line, and `esc` cancels without leaving a half copy. Get Info counts a folder apart ("Counting…") instead of
   freezing on a big one.
