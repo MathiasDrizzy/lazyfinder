@@ -63,7 +63,7 @@ func (o *Ops) Chmod(paths []string, perm fs.FileMode) error {
 		for i, c := range done {
 			names[i] = c.path
 		}
-		o.push(step{kind: KindChmod, subject: describe(names), undo: func() error {
+		o.push(step{kind: KindChmod, subject: describe(names), undo: func(context.Context, Progress) error {
 			var errs []error
 			for _, c := range done {
 				errs = append(errs, chmodNoFollow(c.path, c.old))

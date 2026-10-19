@@ -26,7 +26,7 @@ const (
 type step struct {
 	kind    Kind
 	subject string // what it acted on: a quoted name or "N items"
-	undo    func() error
+	undo    func(ctx context.Context, onBytes Progress) error
 	redo    func(ctx context.Context, onBytes Progress) error
 }
 
@@ -68,23 +68,36 @@ func (o *Ops) push(s step) {
 }
 
 // Undo reverses the last operation and returns what it undid. The operation can then be redone.
-func (o *Ops) Undo() (string, error) { return o.undoLast(true) }
+func (o *Ops) Undo() (string, error) { return o.UndoContext(context.Background(), nil) }
+
+// UndoContext is Undo that tells onBytes what a move back across volumes writes and stops once ctx is cancelled. It
+// runs the undo without the lock, like RedoContext; one that fails or stops stays to undo, from where it stopped.
+func (o *Ops) UndoContext(ctx context.Context, onBytes Progress) (string, error) {
+	return o.undoLast(ctx, onBytes, true)
+}
 
 // Retract undoes the last change and forgets it, with nothing to redo: for a change the user takes back before it is
 // done, as Esc on the name of a new folder.
-func (o *Ops) Retract() (string, error) { return o.undoLast(false) }
+func (o *Ops) Retract() (string, error) { return o.undoLast(context.Background(), nil, false) }
 
-func (o *Ops) undoLast(redoable bool) (string, error) {
+func (o *Ops) undoLast(ctx context.Context, onBytes Progress, redoable bool) (string, error) {
 	o.mu.Lock()
-	defer o.mu.Unlock()
 	if len(o.undo) == 0 {
+		o.mu.Unlock()
 		return "", errors.New("nothing to undo")
 	}
 	s := o.undo[len(o.undo)-1]
-	if err := s.undo(); err != nil {
+	o.undo = o.undo[:len(o.undo)-1]
+	o.mu.Unlock()
+
+	err := s.undo(ctx, onBytes)
+
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if err != nil {
+		o.undo = append(o.undo, s)
 		return "", fmt.Errorf("undo %s: %w", s.desc(), err)
 	}
-	o.undo = o.undo[:len(o.undo)-1]
 	if redoable && s.redo != nil {
 		o.redo = append(o.redo, s)
 	}

@@ -288,14 +288,8 @@ func (m *Model) startTrash() tea.Cmd {
 	return m.trash(ps)
 }
 
-func (m *Model) trash(ps []string) tea.Cmd {
-	if err := m.ops.Trash(ps); err != nil {
-		m.setError(err)
-	} else {
-		m.setStatus(fmt.Sprintf(i18n.T("%s enviado a la Papelera", "Moved %s to the Trash"), subject(ps)))
-	}
-	return m.refresh("")
-}
+// trash runs apart from the UI like a paste: a Trash on another volume copies.
+func (m *Model) trash(ps []string) tea.Cmd { return m.runOp(opTrash, ps, "") }
 
 func (m *Model) undo() tea.Cmd {
 	if !m.canWrite() {
@@ -305,12 +299,7 @@ func (m *Model) undo() tea.Cmd {
 		m.setStatus(i18n.T("No hay nada que deshacer", "Nothing to undo"))
 		return nil
 	}
-	if _, err := m.ops.Undo(); err != nil {
-		m.setError(err)
-	} else {
-		m.setStatus(i18n.T("Deshecho", "Undone"))
-	}
-	return m.refresh("")
+	return m.runOp(opUndo, nil, "") // apart from the UI: it may move as much back as a paste moved
 }
 
 // promptKey edits the prompt on the bottom row.

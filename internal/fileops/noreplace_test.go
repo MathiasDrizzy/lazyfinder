@@ -1,6 +1,7 @@
 package fileops
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"testing"
@@ -11,7 +12,7 @@ import (
 func TestMoveNeverReplacesAFileThatAppearedAtTheTarget(t *testing.T) {
 	w := newWorld(t)
 	w.put("dst/a.txt", "theirs")
-	err := move(w.path("src/a.txt"), w.path("dst/a.txt"))
+	err := moveContext(context.Background(), w.path("src/a.txt"), w.path("dst/a.txt"), nil)
 	if !errors.Is(err, fs.ErrExist) {
 		t.Fatalf("err = %v, want fs.ErrExist", err)
 	}

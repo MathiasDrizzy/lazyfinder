@@ -27,10 +27,12 @@ const (
 	opCopy opKind = iota
 	opMove
 	opDuplicate
-	opRedo // the last undo done again, which may be a copy or a move as long as the first
+	opRedo  // the last undo done again, which may be a copy or a move as long as the first
+	opTrash // to the Trash, which copies when the Trash is on another volume
+	opUndo  // the last operation reversed, which may move as much back
 )
 
-// opState is a copy or a move running apart from the UI: its progress shows in the status line, Esc cancels it, and
+// opState is a copy, a move, a trash or an undo running apart from the UI: its progress shows in the status line, Esc cancels it, and
 // no other change to the files starts until it ends.
 type opState struct {
 	busy   bool
@@ -65,8 +67,15 @@ func (m *Model) runOp(kind opKind, paths []string, dstDir string) tea.Cmd {
 		defer cancel()
 		onBytes := func(n int64) { done.Add(n) }
 		msg := opDoneMsg{kind: kind, paths: paths}
-		if kind == opRedo {
+		switch kind {
+		case opRedo:
 			_, msg.err = ops.RedoContext(ctx, onBytes)
+			return msg
+		case opUndo:
+			_, msg.err = ops.UndoContext(ctx, onBytes)
+			return msg
+		case opTrash:
+			msg.err = ops.TrashContext(ctx, paths, onBytes)
 			return msg
 		}
 		if kind == opMove {
@@ -93,8 +102,15 @@ func (m *Model) opProgress() string {
 	case opDuplicate:
 		format = i18n.T("Duplicando %s…", "Duplicating %s…")
 	}
-	text := i18n.T("Rehaciendo…", "Redoing…")
-	if m.op.kind != opRedo {
+	var text string
+	switch m.op.kind {
+	case opRedo:
+		text = i18n.T("Rehaciendo…", "Redoing…")
+	case opUndo:
+		text = i18n.T("Deshaciendo…", "Undoing…")
+	case opTrash:
+		text = fmt.Sprintf(i18n.T("Enviando %s a la Papelera…", "Moving %s to the Trash…"), subject(m.op.paths))
+	default:
 		text = fmt.Sprintf(format, subject(m.op.paths))
 	}
 	if total := m.op.total.Load(); total > 0 {
@@ -133,6 +149,10 @@ func (m *Model) onOpDone(msg opDoneMsg) tea.Cmd {
 		m.setError(msg.err)
 	case msg.kind == opRedo:
 		m.setStatus(i18n.T("Rehecho", "Redone"))
+	case msg.kind == opUndo:
+		m.setStatus(i18n.T("Deshecho", "Undone"))
+	case msg.kind == opTrash:
+		m.setStatus(fmt.Sprintf(i18n.T("%s enviado a la Papelera", "Moved %s to the Trash"), subject(msg.paths)))
 	case msg.kind == opDuplicate:
 		m.setStatus(fmt.Sprintf(i18n.T("Duplicado: %s", "Duplicated %s"), subject(msg.paths)))
 	default:

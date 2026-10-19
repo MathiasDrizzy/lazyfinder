@@ -138,8 +138,8 @@ func (o *Ops) CopyContext(ctx context.Context, srcs []string, dstDir string, onB
 	if len(made) > 0 {
 		created := slices.Clone(made)
 		copied := slices.Clone(srcs[:len(made)])
-		o.push(step{kind: KindCopy, subject: describe(created), undo: func() error {
-			n, err := o.discard(created)
+		o.push(step{kind: KindCopy, subject: describe(created), undo: func(ctx context.Context, onBytes Progress) error {
+			n, err := o.discard(ctx, created, onBytes)
 			created = created[n:] // a failed undo is tried again from the first copy still there
 			return err
 		}, redo: func(ctx context.Context, onBytes Progress) error {
@@ -152,8 +152,8 @@ func (o *Ops) CopyContext(ctx context.Context, srcs []string, dstDir string, onB
 
 // discard trashes paths without recording an undo step: it is how an undo gets rid of what it had made. It returns
 // how many of paths, from the first, went to the trash.
-func (o *Ops) discard(paths []string) (int, error) {
-	done, err := o.toTrash(paths)
+func (o *Ops) discard(ctx context.Context, paths []string, onBytes Progress) (int, error) {
+	done, err := o.toTrash(ctx, paths, onBytes)
 	return len(done), err
 }
 
@@ -235,11 +235,14 @@ func (o *Ops) MoveContext(ctx context.Context, srcs []string, dstDir string, onB
 	if len(done) > 0 {
 		left := len(done) // a failed undo is tried again from the item it stopped at
 		var backs []string
-		o.push(step{kind: KindMove, subject: describe(made), undo: func() error {
+		o.push(step{kind: KindMove, subject: describe(made), undo: func(ctx context.Context, onBytes Progress) error {
 			for ; left > 0; left-- {
+				if err := ctx.Err(); err != nil {
+					return err
+				}
 				p := done[left-1]
 				back := filepath.Join(filepath.Dir(p.from), UniqueName(filepath.Dir(p.from), filepath.Base(p.from)))
-				if err := move(p.to, back); err != nil {
+				if err := moveContext(ctx, p.to, back, onBytes); err != nil {
 					return err
 				}
 				backs = append(backs, back)
@@ -253,9 +256,7 @@ func (o *Ops) MoveContext(ctx context.Context, srcs []string, dstDir string, onB
 	return made, firstErr
 }
 
-// move renames src to dst, or copies and then removes it when they are on different file systems.
-func move(src, dst string) error { return moveContext(context.Background(), src, dst, nil) }
-
+// moveContext renames src to dst, or copies and then removes it when they are on different file systems.
 func moveContext(ctx context.Context, src, dst string, onBytes Progress) error {
 	err := renameNoReplace(src, dst)
 	if err == nil || !errors.Is(err, syscall.EXDEV) {
@@ -295,7 +296,7 @@ func (o *Ops) Rename(path, name string) (string, error) {
 	if err := renameNoReplace(path, dst); err != nil {
 		return "", err
 	}
-	o.push(step{kind: KindRename, subject: fmt.Sprintf("%q", filepath.Base(path)), undo: func() error {
+	o.push(step{kind: KindRename, subject: fmt.Sprintf("%q", filepath.Base(path)), undo: func(context.Context, Progress) error {
 		if exists(path) {
 			return fmt.Errorf("%q exists again", filepath.Base(path))
 		}
@@ -322,7 +323,7 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 	o.push(step{kind: KindMkdir, subject: fmt.Sprintf("%q", name), redo: func(context.Context, Progress) error {
 		_, err := o.Mkdir(dir, name)
 		return err
-	}, undo: func() error {
+	}, undo: func(ctx context.Context, onBytes Progress) error {
 		// Only the folder made here may go for good, and only empty: os.Remove would take a file that took its name.
 		if fi, err := os.Lstat(p); errors.Is(err, fs.ErrNotExist) {
 			return nil
@@ -331,7 +332,7 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 				return nil
 			}
 		}
-		_, err := o.discard([]string{p}) // it gained content or became something else since: keep it, in the trash
+		_, err := o.discard(ctx, []string{p}, onBytes) // it gained content or became something else since: keep it, in the trash
 		return err
 	}})
 	return p, nil
@@ -357,32 +358,39 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 	o.push(step{kind: KindTouch, subject: fmt.Sprintf("%q", name), redo: func(context.Context, Progress) error {
 		_, err := o.Touch(dir, name)
 		return err
-	}, undo: func() error {
+	}, undo: func(ctx context.Context, onBytes Progress) error {
 		if fi, err := os.Stat(p); err == nil && fi.Size() > 0 {
-			_, err := o.discard([]string{p})
+			_, err := o.discard(ctx, []string{p}, onBytes)
 			return err
 		}
 		if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
 			return nil
 		}
-		_, err := o.discard([]string{p})
+		_, err := o.discard(ctx, []string{p}, onBytes)
 		return err
 	}})
 	return p, nil
 }
 
 // Trash moves paths to the Trash folder, where nothing is lost: a name taken there gets a copy suffix.
-func (o *Ops) Trash(paths []string) error {
-	moved, err := o.toTrash(paths)
+func (o *Ops) Trash(paths []string) error { return o.TrashContext(context.Background(), paths, nil) }
+
+// TrashContext is Trash that tells onBytes what a move across volumes writes and stops once ctx is cancelled; the
+// items already in the trash then make the step to undo.
+func (o *Ops) TrashContext(ctx context.Context, paths []string, onBytes Progress) error {
+	moved, err := o.toTrash(ctx, paths, onBytes)
 	if len(moved) > 0 {
 		left := len(moved)        // a failed undo is tried again from the item it stopped at
 		var backs, stale []string // stale: .trashinfo files of items already back that could not be removed
-		o.push(step{kind: KindTrash, subject: describe(originals(moved)), undo: func() error {
+		o.push(step{kind: KindTrash, subject: describe(originals(moved)), undo: func(ctx context.Context, onBytes Progress) error {
 			for ; left > 0; left-- {
+				if err := ctx.Err(); err != nil {
+					return err
+				}
 				p := moved[left-1]
 				dir := filepath.Dir(p.from)
 				back := filepath.Join(dir, UniqueName(dir, filepath.Base(p.from)))
-				if err := move(p.to, back); err != nil {
+				if err := moveContext(ctx, p.to, back, onBytes); err != nil {
 					return err
 				}
 				backs = append(backs, back)
@@ -397,7 +405,7 @@ func (o *Ops) Trash(paths []string) error {
 			}
 			stale = kept
 			return errors.Join(errs...)
-		}, redo: func(context.Context, Progress) error { return o.Trash(backs) }})
+		}, redo: func(ctx context.Context, onBytes Progress) error { return o.TrashContext(ctx, backs, onBytes) }})
 	}
 	return err
 }
@@ -412,12 +420,15 @@ func originals(ms []moved) []string {
 	return out
 }
 
-func (o *Ops) toTrash(paths []string) ([]moved, error) {
+func (o *Ops) toTrash(ctx context.Context, paths []string, onBytes Progress) ([]moved, error) {
 	var done []moved
 	if err := os.MkdirAll(o.trashDir, 0o700); err != nil {
 		return nil, err
 	}
 	for _, p := range paths {
+		if err := ctx.Err(); err != nil {
+			return done, err
+		}
 		if filepath.Dir(p) == p || inside(o.trashDir, p) {
 			return done, fmt.Errorf("cannot trash %q", p)
 		}
@@ -429,7 +440,7 @@ func (o *Ops) toTrash(paths []string) ([]moved, error) {
 			return done, err
 		}
 		dst := filepath.Join(o.trashDir, name)
-		if err := move(p, dst); err != nil {
+		if err := moveContext(ctx, p, dst, onBytes); err != nil {
 			_ = dropInfo(info) // the item stayed where it was: its info would describe nothing
 			return done, err
 		}
