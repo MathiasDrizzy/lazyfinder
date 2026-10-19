@@ -39,6 +39,12 @@ All notable changes to this project are documented here. The format follows
 - Get Info shows the owner.
 - A `high-contrast` theme: every text color at 7:1 at least (WCAG AAA).
 - Fuzz tests for the frame sanitizer, the search query, the config parser and the zip end record.
+- A command palette on `:` and `ctrl+p`: every action, narrowed by a fuzzy match as you type.
+- Vim-style marks: `m` and a letter mark the folder, `'` lists the marks and goes to one. Kept in `marks.json`.
+- Redo with `U` or `ctrl+r`, and `H` lists what can be undone and redone.
+- `P` changes the permissions of the selection in octal, undoable.
+- The preview shows CSV and TSV files as tables.
+- A long copy draws a progress bar next to the bytes copied.
 
 ## [0.14.0] - 2026-10-15
 
