@@ -73,3 +73,24 @@ func TestWithoutAClipboardToolTheTerminalTakesTheCopy(t *testing.T) {
 		t.Fatalf("status %q", e.m.status)
 	}
 }
+
+// y copies the path of the selected row, or of every marked row one per line, like yy in ranger and lf.
+func TestYCopiesThePathOfTheSelectionOrOfTheMarkedRows(t *testing.T) {
+	e := newEnv(t)
+	got := e.copied()
+	e.pick("notes.txt")
+	e.key("y")
+	if len(*got) != 1 || (*got)[0] != filepath.Join(e.root, "notes.txt") {
+		t.Fatalf("copied %q", *got)
+	}
+	e.pick("alpha")
+	e.key("v")
+	e.pick("notes.txt")
+	e.key("v")
+	e.key("y")
+	want := filepath.Join(e.root, "alpha") + "\n" + filepath.Join(e.root, "notes.txt")
+	if len(*got) != 2 || (*got)[1] != want {
+		t.Fatalf("copied %q, want %q", (*got)[len(*got)-1], want)
+	}
+	e.mustHave("Copied 2 items")
+}

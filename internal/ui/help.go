@@ -56,6 +56,7 @@ func (m *Model) helpRows() []helpRow {
 		{i18n.T("arrastrar", "drag"), i18n.T("Los bordes; doble clic los ajusta al contenido", "The borders; a double click fits the content")},
 		{"", i18n.T("Archivos", "Files")},
 		{k(keymap.Copy) + " " + k(keymap.Cut) + " " + k(keymap.Paste), i18n.T("Copiar, cortar, pegar", "Copy, cut, paste")},
+		{k(keymap.CopyPath), i18n.T("Copiar la ruta al portapapeles", "Copy the path to the clipboard")},
 		{k(keymap.Rename) + "  " + k(keymap.Trash), i18n.T("Renombrar / enviar a la Papelera", "Rename / move to the Trash")},
 		{k(keymap.NewFile) + "  " + k(keymap.NewFolder), i18n.T("Archivo nuevo / carpeta nueva", "New file / new folder")},
 		{k(keymap.Undo), i18n.T("Deshacer", "Undo")},

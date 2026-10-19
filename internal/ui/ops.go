@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fileops"
@@ -110,6 +111,12 @@ func (m *Model) opsKey(act keymap.Action) (tea.Cmd, bool) {
 		return m.clip1(true), true
 	case keymap.Paste:
 		return m.paste(), true
+	case keymap.CopyPath:
+		ps := m.targets()
+		if len(ps) == 0 {
+			return nil, true
+		}
+		return m.copyText(strings.Join(ps, "\n"), subject(ps)), true
 	case keymap.Duplicate:
 		return m.duplicate(), true
 	case keymap.Rename:

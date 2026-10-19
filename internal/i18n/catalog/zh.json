@@ -231,6 +231,7 @@
  "Plain Text": "纯文本",
  "Points to": "指向",
  "Counting…": "正在计数…",
+ "Copy the path to the clipboard": "将路径复制到剪贴板",
  "Copying %s…": "正在复制 %s…",
  "Moving %s…": "正在移动 %s…",
  "Duplicating %s…": "正在复制副本 %s…",

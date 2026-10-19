@@ -231,6 +231,7 @@
  "Plain Text": "プレーンテキスト",
  "Points to": "リンク先",
  "Counting…": "数えています…",
+ "Copy the path to the clipboard": "パスをクリップボードにコピー",
  "Copying %s…": "%s をコピー中…",
  "Moving %s…": "%s を移動中…",
  "Duplicating %s…": "%s を複製中…",

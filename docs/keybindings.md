@@ -29,6 +29,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `ctrl+g` | Go to a folder: type a path (`~`, relative or absolute), `Tab` completes, `Enter` goes | `goto` |
 | `v`, `ctrl+a`, `esc` | Mark the row and move down, mark every row, clear the marks. Ctrl-click marks with the mouse | `mark` `mark_all` |
 | `c`, `x`, `p` or `ctrl+v` | Copy, cut, paste into the current folder (marked rows, else the selected one). A paste or a duplicate runs apart with its progress in the status line; `esc` cancels it and leaves no half copy, and quitting stops it first | `copy` `cut` `paste` |
+| `y` | Copy the path of the selected row, or of the marked rows one per line, to the clipboard | `copy_path` |
 | `D` | Duplicate in the same folder (`name copy.ext`) | `duplicate` |
 | `F2`, `R` | Rename the selected item | `rename` |
 | `N`, `ctrl+n` | New folder (the name is asked, `untitled folder` by default) | `new_folder` |

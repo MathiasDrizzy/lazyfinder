@@ -363,19 +363,22 @@ func inBox(x, y, bx, by int, box []string) bool {
 }
 
 // copyPath puts a folder of the breadcrumb on the clipboard and says so.
-// Without a clipboard tool, the terminal sets it (OSC 52).
-func (m *Model) copyPath(path string) tea.Cmd {
+func (m *Model) copyPath(path string) tea.Cmd { return m.copyText(path, path) }
+
+// copyText puts text on the clipboard and says it copied label. Without a clipboard tool, the terminal sets it
+// (OSC 52).
+func (m *Model) copyText(text, label string) tea.Cmd {
 	if m.deps.Copy == nil {
 		return nil
 	}
 	var cmd tea.Cmd
-	switch err := m.deps.Copy(path); {
+	switch err := m.deps.Copy(text); {
 	case errors.Is(err, sysclip.ErrNoTool):
-		cmd = tea.SetClipboard(path)
+		cmd = tea.SetClipboard(text)
 	case err != nil:
 		m.setError(fmt.Errorf(i18n.T("No se pudo copiar la ruta: %w", "Cannot copy the path: %w"), err))
 		return nil
 	}
-	m.setStatus(fmt.Sprintf(i18n.T("Copiado: %s", "Copied %s"), path))
+	m.setStatus(fmt.Sprintf(i18n.T("Copiado: %s", "Copied %s"), label))
 	return cmd
 }
