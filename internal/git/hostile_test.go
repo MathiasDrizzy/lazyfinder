@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -126,3 +127,19 @@ func TestAnOldGitSwitchesHostileSettingsOffOrRefuses(t *testing.T) {
 		t.Fatalf("an old git ran commands from the repository config: %v", got)
 	}
 }
+
+// readOnly took any failure of git config for "no such setting" and switched nothing off: a git older than 2.26,
+// which does not know --show-scope, exits 129, and status then ran the repository's fsmonitor. Only exit 1 means
+// there is nothing to switch off; any other failure stops the read.
+func TestReadOnlyFailsClosed(t *testing.T) {
+	repo, _ := hostile(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, _, err := readOnly(ctx, repo); err == nil {
+		t.Fatal("a git config that did not run must not mean there is nothing to switch off")
+	}
+	if args, env, err := readOnly(context.Background(), fixture(t)); err != nil || args != nil || env != nil {
+		t.Fatalf("a repository without such settings: %v, %v, %v", args, env, err)
+	}
+}
+

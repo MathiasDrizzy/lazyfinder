@@ -27,8 +27,12 @@ const commandKeys = `^(core\.fsmonitor|filter\..+\.(clean|smudge|process))$`
 // so the reads pass --ignore-submodules=dirty: git then compares the submodule's commit and never runs a status in it.
 func readOnly(ctx context.Context, dir string) (args, env []string, err error) {
 	out, err := git(ctx, dir, "config", "--includes", "--show-scope", "--name-only", "--get-regexp", commandKeys)
-	if err != nil {
-		return nil, nil, nil // exit 1: no such setting
+	var ee *exec.ExitError
+	if errors.As(err, &ee) && ee.ExitCode() == 1 {
+		return nil, nil, nil // no such setting
+	}
+	if err != nil { // a git older than 2.26 (no --show-scope), a timeout: what is on is unknown, so nothing is read
+		return nil, nil, fmt.Errorf("cannot tell which settings of the repository to switch off: %w", err)
 	}
 	var odd []string // keys with an =
 	for line := range strings.Lines(string(out)) {
