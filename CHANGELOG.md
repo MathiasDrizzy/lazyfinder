@@ -10,7 +10,8 @@ All notable changes to this project are documented here. The format follows
 
 - Looking at a folder no longer runs commands from the config of a git submodule inside it (core.fsmonitor and
   filters), and a file name with *, ? or [..] names only that file in git: discarding "[ab].txt" no longer deletes
-  a.txt and b.txt.
+  a.txt and b.txt. A filter whose name holds = is switched off too.
+- Bidi controls in a file name or previewed text show as �, so a name cannot be drawn with another extension.
 - A copy no longer follows an item swapped for a link while it runs, so it cannot read from or change the mode of
   what the link points to; and diff lines, stash messages, link targets and popup titles show their escape sequences
   as pictures.
@@ -35,7 +36,7 @@ All notable changes to this project are documented here. The format follows
 
 - Moving to the Trash and undoing run apart from the UI with progress and Esc, so a Trash on another volume no
   longer freezes the window; undoing a new folder never deletes a file that took its name; the Linux trash follows
-  XDG_DATA_HOME; a CSV with a byte order mark shows as a table.
+  XDG_DATA_HOME; a CSV with a byte order mark shows as a table; the diff of an untracked named pipe no longer hangs.
 - Quitting, a SIGHUP or handing the terminal to another program no longer leaves a preview image over the shell or
   the terminal in raw mode. SIGHUP, SIGTERM and SIGINT stop a paste under way first, so it leaves no half copy, and a
   hangup while an editor has the terminal waits for it to close. A repeated signal still ends a lazyfinder that hangs.
