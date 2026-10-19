@@ -263,9 +263,13 @@ func DefaultsFor(goos, home string) Config {
 	}
 }
 
-// trashDir is the Trash of the system: ~/.Trash on macOS, the XDG trash the desktop shows on Linux.
+// trashDir is the Trash of the system: ~/.Trash on macOS, the XDG trash the desktop shows on Linux, in
+// $XDG_DATA_HOME when it is set to an absolute path (the spec ignores a relative one).
 func trashDir(goos, home string) string {
 	if goos == "linux" {
+		if d := os.Getenv("XDG_DATA_HOME"); filepath.IsAbs(d) {
+			return filepath.Join(d, "Trash", "files")
+		}
 		return filepath.Join(home, ".local", "share", "Trash", "files")
 	}
 	return filepath.Join(home, ".Trash")

@@ -49,7 +49,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `watch.poll_interval_ms` | Polling period for folders beyond `watch.max_dirs` or that the system cannot watch | `2000` |
 | `search.max_results` | Most results a search collects before it stops and says so | `5000` |
 | `ops.confirm_trash_above` | Ask before trashing more than this many items at once; `0` asks always | `1` |
-| `ops.trash_dir` | Folder that receives trashed items (absolute or `~/…`). A folder `…/Trash/files` is an XDG trash: each item also gets its `.trashinfo` in `…/Trash/info`, so the desktop shows it and can put it back | `~/.Trash` on macOS, `~/.local/share/Trash/files` on Linux |
+| `ops.trash_dir` | Folder that receives trashed items (absolute or `~/…`). A folder `…/Trash/files` is an XDG trash: each item also gets its `.trashinfo` in `…/Trash/info`, so the desktop shows it and can put it back | `~/.Trash` on macOS, `$XDG_DATA_HOME/Trash/files` on Linux (`~/.local/share/Trash/files` when it is not set) |
 | `layout` | `list` (detail columns) or `columns` (parent, folder, preview); `M` toggles and saves it | `list` |
 | `commands` | Custom commands for the `!` menu, see below | none |
 | `search.scope` | where the search looks: `folder`, `subfolders` or `system` (the Spotlight index) | `folder` |
