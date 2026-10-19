@@ -669,7 +669,12 @@ func Update(path string, set map[string]any) error {
 	return writeAtomic(path, append(out, '\n'))
 }
 
+// writeAtomic replaces the file at path with data in one rename. When path is a link (a config kept with the
+// user's dotfiles), the file it points to is replaced and the link stays.
 func writeAtomic(path string, data []byte) error {
+	if real, err := filepath.EvalSymlinks(path); err == nil {
+		path = real
+	}
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return i18n.Errorf(`no se puede crear %s: %w`, `cannot create %s: %w`, dir, err)
@@ -680,6 +685,10 @@ func writeAtomic(path string, data []byte) error {
 	}
 	defer func() { _ = os.Remove(tmp.Name()) }() // a no-op after the rename
 	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return i18n.Errorf(`no se puede escribir la configuración: %w`, `cannot write config: %w`, err)
+	}
+	if err := tmp.Sync(); err != nil { // on disk before the rename, so a crash never leaves an empty config
 		_ = tmp.Close()
 		return i18n.Errorf(`no se puede escribir la configuración: %w`, `cannot write config: %w`, err)
 	}
