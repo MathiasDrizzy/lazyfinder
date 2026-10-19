@@ -64,8 +64,8 @@ func doEnv(timeout time.Duration, dir string, env []string, args ...string) (str
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = dir
 	cmd.Env = append(append(cmd.Environ(), "LC_ALL=C", "GIT_TERMINAL_PROMPT=0", "GIT_EDITOR=true"), env...)
-	var out, errb bytes.Buffer
-	cmd.Stdout, cmd.Stderr = &out, &errb
+	out, errb := &capped{max: maxDiffBytes + 1}, &capped{max: maxDiffBytes + 1}
+	cmd.Stdout, cmd.Stderr = out, errb
 	if err := cmd.Run(); err != nil {
 		msg := strings.TrimSpace(errb.String())
 		if msg == "" {
@@ -81,6 +81,22 @@ func doEnv(timeout time.Duration, dir string, env []string, args ...string) (str
 	}
 	return out.String(), nil
 }
+
+// capped keeps the first max bytes written to it and drops the rest, so a huge diff never sits in memory whole. The
+// buffer is a field, not embedded: an embedded bytes.Buffer brings ReadFrom, which io.Copy would use instead of Write.
+type capped struct {
+	buf bytes.Buffer
+	max int
+}
+
+func (c *capped) Write(p []byte) (int, error) {
+	if room := c.max - c.buf.Len(); room > 0 {
+		c.buf.Write(p[:min(len(p), room)])
+	}
+	return len(p), nil
+}
+
+func (c *capped) String() string { return c.buf.String() }
 
 func firstLines(s string, n int) string {
 	lines := strings.Split(s, "\n")

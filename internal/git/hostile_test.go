@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -143,3 +144,20 @@ func TestReadOnlyFailsClosed(t *testing.T) {
 	}
 }
 
+// Diff kept all of git's output and cut it afterwards: the diff of an untracked file of hundreds of MB held it in
+// memory twice. The output stops growing at the limit while git writes it.
+func TestTheDiffOfAHugeFileStaysSmallInMemory(t *testing.T) {
+	repo := fixture(t)
+	put(t, filepath.Join(repo, "big.txt"), strings.Repeat("a line of text\n", 2<<20)) // 30 MB
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	d, err := Diff(repo, Change{Path: "big.txt", Code: Untracked}, false)
+	runtime.ReadMemStats(&after)
+	if err != nil || len(d) > maxDiffBytes+32 {
+		t.Fatalf("diff: %d bytes, %v", len(d), err)
+	}
+	if grew := after.TotalAlloc - before.TotalAlloc; grew > 8<<20 {
+		t.Fatalf("the diff allocated %d MB", grew>>20)
+	}
+}
