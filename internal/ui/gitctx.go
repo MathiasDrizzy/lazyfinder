@@ -50,7 +50,7 @@ func (m *Model) gitContextItems(idx int, e fsmodel.Entry) []ctxItem {
 	if len(unstaged) > 0 {
 		c := unstaged[0]
 		items = append(items, ctxItem{i18n.T("Descartar cambios", "Discard changes"), func() tea.Cmd {
-			m.confirm(fmt.Sprintf(i18n.T("¿Descartar los cambios de %s?", "Discard the changes to %s?"), filepath.Base(c.Path)), func() tea.Cmd { return m.scmDiscard(c) })
+			m.confirm(fmt.Sprintf(i18n.T("¿Descartar los cambios de %s?", "Discard the changes to %s?"), shownName(filepath.Base(c.Path))), func() tea.Cmd { return m.scmDiscard(c) })
 			return nil
 		}})
 	}

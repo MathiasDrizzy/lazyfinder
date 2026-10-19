@@ -207,7 +207,7 @@ func overlayAfter(base []string, box []string, x, y int, after string) []string 
 // box wraps content lines (each already inner wide) in a rounded popup frame with the title in the top edge.
 func (m *Model) box(title string, content []string, inner int) []string {
 	inner = max(1, min(inner, m.w-4)) // a popup never outgrows the terminal, however small the sidebar mode is
-	title = " " + ansi.Truncate(title, inner-4, "…") + " "
+	title = " " + ansi.Truncate(shownName(title), inner-4, "…") + " "
 	dashes := strings.Repeat("─", max(0, inner+1-ansi.StringWidth(title)))
 	top := m.styles.popupBorder("╭─") + m.styles.popupTitle(title) + m.styles.popupBorder(dashes+"╮")
 	out := []string{top}

@@ -199,7 +199,7 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 	case r.kind == scmNone:
 		line = m.styles.dim(fit("  "+i18n.T("Sin cambios", "No changes"), room))
 	case r.kind == scmStash:
-		line = fit(" ⇩ "+r.ch.Path, room)
+		line = fit(" ⇩ "+shownName(r.ch.Path), room)
 		if i != m.scm.sel {
 			line = m.styles.dim(line)
 		}
@@ -222,8 +222,8 @@ func (m *Model) scmRowLine(i int, r scmRow) string {
 		}
 	default:
 		code := r.ch.Code
-		name := path.Base(r.ch.Path)
-		dir := path.Dir(r.ch.Path)
+		name := shownName(path.Base(r.ch.Path))
+		dir := shownName(path.Dir(r.ch.Path))
 		lead := " "
 		if m.iconW() > 0 {
 			lead += m.iconCell(m.icons.Pick(icons.Item{Name: name})) + " "

@@ -67,7 +67,7 @@ func (m *Model) diffBox() (int, int, []string) {
 	x, y, _, _, iw, bodyH := m.previewGeom()
 	body := make([]string, 0, bodyH)
 	for i := m.diff.scroll; i < len(m.diff.lines) && len(body) < bodyH; i++ {
-		body = append(body, m.diffLine(ansi.Truncate(m.diff.lines[i], iw, "…")))
+		body = append(body, m.diffLine(ansi.Truncate(shownName(m.diff.lines[i]), iw, "…")))
 	}
 	for len(body) < bodyH {
 		body = append(body, "")

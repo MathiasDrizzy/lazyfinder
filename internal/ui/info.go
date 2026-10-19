@@ -88,7 +88,7 @@ func (m *Model) infoLines() []string {
 	}
 	lines := []string{row(i18n.T("Nombre", "Name"), shownName(d.Name)), row(i18n.T("Clase", "Kind"), m.info.kind)}
 	if d.Link != "" {
-		lines = append(lines, row(i18n.T("Apunta a", "Points to"), d.Link))
+		lines = append(lines, row(i18n.T("Apunta a", "Points to"), shownName(d.Link)))
 	}
 	lines = append(lines, row(i18n.T("Ubicación", "Where"), shownName(d.Where)))
 	if d.IsDir && m.info.counting {
