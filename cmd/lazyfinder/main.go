@@ -253,8 +253,8 @@ func launch(o Options) (string, error) {
 	}
 	d.Index = search.Spotlight
 	m := ui.New(d)
-	p := tea.NewProgram(m, tea.WithoutSignalHandler()) // stopOnSignal tells the model instead
-	stop := stopOnSignal(p)
+	p := tea.NewProgram(m, tea.WithFilter(ui.QuitFilter))
+	stop := stopOnHangup(p, hangupGrace)
 	_, err := p.Run()
 	stop()
 	clearImages(os.Stdout, m.ImageShown())

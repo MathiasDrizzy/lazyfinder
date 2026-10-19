@@ -95,6 +95,7 @@ func (m *Model) quit() tea.Cmd {
 		m.cancelOp()
 		return nil
 	}
+	m.quitting = true
 	return tea.Sequence(m.closePreview(), tea.Quit)
 }
 

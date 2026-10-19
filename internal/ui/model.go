@@ -159,16 +159,17 @@ type Model struct {
 	tabs []tabState // empty until a second tab is opened
 	cur  int
 
-	ops    *fileops.Ops
-	marked map[string]bool // rows marked to act on together; cleared when the folder changes
-	clip   clipboard
-	prompt promptState
-	info   infoState
-	infoID int // id of the last Get Info, so a late count is dropped
-	op     opState
-	scm    scmState
-	diff   diffState
-	gm     gitMenuState
+	ops      *fileops.Ops
+	marked   map[string]bool // rows marked to act on together; cleared when the folder changes
+	clip     clipboard
+	prompt   promptState
+	info     infoState
+	infoID   int // id of the last Get Info, so a late count is dropped
+	op       opState
+	quitting bool // the model asked to quit: QuitFilter lets that quit through
+	scm      scmState
+	diff     diffState
+	gm       gitMenuState
 }
 
 type click struct {
@@ -455,6 +456,18 @@ type execDoneMsg struct{ err error }
 // SignalMsg asks the program to end because of a signal (a hangup, a kill): it quits the way q does, so a copy under
 // way is stopped and its half copy removed first.
 type SignalMsg struct{}
+
+// QuitFilter is the program's filter (tea.WithFilter). Bubble Tea answers SIGTERM with a quit that skips the model;
+// while a copy runs that quit becomes a SignalMsg, so the copy is stopped and cleaned up first. A quit the model asked
+// for goes through.
+func QuitFilter(model tea.Model, msg tea.Msg) tea.Msg {
+	if _, ok := msg.(tea.QuitMsg); ok {
+		if m, ok := model.(*Model); ok && m.op.busy && !m.quitting {
+			return SignalMsg{}
+		}
+	}
+	return msg
+}
 
 // Update handles input and asynchronous results.
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

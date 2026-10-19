@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -33,53 +34,47 @@ func (p polite) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 func (polite) View() tea.View { return tea.NewView("") }
 
-// runSignalled starts m with stopOnSignal, sends sig to the process and says whether the program ended within limit.
-func runSignalled(t *testing.T, m tea.Model, sig syscall.Signal, limit time.Duration) bool {
+// hangUp starts m with stopOnHangup, sends SIGHUP to the process and returns what Run returned, or fails the test
+// if the program is still running after limit.
+func hangUp(t *testing.T, m tea.Model, grace, limit time.Duration) error {
 	t.Helper()
-	p := tea.NewProgram(m, tea.WithInput(strings.NewReader("")), tea.WithOutput(io.Discard), tea.WithoutSignalHandler())
-	stop := stopOnSignal(p)
+	p := tea.NewProgram(m, tea.WithInput(strings.NewReader("")), tea.WithOutput(io.Discard))
+	stop := stopOnHangup(p, grace)
 	defer stop()
 	done := make(chan error, 1)
 	go func() { _, err := p.Run(); done <- err }()
 	time.Sleep(100 * time.Millisecond) // let Run start
-	if err := syscall.Kill(os.Getpid(), sig); err != nil {
+	if err := syscall.Kill(os.Getpid(), syscall.SIGHUP); err != nil {
 		t.Fatal(err)
 	}
 	select {
 	case err := <-done:
-		if err != nil {
-			t.Fatal(err)
-		}
-		return true
+		return err
 	case <-time.After(limit):
-		return false
+		t.Fatal("the program is still running after SIGHUP")
+		return nil
 	}
 }
 
 // A SIGHUP sent while the terminal is still there (kill -HUP, a multiplexer closing a pane) killed lazyfinder at once,
 // leaving the terminal in raw mode and on the alternate screen; then it quit skipping the model, so a copy under way
-// was cut off with its half copy left behind. SIGHUP and SIGTERM now reach the model, which stops the copy and quits.
-func TestASignalReachesTheModelBeforeTheProgramEnds(t *testing.T) {
-	for _, sig := range []syscall.Signal{syscall.SIGHUP, syscall.SIGTERM} {
-		told := make(chan struct{})
-		if !runSignalled(t, polite{told}, sig, 3*time.Second) {
-			t.Fatalf("%v: the program is still running", sig)
-		}
-		select {
-		case <-told:
-		default:
-			t.Fatalf("%v: the program ended without telling the model", sig)
-		}
+// was cut off with its half copy left behind. It now reaches the model, which stops the copy and quits.
+func TestAHangupReachesTheModelBeforeTheProgramEnds(t *testing.T) {
+	told := make(chan struct{})
+	if err := hangUp(t, polite{told}, time.Minute, 3*time.Second); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-told:
+	default:
+		t.Fatal("the program ended without telling the model")
 	}
 }
 
-// A model that does not end after a signal (a copy that does not stop) is not waited for past the grace time.
-func TestAProgramThatIgnoresTheSignalEndsAfterTheGraceTime(t *testing.T) {
-	old := stopGrace
-	stopGrace = 200 * time.Millisecond
-	t.Cleanup(func() { stopGrace = old })
-	if !runSignalled(t, idle{}, syscall.SIGHUP, 3*time.Second) {
-		t.Fatal("the program is still running after the grace time")
+// A model that does not end after a hangup (a copy that does not stop) is not waited for past the grace time.
+func TestAProgramThatIgnoresTheHangupIsKilledAfterTheGraceTime(t *testing.T) {
+	if err := hangUp(t, idle{}, 200*time.Millisecond, 3*time.Second); !errors.Is(err, tea.ErrProgramKilled) {
+		t.Fatalf("err = %v, want the program killed", err)
 	}
 }
 

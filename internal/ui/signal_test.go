@@ -29,3 +29,34 @@ func TestASignalStopsACopyBeforeQuitting(t *testing.T) {
 		t.Fatal("with nothing under way a signal quits at once")
 	}
 }
+
+// Bubble Tea answers SIGTERM with a quit that skips the model. While a copy runs, QuitFilter makes it a SignalMsg, so
+// the copy is stopped first; the quit the model then asks for, and any quit with nothing under way, go through.
+func TestQuitFilterSendsASignalQuitToTheModelWhileACopyRuns(t *testing.T) {
+	e := newEnv(t)
+	if _, ok := QuitFilter(e.m, tea.QuitMsg{}).(tea.QuitMsg); !ok {
+		t.Fatal("with nothing under way the quit must go through")
+	}
+	e.pick("notes.txt")
+	dup := e.m.duplicate()
+	msg := QuitFilter(e.m, tea.QuitMsg{})
+	if _, ok := msg.(SignalMsg); !ok {
+		t.Fatalf("during a copy the quit became %T, want SignalMsg", msg)
+	}
+	e.m.Update(msg)
+	var after tea.Cmd
+	for _, m := range flatten(dup) {
+		if _, ok := m.(opDoneMsg); ok {
+			_, after = e.m.Update(m)
+		}
+	}
+	for _, m := range flatten(after) {
+		if _, ok := m.(tea.QuitMsg); ok {
+			if _, ok := QuitFilter(e.m, m).(tea.QuitMsg); !ok {
+				t.Fatal("the quit the model asked for must go through")
+			}
+			return
+		}
+	}
+	t.Fatal("the model did not quit once the copy stopped")
+}
