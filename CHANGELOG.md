@@ -11,6 +11,9 @@ All notable changes to this project are documented here. The format follows
 - A file name or previewed text can no longer send terminal commands: the frame keeps only color and style sequences,
   drops C0 and C1 controls by whole characters and shows invalid bytes as U+FFFD. Before, a name with ESC c, CSI 2J or
   CSI ?1049l could reset or clear the terminal or leave the alternate screen.
+- A file name with an escape sequence shows whole, with its control characters as pictures (␛, ␇), in the list, the
+  title, the tab and the status line: an OSC in a name no longer hid the rest of its row, and a color in a name no
+  longer colored it.
 - The preview of a small tar.gz holding a huge entry, or of a zip with millions of entries, no longer inflates
   gigabytes or fills memory: archives have a byte budget, and the directory of a zip is read one record at a time, so
   a zip that lies about its entry count is not loaded either.
