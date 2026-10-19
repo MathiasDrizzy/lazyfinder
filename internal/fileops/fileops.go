@@ -94,10 +94,19 @@ func checkTarget(src, dstDir string) error {
 	if err != nil {
 		return err
 	}
-	if fi.IsDir() && inside(dstDir, src) {
+	if fi.IsDir() && (inside(dstDir, src) || inside(resolved(dstDir), resolved(src))) {
 		return fmt.Errorf("cannot put %q inside itself", filepath.Base(src))
 	}
 	return nil
+}
+
+// resolved is p with its links followed, so a folder reached through a link is compared as itself; p when it cannot
+// be resolved.
+func resolved(p string) string {
+	if r, err := filepath.EvalSymlinks(p); err == nil {
+		return r
+	}
+	return p
 }
 
 // Copy copies each source into dstDir under a free name and returns the paths it made. Folders are copied whole,
