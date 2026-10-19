@@ -40,19 +40,25 @@ func showControls(s string) string {
 	}, s)
 }
 
-// safeFrame drops from the frame every string sequence (OSC, DCS, APC, PM and SOS) and every control character other
-// than the line break and ESC. lazyfinder draws none of them in the frame (images go out on their own with tea.Raw),
-// so any one there came from a file name or a file's text, and the renderer would pass an OSC 8 link on as it is.
+// safeFrame drops from the frame every escape sequence other than a color or a text style (SGR), and every control
+// character other than the line break. lazyfinder draws nothing else in the frame (images go out on their own with
+// tea.Raw), so any other sequence came from a file name or a file's text: a string sequence (an OSC 8 link, an OSC 52
+// clipboard write), a CSI that clears the screen, moves the cursor or leaves the alternate screen, or a two-byte one
+// such as ESC c (reset) or ESC ( 0 (line drawing characters).
 func safeFrame(s string) string {
 	var b strings.Builder
 	b.Grow(len(s))
 	for i := 0; i < len(s); i++ {
 		c := s[i]
-		if c == '\x1b' && i+1 < len(s) && strings.IndexByte("]P_^X", s[i+1]) >= 0 {
-			i = stringSequenceEnd(s, i+2)
+		if c == '\x1b' {
+			end, keep := escapeEnd(s, i)
+			if keep {
+				b.WriteString(s[i : end+1])
+			}
+			i = end
 			continue
 		}
-		if c < 0x20 && c != '\n' && c != '\x1b' || c == 0x7f {
+		if c < 0x20 && c != '\n' || c == 0x7f {
 			continue
 		}
 		if c == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] < 0xa0 { // a C1 control in UTF-8
@@ -62,6 +68,36 @@ func safeFrame(s string) string {
 		b.WriteByte(c)
 	}
 	return b.String()
+}
+
+// escapeEnd returns the index of the last byte of the escape sequence that starts at i, and whether it is a color or
+// a text style (CSI with only digits, ; and : before its final m).
+func escapeEnd(s string, i int) (int, bool) {
+	if i+1 >= len(s) {
+		return i, false
+	}
+	switch next := s[i+1]; {
+	case strings.IndexByte("]P_^X", next) >= 0:
+		return stringSequenceEnd(s, i+2), false
+	case next == '[':
+		j, sgr := i+2, true
+		for ; j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f; j++ { // parameters and intermediates
+			sgr = sgr && (s[j] >= '0' && s[j] <= '9' || s[j] == ';' || s[j] == ':')
+		}
+		if j >= len(s) || s[j] < 0x40 || s[j] > 0x7e { // cut short: drop what there is
+			return j - 1, false
+		}
+		return j, sgr && s[j] == 'm'
+	default:
+		j := i + 1
+		for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f { // intermediates, as the ( of ESC ( 0
+			j++
+		}
+		if j >= len(s) || s[j] < 0x30 || s[j] > 0x7e {
+			return j - 1, false
+		}
+		return j, false
+	}
 }
 
 // stringSequenceEnd returns the index of the last byte of a string sequence whose body starts at i: its BEL or the

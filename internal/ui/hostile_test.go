@@ -3,6 +3,7 @@ package ui
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 	"testing"
@@ -19,6 +20,14 @@ const (
 	oscClipboard = "\x1b]52;c;UFdORUQ=\a"
 	oscTitle     = "\x1b]0;PWNED\a"
 	dcsQuery     = "\x1bP+q544e\x1b\\"
+	// Sequences that are not strings but act as soon as the terminal reads them: clear the screen, leave the
+	// alternate screen, reset the terminal, move the cursor, save it and select a character set.
+	csiClear   = "\x1b[2J"
+	csiAltOff  = "\x1b[?1049l"
+	escReset   = "\x1bc"
+	csiHome    = "\x1b[H"
+	escSave    = "\x1b7"
+	escCharset = "\x1b(0"
 )
 
 // hostileEnv starts in a folder whose names and text carry those sequences and plain control characters.
@@ -30,13 +39,15 @@ func hostileEnv(t *testing.T) *env {
 		t.Fatal(err)
 	}
 	names := []string{oscLink + "link.txt", oscClipboard + "clip.txt", oscTitle + "title", "line\nbreak.txt",
-		"tab\there.txt", "bell\a.txt", "c1\u009d8;;x\u009c.txt"}
+		"tab\there.txt", "bell\a.txt", "c1\u009d8;;x\u009c.txt", csiClear + "clear.txt", csiAltOff + "alt.txt",
+		escReset + "reset.txt", csiHome + "home.txt", escSave + "save.txt", escCharset + "charset.txt"}
 	for _, n := range names {
 		if err := os.WriteFile(filepath.Join(dir, n), nil, 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
-	text := "plain\n" + oscLink + "x\n" + oscClipboard + oscTitle + dcsQuery + "\x1b[2J\rend\n"
+	text := "plain\n" + oscLink + "x\n" + oscClipboard + oscTitle + dcsQuery + csiClear + csiAltOff + escReset +
+		csiHome + escSave + escCharset + "\rend\n"
 	for _, n := range []string{"a-text.txt", "a-note.md"} {
 		if err := os.WriteFile(filepath.Join(dir, n), []byte(text), 0o644); err != nil {
 			t.Fatal(err)
@@ -60,6 +71,13 @@ func mustBeSafeFrame(t *testing.T, e *env, where string) {
 			t.Errorf("%s: the frame carries the string sequence %q", where, intro)
 		}
 	}
+	for i := strings.IndexByte(frame, '\x1b'); i >= 0; i = nextEsc(frame, i) {
+		if m := sgrSequence.FindString(frame[i:]); m == "" {
+			end := min(i+8, len(frame))
+			t.Errorf("%s: the frame carries an escape sequence that is not a color: %q", where, frame[i:end])
+			break
+		}
+	}
 	for _, r := range frame {
 		if (r < 0x20 && r != '\n' && r != '\x1b') || (r >= 0x7f && r < 0xa0) {
 			t.Errorf("%s: the frame carries the control character %U", where, r)
@@ -75,6 +93,17 @@ func mustBeSafeFrame(t *testing.T, e *env, where string) {
 			t.Errorf("%s: row %d is %d wide in a terminal of %d: %q", where, i, w, e.m.w, ansi.Strip(l))
 		}
 	}
+}
+
+// sgrSequence is the only escape sequence lazyfinder draws in the frame: a color or a text style.
+var sgrSequence = regexp.MustCompile(`^\x1b\[[0-9;:]*m`)
+
+func nextEsc(s string, i int) int {
+	j := strings.IndexByte(s[i+1:], '\x1b')
+	if j < 0 {
+		return -1
+	}
+	return i + 1 + j
 }
 
 func TestHostileNamesAndTextNeverReachTheTerminal(t *testing.T) {
