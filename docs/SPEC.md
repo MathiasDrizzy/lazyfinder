@@ -106,7 +106,10 @@ follow mode, in the spirit of lazymark: stop using Finder and still have everyth
 - **R-19 Resize (M1).** The layout adapts live to terminal size; the minimum supported size is 60x16, below which a
   "terminal too small" message appears. AC: pty scenario resizing 120x40, 80x24, 60x16, 50x10.
 - **R-20 Clean exit (M1).** `q` or `Ctrl+C` leaves the alternate screen, mouse reporting and cursor in their normal
-  state, also after a panic. AC: scenario checks the restore sequences; test with a forced panic.
+  state, also after a panic. SIGHUP, SIGTERM and SIGINT quit the same way, stopping a paste under way first so it
+  leaves no half copy; a program that does not end 10 s later is killed, and a repeated signal ends one that hangs.
+  While a terminal opener has the terminal, ^C reaches only that program. AC: scenario checks the restore sequences;
+  test with a forced panic; signal tests in cmd/lazyfinder.
 - **R-21 No color dependence (M1).** `NO_COLOR` is honored; selection, directory and error states are distinguishable
   without color. AC: golden with `NO_COLOR=1`.
 - **R-22 Configuration (M1).** `config.json` is read from `$LAZYFINDER_CONFIG`, else

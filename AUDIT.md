@@ -62,6 +62,21 @@ the commit. It ends with no open rows.
 - `/insights` (report 2026-10-19 10:09): it notes first passes that looked finished but failed in real use. The
   second pass here confirms it: four of its five findings (rows 42 to 45) were in code already called done.
 
+## Third pass: the final reviews until none found anything (2026-10-19)
+
+- Rows 47 to 61 come from six more rounds of `/code-review` and `/security-review` over the last fixes, each fix with
+  a test seen red first. The sixth round, over `6bbd529..3dc2bb8`, found nothing (code review: 0, security
+  review: 0).
+- Linux, in a golang:1.27.2 container (kernel 7.2.9) on d065ba1: `go test -race ./...` ok in all 18 packages as a
+  user, with fchmodat2 blocked by seccomp (ENOSYS, so the O_PATH fallback of row 54 runs) and as root.
+- Signals with the real binary in a pty on macOS: SIGHUP, SIGTERM and SIGINT during a 4 GB duplicate exit 0 and leave
+  no half copy (the binary from before row 53 left about 1 GB of it); ^C with `less` open as a terminal opener leaves
+  lazyfinder running, and SIGTERM with `less` open ends it once `less` closes.
+- The closing battery on d065ba1 (2026-10-19T17:38Z): `go build ./...` and `go vet ./...` rc 0, `go test -race ./...`
+  ok in all 18 packages, `golangci-lint run` 0 issues, `govulncheck ./...` no vulnerabilities, `verificar.sh` rc 0,
+  gitleaks over the history and the tree: no leaks. Coverage: cmd/lazyfinder 77.3%, fileops 89.9%, preview 85.7%,
+  ui 92.8%, the rest as above.
+
 ## Findings
 
 | # | Severity | Where | Finding | Fix | Commit | State |
