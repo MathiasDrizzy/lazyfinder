@@ -32,6 +32,8 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		return m.helpKey(key, act)
 	case m.set.open:
 		return m.settingsKey(key, act)
+	case m.picker.open && m.picker.filter:
+		return m.paletteKey(k)
 	case m.picker.open:
 		return m.pickerKey(key, act)
 	case m.menu.open:
@@ -146,6 +148,8 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return m.startFilter()
 	case keymap.Commands:
 		return m.showCommands()
+	case keymap.Palette:
+		return m.showPalette()
 	case keymap.Recents:
 		return m.showRecents()
 	case keymap.Bookmark:

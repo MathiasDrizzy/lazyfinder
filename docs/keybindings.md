@@ -9,6 +9,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | --- | --- | --- |
 | `↑` `↓`, `k` `j` | Move the selection | `up` `down` |
 | `?` `F1` | Help with every key and gesture | `help` |
+| `:` `ctrl+p` | Command palette: every action with its keys; typing narrows the list by a fuzzy match on its name (or its name in `keys`), the arrows move and `Enter` runs it | `palette` |
 | `b` | Add the folder to Favorites, or remove it (also from the sidebar) | `bookmark` |
 | sidebar: `d`, `F2`, `K` `J` | Remove, rename, move up, move down the favorite | |
 | `<` `>` | Narrow / widen the sidebar | `sidebar_narrow` `sidebar_widen` |

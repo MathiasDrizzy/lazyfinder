@@ -2,6 +2,7 @@ package ui
 
 import (
 	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -9,6 +10,7 @@ import (
 // pickItem is one line of the picker: what it says, a dim note on the right, and what choosing it does.
 type pickItem struct {
 	label, hint string
+	match       string // more words a filter matches besides the label, such as an action's name in the config
 	run         func() tea.Cmd
 	del         func() // removes the item for good; nil when it cannot be removed
 }
@@ -23,6 +25,11 @@ type pickerState struct {
 
 	rebuild  func() []pickItem                // items again after one was removed
 	shortcut func(key string) (tea.Cmd, bool) // a key that picks an item at once (the letter of a mark)
+
+	// filter makes what is typed narrow the list (the command palette): query is the text, all every item.
+	filter bool
+	query  string
+	all    []pickItem
 }
 
 func (m *Model) openPicker(title string, items []pickItem) {
@@ -38,19 +45,39 @@ func (m *Model) pickerGeom() (x, y, iw int) {
 		iw = max(iw, ansi.StringWidth(it.label)+ansi.StringWidth(it.hint)+6)
 	}
 	iw = min(iw, m.w-8)
-	h := min(len(m.picker.items), m.h-8) + 2
+	h := m.pickerHead() + m.pickerRows() + 2
 	return (m.w - iw - 4) / 2, (m.h - h) / 2, iw
 }
 
-// pickerRows is how many items fit on screen; the list scrolls to keep the selection visible.
-func (m *Model) pickerRows() int { return max(1, min(len(m.picker.items), m.h-10)) }
+// pickerRows is how many rows of items the popup has; the list scrolls to keep the selection visible. A filtered list
+// keeps one row when nothing matches, to say so.
+func (m *Model) pickerRows() int { return max(1, min(len(m.picker.items), m.h-10-m.pickerHead())) }
+
+// pickerHead is the row the query takes above the items of a filtered list.
+func (m *Model) pickerHead() int {
+	if m.picker.filter {
+		return 1
+	}
+	return 0
+}
+
+// pickerTop is the first item on screen.
+func (m *Model) pickerTop() int {
+	return max(0, min(m.picker.sel-m.pickerRows()+1, len(m.picker.items)-m.pickerRows()))
+}
 
 func (m *Model) pickerBox() (x, y int, lines []string) {
 	x, y, iw := m.pickerGeom()
 	rows := m.pickerRows()
-	top := max(0, min(m.picker.sel-rows+1, len(m.picker.items)-rows))
+	top := m.pickerTop()
 	var content []string
-	for i := top; i < top+rows; i++ {
+	if m.picker.filter {
+		content = append(content, fit("› "+m.picker.query+"▏", iw))
+		if len(m.picker.items) == 0 {
+			content = append(content, m.styles.dim(fit("  "+i18n.T("Nada coincide", "Nothing matches"), iw)))
+		}
+	}
+	for i := top; i < min(top+rows, len(m.picker.items)); i++ {
 		it := m.picker.items[i]
 		pointer := "  "
 		if i == m.picker.sel {
@@ -120,9 +147,8 @@ func (m *Model) pickerClick(x, y int) tea.Cmd {
 	if !inBox(x, y, px, py, bx) {
 		return nil // like lazymark: a popup closes only with Esc
 	}
-	rows := m.pickerRows()
-	top := max(0, min(m.picker.sel-rows+1, len(m.picker.items)-rows))
-	if i := top + y - py - 1; y-py-1 >= 0 && i < len(m.picker.items) {
+	row := y - py - 1 - m.pickerHead()
+	if i := m.pickerTop() + row; row >= 0 && i < len(m.picker.items) {
 		m.picker.sel = i
 		return m.choosePick(i)
 	}

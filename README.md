@@ -204,7 +204,7 @@ The essentials. `?` shows all of them, and [docs/keybindings.md](docs/keybinding
 | `c` `x` `p` / `d` / `u` `U` | Copy, cut, paste / Move to the Trash / Undo, redo |
 | `ctrl+t` / `b` / `E` | New tab / Add to Favorites / Recents |
 | `M` / `Ctrl+B` | Column view / Sidebar mode |
-| `,` / `?` | Settings / Help |
+| `,` / `?` / `:` | Settings / Help / Command palette |
 | `q` | Quit |
 
 Every key can be rebound with `keys` in `config.json`. The mouse does the same: click rows, headers, sidebar entries,

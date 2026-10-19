@@ -74,7 +74,7 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 		return hoverRect{mx + 1, y, boxWidth(bx) - 2, 1}, true
 	case m.picker.open:
 		mx, my, bx := m.pickerBox()
-		return popupRow(x, y, mx, my, bx, m.pickerRows())
+		return popupRow(x, y, mx, my+m.pickerHead(), bx, min(m.pickerRows(), len(m.picker.items)))
 	case m.help.open, m.info.open, m.pv.open:
 		return hoverRect{}, false
 	}
