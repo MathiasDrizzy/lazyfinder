@@ -1,0 +1,72 @@
+# Audit: full sweep (branch audit/full-sweep)
+
+Temporary log of the audit that follows docs/AUDIT_PLAN.md. Every finding has a severity, where it was, the fix and
+the commit. It ends with no open rows.
+
+## Baseline (2026-10-19, before any fix on this branch)
+
+- `go build ./...`, `go vet ./...`: clean. `golangci-lint run`: 0 issues. `govulncheck ./...`: no vulnerabilities.
+- Go 1.27.2 (`go.mod` and toolchain agree).
+- Outdated direct dependency: `github.com/fsnotify/fsnotify` v1.9.0 (v1.10.1 available).
+- Coverage by package: cmd/lazyfinder 63.5%, clipboard 100%, config 87.0%, fileops 86.8%, fsmodel 89.4%, git 85.4%,
+  herdr 85.2%, history 93.3%, i18n 73.9%, icons 93.2%, keymap 98.3%, opener 81.8%, preview 85.2%, search 83.9%,
+  termimg 67.7%, theme 85.7%, ui 91.6%, watch 90.9%.
+- Built-in CLI commands `/doctor`, `/debug` and `/insights` run in the user's terminal, not from the agent: the
+  agent asks the user to run them and records what they report.
+
+## Final state (2026-10-19)
+
+- Coverage by package (before -> after): cmd/lazyfinder 63.5 -> 75.5%, clipboard 100%, config 87.0 -> 88.0%,
+  fileops 86.8 -> 87.0%, fsmodel 89.4%, git 85.4%, herdr 85.2%, history 93.3%, i18n 73.9 -> 95.7%, icons 93.2%,
+  keymap 98.3%, opener 81.8 -> 83.1%, preview 85.2%, search 83.9 -> 84.2%, termimg 67.7 -> 92.3%, theme 85.7%,
+  ui 91.6 -> 92.9%, watch 90.9 -> 93.0%.
+
+- `go test -race -count=20 ./internal/ui/`: 20 runs, no failure and no data race (3246 s, code as of 00:56, before
+  c8eee83). `.claude/harness/verificar.sh` exit 0 for 29830e9, -race included.
+- Fuzz tests run again on the final code (15 s each): no failure. gitleaks over 238 commits and the tree: no leaks.
+
+## Findings
+
+| # | Severity | Where | Finding | Fix | Commit | State |
+|---|---|---|---|---|---|---|
+| 1 | High | internal/ui/text.go:46 | A file name or previewed text with ESC ( 0, ESC 7, ESC c, CSI 2J or CSI ?1049l reached the terminal: line drawing characters, a reset, a cleared screen or leaving the alternate screen. | The frame keeps only SGR sequences; test of hostile names extended. | 91026b1 | Fixed |
+| 2 | Low | go.mod | fsnotify v1.9.0 is behind v1.10.1. | Updated; watch and ui tests pass with -race. | c1c2a0f | Fixed |
+| 3 | Medium | internal/ui/search.go:287 | The command waiting for a search's next event blocked its goroutine for good once the search was replaced or closed: one leaked goroutine per keystroke in the search bar. | The command also returns when the walk's context is cancelled; regression test. | 022f657 | Fixed |
+| 4 | Medium | internal/ui/popups.go, keys.go, model.go:436, gitops.go:69 | Quitting (ctrl+c, q) or handing the terminal to a program or lazygit with a preview image shown left the Kitty image drawn over the shell. | `quit` and `handOver` close the preview first; regression test. | 537728a | Fixed |
+| 5 | Medium | cmd/lazyfinder/main.go:256 | SIGHUP with the terminal alive killed the process in raw mode and on the alternate screen; a quit by SIGTERM skipped the model and left a preview image. | SIGHUP quits like SIGTERM; the image is deleted after the program; regression tests (red seen: "signal: hangup"). | 529abe0 | Fixed |
+| 6 | Info | internal/ui/model.go:434 | `run` indexes `Argv[0]`: checked, config validation rejects an empty argv (config.go:509, :535) and built-in commands always have one. Not a bug. | None needed. | | Closed |
+| 7 | Info | internal/ui/sweep_test.go | The sweep did not cover the sizes of the plan. | Added 24x10, 60x16 and 300x80; 8 seeds clean. | 1f50135 | Fixed |
+| 8 | Low | internal/ui/live.go:246 | Leaving the sidebar mode folded the expanded folders but kept watching them, and a failed read of the folder was dropped. | `relist` reports the error and calls `follow`; regression test. | f66b575 | Fixed |
+| 9 | Low | internal/ui/project.go:178 | A click on a sidebar tab dropped the commands of `endSearch` and `reload`. | The click returns them. | 4092248 | Fixed |
+| 10 | Info | internal/ui/popups.go:234, diffview.go:68 | Unused popup sizes kept alive with `_ =`. | Removed. | 5d61486 | Fixed |
+| 11 | Medium | internal/fileops/fileops.go:228, :345, :122 | An undo of several items that failed halfway stayed as it was: the retry moved back what had already come back, failed with ENOENT, and the rest could never be restored. | The undo remembers how far it got; regression test (red seen). | e36a6d8 | Fixed |
+| 12 | Medium | internal/fileops/fileops.go:97 | A folder could be copied into itself through a link to it: the copy recursed until "file name too long" and left a deep half copy in the source. | The check also compares the paths with links followed; regression test (red seen). | 165c8c9 | Fixed |
+| 13 | Medium | internal/fileops/fileops.go:242, :278 | Move, rename and their undos checked for a free name, then renamed: a file created there in between was replaced and lost. | Exclusive rename (RENAME_EXCL on macOS, RENAME_NOREPLACE on Linux); regression test (red seen). | 6904b95 | Fixed |
+| 14 | Medium | internal/preview/archive.go | A small tar.gz holding a huge entry kept the preview inflating gigabytes, not cancellable; a zip with millions of entries cost gigabytes of memory. | Byte budget and context on the inflated stream; zip entry count read from the end record first; tests. | 60bb27b | Fixed |
+| 15 | Low | internal/config/config.go:279 | `$LAZYFINDER_CONFIG` naming a FIFO hung the start; /dev/zero was read until memory ran out. | Regular file only, 1 MiB at most; regression test (red seen: FIFO hang). | 272e2a3 | Fixed |
+| 16 | Medium | internal/config/config.go:651 | Saving a setting replaced a config.json that is a link to the user's dotfiles with a plain file; no fsync before the rename. | The link's target is replaced; synced first; regression test (red seen). | 0e40081 | Fixed |
+| 17 | Info | internal/git/trust.go | Hostile repository config while only looking (status, diff). | Already hardened: local core.fsmonitor and filters are switched off, --no-ext-diff, --no-textconv, no pager (stdout is a pipe). Writing operations the user asks for (stage, restore, commit) run the repo's config like any git client; Discard asks first. | | Closed |
+| 18 | Info | internal/termimg/termimg.go:99 | Image decompression bombs. | Already bounded: header read first, 50 Mpixel and file size limits. | | Closed |
+| 19 | Info | cmd/lazyfinder/shellinit.go | Quoting of the --shell-init functions. | Checked: every variable quoted, `--` before paths, `-d` check before cd. | | Closed |
+| 20 | Info | scripts/herdr-build.sh:4 | No pipefail. | Deliberate (POSIX sh, grep -q ends the pipe early); the reason is now in the script. Variables are quoted. | 381715b | Closed |
+| 21 | Info | .github/workflows | Supply chain. | Checked: actions pinned by SHA, contents: read by default, write only in the release job, persist-credentials: false, secrets only in env. | | Closed |
+| 22 | Info | repository and history | Personal paths or emails. | None found in tracked files or in the history. | | Closed |
+| 23 | Medium | internal/config/config.go:246, :266 | On Linux the defaults are macOS ones: Trash in ~/.Trash (not the XDG trash the desktop shows), "Macintosh HD", /Volumes and /Applications in the sidebar. | Per-platform defaults: ~/.local/share/Trash/files and Home, Desktop, Documents, Downloads, Computer, Trash on Linux; tests. | 7880b29 | Fixed |
+| 24 | Medium | internal/fileops/fileops.go (toTrash) | Items moved into an XDG trash had no .trashinfo: the desktop's trash could not show where they came from or put them back. | The name is reserved with an exclusive .trashinfo (Path, DeletionDate) and the undo removes it; test. | 43f5a36 | Fixed |
+| 25 | Medium | internal/opener/opener.go | On Linux the default opener and Q ran macOS `open` and `qlmanage`. | `xdg-open` on Linux; the status says which program opened the file; test. Docs updated (314542a). | 7928d33 | Fixed |
+| 26 | Medium | internal/ui/text.go:46 | Found by the new fuzz test: in "\xc2\x15\x81" the dropped control joined the two bytes around it into the C1 control U+0081. | The frame is sanitized by whole characters; invalid bytes become U+FFFD; the failing input stays in testdata. | cfc015e | Fixed |
+| 27 | Info | search, config, preview | No fuzz tests. | Fuzz tests for the search query, the config parser, the frame sanitizer and the zip end record; each run 20 s to 30 s with no other failure. | dfd5903 | Fixed |
+| 28 | Low | docs/lazyfinder.1 | The man page lacked --sidebar; its test checked a fixed list of flags. | Documented; the test reads the flags from --help, and another checks that every completion offers them. | b76f9f9 | Fixed |
+| 29 | Low | docs/keybindings.md | favorites_shorter and favorites_taller were not documented. | Documented; a test checks every action of the keymap is. | 2edd82b | Fixed |
+| 30 | Info | docs/configuration.md | No check that the settings page stays complete. | Test: every key of the default config is named. | cbdd3c6 | Fixed |
+| 31 | Medium | internal/fileops/info.go:23, internal/ui/info.go | Get Info walked a whole folder inside Update: on / or a home folder the program froze, without even quitting. | Count runs apart, cancelled when the popup closes; "Counting…" until it arrives; tests (red seen). | ee94099 | Fixed |
+| 32 | Info | internal/ui | Performance of a big folder. | Measured: 3.7 ms a row and a frame with 20000 files (86 ms with -race); a test keeps it under 250 ms. | 5864be1 | Fixed |
+| 33 | Medium | internal/ui/hover.go:239, project.go:289, chipbox.go | The selection of the sidebar mode, the hover and the chips kept each text's color on their background: a folder name at 1.5:1 (solarized-dark) and 2.7:1 (catppuccin-latte). | Text colors are lifted to 3.1:1 on the background they end up on; the contrast test covers help and the sidebar mode (red seen). | d32187b | Fixed |
+| 34 | Low | internal/i18n/i18n.go, internal/theme | Code comments and a panic message in Spanish in an English code base. | Written in English (quotes of the owner's requirements stay verbatim, as the convention asks). | 780045c | Fixed |
+| 35 | Info | termimg, i18n, cmd/lazyfinder | Low coverage (67.7%, 73.9%, 63.5%). | Tests for scaling, support reply, sentinel errors, the log filter and herdr steps: 92.3%, 95.7%, 75.5%. main and launch start the real TUI and are covered by the pty captures. | fd0e4f6, 4ed16ff | Fixed |
+| 36 | Info | NO_COLOR, TERM=dumb, icons | Behavior checked on the real binary in a pty. | NO_COLOR: 0 color SGR; TERM=dumb: 0 SGR; nerd, emoji, ascii and off draw cleanly at 60x16. Below 60x16 the window says "too small" and narrow widths switch to the sidebar mode, as SPEC R-19 and the README say. | | Closed |
+| 37 | Medium | internal/fileops/fileops.go (copyNew) | A copy that failed because its target name was taken in between removed what was at that name: someone else's file was lost. | The partial copy is removed only when this copy made it; copy and move take a context and report bytes; test (red seen: theirs.txt removed). | 82e7a14 | Fixed |
+| 38 | Medium | internal/ui/ops.go (paste, duplicate) | Paste and Duplicate copied inside Update: a copy of gigabytes froze the program with no progress and no way to stop or quit. | They run apart with bytes copied of the total in the status line; Esc cancels without a half copy; other changes wait; quitting stops it first; tests. | ad76919 | Fixed |
+| 39 | Low | internal/ui/opsasync.go | Found by the final review: after Esc, the next progress tick wrote the progress back over "Cancelling…". | The operation remembers it is ending and the tick leaves the status alone; test (red seen). | c8eee83 | Fixed |
+| 40 | Low | docs/adr/README.md | ADR 0017 was missing from the index. | Listed; a test checks the index lists every record (red seen). | 6e12506 | Fixed |
+| 41 | Info | Phase 4 | Improvements of the plan. | Shipped: cancellable copies with progress (ad76919), counted Get Info and owner (ee94099, 2e71868), copy path with y (e4b7480), high-contrast theme (9e2552e), XDG Trash and xdg-open (43f5a36, 7928d33). Turned down with reasons in ADR 0018: command palette, vim marks, redo history, chmod, CSV tables, drawn progress bar. | e2edfa8 | Closed |
