@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"strings"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 
@@ -175,19 +176,20 @@ func (m *Model) projectFooter() string {
 }
 
 // clickProjectTab switches to a tab of the project mode.
-func (m *Model) clickProjectTab(t projectTab) {
+func (m *Model) clickProjectTab(t projectTab) tea.Cmd {
 	switch t {
 	case tabSearch:
 		m.openSearch()
+		return nil
 	case tabGit:
-		_ = m.endSearch()
+		end := m.endSearch()
 		m.projTab = tabGit
 		m.scm = scmState{folded: [3]bool{scmStashHdr: true}}
-		_ = m.reload() // reads the stashes
+		return tea.Batch(end, m.reload()) // reload reads the stashes
 	default:
-		_ = m.endSearch()
+		end := m.endSearch()
 		m.projTab = tabFiles
-		_ = m.reload()
+		return tea.Batch(end, m.reload())
 	}
 }
 

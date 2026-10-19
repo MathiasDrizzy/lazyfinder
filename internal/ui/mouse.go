@@ -252,8 +252,7 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 	case zoneHint:
 		return m.listKey(keymap.Action(z.path))
 	case zoneProjectTab:
-		m.clickProjectTab(projectTab(z.idx))
-		return nil
+		return m.clickProjectTab(projectTab(z.idx))
 	case zoneAction:
 		return m.runAction(z.idx)
 	case zoneMode:
