@@ -16,14 +16,14 @@ the commit. It ends with no open rows.
 
 ## Final state (2026-10-19)
 
-- Coverage by package (before -> after): cmd/lazyfinder 63.5 -> 75.5%, clipboard 100%, config 87.0 -> 88.0%,
-  fileops 86.8 -> 87.0%, fsmodel 89.4%, git 85.4%, herdr 85.2%, history 93.3%, i18n 73.9 -> 95.7%, icons 93.2%,
-  keymap 98.3%, opener 81.8 -> 83.1%, preview 85.2%, search 83.9 -> 84.2%, termimg 67.7 -> 92.3%, theme 85.7%,
-  ui 91.6 -> 92.9%, watch 90.9 -> 93.0%.
+- Coverage by package (before the audit -> after the second pass): cmd/lazyfinder 63.5 -> 75.5%, clipboard 100%,
+  config 87.0 -> 88.0%, fileops 86.8 -> 89.3%, fsmodel 89.4%, git 85.4%, herdr 85.2%, history 93.3%,
+  i18n 73.9 -> 95.7%, icons 93.2%, keymap 98.3%, opener 81.8 -> 83.1%, preview 85.2 -> 86.8%, search 83.9 -> 84.2%,
+  termimg 67.7 -> 92.3%, theme 85.7%, ui 91.6 -> 92.8%, watch 90.9 -> 93.0%.
 
-- `go test -race -count=20 ./internal/ui/`: 20 runs, no failure and no data race (3246 s, code as of 00:56, before
-  c8eee83). `.claude/harness/verificar.sh` exit 0 for 29830e9, -race included.
-- Fuzz tests run again on the final code (15 s each): no failure. gitleaks over 238 commits and the tree: no leaks.
+- `go test -race -count=20 ./internal/ui/`: run twice, after the first pass (3246 s) and after the second (3151 s);
+  20 runs each, no failure and no data race. 46 findings, all fixed; none open.
+- Fuzz tests run again on the final code: no failure (`FuzzRenderTable` 60 s). gitleaks over the whole history and the tree: no leaks.
 
 ## Final reviews (2026-10-19)
 
@@ -55,6 +55,12 @@ the commit. It ends with no open rows.
   the CSV table, `m a`, `'`, `P`, `H`, `U` and the palette show what they should at every size.
 - Debug of the logs: a session with `--log` through the CSV preview, marks, the palette, chmod, undo, redo and the
   history logged only `start`, with no WARN or ERROR.
+- `/debug` (run natively, 2026-10-19) over that log and the `verificar.sh` output for 64e325d: no error, warning,
+  panic or data race; the one `start` without an `exit` is the capture tool closing the program without `q`.
+- Stability: `go test -race -count=20 ./internal/ui/` ok in 3151 s, no data race (2026-10-19 13:44 UTC; the UI,
+  preview, keymap and i18n code is the same from 96eee73 to the final HEAD).
+- `/insights` (report 2026-10-19 10:09): it notes first passes that looked finished but failed in real use. The
+  second pass here confirms it: four of its five findings (rows 42 to 45) were in code already called done.
 
 ## Findings
 
