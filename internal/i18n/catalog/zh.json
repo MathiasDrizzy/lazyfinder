@@ -351,6 +351,7 @@
  "basic": "基本",
  "cannot create %s: %w": "无法创建 %s:%w",
  "cannot read config %s: %w": "无法读取配置 %s:%w",
+ "it is larger than %d KiB": "超过 %d KiB",
  "cannot write config: %w": "无法写入配置:%w",
  "command %q: \"argv\" must have at least the program name": "命令 %q:\"argv\" 至少要有程序名",
  "command %q: \"mode\" must be %q or %q (got %q)": "命令 %q:\"mode\" 必须是 %q 或 %q(当前为 %q)",

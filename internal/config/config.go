@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
 	"github.com/MathiasDrizzy/lazyfinder/internal/theme"
@@ -274,9 +276,30 @@ func DefaultJSON(home string) []byte {
 	return append(b, '\n')
 }
 
+// maxConfigBytes is the largest config file read: a real one is a few KiB.
+const maxConfigBytes = 1 << 20
+
+// readConfig reads the config file at path only when it is a regular file of at most maxConfigBytes: the path may
+// come from $LAZYFINDER_CONFIG and name a FIFO, which would block the start, or a device such as /dev/zero.
+func readConfig(path string) ([]byte, error) {
+	f, info, err := fsmodel.OpenRegular(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = f.Close() }()
+	if info.Size() > maxConfigBytes {
+		return nil, i18n.Errorf(`ocupa más de %d KiB`, `it is larger than %d KiB`, maxConfigBytes>>10)
+	}
+	data, err := io.ReadAll(io.LimitReader(f, maxConfigBytes+1))
+	if err == nil && len(data) > maxConfigBytes {
+		err = i18n.Errorf(`ocupa más de %d KiB`, `it is larger than %d KiB`, maxConfigBytes>>10)
+	}
+	return data, err
+}
+
 // Load reads path. A missing file yields the defaults; any other problem is an error that names the field or line.
 func Load(path, home string) (Config, error) {
-	data, err := os.ReadFile(path)
+	data, err := readConfig(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return withThemes(Defaults(home), path), nil
 	}
@@ -614,7 +637,7 @@ func withThemes(cfg Config, path string) Config {
 // atomically. A file that cannot be read as JSON is never overwritten, because the user may be editing it.
 func Update(path string, set map[string]any) error {
 	doc := map[string]any{}
-	data, err := os.ReadFile(path)
+	data, err := readConfig(path)
 	switch {
 	case err == nil:
 		if err := json.Unmarshal(data, &doc); err != nil || doc == nil {

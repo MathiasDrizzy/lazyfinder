@@ -351,6 +351,7 @@
  "basic": "básico",
  "cannot create %s: %w": "não foi possível criar %s: %w",
  "cannot read config %s: %w": "não foi possível ler a configuração %s: %w",
+ "it is larger than %d KiB": "tem mais de %d KiB",
  "cannot write config: %w": "não foi possível gravar a configuração: %w",
  "command %q: \"argv\" must have at least the program name": "comando %q: \"argv\" deve ter pelo menos o nome do programa",
  "command %q: \"mode\" must be %q or %q (got %q)": "comando %q: \"mode\" deve ser %q ou %q (recebido %q)",

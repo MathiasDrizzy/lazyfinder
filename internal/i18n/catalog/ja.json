@@ -351,6 +351,7 @@
  "basic": "基本",
  "cannot create %s: %w": "%s を作成できません: %w",
  "cannot read config %s: %w": "設定 %s を読み込めません: %w",
+ "it is larger than %d KiB": "%d KiB を超えています",
  "cannot write config: %w": "設定を書き込めません: %w",
  "command %q: \"argv\" must have at least the program name": "コマンド %q: \"argv\" には少なくともプログラム名が必要です",
  "command %q: \"mode\" must be %q or %q (got %q)": "コマンド %q: \"mode\" は %q か %q です (現在 %q)",
