@@ -79,8 +79,7 @@ var fchmodat = unix.Fchmodat
 
 // chmodNoFollow sets the mode of path itself and refuses a link, whose change would reach the item it points to.
 // A link swapped in after the check is not followed either: fchmodat with AT_SYMLINK_NOFOLLOW changes only the link
-// on macOS and fails on Linux. Where the system lacks it (Linux before fchmodat2), the check right before the change
-// is the best there is.
+// on macOS and fails on Linux. Where the system lacks it (Linux before fchmodat2), chmodFallback does the same.
 func chmodNoFollow(path string, mode fs.FileMode) error {
 	if isLink(path) {
 		return linkError(path)
@@ -91,11 +90,11 @@ func chmodNoFollow(path string, mode fs.FileMode) error {
 		func(e error) bool { return errors.Is(err, e) }) {
 		return err
 	}
-	if isLink(path) {
-		return linkError(path)
-	}
-	return os.Chmod(path, mode)
+	return chmodFallback(path, mode)
 }
+
+// beforeChange runs between the check of a path and the change of its mode; a test swaps the path for a link there.
+var beforeChange = func(string) {}
 
 func isLink(path string) bool {
 	fi, err := os.Lstat(path)
