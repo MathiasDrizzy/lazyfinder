@@ -452,6 +452,10 @@ func (m *Model) run(c opener.Command) tea.Cmd {
 
 type execDoneMsg struct{ err error }
 
+// SignalMsg asks the program to end because of a signal (a hangup, a kill): it quits the way q does, so a copy under
+// way is stopped and its half copy removed first.
+type SignalMsg struct{}
+
 // Update handles input and asynchronous results.
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	next, cmd := m.update(msg)
@@ -469,6 +473,8 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.refreshPreview()
 	case herdrDirMsg:
 		return m, m.followHerdr(msg.dir)
+	case SignalMsg:
+		return m, m.quit()
 	case actionsFadeMsg:
 		return m, m.fadeActions()
 	case tea.KeyPressMsg:
