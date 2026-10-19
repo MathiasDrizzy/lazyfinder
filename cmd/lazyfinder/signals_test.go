@@ -58,17 +58,16 @@ func (h holding) Init() tea.Cmd {
 // if the program is still running after limit.
 func hangUp(t *testing.T, m tea.Model, grace, limit time.Duration) error {
 	t.Helper()
-	return signalled(t, m, grace, limit, nil, syscall.SIGHUP)
+	return signalled(t, m, grace, limit, ui.QuitFilter, syscall.SIGHUP)
 }
 
-// signalled starts m with stopOnSignal and the given options, sends sigs to the process one after another and returns
+// signalled starts m with newProgram and filter, sends sigs to the process one after another and returns
 // what Run returned, or fails the test if the program is still running after limit.
-func signalled(t *testing.T, m tea.Model, grace, limit time.Duration, opts []tea.ProgramOption, sigs ...syscall.Signal) error {
+func signalled(t *testing.T, m tea.Model, grace, limit time.Duration, filter func(tea.Model, tea.Msg) tea.Msg,
+	sigs ...syscall.Signal) error {
 	t.Helper()
 	ready := make(chan struct{})
-	opts = append([]tea.ProgramOption{tea.WithInput(strings.NewReader("")), tea.WithOutput(io.Discard)}, opts...)
-	p := tea.NewProgram(started{m, ready}, opts...)
-	stop := stopOnSignal(p, grace)
+	p, stop := newProgram(started{m, ready}, filter, grace, tea.WithInput(strings.NewReader("")), tea.WithOutput(io.Discard))
 	defer stop()
 	done := make(chan error, 1)
 	go func() { _, err := p.Run(); done <- err }()
@@ -122,16 +121,57 @@ func TestTheGraceTimeStartsWhenTheModelReadsTheHangup(t *testing.T) {
 // Bubble Tea stops listening after the first SIGTERM. While a copy was being stopped, a second SIGTERM then took the
 // default action and killed lazyfinder on the spot, in raw mode and with the half copy. It now waits like the first.
 func TestASecondTermSignalDoesNotKillTheProcess(t *testing.T) {
-	toModel := tea.WithFilter(func(_ tea.Model, msg tea.Msg) tea.Msg {
-		if _, ok := msg.(tea.QuitMsg); ok {
-			return ui.SignalMsg{} // as ui.QuitFilter does while a copy runs
-		}
-		return msg
-	})
-	err := signalled(t, idle{}, 300*time.Millisecond, 3*time.Second, []tea.ProgramOption{toModel}, syscall.SIGTERM, syscall.SIGTERM)
+	err := signalled(t, idle{}, 300*time.Millisecond, 3*time.Second, toModel, syscall.SIGTERM, syscall.SIGTERM)
 	if !errors.Is(err, tea.ErrProgramKilled) {
 		t.Fatalf("err = %v, want the program killed after the grace time", err)
 	}
+}
+
+// The same with SIGINT, which Bubble Tea also answers only once: a second `kill -INT` while a copy was being stopped
+// killed lazyfinder in raw mode.
+func TestASecondInterruptDoesNotKillTheProcess(t *testing.T) {
+	err := signalled(t, idle{}, 300*time.Millisecond, 3*time.Second, toModel, syscall.SIGINT, syscall.SIGINT)
+	if !errors.Is(err, tea.ErrProgramKilled) {
+		t.Fatalf("err = %v, want the program killed after the grace time", err)
+	}
+}
+
+// toModel sends Bubble Tea's quits to the model as ui.QuitFilter does while a copy runs.
+func toModel(_ tea.Model, msg tea.Msg) tea.Msg {
+	switch msg.(type) {
+	case tea.QuitMsg, tea.InterruptMsg:
+		return ui.SignalMsg{}
+	}
+	return msg
+}
+
+// ^C in a program that has the terminal (less, through tea.ExecProcess) sends SIGINT to lazyfinder too. Bubble Tea
+// ignores it there, and so must stopOnSignal while nothing has asked to quit: lazyfinder would quit after less.
+func TestAnInterruptAloneDoesNotReachTheModelThroughStopOnSignal(t *testing.T) {
+	told := make(chan struct{})
+	ignore := func(_ tea.Model, msg tea.Msg) tea.Msg {
+		if _, ok := msg.(tea.InterruptMsg); ok {
+			return nil // as Bubble Tea does while another program has the terminal
+		}
+		return msg
+	}
+	ready := make(chan struct{})
+	p, stop := newProgram(started{polite{told}, ready}, ignore, time.Minute, tea.WithInput(strings.NewReader("")),
+		tea.WithOutput(io.Discard))
+	defer stop()
+	done := make(chan error, 1)
+	go func() { _, err := p.Run(); done <- err }()
+	<-ready
+	if err := syscall.Kill(os.Getpid(), syscall.SIGINT); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-told:
+		t.Fatal("a SIGINT alone reached the model")
+	case <-time.After(300 * time.Millisecond):
+	}
+	p.Quit()
+	<-done
 }
 
 func TestAnImageLeftOnScreenIsDeletedAfterTheProgram(t *testing.T) {

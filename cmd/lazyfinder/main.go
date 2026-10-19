@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/clipboard"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
@@ -253,8 +252,7 @@ func launch(o Options) (string, error) {
 	}
 	d.Index = search.Spotlight
 	m := ui.New(d)
-	p := tea.NewProgram(m, tea.WithFilter(ui.QuitFilter))
-	stop := stopOnSignal(p, signalGrace)
+	p, stop := newProgram(m, ui.QuitFilter, signalGrace)
 	_, err := p.Run()
 	stop()
 	clearImages(os.Stdout, m.ImageShown())
