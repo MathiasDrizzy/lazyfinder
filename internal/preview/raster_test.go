@@ -71,3 +71,25 @@ func TestAHugePDFPageIsDrawnSmall(t *testing.T) {
 		})
 	}
 }
+
+// The pdftoppm of xpdf has no -scale-to and fails on it: the page was not drawn although Quick Look could draw it.
+// A pdftoppm that fails hands over to Quick Look.
+func TestAFailingPdftoppmHandsOverToQuickLook(t *testing.T) {
+	ql, err := exec.LookPath("qlmanage")
+	if err != nil {
+		t.Skip("qlmanage is not installed")
+	}
+	bin := t.TempDir()
+	if err := os.WriteFile(filepath.Join(bin, "pdftoppm"), []byte("#!/bin/sh\necho 'unknown option -scale-to' >&2\nexit 99\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(ql, filepath.Join(bin, "qlmanage")); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", bin)
+	page, err := SystemRaster(context.Background(), hugePage(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	Discard(page)
+}

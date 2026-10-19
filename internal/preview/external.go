@@ -122,11 +122,19 @@ func SystemRaster(ctx context.Context, path string) (string, error) {
 
 // rasterize draws page 1 of the PDF at path as dir/page.png, side pixels on its long side at most.
 func rasterize(ctx context.Context, path, dir, side string) error {
+	var failed error
 	if tool, err := exec.LookPath("pdftoppm"); err == nil {
-		return exec.CommandContext(ctx, tool, "-png", "-f", "1", "-l", "1", "-scale-to", side, "-singlefile", path, filepath.Join(dir, "page")).Run()
+		// Poppler's; the pdftoppm of xpdf has no -scale-to and fails, and Quick Look gets its turn.
+		failed = exec.CommandContext(ctx, tool, "-png", "-f", "1", "-l", "1", "-scale-to", side, "-singlefile", path, filepath.Join(dir, "page")).Run()
+		if failed == nil {
+			return nil
+		}
 	}
 	tool, err := exec.LookPath("qlmanage")
 	if err != nil {
+		if failed != nil {
+			return failed
+		}
 		return errors.New("neither pdftoppm nor qlmanage is installed")
 	}
 	// qlmanage names its thumbnail after the file, "<name>.png", in a folder that holds nothing else.
