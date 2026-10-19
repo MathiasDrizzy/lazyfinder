@@ -1,6 +1,7 @@
 #!/bin/sh
 # Build step of herdr-plugin.toml: puts the lazyfinder the plugin runs in bin/lazyfinder. With Go it builds this
 # checkout; without it, it links the lazyfinder on PATH when that one knows --herdr.
+# POSIX sh has no pipefail in every shell (dash), and grep -q below ends the pipe early on purpose.
 set -eu
 
 root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
