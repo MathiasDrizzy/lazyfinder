@@ -83,6 +83,9 @@ func (m *Model) closePreview() tea.Cmd {
 	return nil
 }
 
+// ImageShown says whether a preview image is still drawn in the terminal.
+func (m *Model) ImageShown() bool { return m.pv.img != nil }
+
 // quit leaves lazyfinder. An image of the preview is deleted first: it lives in the terminal, not in the frame, and
 // would stay drawn over the shell.
 func (m *Model) quit() tea.Cmd {

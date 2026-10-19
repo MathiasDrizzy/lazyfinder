@@ -253,7 +253,12 @@ func launch(o Options) (string, error) {
 	}
 	d.Index = search.Spotlight
 	m := ui.New(d)
-	if _, err := tea.NewProgram(m).Run(); err != nil {
+	p := tea.NewProgram(m)
+	stop := quitOnHangup(p)
+	_, err := p.Run()
+	stop()
+	clearImages(os.Stdout, m.ImageShown())
+	if err != nil {
 		return "", err
 	}
 	return m.ExitDir(), nil

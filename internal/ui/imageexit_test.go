@@ -48,3 +48,18 @@ func TestQuittingWithAnImageDeletesItFirst(t *testing.T) {
 		})
 	}
 }
+
+func TestImageShownFollowsThePreviewImage(t *testing.T) {
+	e := newEnv(t)
+	if e.m.ImageShown() {
+		t.Fatal("an image without a preview")
+	}
+	e.m.pv = previewState{open: true, id: 1, img: &imgState{id: 1, cols: 4, rows: 2}}
+	if !e.m.ImageShown() {
+		t.Fatal("the image of the preview is not reported")
+	}
+	e.m.closePreview()
+	if e.m.ImageShown() {
+		t.Fatal("the image is reported after closing the preview")
+	}
+}
