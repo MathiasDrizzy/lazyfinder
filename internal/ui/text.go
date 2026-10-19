@@ -23,22 +23,53 @@ func fit(s string, w int) string {
 }
 
 // showControls turns the control characters of a cell's text into their pictures (a line break in a file name shows
-// as ␊), so a name cannot break the row or move the cursor. ESC stays: the cells carry lazyfinder's own colors, and
-// View drops any sequence a name could add with it.
+// as ␊), so a name cannot break the row or move the cursor. An ESC that starts a color or a text style (SGR) stays:
+// the cells carry lazyfinder's own colors. Any other ESC shows as ␛ too, so a sequence in a name shows whole and
+// cannot be cut short: kept with its BEL turned into ␇, ESC ] read as an OSC with no end and View dropped the rest
+// of the row.
 func showControls(s string) string {
-	return strings.Map(func(r rune) rune {
-		switch {
-		case r == '\x1b':
-			return r
-		case r < 0x20:
-			return 0x2400 + r
-		case r == 0x7f:
-			return '␡'
-		case r >= 0x80 && r < 0xa0:
-			return '�'
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := 0; i < len(s); {
+		if s[i] == '\x1b' {
+			if n := sgrLen(s[i:]); n > 0 {
+				b.WriteString(s[i : i+n])
+				i += n
+				continue
+			}
 		}
-		return r
-	}, s)
+		r, size := utf8.DecodeRuneInString(s[i:])
+		switch {
+		case r == utf8.RuneError && size == 1:
+			r = '�'
+		case r < 0x20:
+			r = 0x2400 + r
+		case r == 0x7f:
+			r = '␡'
+		case r >= 0x80 && r < 0xa0:
+			r = '�'
+		}
+		b.WriteRune(r)
+		i += size
+	}
+	return b.String()
+}
+
+// sgrLen is the length of the color or text style sequence (ESC [ digits ; : m) s starts with, or 0.
+func sgrLen(s string) int {
+	if len(s) < 3 || s[1] != '[' {
+		return 0
+	}
+	for j := 2; j < len(s); j++ {
+		switch c := s[j]; {
+		case c == 'm':
+			return j + 1
+		case c >= '0' && c <= '9' || c == ';' || c == ':':
+		default:
+			return 0
+		}
+	}
+	return 0
 }
 
 // safeFrame drops from the frame every escape sequence other than a color or a text style (SGR), and every control
