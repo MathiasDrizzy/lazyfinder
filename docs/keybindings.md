@@ -12,6 +12,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `b` | Add the folder to Favorites, or remove it (also from the sidebar) | `bookmark` |
 | sidebar: `d`, `F2`, `K` `J` | Remove, rename, move up, move down the favorite | |
 | `<` `>` | Narrow / widen the sidebar | `sidebar_narrow` `sidebar_widen` |
+| `ctrl+up` `ctrl+down` | Shorter / taller Favorites box of the sidebar (or drag its border) | `favorites_shorter` `favorites_taller` |
 | `ctrl+left` `ctrl+right` | Narrow / widen the column the list is sorted by | `column_narrow` `column_widen` |
 | `PgUp` `ctrl+u`, `PgDn` `ctrl+d` | Move a page | `page_up` `page_down` |
 | `Home` `g`, `End` `G` | First and last row | `first` `last` |
