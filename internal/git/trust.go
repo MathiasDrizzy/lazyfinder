@@ -14,7 +14,8 @@ const commandKeys = `^(core\.fsmonitor|filter\..+\.(clean|smudge|process))$`
 // .git/config, a file it includes or a worktree config. A folder you only look at may come from anywhere (a zip, a
 // shared drive), and looking must not run what its config says. The same settings from your global or system config,
 // or from the command line, are yours and stay on, so git-lfs and an fsmonitor daemon set up there keep working.
-// Asking git config runs nothing.
+// Asking git config runs nothing. A submodule has a config of its own that this does not read, so the reads pass
+// --ignore-submodules=dirty: git then compares the submodule's commit and never runs a status inside it.
 func readOnly(ctx context.Context, dir string) []string {
 	out, err := git(ctx, dir, "config", "--includes", "--show-scope", "--name-only", "--get-regexp", commandKeys)
 	if err != nil {
