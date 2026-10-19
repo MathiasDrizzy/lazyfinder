@@ -36,8 +36,18 @@ func (m *Model) openDiff(c git.Change, staged bool) tea.Cmd {
 	if staged {
 		title += " · " + i18n.T("preparado", "staged")
 	}
-	m.diff = diffState{open: true, title: title, lines: strings.Split(strings.TrimRight(out, "\n"), "\n")}
+	m.diff = diffState{open: true, title: title, lines: diffLines(out)}
 	return nil
+}
+
+// diffLines splits a patch into its lines, with the CR of a CRLF file dropped and each tab as four spaces, before the
+// other control characters become pictures.
+func diffLines(out string) []string {
+	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	for i, l := range lines {
+		lines[i] = strings.ReplaceAll(strings.TrimSuffix(l, "\r"), "\t", "    ")
+	}
+	return lines
 }
 
 func (m *Model) diffBody() int {
@@ -49,7 +59,6 @@ func (m *Model) diffMax() int { return max(0, len(m.diff.lines)-m.diffBody()) }
 
 // diffLine colors one line of a patch: green added, red removed, accent for the @@ headers, dim for the file header.
 func (m *Model) diffLine(l string) string {
-	l = strings.ReplaceAll(l, "\t", "    ")
 	switch {
 	case strings.HasPrefix(l, "+++"), strings.HasPrefix(l, "---"), strings.HasPrefix(l, "diff "), strings.HasPrefix(l, "index "):
 		return m.styles.dim(l)

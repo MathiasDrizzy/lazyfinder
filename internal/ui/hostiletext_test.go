@@ -34,3 +34,15 @@ func TestTextFromOutsideShowsItsSequences(t *testing.T) {
 		t.Errorf("an OSC in a title cut the frame: %q", top)
 	}
 }
+
+// shownName ran on a diff line before its tabs were expanded, so indented code showed as ␉␉return and a CRLF file
+// ended every line in ␍. A diff keeps its indentation and its CRLF lines read as plain lines.
+func TestADiffKeepsItsTabsAndCRLFLines(t *testing.T) {
+	e := newEnv(t)
+	e.m.diff = diffState{open: true, title: "d.go", lines: diffLines("+\t\treturn x\r\n-old\r\n")}
+	_, _, lines := e.m.diffBox()
+	got := ansi.Strip(strings.Join(lines, "\n"))
+	if strings.ContainsAny(got, "␉␍") || !strings.Contains(got, "+        return x") {
+		t.Fatalf("the diff shows its tabs or carriage returns as pictures:\n%s", got)
+	}
+}
