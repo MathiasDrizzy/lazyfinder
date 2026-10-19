@@ -1,9 +1,11 @@
 // Package fileops changes the file system on the user's behalf: copy, move, rename, new folder and Trash, each with
 // an undo. Nothing here deletes for good: what leaves a folder goes to the Trash, and an undone copy is trashed too
-// (docs/adr/0010-file-operations.md).
+// (docs/adr/0010-file-operations.md). The one exception is the unfinished copy of a failed or cancelled operation,
+// which that operation made itself.
 package fileops
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +14,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -25,18 +28,29 @@ type step struct {
 }
 
 // Ops runs the operations and remembers how to reverse them. trashDir is the folder that receives trashed items.
+// A copy or a move may run apart from the UI, so the undo steps are guarded.
 type Ops struct {
 	trashDir string
+	mu       sync.Mutex
 	undo     []step
 }
+
+// Progress is told the bytes of each chunk a copy writes.
+type Progress func(n int64)
 
 // New returns Ops that trash into the folder trash.
 func New(trash string) *Ops { return &Ops{trashDir: trash} }
 
 // CanUndo says whether there is something to undo.
-func (o *Ops) CanUndo() bool { return len(o.undo) > 0 }
+func (o *Ops) CanUndo() bool {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return len(o.undo) > 0
+}
 
 func (o *Ops) push(desc string, undo func() error) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
 	o.undo = append(o.undo, step{desc: desc, undo: undo})
 	if len(o.undo) > maxUndo {
 		o.undo = o.undo[len(o.undo)-maxUndo:]
@@ -45,6 +59,8 @@ func (o *Ops) push(desc string, undo func() error) {
 
 // Undo reverses the last operation and returns what it undid.
 func (o *Ops) Undo() (string, error) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
 	if len(o.undo) == 0 {
 		return "", errors.New("nothing to undo")
 	}
@@ -116,15 +132,25 @@ func resolved(p string) string {
 // Copy copies each source into dstDir under a free name and returns the paths it made. Folders are copied whole,
 // symbolic links as links. It stops at the first failure; what was copied by then can still be undone.
 func (o *Ops) Copy(srcs []string, dstDir string) ([]string, error) {
+	return o.CopyContext(context.Background(), srcs, dstDir, nil)
+}
+
+// CopyContext is Copy that tells onBytes (when not nil) what it writes and stops once ctx is cancelled: the item being
+// copied then is removed, the ones before it stay and can be undone.
+func (o *Ops) CopyContext(ctx context.Context, srcs []string, dstDir string, onBytes Progress) ([]string, error) {
 	var made []string
 	var firstErr error
 	for _, src := range srcs {
+		if err := ctx.Err(); err != nil {
+			firstErr = err
+			break
+		}
 		if err := checkTarget(src, dstDir); err != nil {
 			firstErr = err
 			break
 		}
 		dst := filepath.Join(dstDir, UniqueName(dstDir, filepath.Base(src)))
-		if err := copyTree(src, dst); err != nil {
+		if err := copyNew(ctx, src, dst, onBytes); err != nil {
 			firstErr = err
 			break
 		}
@@ -155,8 +181,32 @@ func describe(paths []string) string {
 	return fmt.Sprintf("%d items", len(paths))
 }
 
+// copyNew copies src to dst, which must not exist, and removes the unfinished copy when it fails or is cancelled.
+// When dst itself could not be made, something else is there (it appeared after the name was chosen): it is not this
+// copy's and stays.
+func copyNew(ctx context.Context, src, dst string, onBytes Progress) error {
+	err := copyTree(ctx, src, dst, onBytes)
+	if err != nil && !madeNothingAt(err, dst) {
+		_ = os.RemoveAll(dst)
+	}
+	return err
+}
+
+// madeNothingAt says whether err is the failure to create dst itself, so the copy made nothing there.
+func madeNothingAt(err error, dst string) bool {
+	if !errors.Is(err, fs.ErrExist) {
+		return false
+	}
+	var pe *fs.PathError
+	var le *os.LinkError
+	return errors.As(err, &pe) && pe.Path == dst || errors.As(err, &le) && le.New == dst
+}
+
 // copyTree copies src to dst, which must not exist.
-func copyTree(src, dst string) error {
+func copyTree(ctx context.Context, src, dst string, onBytes Progress) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	fi, err := os.Lstat(src)
 	if err != nil {
 		return err
@@ -177,7 +227,7 @@ func copyTree(src, dst string) error {
 			return err
 		}
 		for _, de := range des {
-			if err := copyTree(filepath.Join(src, de.Name()), filepath.Join(dst, de.Name())); err != nil {
+			if err := copyTree(ctx, filepath.Join(src, de.Name()), filepath.Join(dst, de.Name()), onBytes); err != nil {
 				return err
 			}
 		}
@@ -186,12 +236,12 @@ func copyTree(src, dst string) error {
 		}
 		return os.Chtimes(dst, fi.ModTime(), fi.ModTime())
 	case fi.Mode().IsRegular():
-		return copyFile(src, dst, fi)
+		return copyFile(ctx, src, dst, fi, onBytes)
 	}
 	return fmt.Errorf("%q is not a regular file, folder or link", filepath.Base(src))
 }
 
-func copyFile(src, dst string, fi fs.FileInfo) (err error) {
+func copyFile(ctx context.Context, src, dst string, fi fs.FileInfo, onBytes Progress) (err error) {
 	in, err := os.Open(src)
 	if err != nil {
 		return err
@@ -212,17 +262,45 @@ func copyFile(src, dst string, fi fs.FileInfo) (err error) {
 			err = os.Chtimes(dst, fi.ModTime(), fi.ModTime())
 		}
 	}()
-	_, err = io.Copy(out, in)
+	_, err = io.Copy(out, progressReader{ctx: ctx, r: in, onBytes: onBytes})
 	return err
+}
+
+// progressReader reads r, telling onBytes what it read, and fails with the context's error once ctx is cancelled.
+type progressReader struct {
+	ctx     context.Context
+	r       io.Reader
+	onBytes Progress
+}
+
+func (p progressReader) Read(b []byte) (int, error) {
+	if err := p.ctx.Err(); err != nil {
+		return 0, err
+	}
+	n, err := p.r.Read(b)
+	if n > 0 && p.onBytes != nil {
+		p.onBytes(int64(n))
+	}
+	return n, err
 }
 
 // Move moves each source into dstDir under a free name and returns the new paths. A source that already lives in
 // dstDir stays where it is. Across file systems it copies first and removes the source only after the copy is whole.
 func (o *Ops) Move(srcs []string, dstDir string) ([]string, error) {
+	return o.MoveContext(context.Background(), srcs, dstDir, nil)
+}
+
+// MoveContext is Move that tells onBytes what a copy across file systems writes and stops once ctx is cancelled; the
+// item being moved then stays where it was.
+func (o *Ops) MoveContext(ctx context.Context, srcs []string, dstDir string, onBytes Progress) ([]string, error) {
 	type pair struct{ from, to string }
 	var done []pair
 	var firstErr error
 	for _, src := range srcs {
+		if err := ctx.Err(); err != nil {
+			firstErr = err
+			break
+		}
 		if filepath.Dir(src) == filepath.Clean(dstDir) {
 			continue
 		}
@@ -231,7 +309,7 @@ func (o *Ops) Move(srcs []string, dstDir string) ([]string, error) {
 			break
 		}
 		dst := filepath.Join(dstDir, UniqueName(dstDir, filepath.Base(src)))
-		if err := move(src, dst); err != nil {
+		if err := moveContext(ctx, src, dst, onBytes); err != nil {
 			firstErr = err
 			break
 		}
@@ -258,14 +336,15 @@ func (o *Ops) Move(srcs []string, dstDir string) ([]string, error) {
 }
 
 // move renames src to dst, or copies and then removes it when they are on different file systems.
-func move(src, dst string) error {
+func move(src, dst string) error { return moveContext(context.Background(), src, dst, nil) }
+
+func moveContext(ctx context.Context, src, dst string, onBytes Progress) error {
 	err := renameNoReplace(src, dst)
 	if err == nil || !errors.Is(err, syscall.EXDEV) {
 		return err
 	}
-	if err := copyTree(src, dst); err != nil {
-		_ = os.RemoveAll(dst) // the half copy; the source is still whole
-		return err
+	if err := copyNew(ctx, src, dst, onBytes); err != nil {
+		return err // the source is still whole
 	}
 	return os.RemoveAll(src)
 }
