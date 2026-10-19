@@ -12,7 +12,11 @@ All notable changes to this project are documented here. The format follows
   drops C0 and C1 controls by whole characters and shows invalid bytes as U+FFFD. Before, a name with ESC c, CSI 2J or
   CSI ?1049l could reset or clear the terminal or leave the alternate screen.
 - The preview of a small tar.gz holding a huge entry, or of a zip with millions of entries, no longer inflates
-  gigabytes or fills memory: archives have a byte budget and the zip entry count is read first.
+  gigabytes or fills memory: archives have a byte budget, and the directory of a zip is read one record at a time, so
+  a zip that lies about its entry count is not loaded either.
+- A small CSV can no longer grow its table preview to gigabytes: columns and output have a limit.
+- Changing permissions (`P`) and undoing it never follow a link, also on a Linux without fchmodat2, where a link
+  swapped in at the last moment no longer gets the mode.
 - `$LAZYFINDER_CONFIG` must name a regular file of 1 MiB at most; a FIFO hung the start and /dev/zero filled memory.
 - Move, rename and undo use an exclusive rename, so a file created at the target name in between is never replaced.
   A copy that finds its target taken no longer removes what is there.
@@ -21,11 +25,16 @@ All notable changes to this project are documented here. The format follows
 ### Fixed
 
 - Quitting, a SIGHUP or handing the terminal to another program no longer leaves a preview image over the shell or
-  the terminal in raw mode.
+  the terminal in raw mode. SIGHUP and SIGTERM stop a paste under way first, so it leaves no half copy.
 - Paste and Duplicate no longer freeze the program on a big copy: they run apart, show the bytes copied in the status
   line, and `esc` cancels without leaving a half copy. Get Info counts a folder apart ("Counting…") instead of
   freezing on a big one.
-- An undo of several items that failed halfway can be tried again: it resumes where it stopped.
+- An undo of several items that failed halfway can be tried again: it resumes where it stopped. An undo of Trash that
+  cannot remove a `.trashinfo` no longer blocks every later undo.
+- A redo of a big copy no longer freezes the program; Esc on the name of a new folder leaves nothing to redo.
+- A file whose name is near 255 bytes can go to the XDG Trash and be duplicated: the new name is shortened to fit.
+- A CSV cell with a line break no longer breaks the table preview.
+- The tests pass on Linux as well as on macOS, also as root.
 - Saving a setting keeps a `config.json` that is a link to dotfiles as a link, and syncs it first.
 - On Linux: the XDG Trash with its `.trashinfo`, Linux places in the sidebar, and `xdg-open` to open files.
 - Text on the selection, hover and chip backgrounds reads at 3:1 at least in every theme.
