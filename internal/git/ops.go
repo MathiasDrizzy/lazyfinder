@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -171,6 +172,12 @@ func Diff(root string, c Change, staged bool) (string, error) {
 	case staged:
 		args = append(args, "--cached", "--", literal(p))
 	case c.Code == Untracked:
+		// --no-index opens what it is given: a named pipe would wait for a writer until the timeout.
+		if fi, err := os.Lstat(filepath.Join(root, filepath.FromSlash(p))); err != nil {
+			return "", err
+		} else if !fi.Mode().IsRegular() && fi.Mode()&os.ModeSymlink == 0 {
+			return "", fmt.Errorf("%q is not a file or a link", path.Base(p))
+		}
 		args = append(args, "--no-index", "--", os.DevNull, p)
 	default:
 		args = append(args, "--", literal(p))
