@@ -48,7 +48,7 @@ type clipboard struct {
 // subject names what an operation worked on: the file name, or how many items.
 func subject(paths []string) string {
 	if len(paths) == 1 {
-		return filepath.Base(paths[0])
+		return shownName(filepath.Base(paths[0]))
 	}
 	return fmt.Sprintf(i18n.T("%d elementos", "%d items"), len(paths))
 }

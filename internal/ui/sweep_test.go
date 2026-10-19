@@ -186,7 +186,7 @@ func TestAnErrorWithATabOrNewlineStaysOnOneRow(t *testing.T) {
 	e := newEnv(t)
 	e.m.setError(errors.New("overwritten by merge:\n\tnotes.txt\nPlease commit\x1b[31m or stash"))
 	e.mustFit("error")
-	e.mustHave("overwritten by merge: notes.txt Please commit [31m or stash")
+	e.mustHave("overwritten by merge: notes.txt Please commit␛[31m or stash")
 }
 
 // stayHome brings the sweep back when a random key took it outside the temporary home: a recursive search from the

@@ -86,11 +86,11 @@ func (m *Model) infoLines() []string {
 	row := func(label, value string) string {
 		return fmt.Sprintf("%-12s", label) + value
 	}
-	lines := []string{row(i18n.T("Nombre", "Name"), d.Name), row(i18n.T("Clase", "Kind"), m.info.kind)}
+	lines := []string{row(i18n.T("Nombre", "Name"), shownName(d.Name)), row(i18n.T("Clase", "Kind"), m.info.kind)}
 	if d.Link != "" {
 		lines = append(lines, row(i18n.T("Apunta a", "Points to"), d.Link))
 	}
-	lines = append(lines, row(i18n.T("Ubicación", "Where"), d.Where))
+	lines = append(lines, row(i18n.T("Ubicación", "Where"), shownName(d.Where)))
 	if d.IsDir && m.info.counting {
 		lines = append(lines, row(i18n.T("Contenido", "Contents"), i18n.T("Contando…", "Counting…")))
 	} else if d.IsDir {

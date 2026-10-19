@@ -53,3 +53,30 @@ func TestAHostileNameKeepsTheRestOfItsRow(t *testing.T) {
 		}
 	}
 }
+
+// A sequence that is a color (SGR) was kept in a name, so "red␛[31mtext" showed as a red "redtext"; a folder whose
+// name holds a whole OSC showed as "dirend" in the title and the tab, its OSC dropped by the frame filter; and the
+// status line turned control characters into spaces. Each of them names the file as it is, with pictures.
+func TestAHostileNameLooksTheSameEverywhere(t *testing.T) {
+	home := t.TempDir()
+	dir := filepath.Join(home, "proj", "alpha")
+	sub := filepath.Join(dir, "dir"+oscTitle+"end")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "red\x1b[31mtext.txt"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	e := newEnvAt(t, home)
+	e.send(tea.KeyPressMsg{Code: tea.KeyEnter}) // alpha
+	if frame := ansi.Strip(e.m.View().Content); !strings.Contains(frame, "red␛[31mtext") {
+		t.Errorf("the row hides the color sequence of the name:\n%s", frame)
+	}
+	if got := e.m.folderLabel(sub); got != "dir␛]0;PWNED␇end" {
+		t.Errorf("folder label %q", got)
+	}
+	e.m.setStatus("Pasted " + filepath.Base(sub) + "\nnext")
+	if e.m.status != "Pasted dir␛]0;PWNED␇end next" {
+		t.Errorf("status %q", e.m.status)
+	}
+}

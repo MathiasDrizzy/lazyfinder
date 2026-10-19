@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"unicode"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
@@ -575,10 +574,10 @@ func (m *Model) tooSmallNow() bool {
 // oneLine makes text from outside (a git error, a file name) safe for the bottom row: a tab or a control code
 // would move the cursor and push the row past the edge of the terminal.
 func oneLine(s string) string {
-	return strings.Join(strings.Fields(strings.Map(func(r rune) rune {
-		if unicode.IsControl(r) {
+	return strings.Join(strings.Fields(shownName(strings.Map(func(r rune) rune {
+		if r == '\n' || r == '\r' || r == '\t' {
 			return ' '
 		}
 		return r
-	}, s)), " ")
+	}, s))), " ")
 }

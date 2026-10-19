@@ -86,7 +86,7 @@ func millerRight(e fsmodel.Entry, hidden bool, sort fsmodel.Sort) []string {
 			if i == millerMaxLines {
 				break
 			}
-			name := c.Name
+			name := shownName(c.Name)
 			if c.IsDir {
 				name += "/"
 			}
@@ -166,7 +166,7 @@ func (m *Model) millerParentLines(rows, w int) []string {
 		out[r] = strings.Repeat(" ", w)
 		if i := top + r - 1; i < len(m.mil.parent) {
 			e := m.mil.parent[i]
-			name := " " + e.Name
+			name := " " + shownName(e.Name)
 			if e.IsDir {
 				name += "/"
 			}
@@ -202,7 +202,7 @@ func (m *Model) millerRightLines(rows, w int) []string {
 	out := make([]string, rows)
 	title := i18n.T("Vista previa", "Preview")
 	if e, ok := m.selected(); ok {
-		title = e.Name
+		title = shownName(e.Name)
 	}
 	out[0] = m.styles.title(padTo(title, w))
 	for r := 1; r < rows; r++ {

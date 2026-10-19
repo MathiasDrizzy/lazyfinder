@@ -50,5 +50,5 @@ func (m *Model) folderLabel(path string) string {
 	if dir := filepath.Dir(path); dir == m.deps.Home || path == "/Applications" {
 		return localName(base)
 	}
-	return base
+	return shownName(base)
 }

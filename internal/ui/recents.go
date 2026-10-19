@@ -33,14 +33,14 @@ func (m *Model) showRecents() tea.Cmd {
 		path := p
 		if st.IsDir() {
 			items = append(items, pickItem{
-				label: filepath.Base(path), hint: m.homeShort(filepath.Dir(path)),
+				label: shownName(filepath.Base(path)), hint: shownName(m.homeShort(filepath.Dir(path))),
 				run: func() tea.Cmd { return m.enter(path, "") },
 			})
 			continue
 		}
 		// an opened file: its folder, with the file selected
 		items = append(items, pickItem{
-			label: filepath.Base(path), hint: m.homeShort(filepath.Dir(path)),
+			label: shownName(filepath.Base(path)), hint: shownName(m.homeShort(filepath.Dir(path))),
 			run: func() tea.Cmd { return m.enter(filepath.Dir(path), filepath.Base(path)) },
 		})
 	}

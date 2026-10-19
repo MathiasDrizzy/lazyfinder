@@ -196,6 +196,11 @@ func (m *Model) fitColumns(extra []fsmodel.Column) ([]int, int) {
 }
 
 func (m *Model) cell(e fsmodel.Entry, c fsmodel.Column) string {
+	return shownName(m.cellText(e, c))
+}
+
+// cellText is the text of a cell as it comes from the entry, before shownName.
+func (m *Model) cellText(e fsmodel.Entry, c fsmodel.Column) string {
 	switch c {
 	case fsmodel.ColModified:
 		return m.date(e.Modified)

@@ -73,7 +73,7 @@ func (m *Model) markItems() []pickItem {
 	for _, k := range names {
 		path := m.vimMarks[k]
 		items = append(items, pickItem{
-			label: k + "  " + filepath.Base(path), hint: m.homeShort(filepath.Dir(path)),
+			label: k + "  " + shownName(filepath.Base(path)), hint: shownName(m.homeShort(filepath.Dir(path))),
 			run: func() tea.Cmd { return m.goMark(path) },
 			del: func() {
 				delete(m.vimMarks, k)
