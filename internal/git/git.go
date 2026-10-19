@@ -73,7 +73,7 @@ func Read(dir string) (Status, bool, error) {
 	top, err := git(ctx, dir, "rev-parse", "--show-toplevel")
 	if err != nil {
 		var ee *exec.ExitError
-		if errors.As(err, &ee) {
+		if errors.As(err, &ee) || errors.Is(err, exec.ErrNotFound) { // not a repository, or no git at all
 			return Status{}, false, nil
 		}
 		return Status{}, false, err

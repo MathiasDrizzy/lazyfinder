@@ -50,3 +50,12 @@ func TestReadingAPartialCloneFetchesNothing(t *testing.T) {
 	}
 }
 
+// Without git on the PATH a folder is simply not a repository: Read reported the missing program as an error, and
+// the status line showed it on every folder.
+func TestWithoutGitAFolderIsNoRepository(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("PATH", filepath.Join(dir, "nothing"))
+	if _, ok, err := Read(dir); ok || err != nil {
+		t.Fatalf("Read = %v, %v", ok, err)
+	}
+}
