@@ -326,6 +326,9 @@ func loadDir(ctx context.Context, res Result, path string) Result {
 	return res
 }
 
+// highlightBudget is how long a preview may spend coloring a file before it shows the text plain.
+const highlightBudget = 500 * time.Millisecond
+
 func highlight(name string, body []byte, noColor bool) []string {
 	text := strings.ReplaceAll(string(body), "\r\n", "\n")
 	text = strings.TrimSuffix(text, "\n")
@@ -339,13 +342,35 @@ func highlight(name string, body []byte, noColor bool) []string {
 	if lexer == nil {
 		return strings.Split(text, "\n")
 	}
-	lexer = chroma.Coalesce(lexer)
-	it, err := lexer.Tokenise(nil, text)
+	it, err := lexer.Tokenise(nil, text) // not chroma.Coalesce: it reads ahead, past any budget
 	if err != nil {
 		return strings.Split(text, "\n")
 	}
+	// Some lexers are quadratic on hostile input (512 KB of [ in a .cpp file took half an hour), and chroma takes no
+	// context: the tokens are pulled one by one, and past highlightBudget the text shows plain.
+	deadline := time.Now().Add(highlightBudget)
+	var tokens []chroma.Token
+	var run strings.Builder // the value of the last token, which grows while the next ones have its type
+	for t := it(); t != chroma.EOF; t = it() {
+		if time.Now().After(deadline) {
+			return strings.Split(text, "\n")
+		}
+		if n := len(tokens); n > 0 && tokens[n-1].Type == t.Type { // what Coalesce did: fewer color sequences
+			run.WriteString(t.Value)
+			continue
+		}
+		if n := len(tokens); n > 0 {
+			tokens[n-1].Value = run.String()
+		}
+		run.Reset()
+		run.WriteString(t.Value)
+		tokens = append(tokens, t)
+	}
+	if n := len(tokens); n > 0 {
+		tokens[n-1].Value = run.String()
+	}
 	var b strings.Builder
-	if err := formatters.TTY256.Format(&b, styles.Get(highlightStyle), it); err != nil {
+	if err := formatters.TTY256.Format(&b, styles.Get(highlightStyle), chroma.Literator(tokens...)); err != nil {
 		return strings.Split(text, "\n")
 	}
 	return strings.Split(b.String(), "\n")
