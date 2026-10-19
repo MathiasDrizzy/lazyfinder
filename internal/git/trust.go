@@ -25,11 +25,16 @@ const commandKeys = `^(core\.fsmonitor|filter\..+\.(clean|smudge|process))$`
 // GIT_CONFIG_KEY_n and GIT_CONFIG_VALUE_n, after any the environment already has, and a git older than 2.31, which
 // ignores them, does not read such a repository at all. A submodule has a config of its own that this does not read,
 // so the reads pass --ignore-submodules=dirty: git then compares the submodule's commit and never runs a status in it.
+//
+// A read never fetches either: a repository that says it is a partial clone fetches a missing object from its
+// promisor remote, whose uploadpack is a command from its config. protocol.allow=never refuses every transport (any
+// git since 2.12) and GIT_NO_LAZY_FETCH stops the fetch itself (git 2.44).
 func readOnly(ctx context.Context, dir string) (args, env []string, err error) {
+	args, env = []string{"-c", "protocol.allow=never"}, []string{"GIT_NO_LAZY_FETCH=1"}
 	out, err := git(ctx, dir, "config", "--includes", "--show-scope", "--name-only", "--get-regexp", commandKeys)
 	var ee *exec.ExitError
 	if errors.As(err, &ee) && ee.ExitCode() == 1 {
-		return nil, nil, nil // no such setting
+		return args, env, nil // no such setting
 	}
 	if err != nil { // a git older than 2.26 (no --show-scope), a timeout: what is on is unknown, so nothing is read
 		return nil, nil, fmt.Errorf("cannot tell which settings of the repository to switch off: %w", err)
@@ -51,14 +56,14 @@ func readOnly(ctx context.Context, dir string) (args, env []string, err error) {
 		args = append(args, "-c", key+"="+value)
 	}
 	if len(odd) == 0 {
-		return args, nil, nil
+		return args, env, nil
 	}
 	if !configEnvWorks() {
 		return nil, nil, errors.New("this git is older than 2.31 and cannot switch off the repository's filters")
 	}
 	first, _ := strconv.Atoi(os.Getenv("GIT_CONFIG_COUNT"))
 	first = max(first, 0)
-	env = []string{"GIT_CONFIG_COUNT=" + strconv.Itoa(first+len(odd))}
+	env = append(env, "GIT_CONFIG_COUNT="+strconv.Itoa(first+len(odd)))
 	for i, key := range odd {
 		n := strconv.Itoa(first + i)
 		env = append(env, "GIT_CONFIG_KEY_"+n+"="+key, "GIT_CONFIG_VALUE_"+n+"=")

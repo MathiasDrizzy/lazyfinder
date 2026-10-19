@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -139,8 +140,8 @@ func TestReadOnlyFailsClosed(t *testing.T) {
 	if _, _, err := readOnly(ctx, repo); err == nil {
 		t.Fatal("a git config that did not run must not mean there is nothing to switch off")
 	}
-	if args, env, err := readOnly(context.Background(), fixture(t)); err != nil || args != nil || env != nil {
-		t.Fatalf("a repository without such settings: %v, %v, %v", args, env, err)
+	if args, _, err := readOnly(context.Background(), fixture(t)); err != nil || slices.Contains(args, "core.fsmonitor=false") {
+		t.Fatalf("a repository without such settings: %v, %v", args, err)
 	}
 }
 
