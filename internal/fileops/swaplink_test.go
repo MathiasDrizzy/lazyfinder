@@ -2,6 +2,7 @@ package fileops
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -93,5 +94,20 @@ func TestACopyThatFailsOnItsSourceLeavesWhatIsAtTheDestination(t *testing.T) {
 		if got := w.read("dst/" + n); got != "theirs" {
 			t.Fatalf("%s: the file at the destination was removed", n)
 		}
+	}
+}
+
+// A copy cancelled before it made anything returned the bare context error, so copyNew took it for a half copy and
+// removed what stood at dst: someone else's file that took the chosen name in the meantime.
+func TestACopyCancelledBeforeItStartsLeavesWhatIsAtTheDestination(t *testing.T) {
+	w := newWorld(t)
+	w.put("dst/a.txt", "theirs")
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := copyNew(ctx, w.path("src/a.txt"), w.path("dst/a.txt"), nil); !errors.Is(err, context.Canceled) {
+		t.Fatalf("copy = %v, want cancelled", err)
+	}
+	if got := w.read("dst/a.txt"); got != "theirs" {
+		t.Fatal("the file at the destination was removed")
 	}
 }

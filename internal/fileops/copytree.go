@@ -60,7 +60,7 @@ func openDir(dir int, name, path string, noFollow bool) (*os.File, error) {
 
 func copyAt(ctx context.Context, src, dst item, onBytes Progress) error {
 	if err := ctx.Err(); err != nil {
-		return err
+		return untouched{err}
 	}
 	var st unix.Stat_t
 	if err := unix.Fstatat(src.fd(), src.name(), &st, unix.AT_SYMLINK_NOFOLLOW); err != nil {
