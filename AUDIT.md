@@ -37,6 +37,11 @@ the commit. It ends with no open rows.
 - Debug of the logs: a session run with `--log` through preview, Get Info, duplicate, search, columns, the sidebar
   mode, settings, help, copy path and recents logged only `start` and `exit`, with no WARN or ERROR.
 - `/insights`: report generated; no finding about the code.
+- `/debug` (run natively with `claude -p "/debug ..."`) over the JSON log, the last `verificar.sh` output and the 20
+  -race runs: no error, warning, panic or data race.
+- The five commands of the closing rule, run one by one on c105315 (2026-10-19T05:07Z): `go build ./...` and
+  `go vet ./...` rc 0, `go test -race ./...` ok in all 18 packages, `golangci-lint run` 0 issues, `govulncheck ./...`
+  no vulnerabilities.
 
 ## Findings
 
