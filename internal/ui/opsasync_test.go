@@ -84,3 +84,16 @@ func TestCancellingStaysOnTheStatusLine(t *testing.T) {
 		t.Fatalf("status = %q after a tick, want Cancelling…", e.m.status)
 	}
 }
+
+// A copy draws a bar of its progress next to the bytes copied, filled in proportion.
+func TestACopyDrawsAProgressBar(t *testing.T) {
+	e := newEnv(t)
+	e.pick("notes.txt")
+	_ = e.m.duplicate()
+	e.m.op.total.Store(100)
+	e.m.op.done.Store(50)
+	got := e.m.opProgress()
+	if want := strings.Repeat("█", progressWidth/2) + strings.Repeat("░", progressWidth/2); !strings.Contains(got, want) {
+		t.Fatalf("progress %q lacks a half-full bar %q", got, want)
+	}
+}

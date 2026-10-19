@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -13,6 +14,9 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 )
+
+// progressWidth is the width in cells of the bar of a copy's progress.
+const progressWidth = 16
 
 // opTick is how often the status line shows the progress of a copy.
 var opTick = 150 * time.Millisecond
@@ -86,7 +90,10 @@ func (m *Model) opProgress() string {
 	}
 	text := fmt.Sprintf(format, subject(m.op.paths))
 	if total := m.op.total.Load(); total > 0 {
-		text += fmt.Sprintf(" %s / %s", fsmodel.HumanSize(min(m.op.done.Load(), total)), fsmodel.HumanSize(total))
+		done := min(m.op.done.Load(), total)
+		full := int(done * progressWidth / total)
+		bar := strings.Repeat("█", full) + strings.Repeat("░", progressWidth-full)
+		text += fmt.Sprintf(" %s %s / %s", bar, fsmodel.HumanSize(done), fsmodel.HumanSize(total))
 	}
 	return text + "  " + i18n.T("(Esc cancela)", "(Esc cancels)")
 }
