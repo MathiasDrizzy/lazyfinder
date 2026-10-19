@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Security
 
+- Looking at a folder no longer runs commands from the config of a git submodule inside it (core.fsmonitor and
+  filters), and a file name with *, ? or [..] names only that file in git: discarding "[ab].txt" no longer deletes
+  a.txt and b.txt.
+- A copy no longer follows an item swapped for a link while it runs, so it cannot read from or change the mode of
+  what the link points to; and diff lines, stash messages, link targets and popup titles show their escape sequences
+  as pictures.
 - A file name or previewed text can no longer send terminal commands: the frame keeps only color and style sequences,
   drops C0 and C1 controls by whole characters and shows invalid bytes as U+FFFD. Before, a name with ESC c, CSI 2J or
   CSI ?1049l could reset or clear the terminal or leave the alternate screen.
@@ -27,6 +33,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Moving to the Trash and undoing run apart from the UI with progress and Esc, so a Trash on another volume no
+  longer freezes the window; undoing a new folder never deletes a file that took its name; the Linux trash follows
+  XDG_DATA_HOME; a CSV with a byte order mark shows as a table.
 - Quitting, a SIGHUP or handing the terminal to another program no longer leaves a preview image over the shell or
   the terminal in raw mode. SIGHUP, SIGTERM and SIGINT stop a paste under way first, so it leaves no half copy, and a
   hangup while an editor has the terminal waits for it to close. A repeated signal still ends a lazyfinder that hangs.
