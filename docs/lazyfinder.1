@@ -1,4 +1,4 @@
-.TH LAZYFINDER 1 "2026-10-13" "lazyfinder" "User Commands"
+.TH LAZYFINDER 1 "2026-10-19" "lazyfinder" "User Commands"
 .SH NAME
 lazyfinder \- a Finder-like file manager for the terminal
 .SH SYNOPSIS
@@ -7,6 +7,9 @@ lazyfinder \- a Finder-like file manager for the terminal
 .br
 .B lazyfinder \-\-follow
 \fIdirectory\fR
+.br
+.B lazyfinder \-\-sidebar
+[\fIdirectory\fR]
 .SH DESCRIPTION
 lazyfinder shows a folder as a list or as columns (parent, folder, preview), with a sidebar, tabs, previews,
 search, tags, an Open With menu and mouse support. It starts in \fIdirectory\fR, or in the current folder.
@@ -33,6 +36,10 @@ Theme for this run: a built-in or user theme, or \fBterminal\fR.
 .TP
 .BI \-\-follow " directory"
 Follow a project in a narrow tree with live updates and git state.
+.TP
+.B \-\-sidebar
+Start in the narrow project sidebar of \fIdirectory\fR, or of the current folder; \fB\-\-follow\fR
+\fIdirectory\fR is the same.
 .TP
 .B \-\-no\-mouse
 Ignore the mouse for this run.

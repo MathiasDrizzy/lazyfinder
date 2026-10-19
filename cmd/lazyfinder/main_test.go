@@ -137,14 +137,41 @@ func TestCompletionsRejectAnUnknownShell(t *testing.T) {
 	}
 }
 
+// helpFlags are the flags --help lists, so a new flag cannot be left out of the man page or the completions.
+func helpFlags(t *testing.T) []string {
+	t.Helper()
+	_, out, errOut := runCLI(t, nil, "--help")
+	var flags []string
+	for line := range strings.Lines(out + errOut) {
+		if f, ok := strings.CutPrefix(line, "  -"); ok {
+			flags = append(flags, strings.Fields(f)[0])
+		}
+	}
+	if len(flags) < 10 {
+		t.Fatalf("--help lists %d flags:\n%s%s", len(flags), out, errOut)
+	}
+	return flags
+}
+
 func TestManPageMentionsEveryFlag(t *testing.T) {
 	page, err := os.ReadFile("../../docs/lazyfinder.1")
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, flag := range []string{"version", "print-default-config", "log", "log-paths", "lang", "theme", "follow", "no-mouse", "completions"} {
+	for _, flag := range helpFlags(t) {
 		if !strings.Contains(strings.ReplaceAll(string(page), `\-`, "-"), "--"+flag) {
 			t.Errorf("man page lacks --%s", flag)
+		}
+	}
+}
+
+func TestEveryCompletionOffersEveryFlag(t *testing.T) {
+	for _, shell := range []string{"bash", "zsh", "fish"} {
+		_, script, _ := runCLI(t, nil, "--completions", shell)
+		for _, flag := range helpFlags(t) {
+			if !strings.Contains(script, flag) {
+				t.Errorf("%s completion lacks --%s", shell, flag)
+			}
 		}
 	}
 }
