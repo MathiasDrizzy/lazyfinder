@@ -25,6 +25,19 @@ the commit. It ends with no open rows.
   c8eee83). `.claude/harness/verificar.sh` exit 0 for 29830e9, -race included.
 - Fuzz tests run again on the final code (15 s each): no failure. gitleaks over 238 commits and the tree: no leaks.
 
+## Final reviews (2026-10-19)
+
+- Code review of the branch against main (37 source files, about 1000 lines): one finding, row 39, fixed in c8eee83.
+  Nothing else open: partial copies are removed only when this copy made them, the Get Info count is cancelled with
+  its popup and late results are dropped, `y` passes text to the clipboard tool on stdin with no shell.
+- Security review: no finding. No secrets (gitleaks over 238 commits and the tree), no vulnerable module
+  (govulncheck), no outdated direct dependency, Dependabot on for gomod and actions. Text copied through OSC 52 is
+  base64, so a hostile name cannot inject sequences.
+- `claude doctor`: no installation issues found.
+- Debug of the logs: a session run with `--log` through preview, Get Info, duplicate, search, columns, the sidebar
+  mode, settings, help, copy path and recents logged only `start` and `exit`, with no WARN or ERROR.
+- `/insights`: report generated; no finding about the code.
+
 ## Findings
 
 | # | Severity | Where | Finding | Fix | Commit | State |
