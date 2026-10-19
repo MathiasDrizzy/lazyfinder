@@ -43,6 +43,7 @@ These are the defaults. Every list action can be rebound with `keys` in `config.
 | `}`, `{` | Next and previous tab (wraps around) | `next_tab` `prev_tab` |
 | `b` | Bookmark: add the selected folder (or this one) to Favorites, or remove it. Saved in `config.json` | `bookmark` |
 | `E` | Recent files and folders (the last 20 you went to or opened, kept in `recents.json` next to the config) | `recents` |
+| `m` then a letter, `'` | `m` and a letter or a digit mark the current folder, like Vim's marks; `'` lists the marks, and the mark's letter (or `Enter`) goes to its folder, `delete` removes it. Kept in `marks.json` next to the config | `set_mark` `jump_mark` |
 | `f` | Quick filter by name or glob (`*.go`); `Enter` keeps it, `Esc` drops it. Ends when you leave the folder | `filter` |
 | `F` | Saved searches; `Delete` removes one. Save the search being typed with `ctrl+s` | `saved_searches` |
 | `t`, `T` | Tag the marked rows (again to untag), list the tags in use and search for one | `tag` `tags` |

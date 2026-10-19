@@ -105,7 +105,8 @@ folder) are optional, each at most once and always a whole argument; nothing goe
 
 ## Things lazyfinder remembers
 
-Next to `config.json`: `recents.json` (visited folders), `searches.json` (saved searches) and `tags.json` (tags).
+Next to `config.json`: `recents.json` (visited folders), `searches.json` (saved searches), `tags.json` (tags) and
+`marks.json` (the folders marked with `m`).
 They are plain JSON and safe to delete. Tags are lazyfinder's own, not Finder's colored tags (ADR 0012).
 
 ## Themes

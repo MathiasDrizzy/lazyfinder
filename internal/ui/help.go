@@ -46,6 +46,7 @@ func (m *Model) helpRows() []helpRow {
 		{"in:invoice", i18n.T("in: busca dentro de los archivos", "in: searches inside the files")},
 		{"", i18n.T("Favoritos y lugares", "Favorites and places")},
 		{k(keymap.Bookmark), i18n.T("Añadir la carpeta a Favoritos (o quitarla)", "Add the folder to Favorites (or remove it)")},
+		{k(keymap.SetMark) + " " + k(keymap.JumpMark), i18n.T("Marcar la carpeta / ir a una marca", "Mark the folder / go to a mark")},
 		{k(keymap.Focus), i18n.T("Pasar a la barra lateral y volver", "Switch to the sidebar and back")},
 		{"d  F2  K  J", i18n.T("En la barra lateral: quitar, renombrar, subir, bajar un favorito", "In the sidebar: remove, rename, move up, move down a favorite")},
 		{i18n.T("clic derecho", "right click"), i18n.T("Menú de un favorito o de una carpeta", "Menu of a favorite or a folder")},

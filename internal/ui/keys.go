@@ -17,6 +17,9 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		return m.quit()
 	}
 	m.setStatus("")
+	if m.awaitMark {
+		return m.markKey(key)
+	}
 	act, _ := m.keys.Lookup(key)
 	switch {
 	case m.ctx.open:
@@ -147,6 +150,10 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 		return m.showRecents()
 	case keymap.Bookmark:
 		return m.toggleBookmark()
+	case keymap.SetMark:
+		return m.startMark()
+	case keymap.JumpMark:
+		return m.showMarks()
 	case keymap.NewTab:
 		return m.newTab()
 	case keymap.CloseTab:

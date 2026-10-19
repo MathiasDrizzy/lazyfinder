@@ -181,8 +181,8 @@ Requirement (2026-10-13): the same features as Finder and as the Windows file se
   tests for each; Trash never deletes for good.
 - **R-52 Go to folder (M3, done).** `ctrl+g` prompts for a path (with `~` and completion). AC: scenario.
 - **R-53 Tabs, tags, saved searches, recents (M6, done).** Tabs, bookmarks, recent folders, quick filter, saved
-  searches, tags, custom commands, content search and a column layout (ADR 0012). AC: `workspace.json` and the unit
-  tests of `internal/ui` and `internal/search`.
+  searches, tags, Vim-style marks (`m`, `'`), custom commands, content search and a column layout (ADR 0012). AC:
+  `workspace.json` and the unit tests of `internal/ui` and `internal/search`.
 - **R-54 Default openers (M1, extended M3, done).** A built-in table of defaults per extension that the config replaces
   (never run anything unconfigured stays true: defaults call `open`). AC: test of the table and an override.
 - **R-55 herdr plugin (2026-10-15).** `herdr-plugin.toml` at the root makes the repository a herdr plugin

@@ -149,8 +149,12 @@ type Model struct {
 	filter   string // quick filter on the names of this folder; empty means none
 	picker   pickerState
 	recents  []string // visited folders, newest first
-	saved    []savedSearch
-	tags     map[string][]string // path -> tag names, kept in tags.json next to config.json
+	// vimMarks are the folders marked with m and a letter, kept in marks.json next to config.json; awaitMark is
+	// true between m and its letter.
+	vimMarks  map[string]string
+	awaitMark bool
+	saved     []savedSearch
+	tags      map[string][]string // path -> tag names, kept in tags.json next to config.json
 
 	tabs []tabState // empty until a second tab is opened
 	cur  int
@@ -193,6 +197,7 @@ func New(d Deps) *Model {
 		imagesAllowed: d.Cfg.Preview.Images == "kitty",
 	}
 	loadState(m.stateFile(recentsFile), &m.recents)
+	loadState(m.stateFile(marksFile), &m.vimMarks)
 	m.recents = m.recents[:min(len(m.recents), maxRecents)]
 	loadState(m.stateFile(searchesFile), &m.saved)
 	loadState(m.stateFile(tagsFile), &m.tags)

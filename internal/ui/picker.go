@@ -21,7 +21,8 @@ type pickerState struct {
 	items []pickItem
 	sel   int
 
-	rebuild func() []pickItem // items again after one was removed
+	rebuild  func() []pickItem                // items again after one was removed
+	shortcut func(key string) (tea.Cmd, bool) // a key that picks an item at once (the letter of a mark)
 }
 
 func (m *Model) openPicker(title string, items []pickItem) {
@@ -67,6 +68,11 @@ func (m *Model) pickerBox() (x, y int, lines []string) {
 
 func (m *Model) pickerKey(key string, act keymap.Action) tea.Cmd {
 	n := len(m.picker.items)
+	if m.picker.shortcut != nil {
+		if cmd, ok := m.picker.shortcut(key); ok {
+			return cmd
+		}
+	}
 	switch {
 	case act == keymap.Quit:
 		return m.quit()
