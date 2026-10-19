@@ -119,15 +119,20 @@ func (o *Ops) Copy(srcs []string, dstDir string) ([]string, error) {
 	}
 	if len(made) > 0 {
 		created := slices.Clone(made)
-		o.push(fmt.Sprintf("copy of %s", describe(created)), func() error { return o.discard(created) })
+		o.push(fmt.Sprintf("copy of %s", describe(created)), func() error {
+			n, err := o.discard(created)
+			created = created[n:] // a failed undo is tried again from the first copy still there
+			return err
+		})
 	}
 	return made, firstErr
 }
 
-// discard trashes paths without recording an undo step: it is how an undo gets rid of what it had made.
-func (o *Ops) discard(paths []string) error {
-	_, err := o.toTrash(paths)
-	return err
+// discard trashes paths without recording an undo step: it is how an undo gets rid of what it had made. It returns
+// how many of paths, from the first, went to the trash.
+func (o *Ops) discard(paths []string) (int, error) {
+	done, err := o.toTrash(paths)
+	return len(done), err
 }
 
 func describe(paths []string) string {
@@ -224,10 +229,12 @@ func (o *Ops) Move(srcs []string, dstDir string) ([]string, error) {
 		made[i] = p.to
 	}
 	if len(done) > 0 {
+		left := len(done) // a failed undo is tried again from the item it stopped at
 		o.push(fmt.Sprintf("move of %s", describe(made)), func() error {
-			for i := len(done) - 1; i >= 0; i-- {
-				back := filepath.Join(filepath.Dir(done[i].from), UniqueName(filepath.Dir(done[i].from), filepath.Base(done[i].from)))
-				if err := move(done[i].to, back); err != nil {
+			for ; left > 0; left-- {
+				p := done[left-1]
+				back := filepath.Join(filepath.Dir(p.from), UniqueName(filepath.Dir(p.from), filepath.Base(p.from)))
+				if err := move(p.to, back); err != nil {
 					return err
 				}
 			}
@@ -303,7 +310,8 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 		if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
 			return nil
 		}
-		return o.discard([]string{p}) // it gained content since: keep it, in the trash
+		_, err := o.discard([]string{p}) // it gained content since: keep it, in the trash
+		return err
 	})
 	return p, nil
 }
@@ -327,12 +335,14 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 	}
 	o.push(fmt.Sprintf("new file %q", name), func() error {
 		if fi, err := os.Stat(p); err == nil && fi.Size() > 0 {
-			return o.discard([]string{p})
+			_, err := o.discard([]string{p})
+			return err
 		}
 		if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
 			return nil
 		}
-		return o.discard([]string{p})
+		_, err := o.discard([]string{p})
+		return err
 	})
 	return p, nil
 }
@@ -341,11 +351,13 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 func (o *Ops) Trash(paths []string) error {
 	moved, err := o.toTrash(paths)
 	if len(moved) > 0 {
+		left := len(moved) // a failed undo is tried again from the item it stopped at
 		o.push(fmt.Sprintf("trashing of %s", describe(originals(moved))), func() error {
-			for i := len(moved) - 1; i >= 0; i-- {
-				dir := filepath.Dir(moved[i].from)
-				back := filepath.Join(dir, UniqueName(dir, filepath.Base(moved[i].from)))
-				if err := move(moved[i].to, back); err != nil {
+			for ; left > 0; left-- {
+				p := moved[left-1]
+				dir := filepath.Dir(p.from)
+				back := filepath.Join(dir, UniqueName(dir, filepath.Base(p.from)))
+				if err := move(p.to, back); err != nil {
 					return err
 				}
 			}
