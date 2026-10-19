@@ -78,3 +78,20 @@ func TestAClickInThePaletteRunsTheItem(t *testing.T) {
 		t.Fatalf("click: open %v, hidden %v -> %v", e.m.picker.open, before, e.m.hidden)
 	}
 }
+
+// Every action the palette lists runs from it without a panic, on a fresh model each time.
+func TestEveryPaletteActionRuns(t *testing.T) {
+	e := newEnv(t)
+	e.m.showPalette()
+	n := len(e.m.picker.all)
+	for i := range n {
+		f := newEnv(t)
+		f.m.showPalette()
+		it := f.m.picker.all[i]
+		if it.label == "" || it.hint == "" {
+			t.Errorf("item %d has no name or no key: %+v", i, it)
+		}
+		f.m.picker = pickerState{}
+		_ = it.run() // the command it returns may wait on a terminal; running the action is what is checked
+	}
+}
