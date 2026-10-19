@@ -160,6 +160,12 @@ func Load(ctx context.Context, path string, opts Options) Result {
 			return res
 		}
 	}
+	if sep, ok := tableSeparators[extOf(name)]; ok {
+		if lines, ok := renderTable(wholeRows(string(body), truncated), sep, opts.NoColor); ok {
+			res.Lines = lines
+			return res
+		}
+	}
 	res.Lines = highlight(name, body, opts.NoColor)
 	return res
 }

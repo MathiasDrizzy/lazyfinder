@@ -30,8 +30,8 @@ file, and `Enter` to open it with the program you choose. You never leave the te
 
 ### Look inside files with Space
 
-`Space` opens a preview without starting any program: rendered Markdown, highlighted code, the contents of a zip,
-pictures in terminals that can draw them. `↑` `↓` move to the next file while the preview stays open.
+`Space` opens a preview without starting any program: rendered Markdown, highlighted code, CSV and TSV as tables,
+the contents of a zip, pictures in terminals that can draw them. `↑` `↓` move to the next file while the preview stays open.
 
 <img src="assets/readme/feature-preview.gif" alt="Previewing Markdown notes, a text file, the contents of a zip archive and an HTML file with highlighted code" width="100%">
 
