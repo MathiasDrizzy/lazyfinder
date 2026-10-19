@@ -243,12 +243,20 @@ func (m *Model) toggleProject() {
 		m.projTab = tabFiles
 		m.deps.Cfg.Columns = m.savedColumns
 		clear(m.expanded)
-		_ = m.load(m.dir(), "")
+		m.relist()
 		return
 	}
 	m.deps.Follow = true
 	m.projTab = tabFiles
 	m.savedColumns = m.deps.Cfg.Columns
 	m.deps.Cfg.Columns = []string{"name"}
-	_ = m.load(m.dir(), "") // the tree starts collapsed: nothing opens when the mode changes
+	m.relist() // the tree starts collapsed: nothing opens when the mode changes
+}
+
+// relist reads the folder again for a new mode and watches what the new listing shows, and only that.
+func (m *Model) relist() {
+	if err := m.load(m.dir(), ""); err != nil {
+		m.setError(err)
+	}
+	m.follow()
 }
