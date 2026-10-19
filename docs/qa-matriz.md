@@ -28,12 +28,17 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Rename (f2 R) | T RenameWithF2PrefillsTheNameAndRenames, T TheOtherKeysOfAnActionDoTheSame |
 | NewFolder, NewFile (N ctrl+n / n) | T NewFolderAsksForANameAndSelectsIt, T ActionIconsCreateFilesAndFoldersAndCollapse, S rebound-keys |
 | Trash, Undo (d delete / u ctrl+z) | T TrashOfOneItemAsksNothingAndUndoBringsItBack, T DeleteKeyTrashesToo, T UndoReversesARename |
+| Redo (U ctrl+r), History (H) | T URedoesAndHListsTheHistory, T HWithoutHistory, T ARedoRunsApartFromTheUI, fileops: T EveryOperationCanBeRedone |
+| CopyPath (y) | T YCopiesThePathOfTheSelectionOrOfTheMarkedRows |
+| Chmod (P) | T PSetsThePermissionsOfTheSelection, T ABadModeKeepsThePromptOpen, fileops: T UndoOfAChmodDoesNotFollowALinkPutInPlace |
 | Info (i) | T InfoPopupShowsDetailsAndEscClosesIt, T GetInfoFitsTheNarrowestSidebar |
 | Layout (M) | T ColumnLayoutToggleReturnsToTheList |
 | TagKey, Tags (t T) | T TagToggleOnTheSelectionAndSearchByIt, T TagPickerSearchesTheChosenTag |
 | SavedSearches (F), Filter (f) | T ASearchCanBeSavedAndRunAgainFromThePicker, T QuickFilterNarrowsTheFolderWhileTyping |
 | Commands (!), Recents (E) | T CommandsPickerRunsTheChosenCommandOnTheSelectionInItsFolder, T RecentsListVisitedFoldersNewestFirstAndOpenOne |
 | Bookmark (b) | T BookmarkAddsTheSelectedFolderToFavoritesAndTogglesItOff |
+| SetMark, JumpMark (m ') | T VimMarksGoBackToAFolder, T MarkCancelledByAnotherKey |
+| Palette (: ctrl+p) | T ThePaletteFindsAndRunsAnAction, T ThePaletteWithNoMatch, T AClickInThePaletteRunsTheItem, T EveryPaletteActionRuns |
 | NewTab, CloseTab, NextTab, PrevTab | T NewTabStartsInTheSameFolderAndShowsTheCount, T ClosingATabReturnsToANeighbourAndTheLastOneStays, T TabsWrapAround |
 | SidebarNarrow/Widen (< >), ColumnNarrow/Widen (ctrl+←/→), FavoritesShorter/Taller (ctrl+↑/↓) | T KeysResizeTheSidebar, T KeysResizeTheSortedColumn, T TheBoxesCanBeResizedFromTheKeyboard |
 | Help (? f1), Settings (,), Focus (tab) | T QuestionMarkOpensHelpThatExplainsFavorites, T TheOtherKeysOfAnActionDoTheSame, T SettingsPopupOpensWithKeyAndGearAndCloses, T TabMovesFocusToSidebar |
@@ -68,7 +73,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Column separators, choosing columns, narrow windows | T ColumnsAreSeparatedByABarLikeFinder, T ColumnsSettingCyclesBasicFullAndCustom, T NarrowWindowDropsWholeColumnsNeverCutsText, S column-separators |
 | Tree (expand in place, survive leaving, live refresh) | T ExpansionSurvivesLeavingAndComingBack, T ExpandedFoldersAreWatchedAndRefreshLive, S tree |
 | Column (Miller) layout | T ColumnLayoutShowsParentCurrentAndAPreviewOfTheSelection, T ClickingTheParentColumnGoesThere |
-| Copy, cut, paste, duplicate, rename, new, trash, undo, confirmation | T CopyOfMarkedItemsPastesThemAll, T RenameToATakenNameShowsTheErrorAndChangesNothing, T TrashOfSeveralItemsAsksFirst, T ConfirmDeleteOffTrashesWithoutAsking, S file-ops |
+| Copy, cut, paste, duplicate, rename, new, trash, undo, confirmation | T CopyOfMarkedItemsPastesThemAll, T RenameToATakenNameShowsTheErrorAndChangesNothing, T TrashOfSeveralItemsAsksFirst, T ConfirmDeleteOffTrashesWithoutAsking, T ACopyDrawsAProgressBar, T CancellingStaysOnTheStatusLine, S file-ops |
 | The session never writes to the tree by itself | T SessionNeverWritesToTheTree |
 | Tags, favorites, recents, saved searches, tabs | T TagsFollowARenameAndPersist, T SidebarKeysRemoveRenameAndReorderAFavorite, T RecentsSurviveARestart, T SavedSearchesSurviveARestart, T TabsKeepTheirOwnFolderAndHistory |
 | Goto prompt | T ANonexistentPathShowsAnErrorAndKeepsThePrompt, T AFilePathGoesToItsFolderAndSelectsIt |
@@ -82,7 +87,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 
 | Function | Proof |
 |---|---|
-| Text, folder, archive, binary, markdown, video, PDF, image previews | T SpacePreviewShowsTextAndClosesWithEsc, T SpaceOnAnArchiveListsItsContents, T SpaceOnABinaryFileShowsAHexDump, T SpaceOnMarkdownShowsItRendered, T SpaceOnAVideoShowsTheProbedFacts, T PDFPageIsDrawnAsAnImageAndTheTempPageIsKept, S previews-more, S preview-c2pa-jpeg |
+| Text, folder, archive, binary, markdown, video, PDF, image previews | T SpacePreviewShowsTextAndClosesWithEsc, T SpaceOnAnArchiveListsItsContents, T SpaceOnABinaryFileShowsAHexDump, T SpaceOnMarkdownShowsItRendered, T SpaceOnAVideoShowsTheProbedFacts, T PDFPageIsDrawnAsAnImageAndTheTempPageIsKept, S previews-more, S preview-c2pa-jpeg, T ACSVShowsAsATable, T ATableWithTooManyColumnsStaysSmall |
 | Search by name, content, kind, scope, date, size | T RecursiveSearchFindsDeepFiles, T ContentSearchInTheFolderFindsFilesByTheirText, T FilterChipsAndQueryFilterByDateAndSize, T KindsKeyNarrowsToFilesOrFolders, S search-field |
 | Search chips and the bar | T EachSearchFilterButtonCanBeClicked, T SearchFiltersNeverGetCut |
 | Open with, commands, openers, terminal handover | T OpenFileUsesConfiguredOpener, T OpenFileWithoutRuleUsesSystemOpen, T TerminalOpenerHandsOverTheTerminal |
@@ -97,7 +102,7 @@ Legend: **T** = Go test in `internal/ui` unless a package is named; **S** = tuiq
 | Row height comes from the density, not from git: inside a repository `normal` rows sit on consecutive lines and the default `comfortable` rows are two lines apart | S rows-git-normal, S rows-git-comfortable, T TheDefaultDensityIsWideLikeFinder |
 | Hover and click on every action icon of the window toolbar (the new folder and new file icons open their prompt) | S chips |
 | Every part follows the theme (file icons, folders, selection, border, branch, hover); no color is written outside the theme package | T EveryPartChangesColorWithTheTheme, T NoColorIsWrittenOutsideTheThemePackage, S chips-catppuccin-latte, S chips-nord |
-| 14 themes readable, light and dark | T TextReadsInEveryTheme, T PlainTextTakesTheThemeTextColorOnALightTheme, S themes |
+| 15 themes readable, light and dark | T TextReadsInEveryTheme, T PlainTextTakesTheThemeTextColorOnALightTheme, S themes |
 | Settings (every row saves; a broken config is not overwritten) | T SettingsThemeChangeAppliesAndIsSaved, T SettingsDoesNotOverwriteABrokenConfig, T SettingsFitsAndScrollsAtSmallSizes, S settings |
 | Languages (6 catalogs) | T SettingsLanguageChangesTheTextAtOnce, T SidebarAndTitlesUseTheInterfaceLanguage, S language, S language-ja |
 | No color / terminal theme / icons off | T NoColorHasNoColorSequences, T TerminalThemeUsesNoTrueColor, T IconsCanBeSwitchedToAsciiOrOff, S no-color |
