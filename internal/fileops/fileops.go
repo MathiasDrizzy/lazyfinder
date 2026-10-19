@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"unicode/utf8"
 )
 
 // maxUndo is how many steps are remembered.
@@ -48,20 +49,32 @@ func UniqueName(dir, name string) string {
 	}
 }
 
+// nameMax is the longest name, in bytes, that the file systems lazyfinder runs on take (NAME_MAX on Linux).
+const nameMax = 255
+
 // candidate is the n-th name UniqueName tries for name: name itself, then "name copy.ext", "name copy 2.ext"…
-func candidate(name string, n int) string {
-	if n == 0 {
-		return name
-	}
+func candidate(name string, n int) string { return fitCandidate(name, n, nameMax) }
+
+// fitCandidate is candidate cut to at most limit bytes: the stem loses whole characters from its end, so the suffix
+// and the extension stay.
+func fitCandidate(name string, n, limit int) string {
 	ext := filepath.Ext(name)
-	if ext == name { // a dotfile
+	if ext == name || len(ext) > limit/2 { // a dotfile, or an "extension" that is most of the name
 		ext = ""
 	}
-	suffix := " copy"
-	if n > 1 {
+	suffix := ""
+	switch {
+	case n == 1:
+		suffix = " copy"
+	case n > 1:
 		suffix = fmt.Sprintf(" copy %d", n)
 	}
-	return strings.TrimSuffix(name, ext) + suffix + ext
+	stem := strings.TrimSuffix(name, ext)
+	for len(stem)+len(suffix)+len(ext) > limit && stem != "" {
+		_, size := utf8.DecodeLastRuneInString(stem)
+		stem = stem[:len(stem)-size]
+	}
+	return stem + suffix + ext
 }
 
 func exists(p string) bool {

@@ -32,7 +32,7 @@ func (o *Ops) reserveTrashName(p string) (name, info string, err error) {
 	}
 	body := fmt.Sprintf("[Trash Info]\nPath=%s\nDeletionDate=%s\n", (&url.URL{Path: p}).EscapedPath(), time.Now().Format("2006-01-02T15:04:05"))
 	for n := 0; ; n++ {
-		name = candidate(filepath.Base(p), n)
+		name = fitCandidate(filepath.Base(p), n, nameMax-len(".trashinfo")) // the info file's name must fit too
 		if exists(filepath.Join(o.trashDir, name)) {
 			continue
 		}

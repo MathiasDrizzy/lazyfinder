@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 // xdgWorld is newWorld with an XDG trash (…/Trash/files), the one Linux desktops show.
@@ -85,5 +86,40 @@ func TestAnUndoThatCannotDropTheInfoDoesNotGetStuck(t *testing.T) {
 	}
 	if _, err := w.ops.Undo(); err != nil || !w.exists("src/a.txt") {
 		t.Fatalf("the undo list is stuck: %v", err)
+	}
+}
+
+// A name of 246 to 255 bytes, the most a file system takes, could not go to an XDG trash: its .trashinfo name is ten
+// bytes longer. The name in the trash is shortened instead; the .trashinfo keeps the whole path, and undo puts the
+// item back under its own name.
+func TestALongNameGoesToTheXDGTrash(t *testing.T) {
+	w := xdgWorld(t)
+	long := strings.Repeat("é", 123) + ".txt" // 250 bytes
+	w.put("src/"+long, "x")
+	w.must(w.ops.Trash([]string{w.path("src/" + long)}))
+	if w.exists("src/" + long) {
+		t.Fatal("the file did not go to the trash")
+	}
+	infos, _ := os.ReadDir(filepath.Join(w.root, "share", "Trash", "info"))
+	if len(infos) != 1 || len(infos[0].Name()) > 255 || !strings.HasSuffix(infos[0].Name(), ".txt.trashinfo") {
+		t.Fatalf("info files: %v", infos)
+	}
+	if _, err := w.ops.Undo(); err != nil || w.read("src/"+long) != "x" {
+		t.Fatalf("undo: %v", err)
+	}
+}
+
+// "name copy.ext" of a name near 255 bytes is too long for the file system, so a duplicate failed; the stem is cut
+// to make room for the suffix, at a whole character.
+func TestACopyOfALongNameFits(t *testing.T) {
+	long := strings.Repeat("é", 125) + ".txt" // 254 bytes
+	for n := range 3 {
+		c := candidate(long, n)
+		if len(c) > 255 || !utf8.ValidString(c) || !strings.HasSuffix(c, ".txt") {
+			t.Fatalf("candidate %d = %d bytes %q", n, len(c), c)
+		}
+	}
+	if c := candidate("short.txt", 1); c != "short copy.txt" {
+		t.Fatalf("a short name changed: %q", c)
 	}
 }
