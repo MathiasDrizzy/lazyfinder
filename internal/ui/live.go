@@ -121,7 +121,12 @@ func (m *Model) scanGit(dir string) {
 	if !m.deps.Cfg.Git.Enabled {
 		return
 	}
-	if st, ok, err := git.Read(dir); err == nil && ok {
+	st, ok, err := git.Read(dir)
+	if err != nil { // the repository is not read at all (an old git, a timeout): say why the marks are gone
+		m.setError(err)
+		return
+	}
+	if ok {
 		m.git = gitState{st: st, ok: true}
 		if m.projectMode() && m.projTab == tabGit {
 			m.git.stashes, _ = git.Stashes(st.Root)
