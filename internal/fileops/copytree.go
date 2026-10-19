@@ -129,9 +129,7 @@ func copyDirAt(ctx context.Context, src, dst item, onBytes Progress) error {
 			return err
 		}
 	}
-	if err := copyXattrs(in, out); err != nil {
-		return err
-	}
+	copyXattrs(in, out)
 	if err := out.Chmod(fi.Mode().Perm()); err != nil {
 		return err
 	}
@@ -175,44 +173,35 @@ func copyFileAt(ctx context.Context, src, dst item, onBytes Progress) (err error
 	if _, err = io.Copy(out, progressReader{ctx: ctx, r: in, onBytes: onBytes}); err != nil {
 		return err
 	}
-	return copyXattrs(in, out)
+	copyXattrs(in, out)
+	return nil
 }
 
 // copyXattrs gives out the extended attributes of in: Finder tags, a resource fork, and com.apple.quarantine, which
 // makes Gatekeeper ask before a downloaded program runs. It goes before the mode, which may take the owner's write
-// permission away. An attribute the destination cannot hold (a filesystem without them, a security.* name only root
-// sets) is left behind, as cp -p does.
-func copyXattrs(in, out *os.File) error {
+// permission away. The attributes are a best effort, as in cp -p: one that cannot be read or that the destination
+// does not take (a filesystem without them, a security.* name only root sets, a full attribute block, one removed in
+// between) is left behind, and the copy of the content stands.
+func copyXattrs(in, out *os.File) {
 	src, dst := int(in.Fd()), int(out.Fd())
 	size, err := unix.Flistxattr(src, nil)
-	if errors.Is(err, unix.ENOTSUP) || err == nil && size == 0 { // a filesystem without them, or none: nothing to keep
-		return nil
-	}
-	if err != nil {
-		return &fs.PathError{Op: "listxattr", Path: in.Name(), Err: err}
+	if err != nil || size == 0 {
+		return
 	}
 	list := make([]byte, size)
 	if size, err = unix.Flistxattr(src, list); err != nil {
-		return &fs.PathError{Op: "listxattr", Path: in.Name(), Err: err}
+		return
 	}
 	for _, name := range strings.Split(strings.TrimRight(string(list[:size]), "\x00"), "\x00") {
 		n, err := unix.Fgetxattr(src, name, nil)
 		if err != nil {
-			return &fs.PathError{Op: "getxattr", Path: in.Name(), Err: err}
-		}
-		value := make([]byte, n)
-		if n, err = unix.Fgetxattr(src, name, value); err != nil {
-			return &fs.PathError{Op: "getxattr", Path: in.Name(), Err: err}
-		}
-		err = unix.Fsetxattr(dst, name, value[:n], 0)
-		if errors.Is(err, unix.ENOTSUP) || errors.Is(err, unix.EPERM) || errors.Is(err, unix.EACCES) {
 			continue
 		}
-		if err != nil {
-			return &fs.PathError{Op: "setxattr", Path: out.Name(), Err: err}
+		value := make([]byte, n)
+		if n, err = unix.Fgetxattr(src, name, value); err == nil {
+			_ = fsetxattr(dst, name, value[:n], 0) // best effort, see above
 		}
 	}
-	return nil
 }
 
 // setTimes gives the item the copy made the modification time of its source, without following a link in its place.
@@ -223,3 +212,6 @@ func setTimes(dst item, fi fs.FileInfo) error {
 	}
 	return nil
 }
+
+// fsetxattr is unix.Fsetxattr; a test swaps it for a destination that refuses an attribute.
+var fsetxattr = unix.Fsetxattr
