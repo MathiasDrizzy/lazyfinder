@@ -72,3 +72,15 @@ func quits(cmd tea.Cmd) bool {
 	}
 	return false
 }
+
+// Once Esc asked a copy to stop, the next progress tick wrote "Copying… (Esc cancels)" over "Cancelling…".
+func TestCancellingStaysOnTheStatusLine(t *testing.T) {
+	e := newEnv(t)
+	e.pick("notes.txt")
+	_ = e.m.duplicate()
+	_, _ = e.m.Update(keyMsg("esc"))
+	_, _ = e.m.Update(opTickMsg{})
+	if !strings.Contains(e.m.status, "Cancelling") {
+		t.Fatalf("status = %q after a tick, want Cancelling…", e.m.status)
+	}
+}

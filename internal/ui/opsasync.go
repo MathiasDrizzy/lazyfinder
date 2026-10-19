@@ -35,6 +35,7 @@ type opState struct {
 	done   *atomic.Int64 // bytes written so far
 	total  *atomic.Int64 // bytes to write, once counted; 0 for a move that only renames
 	quit   bool          // quit once it has stopped (the user quit while it ran)
+	ending bool          // asked to stop: the status line keeps saying so until it ends
 }
 
 type opDoneMsg struct {
@@ -94,7 +95,7 @@ func (m *Model) onOpTick() tea.Cmd {
 	if !m.op.busy {
 		return nil
 	}
-	if !m.statusErr {
+	if !m.statusErr && !m.op.ending {
 		m.setStatus(m.opProgress())
 	}
 	return opTickCmd()
@@ -103,6 +104,7 @@ func (m *Model) onOpTick() tea.Cmd {
 // cancelOp asks the running operation to stop; its end arrives as an opDoneMsg.
 func (m *Model) cancelOp() {
 	m.op.cancel()
+	m.op.ending = true
 	m.setStatus(i18n.T("Cancelando…", "Cancelling…"))
 }
 
