@@ -51,3 +51,25 @@ func TestAnAttributeTheDestinationRefusesDoesNotFailTheCopy(t *testing.T) {
 		t.Fatalf("copy = %q", got)
 	}
 }
+
+// copyXattrs read each attribute whole: a resource fork of hundreds of MB, which a tiny zip with an AppleDouble entry
+// restores, sat in memory at once and could not be cancelled. An attribute above maxXattr is left behind.
+func TestAHugeAttributeIsLeftBehind(t *testing.T) {
+	w := newWorld(t)
+	w.put("src/a.txt", "a")
+	if err := unix.Setxattr(w.path("src/a.txt"), "user.lazyfinder.test", []byte("v"), 0); err != nil {
+		t.Skipf("this filesystem keeps no extended attributes: %v", err)
+	}
+	old := fgetxattr
+	fgetxattr = func(fd int, name string, dest []byte) (int, error) {
+		if dest == nil {
+			return 1 << 40, nil // a terabyte: reading it would never end
+		}
+		return old(fd, name, dest)
+	}
+	t.Cleanup(func() { fgetxattr = old })
+	w.must(copyNew(context.Background(), w.path("src/a.txt"), w.path("dst/a.txt"), nil))
+	if _, err := unix.Getxattr(w.path("dst/a.txt"), "user.lazyfinder.test", nil); err == nil {
+		t.Fatal("an attribute above the limit was copied")
+	}
+}

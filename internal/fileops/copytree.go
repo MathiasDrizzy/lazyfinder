@@ -129,7 +129,7 @@ func copyDirAt(ctx context.Context, src, dst item, onBytes Progress) error {
 			return err
 		}
 	}
-	copyXattrs(in, out)
+	copyXattrs(ctx, in, out)
 	if err := out.Chmod(fi.Mode().Perm()); err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func copyFileAt(ctx context.Context, src, dst item, onBytes Progress) (err error
 	if _, err = io.Copy(out, progressReader{ctx: ctx, r: in, onBytes: onBytes}); err != nil {
 		return err
 	}
-	copyXattrs(in, out)
+	copyXattrs(ctx, in, out)
 	return nil
 }
 
@@ -181,8 +181,9 @@ func copyFileAt(ctx context.Context, src, dst item, onBytes Progress) (err error
 // makes Gatekeeper ask before a downloaded program runs. It goes before the mode, which may take the owner's write
 // permission away. The attributes are a best effort, as in cp -p: one that cannot be read or that the destination
 // does not take (a filesystem without them, a security.* name only root sets, a full attribute block, one removed in
-// between) is left behind, and the copy of the content stands.
-func copyXattrs(in, out *os.File) {
+// between) is left behind, and the copy of the content stands. So is one above maxXattr: a resource fork of
+// gigabytes, which a tiny zip with an AppleDouble entry restores, would sit in memory whole. Esc stops between two.
+func copyXattrs(ctx context.Context, in, out *os.File) {
 	src, dst := int(in.Fd()), int(out.Fd())
 	size, err := unix.Flistxattr(src, nil)
 	if err != nil || size == 0 {
@@ -193,12 +194,15 @@ func copyXattrs(in, out *os.File) {
 		return
 	}
 	for _, name := range strings.Split(strings.TrimRight(string(list[:size]), "\x00"), "\x00") {
-		n, err := unix.Fgetxattr(src, name, nil)
-		if err != nil {
+		if ctx.Err() != nil {
+			return
+		}
+		n, err := fgetxattr(src, name, nil)
+		if err != nil || n > maxXattr {
 			continue
 		}
 		value := make([]byte, n)
-		if n, err = unix.Fgetxattr(src, name, value); err == nil {
+		if n, err = fgetxattr(src, name, value); err == nil {
 			_ = fsetxattr(dst, name, value[:n], 0) // best effort, see above
 		}
 	}
@@ -213,5 +217,9 @@ func setTimes(dst item, fi fs.FileInfo) error {
 	return nil
 }
 
-// fsetxattr is unix.Fsetxattr; a test swaps it for a destination that refuses an attribute.
-var fsetxattr = unix.Fsetxattr
+// maxXattr is the largest extended attribute a copy keeps.
+const maxXattr = 16 << 20
+
+// fgetxattr and fsetxattr are unix.Fgetxattr and unix.Fsetxattr; tests swap them for a huge attribute and for a
+// destination that refuses one.
+var fgetxattr, fsetxattr = unix.Fgetxattr, unix.Fsetxattr
