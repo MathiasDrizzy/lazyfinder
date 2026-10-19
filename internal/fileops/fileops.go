@@ -255,7 +255,7 @@ func (o *Ops) Move(srcs []string, dstDir string) ([]string, error) {
 
 // move renames src to dst, or copies and then removes it when they are on different file systems.
 func move(src, dst string) error {
-	err := os.Rename(src, dst)
+	err := renameNoReplace(src, dst)
 	if err == nil || !errors.Is(err, syscall.EXDEV) {
 		return err
 	}
@@ -291,14 +291,14 @@ func (o *Ops) Rename(path, name string) (string, error) {
 	if exists(dst) {
 		return "", fmt.Errorf("%q already exists", name)
 	}
-	if err := os.Rename(path, dst); err != nil {
+	if err := renameNoReplace(path, dst); err != nil {
 		return "", err
 	}
 	o.push(fmt.Sprintf("rename of %q", filepath.Base(path)), func() error {
 		if exists(path) {
 			return fmt.Errorf("%q exists again", filepath.Base(path))
 		}
-		return os.Rename(dst, path)
+		return renameNoReplace(dst, path)
 	})
 	return dst, nil
 }
