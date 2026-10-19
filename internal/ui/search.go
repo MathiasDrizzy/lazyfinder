@@ -38,6 +38,7 @@ type searchState struct {
 	truncated bool
 	gen       int
 	cancel    context.CancelFunc
+	ctx       context.Context // done once the walk is cancelled: the command waiting on ch gives up then
 	ch        chan searchEvent
 }
 
@@ -226,7 +227,7 @@ func (m *Model) showResults(es []fsmodel.Entry) tea.Cmd {
 func (m *Model) startWalk(q search.Query) tea.Cmd {
 	ctx, cancel := context.WithCancel(context.Background())
 	ch := make(chan searchEvent, 4)
-	m.search.cancel, m.search.ch, m.search.running = cancel, ch, true
+	m.search.cancel, m.search.ctx, m.search.ch, m.search.running = cancel, ctx, ch, true
 	gen, root, max := m.search.gen, m.search.base.Dir, m.deps.Cfg.Search.MaxResults
 	system, index, home := m.search.scope == "system", m.deps.Index, m.deps.Home
 	tags := maps.Clone(m.tags) // the walk runs in its own goroutine
@@ -259,7 +260,7 @@ func (m *Model) startWalk(q search.Query) tea.Cmd {
 		case <-ctx.Done():
 		}
 	}()
-	return waitSearch(ch)
+	return waitSearch(ctx, ch)
 }
 
 // indexWalk is the whole-system search: it asks the system index and, when there is none, walks the home folder
@@ -284,8 +285,17 @@ func (m *Model) indexWalk(ctx context.Context, ch chan searchEvent, gen int, q s
 	send(searchEvent{done: true, err: err})
 }
 
-func waitSearch(ch chan searchEvent) tea.Cmd {
-	return func() tea.Msg { return searchMsg(<-ch) }
+// waitSearch returns the next event of the walk, or nothing once the walk is cancelled: the walk then stops sending,
+// and a command still waiting on ch would block its goroutine for good.
+func waitSearch(ctx context.Context, ch chan searchEvent) tea.Cmd {
+	return func() tea.Msg {
+		select {
+		case ev := <-ch:
+			return searchMsg(ev)
+		case <-ctx.Done():
+			return nil
+		}
+	}
 }
 
 func (m *Model) onSearch(msg searchMsg) tea.Cmd {
@@ -318,7 +328,7 @@ func (m *Model) onSearch(msg searchMsg) tea.Cmd {
 		}
 		return m.refreshPreview()
 	}
-	return waitSearch(m.search.ch)
+	return waitSearch(m.search.ctx, m.search.ch)
 }
 
 // where is the folder of a result relative to the folder being searched, empty for direct children.
