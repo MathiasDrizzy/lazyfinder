@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"path/filepath"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
@@ -94,7 +93,7 @@ func TestRightClickOnAFavoriteOffersRemoveAndOnAFolderOffersAdd(t *testing.T) {
 func TestDefaultSidebarHasTheTrashAsALocation(t *testing.T) {
 	d := config.Defaults("/home/u")
 	last := d.Sidebar.Locations[len(d.Sidebar.Locations)-1]
-	if last.Name != "Trash" || last.Path != filepath.Join("/home/u", ".Trash") {
+	if last.Name != "Trash" || last.Path != d.Ops.TrashDir {
 		t.Fatalf("locations %v", d.Sidebar.Locations)
 	}
 	if localName("Trash") == "" {

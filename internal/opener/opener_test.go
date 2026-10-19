@@ -32,6 +32,7 @@ func TestResolveByExtension(t *testing.T) {
 }
 
 func TestDefaultIsSystemOpen(t *testing.T) {
+	useGOOS(t, "darwin") // the macOS commands; linux_test.go checks the Linux ones
 	cmd := New(cfg()).Resolve("/d/photo.png")
 	if !reflect.DeepEqual(cmd.Argv, []string{"open", "--", "/d/photo.png"}) || cmd.Name != "default" {
 		t.Fatalf("cmd = %+v", cmd)
@@ -49,6 +50,7 @@ func TestHostileNamesStayOneArgument(t *testing.T) {
 }
 
 func TestDashPrefixedNamesCannotBeOptions(t *testing.T) {
+	useGOOS(t, "darwin")                 // the macOS commands; linux_test.go checks the Linux ones
 	cmd := New(cfg()).Resolve("-rf.txt") // relative path starting with a dash
 	if cmd.Argv[1] != "./-rf.txt" {
 		t.Fatalf("argv = %v", cmd.Argv)
@@ -104,6 +106,7 @@ func TestExecRunnerMissingBinary(t *testing.T) {
 }
 
 func TestQuickLookIsFixedArgvWithOneFileArgument(t *testing.T) {
+	useGOOS(t, "darwin") // the macOS commands; linux_test.go checks the Linux ones
 	c := QuickLook("/d/a b;$(x).png")
 	if !reflect.DeepEqual(c.Argv, []string{"qlmanage", "-p", "/d/a b;$(x).png"}) {
 		t.Fatalf("argv = %v", c.Argv)

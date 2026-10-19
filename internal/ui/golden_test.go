@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -118,7 +119,7 @@ func TestGoldenOpenWithMenu(t *testing.T) {
 	e := goldenEnv(t, 120, 40)
 	e.clickText("notes.txt")
 	e.key("O")
-	e.golden("open-with")
+	e.golden("open-with" + map[bool]string{true: "-linux"}[runtime.GOOS == "linux"]) // the default app is xdg-open there
 }
 
 func TestGoldenSortedBySizeDescending(t *testing.T) {

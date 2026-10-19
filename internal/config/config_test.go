@@ -134,7 +134,7 @@ func TestDefaultJSONRoundTrips(t *testing.T) {
 }
 
 func TestOpsDefaultsAndOverrides(t *testing.T) {
-	def := Defaults("/home/u")
+	def := DefaultsFor("darwin", "/home/u") // platform_test.go checks the Linux trash
 	if def.Ops.ConfirmTrashAbove != 1 || def.Ops.TrashDir != "/home/u/.Trash" {
 		t.Fatalf("defaults = %+v", def.Ops)
 	}

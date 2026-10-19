@@ -16,7 +16,7 @@ func (e *env) onDisk(rel string) bool {
 }
 
 func (e *env) inTrash(name string) bool {
-	_, err := os.Lstat(filepath.Join(e.home, ".Trash", name))
+	_, err := os.Lstat(filepath.Join(config.Defaults(e.home).Ops.TrashDir, name)) // ~/.Trash on macOS, the XDG trash on Linux
 	return err == nil
 }
 

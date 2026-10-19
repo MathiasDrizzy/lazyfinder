@@ -5,6 +5,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -14,6 +15,7 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
 	"github.com/MathiasDrizzy/lazyfinder/internal/keymap"
+	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/ansi/kitty"
@@ -439,7 +441,7 @@ func TestOpenFileWithoutRuleUsesSystemOpen(t *testing.T) {
 	e := newEnv(t)
 	e.clickText("data.xlsx")
 	e.key("enter")
-	if len(e.run.calls) != 1 || e.run.calls[0][0] != "open" || e.run.calls[0][1] != "--" {
+	if want := e.m.resolve.Resolve(filepath.Join(e.root, "data.xlsx")).Argv; len(e.run.calls) != 1 || !slices.Equal(e.run.calls[0], want) {
 		t.Fatalf("calls = %v", e.run.calls)
 	}
 }
@@ -603,7 +605,7 @@ func TestImagePreviewWithoutSupportOffersQuickLook(t *testing.T) {
 	e.key("space")
 	e.mustHave("Quick Look")
 	e.key("Q")
-	if len(e.run.calls) != 1 || e.run.calls[0][0] != "qlmanage" || e.run.calls[0][1] != "-p" {
+	if want := opener.QuickLook(filepath.Join(e.root, "pic.png")).Argv; len(e.run.calls) != 1 || !slices.Equal(e.run.calls[0], want) {
 		t.Fatalf("calls = %v", e.run.calls)
 	}
 }
