@@ -165,7 +165,8 @@ catalogs, config persistence, the Kitty module. See `docs/adr/0008-look-themes-l
   like the VS Code explorer, highlighting what is new. PROPOSAL for the exact UX.
 - **R-33 Disclosure triangles (M3, done)** from the reference screenshot: expand folders in place with `>`.
 - **R-34 Search (M3, done)**: the screenshot's Search field; name filter first, content search later.
-- **R-35 File operations (M4, done)**: copy, move, rename, trash (never `rm`), new folder, with undo.
+- **R-35 File operations (M4, done)**: copy, move, rename, trash (never `rm`), new folder, with undo, redo (`U`) and
+  a history (`H`).
 
 ## Parity with Finder and Explorer search (ADR 0009)
 

@@ -133,6 +133,10 @@ func (m *Model) opsKey(act keymap.Action) (tea.Cmd, bool) {
 		return m.startTrash(), true
 	case keymap.Undo:
 		return m.undo(), true
+	case keymap.Redo:
+		return m.redo(), true
+	case keymap.History:
+		return m.showHistory(), true
 	case keymap.Info:
 		return m.openInfo(), true
 	}

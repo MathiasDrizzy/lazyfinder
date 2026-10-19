@@ -201,7 +201,7 @@ The essentials. `?` shows all of them, and [docs/keybindings.md](docs/keybinding
 | `Space` / `O` | Preview popup / Open With menu |
 | `/` | Search |
 | `N` `n` / `F2` | New folder, new file / Rename |
-| `c` `x` `p` / `d` / `u` | Copy, cut, paste / Move to the Trash / Undo |
+| `c` `x` `p` / `d` / `u` `U` | Copy, cut, paste / Move to the Trash / Undo, redo |
 | `ctrl+t` / `b` / `E` | New tab / Add to Favorites / Recents |
 | `M` / `Ctrl+B` | Column view / Sidebar mode |
 | `,` / `?` | Settings / Help |

@@ -63,13 +63,13 @@ func (o *Ops) Chmod(paths []string, perm fs.FileMode) error {
 		for i, c := range done {
 			names[i] = c.path
 		}
-		o.push(fmt.Sprintf("permissions of %s", describe(names)), func() error {
+		o.push(step{kind: KindChmod, subject: describe(names), undo: func() error {
 			var errs []error
 			for _, c := range done {
 				errs = append(errs, os.Chmod(c.path, c.old))
 			}
 			return errors.Join(errs...)
-		})
+		}, redo: func() error { return o.Chmod(names, perm) }})
 	}
 	return firstErr
 }

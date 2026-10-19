@@ -21,18 +21,15 @@ import (
 // maxUndo is how many steps are remembered.
 const maxUndo = 100
 
-// step is one reversible operation.
-type step struct {
-	desc string
-	undo func() error
-}
-
 // Ops runs the operations and remembers how to reverse them. trashDir is the folder that receives trashed items.
 // A copy or a move may run apart from the UI, so the undo steps are guarded.
 type Ops struct {
 	trashDir string
 	mu       sync.Mutex
 	undo     []step
+	redo     []step // what an undo reversed, the last one on top
+	redoing  bool   // a redo runs: the steps it records keep the others to redo
+	pushed   uint64 // steps recorded so far, to tell whether a failed redo did part of its work
 }
 
 // Progress is told the bytes of each chunk a copy writes.
@@ -40,37 +37,6 @@ type Progress func(n int64)
 
 // New returns Ops that trash into the folder trash.
 func New(trash string) *Ops { return &Ops{trashDir: trash} }
-
-// CanUndo says whether there is something to undo.
-func (o *Ops) CanUndo() bool {
-	o.mu.Lock()
-	defer o.mu.Unlock()
-	return len(o.undo) > 0
-}
-
-func (o *Ops) push(desc string, undo func() error) {
-	o.mu.Lock()
-	defer o.mu.Unlock()
-	o.undo = append(o.undo, step{desc: desc, undo: undo})
-	if len(o.undo) > maxUndo {
-		o.undo = o.undo[len(o.undo)-maxUndo:]
-	}
-}
-
-// Undo reverses the last operation and returns what it undid.
-func (o *Ops) Undo() (string, error) {
-	o.mu.Lock()
-	defer o.mu.Unlock()
-	if len(o.undo) == 0 {
-		return "", errors.New("nothing to undo")
-	}
-	s := o.undo[len(o.undo)-1]
-	if err := s.undo(); err != nil {
-		return "", fmt.Errorf("undo %s: %w", s.desc, err)
-	}
-	o.undo = o.undo[:len(o.undo)-1]
-	return s.desc, nil
-}
 
 // UniqueName returns name, or "name copy.ext", "name copy 2.ext"… when it is taken in dir, the way Finder names
 // duplicates. A leading dot is part of the name, not an extension.
@@ -158,11 +124,15 @@ func (o *Ops) CopyContext(ctx context.Context, srcs []string, dstDir string, onB
 	}
 	if len(made) > 0 {
 		created := slices.Clone(made)
-		o.push(fmt.Sprintf("copy of %s", describe(created)), func() error {
+		copied := slices.Clone(srcs[:len(made)])
+		o.push(step{kind: KindCopy, subject: describe(created), undo: func() error {
 			n, err := o.discard(created)
 			created = created[n:] // a failed undo is tried again from the first copy still there
 			return err
-		})
+		}, redo: func() error {
+			_, err := o.CopyContext(context.Background(), copied, dstDir, nil)
+			return err
+		}})
 	}
 	return made, firstErr
 }
@@ -321,16 +291,21 @@ func (o *Ops) MoveContext(ctx context.Context, srcs []string, dstDir string, onB
 	}
 	if len(done) > 0 {
 		left := len(done) // a failed undo is tried again from the item it stopped at
-		o.push(fmt.Sprintf("move of %s", describe(made)), func() error {
+		var backs []string
+		o.push(step{kind: KindMove, subject: describe(made), undo: func() error {
 			for ; left > 0; left-- {
 				p := done[left-1]
 				back := filepath.Join(filepath.Dir(p.from), UniqueName(filepath.Dir(p.from), filepath.Base(p.from)))
 				if err := move(p.to, back); err != nil {
 					return err
 				}
+				backs = append(backs, back)
 			}
 			return nil
-		})
+		}, redo: func() error {
+			_, err := o.Move(backs, dstDir)
+			return err
+		}})
 	}
 	return made, firstErr
 }
@@ -377,12 +352,15 @@ func (o *Ops) Rename(path, name string) (string, error) {
 	if err := renameNoReplace(path, dst); err != nil {
 		return "", err
 	}
-	o.push(fmt.Sprintf("rename of %q", filepath.Base(path)), func() error {
+	o.push(step{kind: KindRename, subject: fmt.Sprintf("%q", filepath.Base(path)), undo: func() error {
 		if exists(path) {
 			return fmt.Errorf("%q exists again", filepath.Base(path))
 		}
 		return renameNoReplace(dst, path)
-	})
+	}, redo: func() error {
+		_, err := o.Rename(path, name)
+		return err
+	}})
 	return dst, nil
 }
 
@@ -398,13 +376,16 @@ func (o *Ops) Mkdir(dir, name string) (string, error) {
 	if err := os.Mkdir(p, 0o755); err != nil {
 		return "", err
 	}
-	o.push(fmt.Sprintf("new folder %q", name), func() error {
+	o.push(step{kind: KindMkdir, subject: fmt.Sprintf("%q", name), redo: func() error {
+		_, err := o.Mkdir(dir, name)
+		return err
+	}, undo: func() error {
 		if err := os.Remove(p); err == nil || errors.Is(err, fs.ErrNotExist) {
 			return nil
 		}
 		_, err := o.discard([]string{p}) // it gained content since: keep it, in the trash
 		return err
-	})
+	}})
 	return p, nil
 }
 
@@ -425,7 +406,10 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 	if err := f.Close(); err != nil {
 		return "", err
 	}
-	o.push(fmt.Sprintf("new file %q", name), func() error {
+	o.push(step{kind: KindTouch, subject: fmt.Sprintf("%q", name), redo: func() error {
+		_, err := o.Touch(dir, name)
+		return err
+	}, undo: func() error {
 		if fi, err := os.Stat(p); err == nil && fi.Size() > 0 {
 			_, err := o.discard([]string{p})
 			return err
@@ -435,7 +419,7 @@ func (o *Ops) Touch(dir, name string) (string, error) {
 		}
 		_, err := o.discard([]string{p})
 		return err
-	})
+	}})
 	return p, nil
 }
 
@@ -444,7 +428,8 @@ func (o *Ops) Trash(paths []string) error {
 	moved, err := o.toTrash(paths)
 	if len(moved) > 0 {
 		left := len(moved) // a failed undo is tried again from the item it stopped at
-		o.push(fmt.Sprintf("trashing of %s", describe(originals(moved))), func() error {
+		var backs []string
+		o.push(step{kind: KindTrash, subject: describe(originals(moved)), undo: func() error {
 			for ; left > 0; left-- {
 				p := moved[left-1]
 				dir := filepath.Dir(p.from)
@@ -452,12 +437,13 @@ func (o *Ops) Trash(paths []string) error {
 				if err := move(p.to, back); err != nil {
 					return err
 				}
+				backs = append(backs, back)
 				if err := dropInfo(p.info); err != nil {
 					return err
 				}
 			}
 			return nil
-		})
+		}, redo: func() error { return o.Trash(backs) }})
 	}
 	return err
 }

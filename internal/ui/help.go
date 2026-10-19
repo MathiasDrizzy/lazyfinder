@@ -62,6 +62,8 @@ func (m *Model) helpRows() []helpRow {
 		{k(keymap.Rename) + "  " + k(keymap.Trash), i18n.T("Renombrar / enviar a la Papelera", "Rename / move to the Trash")},
 		{k(keymap.NewFile) + "  " + k(keymap.NewFolder), i18n.T("Archivo nuevo / carpeta nueva", "New file / new folder")},
 		{k(keymap.Undo), i18n.T("Deshacer", "Undo")},
+		{k(keymap.Redo), i18n.T("Rehacer", "Redo")},
+		{k(keymap.History), i18n.T("Historial de lo que se puede deshacer y rehacer", "History of what can be undone and redone")},
 		{k(keymap.Preview) + " " + k(keymap.Info), i18n.T("Vista previa / información", "Preview / info")},
 		{k(keymap.Sort) + " " + k(keymap.Hidden) + " " + k(keymap.Layout), i18n.T("Ordenar / ocultos / vista de columnas", "Sort / hidden / column view")},
 		{k(keymap.Project), i18n.T("Modo proyecto: árbol con estado de git", "Project mode: a tree with git state")},

@@ -48,6 +48,8 @@ const (
 	NewFile          Action = "new_file"
 	Trash            Action = "trash"
 	Undo             Action = "undo"
+	Redo             Action = "redo"
+	History          Action = "history"
 	Info             Action = "info"
 	Layout           Action = "layout"
 	TagKey           Action = "tag"
@@ -80,7 +82,7 @@ const (
 // Actions lists every action.
 var Actions = []Action{
 	Up, Down, PageUp, PageDown, First, Last, Open, Parent, Back, Forward, Preview, OpenWith, QuickLook,
-	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, CopyPath, Rename, Chmod, NewFolder, NewFile, Trash, Undo, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, SetMark, JumpMark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, FavoritesShorter, FavoritesTaller, Help, Focus, Settings, Project, Branch, Quit,
+	Sort, SortReverse, Hidden, Ignored, Search, Goto, Expand, Collapse, Mark, MarkAll, Copy, Cut, Paste, Duplicate, CopyPath, Rename, Chmod, NewFolder, NewFile, Trash, Undo, Redo, History, Info, Reload, Layout, TagKey, Tags, SavedSearches, Filter, Commands, Recents, Bookmark, SetMark, JumpMark, NewTab, CloseTab, NextTab, PrevTab, SidebarNarrow, SidebarWiden, ColumnNarrow, ColumnWiden, FavoritesShorter, FavoritesTaller, Help, Focus, Settings, Project, Branch, Quit,
 }
 
 // Defaults are the keys of each action when the config says nothing. Key names are Bubble Tea's.
@@ -90,7 +92,7 @@ var Defaults = map[Action][]string{
 	Back: {"alt+left", "["}, Forward: {"alt+right", "]"}, Preview: {"space"}, OpenWith: {"O"}, QuickLook: {"Q"},
 	Sort: {"s"}, SortReverse: {"S"}, Hidden: {"."}, Ignored: {"I"}, Search: {"/", "ctrl+f"}, Goto: {"ctrl+g"}, Expand: {"+", "="}, Collapse: {"-"},
 	Mark: {"v"}, MarkAll: {"ctrl+a"}, Copy: {"c"}, Cut: {"x"}, Paste: {"p", "ctrl+v"}, Duplicate: {"D"}, CopyPath: {"y"},
-	Rename: {"f2", "R"}, Chmod: {"P"}, NewFolder: {"N", "ctrl+n"}, NewFile: {"n"}, Trash: {"d", "delete"}, Undo: {"u", "ctrl+z"}, Info: {"i"},
+	Rename: {"f2", "R"}, Chmod: {"P"}, NewFolder: {"N", "ctrl+n"}, NewFile: {"n"}, Trash: {"d", "delete"}, Undo: {"u", "ctrl+z"}, Redo: {"U", "ctrl+r"}, History: {"H"}, Info: {"i"},
 	Reload: {"r"}, Layout: {"M"}, TagKey: {"t"}, Tags: {"T"}, SavedSearches: {"F"}, Filter: {"f"}, Commands: {"!"}, Recents: {"E"}, Bookmark: {"b"}, SetMark: {"m"}, JumpMark: {"'"}, NewTab: {"ctrl+t"}, CloseTab: {"ctrl+w"}, NextTab: {"}"}, PrevTab: {"{"}, SidebarNarrow: {"<"}, SidebarWiden: {">"}, ColumnNarrow: {"ctrl+left"}, ColumnWiden: {"ctrl+right"}, FavoritesShorter: {"ctrl+up"}, FavoritesTaller: {"ctrl+down"}, Help: {"?", "f1"}, Focus: {"tab"}, Settings: {","}, Project: {"ctrl+b"}, Branch: {"B"}, Quit: {"q"},
 }
 
