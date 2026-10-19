@@ -100,3 +100,15 @@ func TestACellWithLineBreaksDoesNotCrash(t *testing.T) {
 		t.Fatalf("ok %v, lines %q", ok, lines)
 	}
 }
+
+// Excel saves a UTF-8 CSV with a byte order mark and often quotes its headers; encoding/csv read the mark as part of a
+// bare field and failed on the quote after it, so the file showed as plain text instead of a table.
+func TestACSVWithAByteOrderMarkShowsAsATable(t *testing.T) {
+	lines, ok := renderTable("\ufeff\"name\",\"age\"\n\"ana\",\"31\"\n", ',', true)
+	if !ok {
+		t.Fatal("a CSV that starts with a byte order mark is not a table")
+	}
+	if strings.ContainsRune(strings.Join(lines, "\n"), '\ufeff') || !strings.Contains(lines[0], "name") {
+		t.Fatalf("header %q", lines[0])
+	}
+}

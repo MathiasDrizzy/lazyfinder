@@ -20,7 +20,8 @@ var tableSeparators = map[string]rune{"csv": ',', "tsv": '\t'}
 // renderTable lays out a CSV or TSV body as aligned columns with a rule under the header. ok is false when the body
 // does not parse, and the caller shows it as text.
 func renderTable(body string, sep rune, noColor bool) (lines []string, ok bool) {
-	r := csv.NewReader(strings.NewReader(body))
+	// A spreadsheet's UTF-8 export starts with a byte order mark, which encoding/csv takes for part of the first field.
+	r := csv.NewReader(strings.NewReader(strings.TrimPrefix(body, "\ufeff")))
 	r.Comma, r.FieldsPerRecord, r.LazyQuotes = sep, -1, false
 	rows, err := r.ReadAll()
 	if err != nil || len(rows) == 0 {
