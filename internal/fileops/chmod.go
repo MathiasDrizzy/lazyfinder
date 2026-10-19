@@ -7,8 +7,11 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
+
+	"golang.org/x/sys/unix"
 )
 
 // specialBits are the setuid, setgid and sticky bits: Chmod keeps them as they were and never sets them.
@@ -48,12 +51,8 @@ func (o *Ops) Chmod(paths []string, perm fs.FileMode) error {
 			firstErr = err
 			break
 		}
-		if fi.Mode()&fs.ModeSymlink != 0 {
-			firstErr = fmt.Errorf("%q is a link: change the item it points to instead", filepath.Base(p))
-			break
-		}
 		old := fi.Mode() & (fs.ModePerm | specialBits)
-		if err := os.Chmod(p, old&specialBits|perm); err != nil {
+		if err := chmodNoFollow(p, old&specialBits|perm); err != nil {
 			firstErr = err
 			break
 		}
@@ -67,10 +66,54 @@ func (o *Ops) Chmod(paths []string, perm fs.FileMode) error {
 		o.push(step{kind: KindChmod, subject: describe(names), undo: func() error {
 			var errs []error
 			for _, c := range done {
-				errs = append(errs, os.Chmod(c.path, c.old))
+				errs = append(errs, chmodNoFollow(c.path, c.old))
 			}
 			return errors.Join(errs...)
 		}, redo: func(context.Context, Progress) error { return o.Chmod(names, perm) }})
 	}
 	return firstErr
+}
+
+// chmodNoFollow sets the mode of path itself and refuses a link, whose change would reach the item it points to.
+// A link swapped in after the check is not followed either: fchmodat with AT_SYMLINK_NOFOLLOW changes only the link
+// on macOS and fails on Linux. Where the system lacks it (Linux before fchmodat2), the check right before the change
+// is the best there is.
+func chmodNoFollow(path string, mode fs.FileMode) error {
+	if isLink(path) {
+		return linkError(path)
+	}
+	err := unix.Fchmodat(unix.AT_FDCWD, path, unixMode(mode), unix.AT_SYMLINK_NOFOLLOW)
+	// A container's seccomp filter may answer EPERM or ENOSYS for fchmodat2; a real EPERM comes back from os.Chmod.
+	if err == nil || !slices.ContainsFunc([]error{unix.EOPNOTSUPP, unix.ENOTSUP, unix.EPERM, unix.ENOSYS},
+		func(e error) bool { return errors.Is(err, e) }) {
+		return err
+	}
+	if isLink(path) {
+		return linkError(path)
+	}
+	return os.Chmod(path, mode)
+}
+
+func isLink(path string) bool {
+	fi, err := os.Lstat(path)
+	return err == nil && fi.Mode()&fs.ModeSymlink != 0
+}
+
+func linkError(path string) error {
+	return fmt.Errorf("%q is a link: change the item it points to instead", filepath.Base(path))
+}
+
+// unixMode is mode in the bits chmod(2) takes.
+func unixMode(mode fs.FileMode) uint32 {
+	m := uint32(mode.Perm())
+	if mode&fs.ModeSetuid != 0 {
+		m |= unix.S_ISUID
+	}
+	if mode&fs.ModeSetgid != 0 {
+		m |= unix.S_ISGID
+	}
+	if mode&fs.ModeSticky != 0 {
+		m |= unix.S_ISVTX
+	}
+	return m
 }

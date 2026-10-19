@@ -62,3 +62,21 @@ func TestParseModeTakesOctalPermissionsOnly(t *testing.T) {
 		}
 	}
 }
+
+// An item swapped for a link after a chmod must not let the undo change the mode of what the link points to.
+func TestUndoOfAChmodDoesNotFollowALinkPutInPlace(t *testing.T) {
+	w := newWorld(t)
+	p, target := w.path("src/a.txt"), w.path("src/target")
+	w.must(os.WriteFile(target, []byte("theirs"), 0o640))
+	w.must(os.Chmod(target, 0o640))
+	w.must(os.Chmod(p, 0o644))
+	w.must(w.ops.Chmod([]string{p}, 0o600))
+	w.must(os.Remove(p))
+	w.must(os.Symlink(target, p))
+	if _, err := w.ops.Undo(); err == nil {
+		t.Fatal("the undo must fail on a link")
+	}
+	if got := mode(t, target); got != 0o640 {
+		t.Fatalf("the undo changed the link's target to %o", got)
+	}
+}
