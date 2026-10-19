@@ -16,21 +16,21 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// Temas del usuario: un archivo JSON por tema en la carpeta themes, junto a config.json. El nombre del tema es el
-// del archivo sin ".json". Lleva los 14 colores de Palette con sus nombres en minúsculas, todos como "#rrggbb", y
-// "source" si se quiere. Salen en la lista después de los incluidos, en orden alfabético.
+// User themes: one JSON file per theme in the themes folder, next to config.json. The theme's name is the file's
+// without ".json". It holds the 14 colors of Palette under their lowercase names, all as "#rrggbb", and "source" if
+// wanted. They are listed after the built-in ones, in alphabetical order.
 
-// maxThemeBytes: un tema son 15 líneas; nada razonable pasa de esto.
+// maxThemeBytes: a theme is 15 lines; nothing reasonable goes past this.
 const maxThemeBytes = 64 << 10
 
-// UserThemeProblem es un tema que no se cargó. Va en español y en inglés con sus argumentos, como los avisos de
-// config.json, para traducirlo cuando se muestra.
+// UserThemeProblem is a theme that was not loaded. It carries Spanish and English texts with their arguments, like
+// the warnings of config.json, so it is translated when shown.
 type UserThemeProblem struct {
 	ES, EN string // Spanish and English texts with printf verbs; Args fill them
 	Args   []any
 }
 
-// userNames son los temas del usuario cargados, en el orden de la lista.
+// userNames are the loaded user themes, in the order of the list.
 var userNames []string
 
 var hexColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
@@ -44,7 +44,7 @@ type paletteSlot struct {
 	dst *color.Color
 }
 
-// paletteSlots relaciona cada clave del archivo con su color en p.
+// paletteSlots maps each key of the file to its color in p.
 func paletteSlots(p *Palette) []paletteSlot {
 	return []paletteSlot{
 		{"base", &p.Base}, {"mantle", &p.Mantle}, {"surface0", &p.Surface0}, {"surface1", &p.Surface1},
@@ -54,8 +54,8 @@ func paletteSlots(p *Palette) []paletteSlot {
 	}
 }
 
-// LoadUserThemes carga los temas de dir en lugar de los de la carga anterior. Si la carpeta no existe no pasa
-// nada; un archivo que no vale se salta con un aviso y los demás se cargan igual.
+// LoadUserThemes loads the themes of dir in place of those of the previous load. A missing folder is fine; a file
+// that is not valid is skipped with a warning and the others still load.
 func LoadUserThemes(dir string) []UserThemeProblem {
 	for _, n := range userNames {
 		delete(AvailableThemes, n)
@@ -70,7 +70,7 @@ func LoadUserThemes(dir string) []UserThemeProblem {
 		return []UserThemeProblem{{"no se pudo leer la carpeta de temas %s: %v", "could not read the themes folder %s: %v", []any{dir, err}}}
 	}
 	var problems []UserThemeProblem
-	for _, e := range entries { // ReadDir los da ordenados por nombre
+	for _, e := range entries { // ReadDir sorts them by name
 		name, isTheme := strings.CutSuffix(e.Name(), ".json")
 		if !isTheme || name == "" || strings.HasPrefix(name, ".") {
 			continue
@@ -90,8 +90,8 @@ func LoadUserThemes(dir string) []UserThemeProblem {
 	return problems
 }
 
-// safeText es s tal cual si todo es imprimible; si lleva caracteres de control, C1 o de dirección (U+202E...), va escapado, para que un
-// archivo de tema no escriba secuencias en la terminal a través del aviso.
+// safeText is s as it is when all of it is printable; with control, C1 or direction characters (U+202E...) it is
+// escaped, so a theme file cannot write sequences to the terminal through the warning.
 func safeText(s string) string {
 	for _, r := range s {
 		if !unicode.IsPrint(r) {
@@ -101,7 +101,7 @@ func safeText(s string) string {
 	return s
 }
 
-// readUserTheme lee un archivo de tema o dice por qué no vale.
+// readUserTheme reads a theme file or says why it is not valid.
 func readUserTheme(path, name string) (Palette, *UserThemeProblem) {
 	fail := func(es, en string, args ...any) (Palette, *UserThemeProblem) {
 		return Palette{}, &UserThemeProblem{"el tema %s no se cargó: " + es, "theme %s was not loaded: " + en, append([]any{name}, args...)}
@@ -130,7 +130,7 @@ func readUserTheme(path, name string) (Palette, *UserThemeProblem) {
 			unknown = append(unknown, k)
 		}
 	}
-	if len(unknown) > 0 { // se mira antes que los colores que faltan, así una errata como "bse" sale con su nombre
+	if len(unknown) > 0 { // checked before the missing colors, so a typo like "bse" shows by its name
 		sort.Strings(unknown)
 		return fail("clave desconocida %q", "unknown key %q", unknown[0])
 	}

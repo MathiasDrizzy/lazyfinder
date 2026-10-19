@@ -9,10 +9,9 @@ import (
 
 var sgrSeq = regexp.MustCompile(`\x1b\[([0-9;:]*)m`)
 
-// PaintBackground pinta de bg todas las celdas de s que no tengan un fondo propio: cada línea
-// empieza con ese fondo y, tras cada secuencia que lo borra (un reset o 49) sin poner otro,
-// se vuelve a poner. Así no queda ninguna celda con el fondo de la terminal: ni los espacios
-// entre paneles, ni el relleno de las líneas, ni lo que dibujan los popups sin fondo.
+// PaintBackground paints with bg every cell of s that has no background of its own: each line starts with it and it
+// is set again after every sequence that clears it (a reset or 49) without setting another. So no cell keeps the
+// terminal's background: not the gaps between panels, the padding of the lines or what popups draw without one.
 //
 // With a text color, text that carries none takes it as well, the same way.
 func PaintBackground(s string, bg color.Color, text ...color.Color) string {
@@ -37,8 +36,8 @@ func PaintBackground(s string, bg color.Color, text ...color.Color) string {
 	return strings.Join(lines, "\n")
 }
 
-// clearsBackground indica si los parámetros de un SGR dejan el fondo sin color: un reset (vacío,
-// 0 al principio) o 49, y sin fijar a la vez otro fondo (40-47, 48, 100-107).
+// clearsBackground says whether the parameters of an SGR leave the background without a color: a reset (empty, or 0
+// first) or 49, without setting another background (40-47, 48, 100-107) in the same sequence.
 func clearsBackground(params string) bool {
 	parts := strings.FieldsFunc(params, func(r rune) bool { return r == ';' || r == ':' })
 	if len(parts) == 0 {
@@ -47,7 +46,7 @@ func clearsBackground(params string) bool {
 	clears := false
 	for i := 0; i < len(parts); i++ {
 		switch p := parts[i]; {
-		case p == "38" || p == "58": // color de primer plano o subrayado: sus parámetros no son SGR sueltos
+		case p == "38" || p == "58": // text or underline color: its parameters are not SGR codes of their own
 			if i+1 < len(parts) && parts[i+1] == "5" {
 				i += 2
 			} else if i+1 < len(parts) && parts[i+1] == "2" {

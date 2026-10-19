@@ -16,10 +16,10 @@ var (
 	TerminalBlue    color.Color = lipgloss.Color("12")
 )
 
-// Palette define los colores de un tema
+// Palette holds the colors of a theme.
 type Palette struct {
 	Name string
-	// Source es la página oficial de la paleta, de donde salen los colores.
+	// Source is the official page of the palette, where the colors come from.
 	Source   string
 	Base     color.Color
 	Mantle   color.Color
@@ -37,9 +37,9 @@ type Palette struct {
 	Yellow   color.Color
 }
 
-// ─── Paletas disponibles ───────────────────────────────────────────
+// ─── Built-in palettes ───────────────────────────────────────────
 
-// CatppuccinMocha es el tema oscuro por defecto (dark, warm)
+// CatppuccinMocha is the default dark theme (dark, warm).
 var CatppuccinMocha = Palette{
 	Name:     "catppuccin-mocha",
 	Source:   "https://catppuccin.com/palette/",
@@ -59,7 +59,7 @@ var CatppuccinMocha = Palette{
 	Yellow:   lipgloss.Color("#f9e2af"),
 }
 
-// CatppuccinLatte es el tema claro (light, soft)
+// CatppuccinLatte is the light theme (light, soft).
 var CatppuccinLatte = Palette{
 	Name:     "catppuccin-latte",
 	Source:   "https://catppuccin.com/palette/",
@@ -79,7 +79,7 @@ var CatppuccinLatte = Palette{
 	Yellow:   lipgloss.Color("#df8e1d"),
 }
 
-// CatppuccinFrappe es el tema intermedio oscuro (dark, cool)
+// CatppuccinFrappe is the middle dark theme (dark, cool).
 var CatppuccinFrappe = Palette{
 	Name:     "catppuccin-frappe",
 	Source:   "https://catppuccin.com/palette/",
@@ -99,7 +99,7 @@ var CatppuccinFrappe = Palette{
 	Yellow:   lipgloss.Color("#e5c890"),
 }
 
-// CatppuccinMacchiato es el tema intermedio cálido (dark, warm)
+// CatppuccinMacchiato is the middle warm theme (dark, warm).
 var CatppuccinMacchiato = Palette{
 	Name:     "catppuccin-macchiato",
 	Source:   "https://catppuccin.com/palette/",
@@ -119,7 +119,7 @@ var CatppuccinMacchiato = Palette{
 	Yellow:   lipgloss.Color("#eed49f"),
 }
 
-// TokyoNight es un tema popular para terminales (dark, blue)
+// TokyoNight is a popular terminal theme (dark, blue).
 var TokyoNight = Palette{
 	Name:     "tokyo-night",
 	Source:   "https://github.com/folke/tokyonight.nvim",
@@ -139,7 +139,7 @@ var TokyoNight = Palette{
 	Yellow:   lipgloss.Color("#e0af68"),
 }
 
-// GruvboxDark es un tema retro cálido (dark, retro)
+// GruvboxDark is a warm retro theme (dark, retro).
 var GruvboxDark = Palette{
 	Name:     "gruvbox-dark",
 	Source:   "https://github.com/morhetz/gruvbox",
@@ -159,7 +159,7 @@ var GruvboxDark = Palette{
 	Yellow:   lipgloss.Color("#fabd2f"),
 }
 
-// Nord es un tema frío nórdico (dark, cold)
+// Nord is a cold Nordic theme (dark, cold).
 var Nord = Palette{
 	Name:     "nord",
 	Source:   "https://www.nordtheme.com/docs/colors-and-palettes",
@@ -179,17 +179,14 @@ var Nord = Palette{
 	Yellow:   lipgloss.Color("#ebcb8b"),
 }
 
-// Los colores de las paletas siguientes salen de la fuente oficial de cada tema
-// (la URL va en Source). Donde el tema no define un color que la interfaz necesita
-// (por ejemplo, dos niveles de superficie), se usa el vecino más cercano de su propia
-// paleta y se dice en el comentario.
+// The colors of the palettes below come from the official source of each theme (the URL is in Source). Where a theme
+// defines no color the interface needs (two surface levels, for example), the nearest one of its own palette is used
+// and the comment says so.
 
-// Dracula, https://draculatheme.com/contribute y https://spec.draculatheme.com/
-// (dark, purple). Mantle es el AnsiBlack de la especificación; Surface0 y Surface1 son
-// Selection (#44475a, "Selection" de la especificación) y Overlay0 es Comment (#6272a4), así
-// la barra de selección se distingue del borde inactivo. (La página de contribución rotula
-// #6272a4 como "Current Line"; la especificación lo llama Comment.) Dracula no tiene un gris
-// de texto secundario: Subtext0 repite Foreground.
+// Dracula, https://draculatheme.com/contribute and https://spec.draculatheme.com/ (dark, purple). Mantle is the
+// AnsiBlack of the specification; Surface0 and Surface1 are Selection (#44475a) and Overlay0 is Comment (#6272a4), so
+// the selection bar stands apart from the inactive border. (The contribution page labels #6272a4 "Current Line"; the
+// specification calls it Comment.) Dracula has no secondary text gray: Subtext0 repeats Foreground.
 var Dracula = Palette{
 	Name:     "dracula",
 	Source:   "https://draculatheme.com/contribute",
@@ -210,10 +207,9 @@ var Dracula = Palette{
 }
 
 // OneDark, https://github.com/atom/one-dark-syntax/blob/master/styles/colors.less
-// y https://github.com/atom/atom/blob/master/packages/one-dark-ui/styles/ui-variables-custom.less
-// (dark, cool). Atom los define en HSL; los hex salen de esos valores. Base es syntax-bg,
-// Mantle es darken(base, 3%), Surface0 es el level-1 (lighten 6%) y Surface1 el
-// siguiente escalón (lighten 12%).
+// and https://github.com/atom/atom/blob/master/packages/one-dark-ui/styles/ui-variables-custom.less
+// (dark, cool). Atom defines them in HSL; the hex values come from those. Base is syntax-bg, Mantle is
+// darken(base, 3%), Surface0 is level-1 (lighten 6%) and Surface1 the next step (lighten 12%).
 var OneDark = Palette{
 	Name:     "one-dark",
 	Source:   "https://github.com/atom/one-dark-syntax",
@@ -233,9 +229,8 @@ var OneDark = Palette{
 	Yellow:   lipgloss.Color("#e5c07b"),
 }
 
-// RosePine, https://rosepinetheme.com/palette (valores de
-// https://github.com/rose-pine/palette, variante main; dark, warm). Rosé Pine no tiene
-// verde ni azul: Green y Blue usan foam, y Teal también.
+// RosePine, https://rosepinetheme.com/palette (values from https://github.com/rose-pine/palette, main variant; dark,
+// warm). Rosé Pine has no green or blue: Green and Blue use foam, and so does Teal.
 var RosePine = Palette{
 	Name:     "rose-pine",
 	Source:   "https://rosepinetheme.com/palette",
@@ -255,7 +250,7 @@ var RosePine = Palette{
 	Yellow:   lipgloss.Color("#f6c177"),
 }
 
-// Kanagawa, https://github.com/rebelot/kanagawa.nvim (paleta wave; dark, ink).
+// Kanagawa, https://github.com/rebelot/kanagawa.nvim (wave palette; dark, ink).
 var Kanagawa = Palette{
 	Name:     "kanagawa",
 	Source:   "https://github.com/rebelot/kanagawa.nvim",
@@ -276,7 +271,7 @@ var Kanagawa = Palette{
 }
 
 // EverforestDark, https://github.com/sainnhe/everforest/blob/master/palette.md
-// (dark, contraste medio; green).
+// (dark, medium contrast; green).
 var EverforestDark = Palette{
 	Name:     "everforest-dark",
 	Source:   "https://github.com/sainnhe/everforest",
@@ -296,9 +291,8 @@ var EverforestDark = Palette{
 	Yellow:   lipgloss.Color("#dbbc7f"),
 }
 
-// SolarizedDark, https://ethanschoonover.com/solarized/ (dark). Solarized no tiene
-// un tono más oscuro que base03: Mantle lo repite; Surface1 es base01 y Overlay0 base00,
-// para que la selección se distinga del borde inactivo.
+// SolarizedDark, https://ethanschoonover.com/solarized/ (dark). Solarized has no shade darker than base03: Mantle
+// repeats it; Surface1 is base01 and Overlay0 base00, so the selection stands apart from the inactive border.
 var SolarizedDark = Palette{
 	Name:     "solarized-dark",
 	Source:   "https://ethanschoonover.com/solarized/",
@@ -318,8 +312,8 @@ var SolarizedDark = Palette{
 	Yellow:   lipgloss.Color("#b58900"),
 }
 
-// SolarizedLight, https://ethanschoonover.com/solarized/ (light). Mantle y Surface0
-// son base2; Solarized no tiene otro escalón claro-oscuro, así que Surface1 también.
+// SolarizedLight, https://ethanschoonover.com/solarized/ (light). Mantle and Surface0 are base2; Solarized has no
+// other light step, so Surface1 is base2 too.
 var SolarizedLight = Palette{
 	Name:     "solarized-light",
 	Source:   "https://ethanschoonover.com/solarized/",
@@ -339,7 +333,7 @@ var SolarizedLight = Palette{
 	Yellow:   lipgloss.Color("#b58900"),
 }
 
-// AvailableThemes contiene todos los temas disponibles indexados por nombre
+// AvailableThemes holds every built-in theme by name.
 var AvailableThemes = map[string]Palette{
 	"catppuccin-mocha":     CatppuccinMocha,
 	"catppuccin-latte":     CatppuccinLatte,
@@ -357,8 +351,8 @@ var AvailableThemes = map[string]Palette{
 	"solarized-light":      SolarizedLight,
 }
 
-// ThemeNames devuelve los nombres de temas en orden para la UI de selección: los incluidos y después los
-// del usuario (LoadUserThemes)
+// ThemeNames returns the theme names in the order of the picker: the built-in ones, then the user's
+// (LoadUserThemes).
 func ThemeNames() []string {
 	return append([]string{
 		"catppuccin-mocha",

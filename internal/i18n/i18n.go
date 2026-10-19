@@ -1,7 +1,7 @@
-// Package i18n traduce los textos de la interfaz. El código escribe cada texto como un par español/inglés,
-// i18n.T("Notas", "Notes"); el español y el inglés salen de ese par y los demás idiomas (pt, fr, de, it, ja, zh) de los
-// catálogos de catalog/<idioma>.json, que tienen como clave el texto en inglés. Un texto sin traducción cae en
-// inglés; el test de cobertura (keys_test.go, catalog_test.go) impide que quede alguno sin traducir.
+// Package i18n translates the texts of the interface. The code writes each text as a Spanish/English pair,
+// i18n.T("Notas", "Notes"); Spanish and English come from that pair and the other languages (pt, fr, de, it, ja, zh)
+// from the catalogs in catalog/<language>.json, keyed by the English text. A text with no translation falls back to
+// English; the coverage test (keys_test.go) keeps any from being left untranslated.
 package i18n
 
 import (
@@ -13,24 +13,24 @@ import (
 	"sync"
 )
 
-// Language es un idioma de la interfaz, por su código de dos letras.
+// Language is a language of the interface, by its two-letter code.
 type Language string
 
 const (
 	LangEN Language = "en"
 	LangES Language = "es"
-	LangPT Language = "pt" // portugués de Brasil (pt-BR)
+	LangPT Language = "pt" // Brazilian Portuguese (pt-BR)
 	LangFR Language = "fr"
 	LangDE Language = "de"
 	LangIT Language = "it"
 	LangJA Language = "ja"
-	LangZH Language = "zh" // chino simplificado (zh-CN)
+	LangZH Language = "zh" // Simplified Chinese (zh-CN)
 )
 
-// Languages son los idiomas soportados, en el orden en que los recorre Ajustes.
+// Languages are the supported languages, in the order Settings cycles through them.
 var Languages = []Language{LangEN, LangES, LangPT, LangFR, LangDE, LangIT, LangJA, LangZH}
 
-// Name es el nombre del idioma en ese mismo idioma (el que se muestra en Ajustes).
+// Name is the name of the language in that language (the one Settings shows).
 func (l Language) Name() string {
 	switch l {
 	case LangES:
@@ -59,18 +59,18 @@ var (
 	catalogs    map[Language]map[string]string
 )
 
-// catalog devuelve las traducciones de l (clave: texto en inglés), leídas una vez.
+// catalog returns the translations of l (key: the English text), read once.
 func catalog(l Language) map[string]string {
 	catalogOnce.Do(func() {
 		catalogs = map[Language]map[string]string{}
 		for _, lang := range Languages {
 			data, err := catalogFS.ReadFile("catalog/" + string(lang) + ".json")
 			if err != nil {
-				continue // en y es no tienen catálogo
+				continue // en and es have no catalog
 			}
 			m := map[string]string{}
 			if err := json.Unmarshal(data, &m); err != nil {
-				panic("lazyfinder: el catálogo de " + string(lang) + " está mal formado: " + err.Error()) // un error del repo
+				panic("lazyfinder: the catalog of " + string(lang) + " is malformed: " + err.Error()) // a bug in the repository
 			}
 			catalogs[lang] = m
 		}
@@ -83,7 +83,7 @@ var (
 	currentLang = Detect(os.Getenv)
 )
 
-// Parse reconoce un idioma por su código (en, es, pt, pt-BR, pt_BR, zh-CN…) o por su nombre.
+// Parse recognizes a language by its code (en, es, pt, pt-BR, pt_BR, zh-CN…) or by its name.
 func Parse(s string) (Language, bool) {
 	s = strings.ToLower(strings.TrimSpace(s))
 	if i := strings.IndexAny(s, ".@"); i >= 0 { // "pt_BR.UTF-8"
@@ -113,12 +113,12 @@ func Parse(s string) (Language, bool) {
 	return LangEN, false
 }
 
-// Detect elige el idioma del sistema con las variables de entorno de locale, en el orden de POSIX (LC_ALL, LC_MESSAGES,
-// LANG): la primera que esté puesta decide ("pt_BR.UTF-8" → pt). Un idioma que no se soporta, o ninguna variable: inglés.
+// Detect picks the system language from the locale variables, in POSIX order (LC_ALL, LC_MESSAGES, LANG): the first
+// one set decides ("pt_BR.UTF-8" → pt). An unsupported language, or no variable at all: English.
 func Detect(getenv func(string) string) Language {
 	for _, name := range []string{"LC_ALL", "LC_MESSAGES", "LANG"} {
 		v := strings.TrimSpace(getenv(name))
-		if v == "" || v == "POSIX" || v == "C" || strings.HasPrefix(v, "C.") { // la locale "C" (C.UTF-8 en los contenedores) no elige idioma
+		if v == "" || v == "POSIX" || v == "C" || strings.HasPrefix(v, "C.") { // the "C" locale (C.UTF-8 in containers) picks no language
 			continue
 		}
 		if l, ok := Parse(v); ok {
@@ -129,7 +129,7 @@ func Detect(getenv func(string) string) Language {
 	return LangEN
 }
 
-// SetLanguage define el idioma actual: un código o nombre soportado, o "auto" (el del sistema). Otro valor: inglés.
+// SetLanguage sets the current language: a supported code or name, or "auto" (the system one). Anything else: English.
 func SetLanguage(lang string) {
 	l := LangEN
 	if s := strings.ToLower(strings.TrimSpace(lang)); s == "auto" || s == "" {
@@ -142,15 +142,15 @@ func SetLanguage(lang string) {
 	mu.Unlock()
 }
 
-// CurrentLanguage devuelve el idioma activo.
+// CurrentLanguage returns the active language.
 func CurrentLanguage() Language {
 	mu.RLock()
 	defer mu.RUnlock()
 	return currentLang
 }
 
-// T devuelve el texto en el idioma activo: es y en vienen del código; los demás idiomas, del catálogo (clave: en), y sin
-// traducción cae en inglés.
+// T returns the text in the active language: es and en come from the code, the other languages from the catalog
+// (key: en), and a text with no translation falls back to English.
 func T(es, en string) string {
 	switch l := CurrentLanguage(); l {
 	case LangES:
@@ -165,8 +165,8 @@ func T(es, en string) string {
 	}
 }
 
-// E es T para los textos de los errores: mismo comportamiento (es y en vienen del código; los demás idiomas, del catálogo con clave en y, si falta, en inglés),
-// pero la prueba de cobertura de los catálogos no los exige, porque son muchos y un idioma sin traducir cae en inglés, nunca en español.
+// E is T for the texts of errors: the same behavior, but the coverage test of the catalogs does not require them,
+// because there are many and an untranslated language falls back to English, never to Spanish.
 func E(spanish, english string) string {
 	switch l := CurrentLanguage(); l {
 	case LangES:
@@ -181,16 +181,18 @@ func E(spanish, english string) string {
 	}
 }
 
-// textErr es un error cuyo texto se elige al mostrarlo, no al crearlo: sirve para los errores centinela de los paquetes (`var ErrX = i18n.NewError(…)`), que
-// se crean antes de saber el idioma. Dos con el mismo texto son distintos (errors.Is compara el puntero).
+// textErr is an error whose text is chosen when it is shown, not when it is made: it serves the sentinel errors of the
+// packages (`var ErrX = i18n.NewError(…)`), made before the language is known. Two with the same text are different
+// (errors.Is compares the pointer).
 type textErr struct{ es, en string }
 
 func (e *textErr) Error() string { return E(e.es, e.en) }
 
-// NewError crea un error que se escribe en el idioma de la interfaz cuando se muestra.
+// NewError makes an error written in the language of the interface when it is shown.
 func NewError(spanish, english string) error { return &textErr{spanish, english} }
 
-// Errorf es fmt.Errorf con el formato en el idioma de la interfaz (admite %w). Los argumentos van en el mismo orden en los dos textos.
+// Errorf is fmt.Errorf with the format in the language of the interface (%w works). The arguments go in the same order
+// in both texts.
 func Errorf(spanish, english string, args ...any) error {
 	return fmt.Errorf(E(spanish, english), args...)
 }
