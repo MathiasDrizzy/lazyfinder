@@ -204,7 +204,7 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 		return m.menuClick(mouse.X, mouse.Y)
 	}
 	if m.info.open {
-		m.info = infoState{}
+		m.closeInfo()
 		return nil
 	}
 	if m.pv.open {

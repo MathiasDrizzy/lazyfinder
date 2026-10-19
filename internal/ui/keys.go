@@ -36,7 +36,7 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 	case m.pv.open:
 		return m.previewKey(key, act)
 	case m.info.open:
-		m.info = infoState{}
+		m.closeInfo()
 		return nil
 	case m.prompt.kind != promptNone:
 		return m.promptKey(k)

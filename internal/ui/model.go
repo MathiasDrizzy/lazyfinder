@@ -160,6 +160,7 @@ type Model struct {
 	clip   clipboard
 	prompt promptState
 	info   infoState
+	infoID int // id of the last Get Info, so a late count is dropped
 	scm    scmState
 	diff   diffState
 	gm     gitMenuState
@@ -489,6 +490,8 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.onImage(msg)
 	case gitDoneMsg:
 		return m, m.onGitDone(msg)
+	case infoCountMsg:
+		return m, m.onInfoCount(msg)
 	case execDoneMsg:
 		if msg.err != nil {
 			m.setError(msg.err)
