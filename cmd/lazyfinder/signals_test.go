@@ -174,6 +174,15 @@ func TestAnInterruptAloneDoesNotReachTheModelThroughStopOnSignal(t *testing.T) {
 	<-done
 }
 
+// A single SIGINT during a copy reaches the model through Bubble Tea, not through stopOnSignal, so the grace time never
+// started: a copy that does not stop (a network mount that hangs) kept lazyfinder running for good.
+func TestAnInterruptDuringACopyStartsTheGraceTime(t *testing.T) {
+	err := signalled(t, idle{}, 300*time.Millisecond, 3*time.Second, toModel, syscall.SIGINT)
+	if !errors.Is(err, tea.ErrProgramKilled) {
+		t.Fatalf("err = %v, want the program killed after the grace time", err)
+	}
+}
+
 func TestAnImageLeftOnScreenIsDeletedAfterTheProgram(t *testing.T) {
 	var out bytes.Buffer
 	clearImages(&out, true)
