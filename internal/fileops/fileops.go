@@ -262,7 +262,7 @@ func moveContext(ctx context.Context, src, dst string, onBytes Progress) error {
 	if err == nil || !errors.Is(err, syscall.EXDEV) {
 		return err
 	}
-	if err := copyNew(ctx, src, dst, onBytes); err != nil {
+	if err := copyNew(wholeAttrs(ctx), src, dst, onBytes); err != nil {
 		return err // the source is still whole
 	}
 	return os.RemoveAll(src)

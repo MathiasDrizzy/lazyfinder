@@ -129,7 +129,9 @@ func copyDirAt(ctx context.Context, src, dst item, onBytes Progress) error {
 			return err
 		}
 	}
-	copyXattrs(ctx, in, out)
+	if err := copyXattrs(ctx, in, out); err != nil {
+		return err
+	}
 	if err := out.Chmod(fi.Mode().Perm()); err != nil {
 		return err
 	}
@@ -173,39 +175,73 @@ func copyFileAt(ctx context.Context, src, dst item, onBytes Progress) (err error
 	if _, err = io.Copy(out, progressReader{ctx: ctx, r: in, onBytes: onBytes}); err != nil {
 		return err
 	}
-	copyXattrs(ctx, in, out)
-	return nil
+	return copyXattrs(ctx, in, out)
 }
 
 // copyXattrs gives out the extended attributes of in: Finder tags, a resource fork, and com.apple.quarantine, which
 // makes Gatekeeper ask before a downloaded program runs. It goes before the mode, which may take the owner's write
-// permission away. The attributes are a best effort, as in cp -p: one that cannot be read or that the destination
-// does not take (a filesystem without them, a security.* name only root sets, a full attribute block, one removed in
-// between) is left behind, and the copy of the content stands. So is one above maxXattr: a resource fork of
-// gigabytes, which a tiny zip with an AppleDouble entry restores, would sit in memory whole. Esc stops between two.
-func copyXattrs(ctx context.Context, in, out *os.File) {
+// permission away. For a copy the attributes are a best effort, as in cp -p: one that cannot be read or that the
+// destination does not take (a full attribute block, one removed in between) is left behind, and so is one above
+// maxXattr, since a resource fork of gigabytes, which a tiny zip with an AppleDouble entry restores, would sit in
+// memory whole. A move removes its source afterwards, so under wholeAttrs any of those fails the copy instead. Only an
+// attribute the destination cannot hold at all (a filesystem without them, a security.* name only root sets) is left
+// behind either way, as mv does. Esc stops between two attributes and cancels the copy.
+func copyXattrs(ctx context.Context, in, out *os.File) error {
+	whole := ctx.Value(wholeKey{}) != nil
 	src, dst := int(in.Fd()), int(out.Fd())
 	size, err := unix.Flistxattr(src, nil)
-	if err != nil || size == 0 {
-		return
+	if errors.Is(err, unix.ENOTSUP) || err == nil && size == 0 {
+		return nil
 	}
-	list := make([]byte, size)
-	if size, err = unix.Flistxattr(src, list); err != nil {
-		return
+	list := make([]byte, max(size, 0))
+	if err == nil {
+		size, err = unix.Flistxattr(src, list)
+	}
+	if err != nil {
+		return leftBehind(whole, &fs.PathError{Op: "listxattr", Path: in.Name(), Err: err})
 	}
 	for _, name := range strings.Split(strings.TrimRight(string(list[:size]), "\x00"), "\x00") {
-		if ctx.Err() != nil {
-			return
+		if err := ctx.Err(); err != nil {
+			return err
 		}
-		n, err := fgetxattr(src, name, nil)
-		if err != nil || n > maxXattr {
-			continue
-		}
-		value := make([]byte, n)
-		if n, err = fgetxattr(src, name, value); err == nil {
-			_ = fsetxattr(dst, name, value[:n], 0) // best effort, see above
+		if err := copyXattr(src, dst, name); err != nil {
+			refused := errors.Is(err, unix.ENOTSUP) || errors.Is(err, unix.EPERM) || errors.Is(err, unix.EACCES)
+			if refused && !errors.Is(err, errSource) { // the destination cannot hold it
+				continue
+			}
+			if err := leftBehind(whole, &fs.PathError{Op: "copy attribute " + name, Path: in.Name(), Err: err}); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
+}
+
+// copyXattr copies one extended attribute; an error of setting it is the destination's, any other is the source's.
+func copyXattr(src, dst int, name string) error {
+	n, err := fgetxattr(src, name, nil)
+	if err != nil {
+		return fmt.Errorf("read: %w", errors.Join(err, errSource))
+	}
+	if n > maxXattr {
+		return fmt.Errorf("larger than %d MiB", maxXattr>>20)
+	}
+	value := make([]byte, n)
+	if n, err = fgetxattr(src, name, value); err != nil {
+		return fmt.Errorf("read: %w", errors.Join(err, errSource))
+	}
+	return fsetxattr(dst, name, value[:n], 0)
+}
+
+// errSource marks an error of reading an attribute: EPERM there is not the destination refusing it.
+var errSource = errors.New("reading the source")
+
+// leftBehind is nil for a copy, which may leave an attribute behind, and err for a move, which may not.
+func leftBehind(whole bool, err error) error {
+	if whole {
+		return err
+	}
+	return nil
 }
 
 // setTimes gives the item the copy made the modification time of its source, without following a link in its place.
@@ -223,3 +259,9 @@ const maxXattr = 16 << 20
 // fgetxattr and fsetxattr are unix.Fgetxattr and unix.Fsetxattr; tests swap them for a huge attribute and for a
 // destination that refuses one.
 var fgetxattr, fsetxattr = unix.Fgetxattr, unix.Fsetxattr
+
+// wholeKey marks a context whose copy must keep every extended attribute; see wholeAttrs.
+type wholeKey struct{}
+
+// wholeAttrs is ctx for a copy that must keep every extended attribute: one that removes its source afterwards.
+func wholeAttrs(ctx context.Context) context.Context { return context.WithValue(ctx, wholeKey{}, true) }

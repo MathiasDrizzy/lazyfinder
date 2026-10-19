@@ -73,3 +73,72 @@ func TestAHugeAttributeIsLeftBehind(t *testing.T) {
 		t.Fatal("an attribute above the limit was copied")
 	}
 }
+
+// A move across volumes copies, then removes the source: an attribute the copy left behind (a resource fork above the
+// limit, one the destination refused) was lost for good with it. A move keeps every attribute or does not happen.
+func TestAMoveThatCannotKeepAnAttributeKeepsTheSource(t *testing.T) {
+	w := newWorld(t)
+	w.put("src/a.txt", "a")
+	if err := unix.Setxattr(w.path("src/a.txt"), "user.lazyfinder.test", []byte("v"), 0); err != nil {
+		t.Skipf("this filesystem keeps no extended attributes: %v", err)
+	}
+	old := fgetxattr
+	fgetxattr = func(fd int, name string, dest []byte) (int, error) {
+		if dest == nil {
+			return maxXattr + 1, nil
+		}
+		return old(fd, name, dest)
+	}
+	t.Cleanup(func() { fgetxattr = old })
+	if err := copyNew(wholeAttrs(context.Background()), w.path("src/a.txt"), w.path("dst/a.txt"), nil); err == nil {
+		t.Fatal("a move that leaves an attribute behind must fail")
+	}
+	if _, err := os.Lstat(w.path("dst/a.txt")); !os.IsNotExist(err) {
+		t.Fatalf("the copy stayed: %v", err)
+	}
+	if got := w.read("src/a.txt"); got != "a" {
+		t.Fatal("the source is gone")
+	}
+}
+
+// Esc while the attributes were copied ended copyXattrs quietly, so the copy counted as done and a move removed its
+// source. The copy is cancelled like any other.
+func TestEscWhileCopyingAttributesCancels(t *testing.T) {
+	w := newWorld(t)
+	w.put("src/a.txt", "a")
+	if err := unix.Setxattr(w.path("src/a.txt"), "user.lazyfinder.test", []byte("v"), 0); err != nil {
+		t.Skipf("this filesystem keeps no extended attributes: %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	old := fgetxattr
+	fgetxattr = func(fd int, name string, dest []byte) (int, error) {
+		cancel()
+		return old(fd, name, dest)
+	}
+	t.Cleanup(func() { fgetxattr = old })
+	if err := copyNew(ctx, w.path("src/a.txt"), w.path("dst/a.txt"), nil); !errors.Is(err, context.Canceled) {
+		t.Fatalf("copy = %v, want cancelled", err)
+	}
+	if _, err := os.Lstat(w.path("dst/a.txt")); !os.IsNotExist(err) {
+		t.Fatalf("the cancelled copy stayed: %v", err)
+	}
+}
+
+// An attribute the source would not give (EPERM on reading it) was taken for one the destination cannot hold, and a
+// move left it behind. Only the destination's refusal is skipped.
+func TestAMoveThatCannotReadAnAttributeKeepsTheSource(t *testing.T) {
+	w := newWorld(t)
+	w.put("src/a.txt", "a")
+	if err := unix.Setxattr(w.path("src/a.txt"), "user.lazyfinder.test", []byte("v"), 0); err != nil {
+		t.Skipf("this filesystem keeps no extended attributes: %v", err)
+	}
+	old := fgetxattr
+	fgetxattr = func(int, string, []byte) (int, error) { return 0, unix.EPERM }
+	t.Cleanup(func() { fgetxattr = old })
+	if err := copyNew(wholeAttrs(context.Background()), w.path("src/a.txt"), w.path("dst/a.txt"), nil); err == nil {
+		t.Fatal("a move that cannot read an attribute must fail")
+	}
+	if got := w.read("src/a.txt"); got != "a" {
+		t.Fatal("the source is gone")
+	}
+}
