@@ -76,6 +76,8 @@ the commit. It ends with no open rows.
   ok in all 18 packages, `golangci-lint run` 0 issues, `govulncheck ./...` no vulnerabilities, `verificar.sh` rc 0,
   gitleaks over the history and the tree: no leaks. Coverage: cmd/lazyfinder 77.3%, fileops 89.9%, preview 85.7%,
   ui 92.8%, the rest as above.
+- Stability: `go test -race -count=20 ./internal/ui/` on 4bc9bde, in seven runs of 3 (the last of 2) from
+  17:56Z to 18:51Z: 20 runs ok in 3281 s, no failure and no data race. Findings: 61, none open.
 
 ## Findings
 
