@@ -63,3 +63,31 @@ func TestErrorfUsesTheActiveLanguage(t *testing.T) {
 		t.Errorf("got %q", got)
 	}
 }
+
+func TestEveryLanguageHasItsOwnName(t *testing.T) {
+	seen := map[string]bool{}
+	for _, l := range Languages {
+		n := l.Name()
+		if n == "" || seen[n] {
+			t.Errorf("%s has the name %q", l, n)
+		}
+		seen[n] = true
+	}
+}
+
+// A sentinel error is made before the language is known, so its text follows the language of the moment it is
+// shown, with the catalog for the other languages and English when the catalog lacks it.
+func TestNewErrorIsWrittenInTheLanguageWhenShown(t *testing.T) {
+	t.Cleanup(func() { SetLanguage("en") })
+	err := NewError("no se puede", "cannot")
+	for lang, want := range map[string]string{"es": "no se puede", "en": "cannot", "de": "cannot"} {
+		SetLanguage(lang)
+		if got := err.Error(); got != want {
+			t.Errorf("%s: %q, want %q", lang, got, want)
+		}
+	}
+	SetLanguage("de")
+	if got := E("Abrir", "Open"); got == "Open" || got == "" {
+		t.Errorf("de: E took no catalog text: %q", got)
+	}
+}
