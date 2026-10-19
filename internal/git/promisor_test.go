@@ -59,3 +59,19 @@ func TestWithoutGitAFolderIsNoRepository(t *testing.T) {
 		t.Fatalf("Read = %v, %v", ok, err)
 	}
 }
+
+// git could not start in a folder you may list but not enter, and Read reported it as an error, which the status line
+// showed on every refresh. git cannot read such a folder, so it is no repository either.
+func TestAFolderGitCannotEnterIsNoRepository(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root enters any folder")
+	}
+	dir := filepath.Join(t.TempDir(), "d")
+	if err := os.Mkdir(dir, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o755) })
+	if _, ok, err := Read(dir); ok || err != nil {
+		t.Fatalf("Read = %v, %v", ok, err)
+	}
+}

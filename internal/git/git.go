@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -73,7 +74,8 @@ func Read(dir string) (Status, bool, error) {
 	top, err := git(ctx, dir, "rev-parse", "--show-toplevel")
 	if err != nil {
 		var ee *exec.ExitError
-		if errors.As(err, &ee) || errors.Is(err, exec.ErrNotFound) { // not a repository, or no git at all
+		// Not a repository, no git at all, or a folder git cannot enter (listed, but without x), so cannot read.
+		if errors.As(err, &ee) || errors.Is(err, exec.ErrNotFound) || errors.Is(err, fs.ErrPermission) {
 			return Status{}, false, nil
 		}
 		return Status{}, false, err
