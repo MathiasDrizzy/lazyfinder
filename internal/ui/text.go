@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/MathiasDrizzy/lazyfinder/internal/preview"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -38,18 +39,8 @@ func showControls(s string) string {
 				continue
 			}
 		}
-		r, size := utf8.DecodeRuneInString(s[i:])
-		switch {
-		case r == utf8.RuneError && size == 1:
-			r = '�'
-		case r < 0x20:
-			r = 0x2400 + r
-		case r == 0x7f:
-			r = '␡'
-		case r >= 0x80 && r < 0xa0:
-			r = '�'
-		}
-		b.WriteRune(r)
+		r, size := utf8.DecodeRuneInString(s[i:]) // an invalid byte is utf8.RuneError, drawn as �
+		b.WriteRune(preview.Picture(r))
 		i += size
 	}
 	return b.String()
@@ -75,21 +66,7 @@ func sgrLen(s string) int {
 // shownName is a file name (or a path, or text that holds one) as it is drawn: every control character shows as its
 // picture, ESC too, so no part of a name can act as a sequence, be dropped by View, or color the row. Two names that
 // differ in a control character look different.
-func shownName(s string) string {
-	return strings.Map(func(r rune) rune {
-		switch {
-		case r == utf8.RuneError:
-			return '�'
-		case r < 0x20:
-			return 0x2400 + r
-		case r == 0x7f:
-			return '␡'
-		case r >= 0x80 && r < 0xa0:
-			return '�'
-		}
-		return r
-	}, s)
-}
+func shownName(s string) string { return preview.VisibleLine(s) }
 
 // safeFrame drops from the frame every escape sequence other than a color or a text style (SGR), and every control
 // character other than the line break. lazyfinder draws nothing else in the frame (images go out on their own with

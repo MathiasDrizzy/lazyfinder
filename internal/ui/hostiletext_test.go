@@ -46,3 +46,13 @@ func TestADiffKeepsItsTabsAndCRLFLines(t *testing.T) {
 		t.Fatalf("the diff shows its tabs or carriage returns as pictures:\n%s", got)
 	}
 }
+
+// A name with a right-to-left override, "invoice" U+202E "fdp.exe", can be drawn as invoiceexe.pdf by a terminal
+// that applies bidi, so Open and Trash named a program as a PDF. The bidi controls show as �.
+func TestABidiOverrideInANameShowsAsAPicture(t *testing.T) {
+	for _, r := range []rune{0x202a, 0x202b, 0x202c, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068, 0x2069, 0x200e, 0x200f, 0x061c} {
+		if got := shownName("invoice" + string(r) + "fdp.exe"); got != "invoice�fdp.exe" {
+			t.Errorf("U+%04X: %q", r, got)
+		}
+	}
+}
