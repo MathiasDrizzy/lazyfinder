@@ -229,6 +229,7 @@ func loadSpecial(ctx context.Context, res Result, path, name string, opts Option
 		}
 		pf, err := os.Open(png)
 		if err != nil {
+			Discard(png)
 			return res, false
 		}
 		defer func() { _ = pf.Close() }()

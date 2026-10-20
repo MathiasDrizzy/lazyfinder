@@ -136,10 +136,13 @@ func (m *Model) refreshPreview() tea.Cmd {
 }
 
 func (m *Model) onPreview(msg previewMsg) tea.Cmd {
+	res := msg.res
+	if res.ImagePath != "" && (!m.pv.open || msg.id != m.pv.id || !m.imagesAllowed || m.deps.Cfg.Preview.Images == "off") {
+		preview.Discard(res.ImagePath) // a PDF page that is not shown; one that is goes after its encoding below
+	}
 	if !m.pv.open || msg.id != m.pv.id {
 		return nil
 	}
-	res := msg.res
 	m.pv.res = &res
 	if res.Kind == preview.KindError {
 		m.setError(res.Err)
