@@ -1,36 +1,55 @@
 package preview
 
 import (
+	"context"
 	"strings"
 	"testing"
 	"time"
 )
 
-// Nested quotes made glamour's output grow exponentially: 80 > took 37 s and 84 took 5 GB, and the preview could not
-// be cancelled. Markdown nested deeper than maxMarkdownDepth shows as its source; shallower nesting still renders.
-func TestDeeplyNestedMarkdownShowsItsSource(t *testing.T) {
-	var indented strings.Builder // lists nested by indentation alone
-	for i := range 600 {
-		indented.WriteString(strings.Repeat("  ", i) + "- x\n")
+// glamour took minutes or gigabytes on a few hundred KB of nested quotes, unclosed links or a table of thousands of
+// columns, and nested emphasis overflowed the stack, which killed the program; guessing those from the input missed
+// some and refused good files. The render runs in a child process with limits: each of these ends quickly as source.
+func TestMarkdownBombsShowTheirSource(t *testing.T) {
+	bombs := map[string]string{
+		"nested quotes":   strings.Repeat(">", 200),
+		"quoted lists":    strings.Repeat("> - ", 300) + "x",
+		"a fake fence":    "    ```\n" + strings.Repeat(">", 200<<10),
+		"nested emphasis": strings.Repeat("**a ", 40000) + strings.Repeat("a** ", 40000),
+		"unclosed links":  strings.Repeat("[a](", 50000),
+		"a wide table":    "|" + strings.Repeat("a|", 50000) + "\n|" + strings.Repeat("-|", 50000) + "\n|" + strings.Repeat("b|", 50000) + "\n",
 	}
-	for _, src := range []string{strings.Repeat(">", 200), strings.Repeat("> - ", 300) + "x", strings.Repeat(">", 512<<10), indented.String()} {
+	for name, src := range bombs {
 		start := time.Now()
-		lines, ok := renderMarkdown(src, 20, false)
-		if took := time.Since(start); took > 2*time.Second || ok {
-			t.Fatalf("%.10q…: rendered %v in %v (%d lines)", src, ok, took, len(lines))
+		lines, ok := renderMarkdown(context.Background(), src, 80, false)
+		if took := time.Since(start); took > markdownTimeout+time.Second || ok {
+			t.Errorf("%s: rendered %v in %v (%d lines)", name, ok, took, len(lines))
 		}
 	}
-	for _, width := range []int{20, 80} {
-		start := time.Now()
-		if _, ok := renderMarkdown(strings.Repeat("> - ", maxMarkdownDepth/2)+"x", width, false); !ok {
-			t.Fatal("nesting within the limit must render")
-		}
-		if took := time.Since(start); took > time.Second {
-			t.Fatalf("width %d: nesting within the limit took %v", width, took)
+}
+
+// The guesses refused good files: a blank line with trailing spaces, a rule written "- - - …", code indented deep in
+// an indented block or a fence. They render.
+func TestOrdinaryMarkdownRenders(t *testing.T) {
+	good := map[string]string{
+		"trailing spaces": "# Title\n\ntext\n" + strings.Repeat(" ", 60) + "\nmore\n",
+		"a spaced rule":   "# T\n\n" + strings.Repeat("- ", 20) + "\n",
+		"indented code":   "# T\n\n" + strings.Repeat(" ", 70) + "code\n",
+		"a fenced block":  "# Title\n\n```yaml\n" + strings.Repeat(" ", 80) + "- deep: yaml\n```\n",
+		"some nesting":    strings.Repeat("> - ", 4) + "x\n",
+	}
+	for name, src := range good {
+		if lines, ok := renderMarkdown(context.Background(), src, 80, false); !ok || len(lines) == 0 {
+			t.Errorf("%s did not render", name)
 		}
 	}
-	fenced := "# Title\n\n```yaml\n" + strings.Repeat(" ", 80) + "- deep: yaml\n```\n"
-	if _, ok := renderMarkdown(fenced, 80, false); !ok {
-		t.Fatal("deep indentation inside a fenced block must still render")
+}
+
+// Moving on cancels the render: the child is killed with the preview's context.
+func TestACancelledRenderStops(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, ok := renderMarkdown(ctx, "# Title\n", 80, false); ok {
+		t.Fatal("a cancelled render must not count")
 	}
 }

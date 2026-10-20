@@ -18,8 +18,9 @@ All notable changes to this project are documented here. The format follows
   destination can hold keeps its source.
 - The first page of a PDF is drawn at most 1600 pixels on its long side, with pdftoppm or Quick Look: a tiny PDF
   with a huge page took 2 GB to preview. Coloring a file stops after half a second and shows it plain: a hostile
-  .cpp file kept a core busy for half an hour. Markdown nested deeper than 12 quotes or lists shows as its source:
-  a few hundred bytes of > took minutes and gigabytes to render.
+  .cpp file kept a core busy for half an hour. Markdown renders in a child process with a time, memory and stack
+  limit, and shows as its source past them: nested quotes or emphasis, unclosed links and very wide tables took
+  minutes or gigabytes, and nested emphasis crashed the program.
 - Bidi controls in a file name or previewed text show as �, so a name cannot be drawn with another extension.
 - A copy no longer follows an item swapped for a link while it runs, so it cannot read from or change the mode of
   what the link points to; and diff lines, stash messages, link targets and popup titles show their escape sequences

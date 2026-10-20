@@ -23,3 +23,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | 0017 | [lazyfinder as a herdr plugin](0017-herdr-plugin.md) | accepted |
 | 0018 | [Improvements of the 2026 audit](0018-audit-improvements.md) | accepted |
 | 0019 | [Git operations you ask for run the repository's config](0019-git-writes-trust-the-repository.md) | accepted |
+| 0020 | [Markdown renders in a child process](0020-markdown-in-a-child-process.md) | accepted |
