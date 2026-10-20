@@ -18,7 +18,8 @@ All notable changes to this project are documented here. The format follows
   destination can hold keeps its source.
 - The first page of a PDF is drawn at most 1600 pixels on its long side, with pdftoppm or Quick Look: a tiny PDF
   with a huge page took 2 GB to preview. Coloring a file stops after half a second and shows it plain: a hostile
-  .cpp file kept a core busy for half an hour.
+  .cpp file kept a core busy for half an hour. Markdown nested deeper than 12 quotes or lists shows as its source:
+  a few hundred bytes of > took minutes and gigabytes to render.
 - Bidi controls in a file name or previewed text show as �, so a name cannot be drawn with another extension.
 - A copy no longer follows an item swapped for a link while it runs, so it cannot read from or change the mode of
   what the link points to; and diff lines, stash messages, link targets and popup titles show their escape sequences
@@ -45,7 +46,8 @@ All notable changes to this project are documented here. The format follows
 - Moving to the Trash and undoing run apart from the UI with progress and Esc, so a Trash on another volume no
   longer freezes the window; undoing a new folder never deletes a file that took its name; the Linux trash follows
   XDG_DATA_HOME; a CSV with a byte order mark shows as a table; the diff of an untracked named pipe no longer hangs,
-  and the diff of a huge untracked file no longer holds it in memory whole.
+  and the diff of a huge untracked file no longer holds it in memory whole; the page image of a PDF that is not
+  shown no longer stays in the temporary folder.
 - Quitting, a SIGHUP or handing the terminal to another program no longer leaves a preview image over the shell or
   the terminal in raw mode. SIGHUP, SIGTERM and SIGINT stop a paste under way first, so it leaves no half copy, and a
   hangup while an editor has the terminal waits for it to close. A repeated signal still ends a lazyfinder that hangs.
