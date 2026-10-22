@@ -326,16 +326,18 @@ func (m *Model) settingsKey(key string, act keymap.Action) tea.Cmd {
 	return nil
 }
 
+// settingsHintHeight is the shortest window that keeps the hint lines under a list that scrolls: they say what a row
+// needs (the shell line of cd_on_exit), so they stay while the window has room for a useful part of the list.
+const settingsHintHeight = 14
+
 // settingsView is the part of the rows that fits the window: inner width, visible rows and whether the hint line fits.
 func (m *Model) settingsView() (inner, rows int, hint bool) {
 	inner = min(settingsInner, max(8, m.w-4))
-	rows = min(settingCount, max(1, m.h-4))
-	hint = rows == settingCount && m.h >= settingCount+4
+	hint = m.h >= settingsHintHeight
 	if hint {
-		rows = min(settingCount, m.h-6)
-		hint = rows == settingCount
+		return inner, min(settingCount, m.h-6), true
 	}
-	return inner, rows, hint
+	return inner, min(settingCount, max(1, m.h-4)), false
 }
 
 func (m *Model) settingsGeom() (x, y int) {
