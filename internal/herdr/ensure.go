@@ -45,8 +45,11 @@ func Ensure(c Client, e Env, s Settings) error {
 		return err
 	}
 	forget(e.StateDir, panes)
+	if err := closeFinished(c, e, panes); err != nil {
+		return err
+	}
 	tab := EventTab(e.Event, panes, e.TabID)
-	if tab == "" || snoozed(e.StateDir, tab) {
+	if tab == "" || marked(e.StateDir, snoozed, tab) {
 		return nil
 	}
 	if _, ok, err := sidebarOf(c, panes, tab); ok || err != nil {
@@ -72,7 +75,7 @@ func Startup(c Client, e Env, s Settings) error {
 	var errs []error
 	for _, tab := range restoredTabs(panes) {
 		_, live, err := sidebarOf(c, panes, tab)
-		if err != nil || live || !s.AutoOpen || snoozed(e.StateDir, tab) {
+		if err != nil || live || !s.AutoOpen || marked(e.StateDir, snoozed, tab) {
 			errs = append(errs, err)
 			continue
 		}
@@ -101,7 +104,7 @@ func Hide(c Client, e Env, pane string) error {
 	}
 	for _, p := range panes {
 		if p.ID == pane {
-			return snooze(e.StateDir, p.Tab, true)
+			return mark(e.StateDir, snoozed, p.Tab, true)
 		}
 	}
 	return fmt.Errorf("herdr: no pane %s", pane)
@@ -151,14 +154,14 @@ func Toggle(c Client, e Env, s Settings) error {
 	}
 	switch {
 	case ok && side.Focused:
-		if err := snooze(e.StateDir, tab, true); err != nil {
+		if err := mark(e.StateDir, snoozed, tab, true); err != nil {
 			return err
 		}
 		return c.Call("pane.close", map[string]string{"pane_id": side.ID}, nil)
 	case ok:
 		return c.Call("pane.focus", map[string]string{"pane_id": side.ID}, nil)
 	}
-	if err := snooze(e.StateDir, tab, false); err != nil {
+	if err := mark(e.StateDir, snoozed, tab, false); err != nil {
 		return err
 	}
 	_, err = open(c, e, s, panes, tab, true)
@@ -242,40 +245,48 @@ func lock(dir string) (unlock func(), ok bool) {
 	return func() { _ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN); _ = f.Close() }, true
 }
 
+// Kinds of marks a tab can have.
+const (
+	snoozed = "snoozed" // the user closed its sidebar
+	opened  = "opened"  // lazyfinder opened it for a program
+)
+
 // forget drops the marks of tabs that are gone, so a later tab never inherits one.
 func forget(dir string, panes []Pane) {
 	if dir == "" || len(panes) == 0 {
 		return // no list to trust: keep every mark
 	}
-	entries, err := os.ReadDir(filepath.Join(dir, "snoozed"))
-	if err != nil {
-		return
-	}
 	live := map[string]bool{}
 	for _, p := range panes {
-		live[filepath.Base(snoozePath(dir, p.Tab))] = true
+		live[filepath.Base(markPath(dir, snoozed, p.Tab))] = true
 	}
-	for _, en := range entries {
-		if !live[en.Name()] {
-			_ = os.Remove(filepath.Join(dir, "snoozed", en.Name())) // a mark that cannot go only stays
+	for _, kind := range []string{snoozed, opened} {
+		entries, err := os.ReadDir(filepath.Join(dir, kind))
+		if err != nil {
+			continue
+		}
+		for _, en := range entries {
+			if !live[en.Name()] {
+				_ = os.Remove(filepath.Join(dir, kind, en.Name())) // a mark that cannot go only stays
+			}
 		}
 	}
 }
 
-// snoozePath is the marker of a tab whose sidebar the user closed; the tab id is made a plain file name.
-func snoozePath(dir, tab string) string {
+// markPath is the marker of a kind for a tab; the tab id is made a plain file name.
+func markPath(dir, kind, tab string) string {
 	safe := strings.NewReplacer("/", "_", ":", "_", "\\", "_", ".", "_").Replace(tab)
-	return filepath.Join(dir, "snoozed", safe)
+	return filepath.Join(dir, kind, safe)
 }
 
-func snoozed(dir, tab string) bool {
-	_, err := os.Stat(snoozePath(dir, tab))
+func marked(dir, kind, tab string) bool {
+	_, err := os.Stat(markPath(dir, kind, tab))
 	return err == nil
 }
 
-// snooze marks (on) or clears the tab.
-func snooze(dir, tab string, on bool) error {
-	p := snoozePath(dir, tab)
+// mark puts (on) or clears the mark of a kind on the tab.
+func mark(dir, kind, tab string, on bool) error {
+	p := markPath(dir, kind, tab)
 	if !on {
 		if err := os.Remove(p); err != nil && !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("herdr: %w", err)

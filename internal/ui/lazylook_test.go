@@ -405,6 +405,8 @@ func TestTheHerdrWidthsAreRowsOfTheSettings(t *testing.T) {
 		{"Minimum width", "‹ 22 ›", "‹ 24 ›", "right", func(h config.Herdr) bool { return h.MinColumns == 24 }},
 		{"Fit to the screen", "‹ yes ›", "‹ no ›", "right", func(h config.Herdr) bool { return !h.Adapt }},
 		{"Widen in normal mode", "‹ yes ›", "‹ no ›", "right", func(h config.Herdr) bool { return !h.FitNormal }},
+		{"Preview in herdr", "‹ no ›", "‹ yes ›", "right", func(h config.Herdr) bool { return h.Preview }},
+		{"Open in herdr", "‹ new tab ›", "‹ same pane ›", "right", func(h config.Herdr) bool { return h.OpenIn == "pane" }},
 	}
 	for _, r := range rows {
 		e.pickSetting(r.label)
@@ -416,8 +418,8 @@ func TestTheHerdrWidthsAreRowsOfTheSettings(t *testing.T) {
 			t.Fatalf("%s: %v %+v", r.label, err, cfg.Herdr)
 		}
 	}
-	if fits != len(rows) {
-		t.Fatalf("%d fits, want %d", fits, len(rows))
+	if fits != 5 { // the widths and the switches of the width; the preview and where programs open are not widths
+		t.Fatalf("%d fits, want 5", fits)
 	}
 	e.pickSetting("Minimum width")
 	for range 200 {

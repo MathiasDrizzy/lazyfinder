@@ -70,6 +70,10 @@ func (m *Model) openPreview() tea.Cmd {
 	if _, ok := m.selected(); !ok {
 		return nil
 	}
+	if m.deps.HerdrOpen != nil && !m.deps.Cfg.Herdr.Preview {
+		m.setStatus(i18n.T(`Sin vista previa en herdr: actívala en Ajustes, "Vista previa en herdr"`, `No preview in herdr: turn it on in Settings, "Preview in herdr"`))
+		return nil
+	}
 	m.pv.open = true
 	return m.refreshPreview()
 }

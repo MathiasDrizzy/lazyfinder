@@ -86,6 +86,9 @@ type Deps struct {
 	// sidebar mode; force applies it now, else only when the screen changed or the pane is below its minimum. nil
 	// outside the plugin.
 	HerdrFit func(s config.Herdr, normal, force bool) error
+	// HerdrOpen runs a terminal program in a new tab of herdr, in dir: argv with the file, label the name of the
+	// tab. nil outside the plugin.
+	HerdrOpen func(dir string, argv []string, label string) error
 }
 
 // ShellSetup is one line to add to a shell's startup file.
@@ -445,6 +448,18 @@ func (m *Model) openSelected() tea.Cmd {
 
 // run starts cmd: GUI openers directly, terminal openers by handing the terminal over.
 func (m *Model) run(c opener.Command) tea.Cmd {
+	if c.Mode == config.ModeTerminal && m.deps.HerdrOpen != nil && m.deps.Cfg.Herdr.OpenIn != "pane" {
+		dir := c.Dir
+		if dir == "" {
+			dir = m.dir() // the tab opens in the folder lazyfinder shows, not in the one it was started in
+		}
+		if err := m.deps.HerdrOpen(dir, c.Argv, c.Name); err != nil {
+			m.setError(err)
+			return nil
+		}
+		m.setStatus(fmt.Sprintf(i18n.T("Abierto con %s en una pestaña nueva", "Opened with %s in a new tab"), c.Name))
+		return nil
+	}
 	if c.Mode == config.ModeTerminal {
 		cmd := exec.Command(c.Argv[0], c.Argv[1:]...)
 		cmd.Dir = c.Dir

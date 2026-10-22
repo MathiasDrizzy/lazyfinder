@@ -217,7 +217,7 @@ func TestEnsureSkipsWhileAnotherHoldsTheLock(t *testing.T) {
 
 func TestSnoozeFileNamesAreSafe(t *testing.T) {
 	dir := t.TempDir()
-	if err := snooze(dir, "w1:t1/../x", true); err != nil {
+	if err := mark(dir, snoozed, "w1:t1/../x", true); err != nil {
 		t.Fatal(err)
 	}
 	entries, _ := os.ReadDir(filepath.Join(dir, "snoozed"))
@@ -266,7 +266,7 @@ func TestStartupRestoresTheSidebarOfEveryTab(t *testing.T) {
 	f.roots = map[string]string{"w1:p2": "zsh", "w2:p2": "zsh"}
 	e := envFor(t)
 	e.Event = ""
-	if err := snooze(e.StateDir, "w3:t1", true); err != nil {
+	if err := mark(e.StateDir, snoozed, "w3:t1", true); err != nil {
 		t.Fatal(err)
 	}
 	if err := Startup(f.serve(t), e, left); err != nil {
@@ -312,13 +312,13 @@ func TestHideKeepsTheSidebarClosedInItsTabOnly(t *testing.T) {
 func TestTheMarkOfATabThatIsGoneIsForgotten(t *testing.T) {
 	f := newFake()
 	e := envFor(t)
-	if err := snooze(e.StateDir, "w9:t9", true); err != nil {
+	if err := mark(e.StateDir, snoozed, "w9:t9", true); err != nil {
 		t.Fatal(err)
 	}
 	if err := Ensure(f.serve(t), e, left); err != nil {
 		t.Fatal(err)
 	}
-	if snoozed(e.StateDir, "w9:t9") {
+	if marked(e.StateDir, snoozed, "w9:t9") {
 		t.Fatal("the mark of a tab that no longer exists stayed")
 	}
 }

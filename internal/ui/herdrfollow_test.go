@@ -3,11 +3,13 @@ package ui
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
+	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 )
 
 // Order 2026-10-15-16: as the pane of the herdr plugin the sidebar «siga la carpeta donde esta el space»: it goes to
@@ -107,5 +109,52 @@ func TestThePluginPaneKeepsItsModeWhenHerdrWidensIt(t *testing.T) {
 func pluginPane(e *env) {
 	if !e.m.projectMode() {
 		e.m.toggleProject()
+	}
+}
+
+// Mathias, 2026-10-22: "como plugin cuando apreto espacio ... bug visual y tirita. no deberia hacerse vista previa".
+// In the herdr sidebar Space says where to turn the preview on, unless herdr.preview is on.
+func TestThePluginPaneLeavesThePreviewOff(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.HerdrOpen = func(string, []string, string) error { return nil }
+	e.pick("notes.txt")
+	e.key("space")
+	if e.m.pv.open {
+		t.Fatal("the preview opened in the herdr sidebar")
+	}
+	e.mustHave("Preview in herdr")
+	e.m.deps.Cfg.Herdr.Preview = true
+	e.key("space")
+	if !e.m.pv.open {
+		t.Fatal("herdr.preview on: no preview")
+	}
+}
+
+// Mathias, 2026-10-22: "click y saltar a otra pestaña de herdr con el programa configurado". A terminal program opens
+// in a new tab of herdr; with herdr.open_in "pane" it takes the sidebar pane, as outside herdr.
+func TestThePluginPaneOpensATerminalProgramInANewTab(t *testing.T) {
+	e := newEnv(t)
+	var got []string
+	e.m.deps.HerdrOpen = func(dir string, argv []string, label string) error {
+		got = append([]string{dir, label}, argv...)
+		return nil
+	}
+	e.m.deps.Cfg.Openers = map[string]config.Opener{"micro": {Argv: []string{"micro", config.FilePlaceholder}, Mode: config.ModeTerminal}}
+	e.m.deps.Cfg.OpenWith = map[string]string{"txt": "micro"}
+	e.m.resolve = opener.New(e.m.deps.Cfg)
+	e.pick("notes.txt")
+	file := filepath.Join(e.root, "notes.txt")
+	_, cmd := e.m.Update(keyMsg("enter"))
+	want := []string{e.root, "micro", "micro", file}
+	if !slices.Equal(got, want) {
+		t.Fatalf("opened %q, want %q", got, want)
+	}
+	if cmd != nil {
+		t.Fatal("the sidebar pane handed itself over too")
+	}
+	got = nil
+	e.m.deps.Cfg.Herdr.OpenIn = "pane"
+	if _, cmd := e.m.Update(keyMsg("enter")); got != nil || cmd == nil {
+		t.Fatalf("open_in pane: herdr %q, hand over %v", got, cmd != nil)
 	}
 }

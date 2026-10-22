@@ -50,6 +50,8 @@ type Options struct {
 	HerdrHide func()
 	// HerdrFit keeps that pane at the width of its settings.
 	HerdrFit func(s config.Herdr, normal, force bool) error
+	// HerdrOpen runs a terminal program in a new tab of herdr.
+	HerdrOpen func(dir string, argv []string, label string) error
 }
 
 func main() {
@@ -134,6 +136,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	opts.InTmux = getenv("TMUX") != ""
 	if dir := herdrFollower(getenv); dir != nil {
 		opts.Follow, opts.HerdrDir, opts.HerdrHide, opts.HerdrFit = true, dir, herdrHider(getenv, stderr), herdrFitter(getenv)
+		opts.HerdrOpen = herdrOpener(getenv)
 	}
 	if *cwdFile == "" {
 		opts.ShellSetup = shellSetup(getenv("SHELL"))
@@ -247,7 +250,7 @@ func launch(o Options) (string, error) {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir, HerdrHide: o.HerdrHide, HerdrFit: o.HerdrFit}
+	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir, HerdrHide: o.HerdrHide, HerdrFit: o.HerdrFit, HerdrOpen: o.HerdrOpen}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
 	}

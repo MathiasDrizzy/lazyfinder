@@ -2,15 +2,14 @@
 ╭─ Favorites ────────╮╭─ proj ─────────────────────────────────────────────────────────────────────────────────────────╮
 │  Recents          ││    Name ▲                                │ Date Modified      │ Size       │ Kind              │
 │  Home             ││▸ >  alpha                                 1 Sep 2026, 12:00    --           Folder            │
-│  Projects         ││                                                                                                │
-╰────────────────────╯│  >  be╭─ Settings ─────────────────────────────────────────────╮-           Folder            │
-╭─ Locations ────────╮│        │   Theme                           ‹ catppuccin-mocha › │                              │
-│  Disk             ││     da│   Language                          ‹ auto · English › │ bytes      Excel Spreadsheet │
-│                    ││        │   Hidden files                                  ‹ no › │                              │
-╰────────────────────╯│     ma│   Folders first                                ‹ yes › │5 bytes     Go Source         │
-                      │        │   Screen background                          ‹ theme › │                              │
-                      │     no│   Popup background                           ‹ theme › │8 bytes     Plain Text        │
-                      │        │   Icons                                       ‹ nerd › │                              │
+│  Projects         ││        ╭─ Settings ─────────────────────────────────────────────╮                              │
+╰────────────────────╯│  >  be│   Theme                           ‹ catppuccin-mocha › │-           Folder            │
+╭─ Locations ────────╮│        │   Language                          ‹ auto · English › │                              │
+│  Disk             ││     da│   Hidden files                                  ‹ no › │ bytes      Excel Spreadsheet │
+│                    ││        │   Folders first                                ‹ yes › │                              │
+╰────────────────────╯│     ma│   Screen background                          ‹ theme › │5 bytes     Go Source         │
+                      │        │   Popup background                           ‹ theme › │                              │
+                      │     no│   Icons                                       ‹ nerd › │8 bytes     Plain Text        │
                       │        │   Keybindings                    ‹ Lazy + Vim (hjkl) › │                              │
                       │        │   Date format                             ‹ absolute › │                              │
                       │        │   Row density                                 ‹ wide › │                              │
@@ -27,12 +26,13 @@
                       │        │   Minimum width                                 ‹ 22 › │                              │
                       │        │   Fit to the screen                            ‹ yes › │                              │
                       │        │   Widen in normal mode                         ‹ yes › │                              │
+                      │        │   Preview in herdr                              ‹ no › │                              │
+                      │        │   Open in herdr                            ‹ new tab › │                              │
                       │        │   Side mode (project)                           ‹ no › │                              │
                       │        │   Programs                                       ‹ 1 › │                              │
                       │        │                                                        │                              │
                       │        │ ←/→ change · click: select, 2nd click: change          │                              │
                       │        ╰──────────────────────────────────────────────────[Esc]─╯                              │
-                      │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │
                       ╰─────────────────────────────────────────────────────────────────────────────────────── 1 of 5 ─╯

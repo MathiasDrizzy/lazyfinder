@@ -92,7 +92,9 @@ closed with the action or with q, it stays closed in that tab until the action o
 get one. After a restart of herdr every tab gets its sidebar back. Every tab opens it at the same width in columns,
 one for the computer's screen and one for an external monitor ("Width in herdr" and "Width on a monitor" in
 Settings), and it goes back to that width when you plug in or unplug a monitor; a width you drag by hand stays until
-then, never below "Minimum width". `ctrl+b` widens it to what the normal mode needs, and back. `herdr.auto_open` in
+then, never below "Minimum width". `ctrl+b` widens it to what the normal mode needs, and back. A terminal program (an editor, lazygit) opens in a new herdr
+tab that closes when you quit it, and `Space` shows no preview there unless you turn it on ("Open in herdr" and
+"Preview in herdr" in Settings). `herdr.auto_open` in
 `config.json` turns the automatic opening off ([all the keys](docs/configuration.md)). To toggle it with `prefix` and `e`, add this to herdr's `config.toml`:
 
 ```toml

@@ -45,6 +45,8 @@ const (
 	setHerdrMin
 	setHerdrAdapt
 	setHerdrFitNormal
+	setHerdrPreview
+	setHerdrOpenIn
 	setSidebarMode
 	setPrograms
 	settingCount
@@ -87,6 +89,10 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Ajustar a la pantalla", "Fit to the screen")
 	case setHerdrFitNormal:
 		return i18n.T("Ensanchar en modo normal", "Widen in normal mode")
+	case setHerdrPreview:
+		return i18n.T("Vista previa en herdr", "Preview in herdr")
+	case setHerdrOpenIn:
+		return i18n.T("Abrir en herdr", "Open in herdr")
 	case setSidebarMode:
 		return i18n.T("Modo lateral (proyecto)", "Side mode (project)")
 	case setIcons:
@@ -165,6 +171,13 @@ func (m *Model) settingValue(i int) string {
 		return onOff(c.Herdr.Adapt)
 	case setHerdrFitNormal:
 		return onOff(c.Herdr.FitNormal)
+	case setHerdrPreview:
+		return onOff(c.Herdr.Preview)
+	case setHerdrOpenIn:
+		if c.Herdr.OpenIn == "pane" {
+			return i18n.T("mismo panel", "same pane")
+		}
+		return i18n.T("pestaña nueva", "new tab")
 	case setSidebarMode:
 		return onOff(m.projectMode())
 	case setIcons:
@@ -249,6 +262,12 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setHerdrColumns, setHerdrExternal, setHerdrMin, setHerdrAdapt, setHerdrFitNormal:
 		key, val = m.changeHerdr(i, dir)
 		cmd = m.fitHerdr(true)
+	case setHerdrPreview:
+		m.deps.Cfg.Herdr.Preview = !m.deps.Cfg.Herdr.Preview
+		key, val = "herdr.preview", m.deps.Cfg.Herdr.Preview
+	case setHerdrOpenIn:
+		m.deps.Cfg.Herdr.OpenIn = cycle([]string{"tab", "pane"}, m.deps.Cfg.Herdr.OpenIn, dir)
+		key, val = "herdr.open_in", m.deps.Cfg.Herdr.OpenIn
 	case setSidebarMode:
 		return m.switchMode() // a mode of this run, not a saved setting
 	case setPrograms:

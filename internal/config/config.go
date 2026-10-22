@@ -154,12 +154,14 @@ type Herdr struct {
 	AutoOpen bool   `json:"auto_open"` // open it by itself in every new tab; false leaves it to the toggle action
 	// Columns is its width on the computer's screen, and ExternalColumns on a monitor that gives herdr at least
 	// ExternalFrom columns.
-	Columns         int  `json:"columns"`
-	ExternalColumns int  `json:"external_columns"`
-	ExternalFrom    int  `json:"external_from"`
-	Adapt           bool `json:"adapt"`       // go back to that width when the screen changes (another monitor)
-	MinColumns      int  `json:"min_columns"` // it never stays narrower
-	FitNormal       bool `json:"fit_normal"`  // widen it to what the normal mode needs when ctrl+b leaves the sidebar mode
+	Columns         int    `json:"columns"`
+	ExternalColumns int    `json:"external_columns"`
+	ExternalFrom    int    `json:"external_from"`
+	Adapt           bool   `json:"adapt"`       // go back to that width when the screen changes (another monitor)
+	MinColumns      int    `json:"min_columns"` // it never stays narrower
+	FitNormal       bool   `json:"fit_normal"`  // widen it to what the normal mode needs when ctrl+b leaves the sidebar mode
+	Preview         bool   `json:"preview"`     // Space shows the preview in the sidebar of herdr too
+	OpenIn          string `json:"open_in"`     // where a terminal program opens from that sidebar: tab (a new tab of herdr) or pane
 	// OldWidth is the width in percent of the tab that Columns replaced; read so an old config.json still loads, and
 	// not used.
 	OldWidth int `json:"width,omitempty"`
@@ -262,7 +264,7 @@ func DefaultsFor(goos, home string) Config {
 		Git:              Git{Enabled: true},
 		Search:           Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
 		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: trashDir(goos, home)},
-		Herdr:            Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true},
+		Herdr:            Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true, OpenIn: "tab"},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -518,6 +520,9 @@ func validate(cfg *Config, home string) error {
 		if v < HerdrMinColumns || v > HerdrMaxColumns {
 			return i18n.Errorf(`"herdr.%s" debe estar entre %d y %d (hay %d)`, `"herdr.%s" must be between %d and %d (got %d)`, key, HerdrMinColumns, HerdrMaxColumns, v)
 		}
+	}
+	if cfg.Herdr.OpenIn != "tab" && cfg.Herdr.OpenIn != "pane" {
+		return i18n.Errorf(`"herdr.open_in" debe ser tab o pane (hay %q)`, `"herdr.open_in" must be tab or pane (got %q)`, cfg.Herdr.OpenIn)
 	}
 	if cfg.Herdr.ExternalFrom < 1 {
 		return i18n.Errorf(`"herdr.external_from" debe ser mayor que 0 (hay %d)`, `"herdr.external_from" must be more than 0 (got %d)`, cfg.Herdr.ExternalFrom)

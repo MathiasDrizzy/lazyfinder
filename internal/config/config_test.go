@@ -316,12 +316,12 @@ func TestMoreColumnsAndDateFormat(t *testing.T) {
 // monitor ("los dos deben ser configurable en configuraciones"), never narrower than a minimum.
 func TestHerdrDefaultsAndValidation(t *testing.T) {
 	h := Defaults("/home/u").Herdr
-	want := Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true}
+	want := Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true, OpenIn: "tab"}
 	if h != want {
 		t.Fatalf("defaults = %+v", h)
 	}
-	cfg, err := Parse([]byte(`{"version":1,"herdr":{"dock":"right","auto_open":false,"columns":26,"external_columns":40,"external_from":180,"adapt":false,"min_columns":24,"fit_normal":false}}`), "/home/u")
-	want = Herdr{Dock: "right", Columns: 26, ExternalColumns: 40, ExternalFrom: 180, MinColumns: 24}
+	cfg, err := Parse([]byte(`{"version":1,"herdr":{"dock":"right","auto_open":false,"columns":26,"external_columns":40,"external_from":180,"adapt":false,"min_columns":24,"fit_normal":false,"preview":true,"open_in":"pane"}}`), "/home/u")
+	want = Herdr{Dock: "right", Columns: 26, ExternalColumns: 40, ExternalFrom: 180, MinColumns: 24, Preview: true, OpenIn: "pane"}
 	if err != nil || cfg.Herdr != want {
 		t.Fatalf("%v %+v", err, cfg.Herdr)
 	}
@@ -331,6 +331,7 @@ func TestHerdrDefaultsAndValidation(t *testing.T) {
 		`{"version":1,"herdr":{"external_columns":500}}`,
 		`{"version":1,"herdr":{"min_columns":10}}`,
 		`{"version":1,"herdr":{"external_from":0}}`,
+		`{"version":1,"herdr":{"open_in":"window"}}`,
 	} {
 		if _, err := Parse([]byte(js), "/home/u"); err == nil || !strings.Contains(err.Error(), "herdr.") {
 			t.Errorf("%s: err = %v", js, err)

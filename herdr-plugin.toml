@@ -1,6 +1,6 @@
 # lazyfinder as a herdr plugin: a lazyfinder sidebar docked at the left or right edge of every tab, in the sidebar
 # mode, following the folder of the pane next to it. Install: herdr plugin install MathiasDrizzy/lazyfinder
-# Settings (config.json of lazyfinder, or its Settings popup): herdr.dock (left or right), herdr.auto_open, herdr.width.
+# Settings (config.json of lazyfinder, or its Settings popup): the herdr section, see docs/configuration.md.
 
 id = "lazyfinder"
 name = "lazyfinder"
@@ -50,4 +50,13 @@ command = ["./bin/lazyfinder", "--herdr", "ensure"]
 
 [[events]]
 on = "pane.focused"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]
+
+# When the program of a tab lazyfinder opened quits, that tab is left with its sidebar only: the hook closes it.
+[[events]]
+on = "pane.exited"
+command = ["./bin/lazyfinder", "--herdr", "ensure"]
+
+[[events]]
+on = "pane.closed"
 command = ["./bin/lazyfinder", "--herdr", "ensure"]

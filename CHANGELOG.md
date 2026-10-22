@@ -18,6 +18,11 @@ All notable changes to this project are documented here. The format follows
 - herdr plugin: the sidebar goes back to its width when you plug in or unplug a monitor (`herdr.adapt`), never stays
   narrower than `herdr.min_columns` (22), and widens to what the normal mode needs when `ctrl+b` leaves the sidebar
   mode, then narrows again when you come back (`herdr.fit_normal`). Each is a row of Settings.
+- herdr plugin: a terminal program (an editor, lazygit) opened from the sidebar runs in a new herdr tab, in the
+  folder the sidebar shows, and the tab closes when you quit the program (`herdr.open_in`: `tab`, or `pane` for the
+  sidebar pane itself). Apps with a window open as before.
+- herdr plugin: `Space` no longer opens the preview in the sidebar, where it flickered; the status line says how to
+  turn it on (`herdr.preview`, Settings: "Preview in herdr").
 
 ### Fixed
 

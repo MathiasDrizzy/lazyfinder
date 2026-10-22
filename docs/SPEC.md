@@ -196,7 +196,8 @@ Requirement (2026-10-13): the same features as Finder and as the Windows file se
   at least `herdr.external_from` columns, an external monitor), without taking the focus. While it runs it goes back to
   that width when herdr changes width (`herdr.adapt`), never stays below `herdr.min_columns`, keeps a width dragged by
   hand otherwise, and `ctrl+b` gives it the width of the normal mode and back (`herdr.fit_normal`); its mode changes
-  only with `ctrl+b`, not with its width; the
+  only with `ctrl+b`, not with its width. A terminal program opens in a new tab of herdr (`herdr.open_in`), which closes
+  when only its sidebar is left, and `Space` opens no preview unless `herdr.preview` is on; the
   `toggle` action opens, focuses or closes it, and a sidebar closed with it or with q stays closed in that tab. After
   a restart of herdr a `[[startup]]` hook gives every tab its sidebar back. The pane follows the folder of the focused
   pane of its tab when that folder changes. Outside the plugin nothing changes. AC: unit tests of `internal/herdr`

@@ -37,7 +37,7 @@ func TestThePaneOfThePluginStartsInTheSidebarAndFollowsHerdr(t *testing.T) {
 		var got Options
 		var o, e bytes.Buffer
 		run([]string{c.env["HOME"]}, func(k string) string { return c.env[k] }, &o, &e, func(opts Options) (string, error) { got = opts; return "", nil })
-		if got.Follow != c.follow || (got.HerdrDir != nil) != c.follow || (got.HerdrHide != nil) != c.follow || (got.HerdrFit != nil) != c.follow {
+		if got.Follow != c.follow || (got.HerdrDir != nil) != c.follow || (got.HerdrHide != nil) != c.follow || (got.HerdrFit != nil) != c.follow || (got.HerdrOpen != nil) != c.follow {
 			t.Errorf("%v: follow %v, herdr %v, hide %v", c.env, got.Follow, got.HerdrDir != nil, got.HerdrHide != nil)
 		}
 	}
