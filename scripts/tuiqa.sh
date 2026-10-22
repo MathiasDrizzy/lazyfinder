@@ -26,6 +26,10 @@ for p in open qlmanage osascript xdg-open; do
   printf '#!/bin/sh\nprintf "%%s %%s\\n" "$(basename "$0")" "$*" >>"%s"\nexit 0\n' "$out/opener.log" >"$out/fakebin/$p"
   chmod +x "$out/fakebin/$p"
 done
+# Open With asks osascript which application the system opens a file with (URLForApplicationToOpenURL): a read-only
+# query, logged apart and answered empty. Any call that could open, launch or activate something still fails the run.
+# shellcheck disable=SC2016 # $* belongs to the fake script, expanded when it runs
+printf '#!/bin/sh\ncase "$*" in\n  *URLForApplicationToOpenURL*)\n    case "$*" in\n      *openURL*|*openFile*|*launch*|*activate*|*System\\ Events*|*do\\ shell*|*doShellScript*) ;;\n      *) printf "%%s\\n" "$*" >>"%s"; exit 0 ;;\n    esac ;;\nesac\nprintf "%%s %%s\\n" osascript "$*" >>"%s"\nexit 0\n' "$out/query.log" "$out/opener.log" >"$out/fakebin/osascript"
 # The clipboard tools are fakes too: a right click on the breadcrumb copies, and no scenario reaches the real clipboard.
 for p in pbcopy wl-copy xclip xsel; do
   # shellcheck disable=SC2016 # $0 belongs to the fake script, expanded when it runs
