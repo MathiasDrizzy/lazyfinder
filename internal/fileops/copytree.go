@@ -214,7 +214,7 @@ func copyXattrs(ctx context.Context, in, out *os.File) error {
 			}
 		}
 	}
-	return nil
+	return ctx.Err() // Esc while the last attribute was copied
 }
 
 // copyXattr copies one extended attribute; an error of setting it is the destination's, any other is the source's.
