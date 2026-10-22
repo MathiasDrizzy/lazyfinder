@@ -86,12 +86,3 @@ func TestTheSidebarFollowsTheFocusedPaneOfItsTab(t *testing.T) {
 		t.Fatalf("unknown pane: %q", d)
 	}
 }
-
-func TestResizeAmountMovesTheSplitToTheWidth(t *testing.T) {
-	if a := resizeAmount(25); a != 0.25 {
-		t.Fatal(a)
-	}
-	if a := resizeAmount(50); a != 0 {
-		t.Fatal(a)
-	}
-}

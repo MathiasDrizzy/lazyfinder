@@ -4,6 +4,10 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	tea "charm.land/bubbletea/v2"
+
+	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 )
 
 // Order 2026-10-15-16: as the pane of the herdr plugin the sidebar «siga la carpeta donde esta el space»: it goes to
@@ -58,5 +62,50 @@ func TestQuittingThePluginPaneHidesTheSidebarInItsTab(t *testing.T) {
 	e.key("q")
 	if hidden != 1 || !e.m.quitting {
 		t.Fatalf("hidden %d, quitting %v", hidden, e.m.quitting)
+	}
+}
+
+// Mathias, 2026-10-22: the sidebar keeps its width when the window changes ("debe ser automatico"), and leaving the
+// sidebar mode widens it to what the normal mode needs ("que el recuadro se acomode con el minimo para funcionar").
+func TestThePluginPaneKeepsItsWidth(t *testing.T) {
+	e := newEnv(t)
+	type fit struct{ normal, force bool }
+	var fits []fit
+	e.m.deps.HerdrFit = func(_ config.Herdr, normal, force bool) error {
+		fits = append(fits, fit{normal, force})
+		return nil
+	}
+	pluginPane(e)
+	e.send(tea.WindowSizeMsg{Width: 28, Height: 30})
+	if len(fits) != 1 || fits[0] != (fit{false, false}) {
+		t.Fatalf("on a new size: %+v", fits)
+	}
+	e.key("ctrl+b")
+	if len(fits) != 2 || fits[1] != (fit{true, true}) {
+		t.Fatalf("leaving the sidebar mode: %+v", fits)
+	}
+	e.key("ctrl+b")
+	if len(fits) != 3 || fits[2] != (fit{false, true}) {
+		t.Fatalf("back in the sidebar mode: %+v", fits)
+	}
+}
+
+// In the pane of the herdr plugin the width follows the mode, not the other way round: herdr widens the pane when the
+// screen grows (another monitor), and that must not switch it to the normal mode; ctrl+b does.
+func TestThePluginPaneKeepsItsModeWhenHerdrWidensIt(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.HerdrFit = func(config.Herdr, bool, bool) error { return nil }
+	pluginPane(e)
+	e.send(tea.WindowSizeMsg{Width: 28, Height: 30})
+	e.send(tea.WindowSizeMsg{Width: 67, Height: 30})
+	if !e.m.projectMode() {
+		t.Fatal("a wider screen switched the plugin pane to the normal mode")
+	}
+}
+
+// pluginPane starts e as the pane of the herdr plugin does: in the sidebar mode.
+func pluginPane(e *env) {
+	if !e.m.projectMode() {
+		e.m.toggleProject()
 	}
 }

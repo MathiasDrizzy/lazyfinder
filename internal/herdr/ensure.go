@@ -22,7 +22,11 @@ type Env struct {
 type Settings struct {
 	Dock     string // left or right
 	AutoOpen bool
-	Width    int // percent of the tab
+	// Columns is the width on the computer's screen, ExternalColumns on herdr at least ExternalFrom columns wide.
+	Columns, ExternalColumns, ExternalFrom int
+	Adapt                                  bool // back to that width when the screen changes width
+	MinColumns                             int
+	FitNormal                              bool // the width of the normal mode when ctrl+b leaves the sidebar mode
 }
 
 // Ensure docks a sidebar in the tab of the event when it has none, the user did not close it there, and auto_open
@@ -200,17 +204,17 @@ func open(c Client, e Env, s Settings, panes []Pane, tab string, focus bool) (st
 	if id == "" {
 		return "", errors.New("herdr plugin.pane.open: no pane id in the answer")
 	}
-	direction := "right"
 	if s.Dock == "left" {
-		direction = "left"
 		if err := c.Call("pane.swap", map[string]string{"source_pane_id": id, "target_pane_id": edge}, nil); err != nil {
 			return id, err
 		}
 	}
-	if a := resizeAmount(s.Width); a != 0 {
-		if err := c.Call("pane.resize", map[string]any{"pane_id": id, "direction": direction, "amount": a}, nil); err != nil {
-			return id, err
-		}
+	screen, _, err := widths(c, id)
+	if err != nil {
+		return id, err
+	}
+	if err := Resize(c, id, s.WidthFor(screen)); err != nil {
+		return id, err
 	}
 	back := anchor.ID
 	if focus {

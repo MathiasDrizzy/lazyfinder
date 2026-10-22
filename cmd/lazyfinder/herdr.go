@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/herdr"
@@ -29,7 +30,7 @@ func runHerdr(action string, getenv func(string) string, home string, stderr io.
 		fmt.Fprintln(stderr, "lazyfinder: using default settings:", err)
 		cfg = config.Defaults(home)
 	}
-	s := herdr.Settings{Dock: cfg.Herdr.Dock, AutoOpen: cfg.Herdr.AutoOpen, Width: cfg.Herdr.Width}
+	s := herdrSettings(cfg.Herdr)
 	e := herdr.Env{
 		PluginID: getenv("HERDR_PLUGIN_ID"), TabID: getenv("HERDR_TAB_ID"),
 		Event: getenv("HERDR_PLUGIN_EVENT_JSON"), StateDir: getenv("HERDR_PLUGIN_STATE_DIR"),
@@ -67,5 +68,25 @@ func herdrHider(getenv func(string) string, stderr io.Writer) func() {
 		if err := herdr.Hide(c, e, pane); err != nil {
 			fmt.Fprintln(stderr, "lazyfinder:", err)
 		}
+	}
+}
+
+// herdrFitter keeps the pane of the plugin at the width of the settings it is given, one change at a time.
+func herdrFitter(getenv func(string) string) func(config.Herdr, bool, bool) error {
+	var mu sync.Mutex
+	z := &herdr.Sizer{C: herdr.Client{Socket: getenv("HERDR_SOCKET_PATH")}, Pane: getenv("HERDR_PANE_ID")}
+	return func(h config.Herdr, normal, force bool) error {
+		mu.Lock()
+		defer mu.Unlock()
+		z.S = herdrSettings(h)
+		return z.Fit(normal, force)
+	}
+}
+
+// herdrSettings are the herdr settings of config.json as the plugin takes them.
+func herdrSettings(h config.Herdr) herdr.Settings {
+	return herdr.Settings{
+		Dock: h.Dock, AutoOpen: h.AutoOpen, Columns: h.Columns, ExternalColumns: h.ExternalColumns,
+		ExternalFrom: h.ExternalFrom, Adapt: h.Adapt, MinColumns: h.MinColumns, FitNormal: h.FitNormal,
 	}
 }

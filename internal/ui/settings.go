@@ -40,12 +40,20 @@ const (
 	setConfirmDelete
 	setCdOnExit
 	setHerdrDock
+	setHerdrColumns
+	setHerdrExternal
+	setHerdrMin
+	setHerdrAdapt
+	setHerdrFitNormal
 	setSidebarMode
 	setPrograms
 	settingCount
 )
 
 const settingsInner = 54
+
+// herdrStep is how many columns a width of the herdr sidebar moves per key.
+const herdrStep = 2
 
 func (m *Model) settingLabel(i int) string {
 	switch i {
@@ -69,6 +77,16 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Quedarse en la carpeta al salir", "Stay in the folder on exit")
 	case setHerdrDock:
 		return i18n.T("Lateral en herdr", "Sidebar in herdr")
+	case setHerdrColumns:
+		return i18n.T("Ancho en herdr", "Width in herdr")
+	case setHerdrExternal:
+		return i18n.T("Ancho en un monitor", "Width on a monitor")
+	case setHerdrMin:
+		return i18n.T("Ancho mínimo", "Minimum width")
+	case setHerdrAdapt:
+		return i18n.T("Ajustar a la pantalla", "Fit to the screen")
+	case setHerdrFitNormal:
+		return i18n.T("Ensanchar en modo normal", "Widen in normal mode")
 	case setSidebarMode:
 		return i18n.T("Modo lateral (proyecto)", "Side mode (project)")
 	case setIcons:
@@ -137,6 +155,16 @@ func (m *Model) settingValue(i int) string {
 			return i18n.T("derecha", "right")
 		}
 		return i18n.T("izquierda", "left")
+	case setHerdrColumns:
+		return fmt.Sprint(c.Herdr.Columns)
+	case setHerdrExternal:
+		return fmt.Sprint(c.Herdr.ExternalColumns)
+	case setHerdrMin:
+		return fmt.Sprint(c.Herdr.MinColumns)
+	case setHerdrAdapt:
+		return onOff(c.Herdr.Adapt)
+	case setHerdrFitNormal:
+		return onOff(c.Herdr.FitNormal)
 	case setSidebarMode:
 		return onOff(m.projectMode())
 	case setIcons:
@@ -218,9 +246,11 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setHerdrDock:
 		m.deps.Cfg.Herdr.Dock = cycle([]string{"left", "right"}, m.deps.Cfg.Herdr.Dock, dir)
 		key, val = "herdr.dock", m.deps.Cfg.Herdr.Dock
+	case setHerdrColumns, setHerdrExternal, setHerdrMin, setHerdrAdapt, setHerdrFitNormal:
+		key, val = m.changeHerdr(i, dir)
+		cmd = m.fitHerdr(true)
 	case setSidebarMode:
-		m.toggleProject()
-		return nil // a mode of this run, not a saved setting
+		return m.switchMode() // a mode of this run, not a saved setting
 	case setPrograms:
 		m.progs = progState{open: true}
 		return nil // the popup saves each change
@@ -421,4 +451,26 @@ func columnPresetName(p string) string {
 		return i18n.T("completo", "full")
 	}
 	return i18n.T("personalizado", "custom")
+}
+
+// changeHerdr moves a width of the herdr sidebar herdrStep columns, or turns one of its switches, and says what to save.
+func (m *Model) changeHerdr(i, dir int) (string, any) {
+	h := &m.deps.Cfg.Herdr
+	step := func(v int) int { return min(max(v+dir*herdrStep, config.HerdrMinColumns), config.HerdrMaxColumns) }
+	switch i {
+	case setHerdrColumns:
+		h.Columns = step(h.Columns)
+		return "herdr.columns", h.Columns
+	case setHerdrExternal:
+		h.ExternalColumns = step(h.ExternalColumns)
+		return "herdr.external_columns", h.ExternalColumns
+	case setHerdrMin:
+		h.MinColumns = step(h.MinColumns)
+		return "herdr.min_columns", h.MinColumns
+	case setHerdrAdapt:
+		h.Adapt = !h.Adapt
+		return "herdr.adapt", h.Adapt
+	}
+	h.FitNormal = !h.FitNormal
+	return "herdr.fit_normal", h.FitNormal
 }

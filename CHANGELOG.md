@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- herdr plugin: the width of the sidebar is set in columns, not in percent of the tab, so every tab opens it at the
+  same width. `herdr.columns` sets it on the computer's screen and `herdr.external_columns` on an external monitor
+  (herdr at least `herdr.external_from` columns wide); both are rows of Settings. `herdr.width` is gone: a
+  `config.json` that still has it keeps working, and the width falls back to 30 columns.
+
+### Added
+
+- herdr plugin: the sidebar goes back to its width when you plug in or unplug a monitor (`herdr.adapt`), never stays
+  narrower than `herdr.min_columns` (22), and widens to what the normal mode needs when `ctrl+b` leaves the sidebar
+  mode, then narrows again when you come back (`herdr.fit_normal`). Each is a row of Settings.
+
 ### Fixed
 
 - herdr plugin: after `herdr server stop` and herdr again, every tab gets its sidebar back. herdr restored the

@@ -41,3 +41,24 @@ func (m *Model) followHerdr(dir string) tea.Cmd {
 	}
 	return tea.Batch(m.enter(dir, ""), next)
 }
+
+// herdrFitMsg is the answer of herdr to a change of width.
+type herdrFitMsg struct{ err error }
+
+// fitHerdr puts the pane of the herdr plugin at the width of the mode it shows (see Deps.HerdrFit); nil outside the
+// plugin.
+func (m *Model) fitHerdr(force bool) tea.Cmd {
+	fit := m.deps.HerdrFit
+	if fit == nil {
+		return nil
+	}
+	s, normal := m.deps.Cfg.Herdr, !m.projectMode()
+	return func() tea.Msg { return herdrFitMsg{err: fit(s, normal, force)} }
+}
+
+// switchMode is the user changing between the normal and the sidebar mode, which also changes the width of the pane
+// of the herdr plugin.
+func (m *Model) switchMode() tea.Cmd {
+	m.toggleProject()
+	return m.fitHerdr(true)
+}

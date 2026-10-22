@@ -311,19 +311,38 @@ func TestMoreColumnsAndDateFormat(t *testing.T) {
 	}
 }
 
-// Order 2026-10-15-16: inside herdr the sidebar opens by itself at the edge chosen in the settings.
+// Order 2026-10-15-16: inside herdr the sidebar opens by itself at the edge chosen in the settings. Mathias,
+// 2026-10-22: every tab opens it at the same width in columns, one for the computer's screen and one for an external
+// monitor ("los dos deben ser configurable en configuraciones"), never narrower than a minimum.
 func TestHerdrDefaultsAndValidation(t *testing.T) {
 	h := Defaults("/home/u").Herdr
-	if h.Dock != "left" || !h.AutoOpen || h.Width != 25 {
+	want := Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true}
+	if h != want {
 		t.Fatalf("defaults = %+v", h)
 	}
-	cfg, err := Parse([]byte(`{"version":1,"herdr":{"dock":"right","auto_open":false,"width":40}}`), "/home/u")
-	if err != nil || cfg.Herdr.Dock != "right" || cfg.Herdr.AutoOpen || cfg.Herdr.Width != 40 {
+	cfg, err := Parse([]byte(`{"version":1,"herdr":{"dock":"right","auto_open":false,"columns":26,"external_columns":40,"external_from":180,"adapt":false,"min_columns":24,"fit_normal":false}}`), "/home/u")
+	want = Herdr{Dock: "right", Columns: 26, ExternalColumns: 40, ExternalFrom: 180, MinColumns: 24}
+	if err != nil || cfg.Herdr != want {
 		t.Fatalf("%v %+v", err, cfg.Herdr)
 	}
-	for _, js := range []string{`{"version":1,"herdr":{"dock":"top"}}`, `{"version":1,"herdr":{"width":5}}`, `{"version":1,"herdr":{"width":80}}`} {
+	for _, js := range []string{
+		`{"version":1,"herdr":{"dock":"top"}}`,
+		`{"version":1,"herdr":{"columns":5}}`,
+		`{"version":1,"herdr":{"external_columns":500}}`,
+		`{"version":1,"herdr":{"min_columns":10}}`,
+		`{"version":1,"herdr":{"external_from":0}}`,
+	} {
 		if _, err := Parse([]byte(js), "/home/u"); err == nil || !strings.Contains(err.Error(), "herdr.") {
 			t.Errorf("%s: err = %v", js, err)
 		}
+	}
+}
+
+// herdr.width (percent of the tab) gave way to herdr.columns: a config.json that still has it loads, and the width
+// comes from the columns.
+func TestTheOldHerdrWidthStillLoads(t *testing.T) {
+	cfg, err := Parse([]byte(`{"version":1,"herdr":{"dock":"left","width":25}}`), "/home/u")
+	if err != nil || cfg.Herdr.Columns != 30 {
+		t.Fatalf("%v %+v", err, cfg.Herdr)
 	}
 }

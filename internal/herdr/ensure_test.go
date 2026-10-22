@@ -18,6 +18,8 @@ type fakeHerdr struct {
 	panes []Pane
 	roots map[string]string
 	calls []string
+	// swapped is set once the sidebar took the place of the pane it split: the layout lists it first
+	swapped bool
 }
 
 // root is the program pane id runs.
@@ -43,7 +45,7 @@ func (f *fakeHerdr) serve(t *testing.T) Client {
 	return Client{Socket: fakeServer(t, func(method string, params json.RawMessage) string {
 		f.mu.Lock()
 		defer f.mu.Unlock()
-		if method != "pane.list" && method != "pane.layout" && method != "pane.process_info" {
+		if method != "pane.list" && method != "pane.layout" && method != "pane.process_info" && method != "layout.export" {
 			f.calls = append(f.calls, method+" "+string(params))
 		}
 		switch method {
@@ -69,6 +71,14 @@ func (f *fakeHerdr) serve(t *testing.T) Client {
 				name, pid = child, 8
 			}
 			return fmt.Sprintf(`"result":{"process_info":{"shell_pid":7,"foreground_processes":[{"name":%q,"pid":%d}]}}`, name, pid)
+		case "pane.swap":
+			f.swapped = true
+		case "layout.export":
+			side, edge := `{"type":"pane","pane_id":"w1:p9"}`, `{"type":"pane","pane_id":"w1:p1"}`
+			if !f.swapped {
+				side, edge = edge, side
+			}
+			return `"result":{"layout":{"tab_id":"w1:t1","root":{"type":"split","direction":"right","ratio":0.5,"first":` + side + `,"second":` + edge + `}}}`
 		case "pane.close":
 			var p struct {
 				Pane string `json:"pane_id"`
@@ -88,7 +98,7 @@ func envFor(t *testing.T) Env {
 	return Env{TabID: "w1:t1", StateDir: t.TempDir(), Event: `{"event":"tab_created","data":{"tab":{"tab_id":"w1:t1"}}}`}
 }
 
-var left = Settings{Dock: "left", AutoOpen: true, Width: 25}
+var left = Settings{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 40, ExternalFrom: 200, Adapt: true, MinColumns: 22, FitNormal: true}
 
 func TestEnsureOpensTheSidebarOnTheLeftAndGivesTheFocusBack(t *testing.T) {
 	f := newFake()
@@ -98,7 +108,7 @@ func TestEnsureOpensTheSidebarOnTheLeftAndGivesTheFocusBack(t *testing.T) {
 	want := strings.Join([]string{
 		`plugin.pane.open {"cwd":"/w/api","direction":"right","entrypoint":"sidebar","focus":false,"placement":"split","plugin_id":"lazyfinder","target_pane_id":"w1:p1"}`,
 		`pane.swap {"source_pane_id":"w1:p9","target_pane_id":"w1:p1"}`,
-		`pane.resize {"amount":0.25,"direction":"left","pane_id":"w1:p9"}`,
+		`layout.set_split_ratio {"path":[],"ratio":0.2520833333333333,"tab_id":"w1:t1"}`,
 		`pane.focus {"pane_id":"w1:p1"}`,
 	}, "\n")
 	if got := f.log(); got != want {
@@ -109,12 +119,12 @@ func TestEnsureOpensTheSidebarOnTheLeftAndGivesTheFocusBack(t *testing.T) {
 func TestEnsureOnTheRightNeedsNoSwap(t *testing.T) {
 	f := newFake()
 	s := left
-	s.Dock, s.Width = "right", 40
+	s.Dock, s.Columns = "right", 48
 	if err := Ensure(f.serve(t), envFor(t), s); err != nil {
 		t.Fatal(err)
 	}
 	got := f.log()
-	if strings.Contains(got, "pane.swap") || !strings.Contains(got, `pane.resize {"amount":0.1,"direction":"right","pane_id":"w1:p9"}`) {
+	if strings.Contains(got, "pane.swap") || !strings.Contains(got, `layout.set_split_ratio {"path":[],"ratio":0.6020833333333333,"tab_id":"w1:t1"}`) {
 		t.Fatalf("calls:\n%s", got)
 	}
 }

@@ -185,7 +185,7 @@ func (m *Model) listKey(act keymap.Action) tea.Cmd {
 	case keymap.QuickLook:
 		return m.quickLook()
 	case keymap.Project:
-		m.toggleProject()
+		return m.switchMode()
 	case keymap.Settings:
 		m.set = settingsState{open: true}
 	}

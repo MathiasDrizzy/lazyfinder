@@ -41,7 +41,12 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `cd_on_exit` | With the function of `--shell-init` in the shell, quitting leaves the shell in the folder lazyfinder ends in; `false` leaves it where it was (Settings: "Stay in the folder on exit") | `true` |
 | `herdr.dock` | Edge of the tab where the [herdr plugin](../README.md#a-sidebar-in-every-herdr-tab) opens the sidebar: `left` or `right` (Settings: "Sidebar in herdr"); sidebars already open stay where they are | `left` |
 | `herdr.auto_open` | `true` opens the sidebar by itself in every herdr tab; `false` leaves it to the plugin's Toggle lazyfinder action | `true` |
-| `herdr.width` | Width of that sidebar in percent of the tab, 15 to 60 | `25` |
+| `herdr.columns` | Width of that sidebar in columns on the computer's screen, 22 to 200; every new tab opens it at this width (Settings: "Width in herdr") | `30` |
+| `herdr.external_columns` | Its width on an external monitor, one that gives herdr at least `herdr.external_from` columns (Settings: "Width on a monitor") | `30` |
+| `herdr.external_from` | How many columns herdr must have to count as an external monitor | `200` |
+| `herdr.adapt` | `true` puts the sidebar back at its width when the window changes size, as when you plug in or unplug a monitor; a width you drag by hand stays until then (Settings: "Fit to the screen") | `true` |
+| `herdr.min_columns` | The sidebar never stays narrower: dragged below it, it goes back, 22 to 200 (Settings: "Minimum width") | `22` |
+| `herdr.fit_normal` | `true` widens the sidebar to what the normal mode needs when `ctrl+b` leaves the sidebar mode, and gives it its width back when you return (Settings: "Widen in normal mode") | `true` |
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
 | `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |
 | `keys` | Action to list of keys, see [keybindings](keybindings.md) | all defaults |

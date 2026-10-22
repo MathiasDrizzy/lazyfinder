@@ -89,8 +89,11 @@ the folder of the terminal next to it: `cd` there and the tree moves with you. A
 sidebar stays until the terminal changes folder again. "Sidebar in herdr" in Settings puts it on the left or the right
 of new tabs, and the plugin's **Toggle lazyfinder** action (bind it to a key in herdr) opens, focuses or closes it;
 closed with the action or with q, it stays closed in that tab until the action opens it again, and new tabs still
-get one. After a restart of herdr every tab gets its sidebar back. `herdr.auto_open` and `herdr.width` in
-`config.json` turn the automatic opening off and set its width. To toggle it with `prefix` and `e`, add this to herdr's `config.toml`:
+get one. After a restart of herdr every tab gets its sidebar back. Every tab opens it at the same width in columns,
+one for the computer's screen and one for an external monitor ("Width in herdr" and "Width on a monitor" in
+Settings), and it goes back to that width when you plug in or unplug a monitor; a width you drag by hand stays until
+then, never below "Minimum width". `ctrl+b` widens it to what the normal mode needs, and back. `herdr.auto_open` in
+`config.json` turns the automatic opening off ([all the keys](docs/configuration.md)). To toggle it with `prefix` and `e`, add this to herdr's `config.toml`:
 
 ```toml
 [[keys.command]]

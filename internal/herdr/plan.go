@@ -141,9 +141,3 @@ func FollowDir(panes []Pane, self string) string {
 	}
 	return ""
 }
-
-// resizeAmount is how far pane.resize moves the 50/50 split that plugin.pane.open makes, so the sidebar takes width
-// percent of the tab.
-func resizeAmount(width int) float64 {
-	return float64(50-width) / 100
-}

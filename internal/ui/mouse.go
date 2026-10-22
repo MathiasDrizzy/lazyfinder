@@ -259,8 +259,7 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 	case zoneAction:
 		return m.runAction(z.idx)
 	case zoneMode:
-		m.toggleProject()
-		return nil
+		return m.switchMode()
 	case zoneBranch:
 		return m.openGitMenu()
 	case zoneScmBtn:

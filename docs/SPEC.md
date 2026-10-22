@@ -192,7 +192,11 @@ Requirement (2026-10-13): the same features as Finder and as the Windows file se
   (never run anything unconfigured stays true: defaults call `open`). AC: test of the table and an override.
 - **R-55 herdr plugin (2026-10-15).** `herdr-plugin.toml` at the root makes the repository a herdr plugin
   (`herdr plugin install MathiasDrizzy/lazyfinder`). Every tab gets one lazyfinder pane in the sidebar mode at the edge
-  of `herdr.dock` (Settings: "Sidebar in herdr"), `herdr.width` percent wide, without taking the focus; the
+  of `herdr.dock` (Settings: "Sidebar in herdr"), `herdr.columns` columns wide (`herdr.external_columns` when herdr has
+  at least `herdr.external_from` columns, an external monitor), without taking the focus. While it runs it goes back to
+  that width when herdr changes width (`herdr.adapt`), never stays below `herdr.min_columns`, keeps a width dragged by
+  hand otherwise, and `ctrl+b` gives it the width of the normal mode and back (`herdr.fit_normal`); its mode changes
+  only with `ctrl+b`, not with its width; the
   `toggle` action opens, focuses or closes it, and a sidebar closed with it or with q stays closed in that tab. After
   a restart of herdr a `[[startup]]` hook gives every tab its sidebar back. The pane follows the folder of the focused
   pane of its tab when that folder changes. Outside the plugin nothing changes. AC: unit tests of `internal/herdr`

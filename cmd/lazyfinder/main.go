@@ -48,6 +48,8 @@ type Options struct {
 	HerdrDir func() string
 	// HerdrHide keeps the tab of that pane without a sidebar after the user quits it.
 	HerdrHide func()
+	// HerdrFit keeps that pane at the width of its settings.
+	HerdrFit func(s config.Herdr, normal, force bool) error
 }
 
 func main() {
@@ -131,7 +133,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	opts.ConfigPath = config.ResolvePath(getenv, home)
 	opts.InTmux = getenv("TMUX") != ""
 	if dir := herdrFollower(getenv); dir != nil {
-		opts.Follow, opts.HerdrDir, opts.HerdrHide = true, dir, herdrHider(getenv, stderr)
+		opts.Follow, opts.HerdrDir, opts.HerdrHide, opts.HerdrFit = true, dir, herdrHider(getenv, stderr), herdrFitter(getenv)
 	}
 	if *cwdFile == "" {
 		opts.ShellSetup = shellSetup(getenv("SHELL"))
@@ -245,7 +247,7 @@ func launch(o Options) (string, error) {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir, HerdrHide: o.HerdrHide}
+	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir, HerdrHide: o.HerdrHide, HerdrFit: o.HerdrFit}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
 	}

@@ -380,3 +380,48 @@ func TestTheHerdrRowPicksTheEdgeOfTheSidebarAndSavesIt(t *testing.T) {
 	e.key("right")
 	e.mustHave("‹ left ›")
 }
+
+// Mathias, 2026-10-22: "el automatico con monitor externo, tambien debe ser configurable, los dos deben ser
+// configurable en configuraciones, para que asi yo decida que tamaño se abre". Each width of the herdr sidebar is a
+// row of the settings, saved in config.json and applied to the pane at once.
+func TestTheHerdrWidthsAreRowsOfTheSettings(t *testing.T) {
+	e := newEnv(t)
+	path := e.withConfigFile()
+	fits := 0
+	e.m.deps.HerdrFit = func(s config.Herdr, _, force bool) error {
+		if force {
+			fits++
+		}
+		return nil
+	}
+	e.key(",")
+	rows := []struct {
+		label, before, after string
+		key                  string
+		saved                func(config.Herdr) bool
+	}{
+		{"Width in herdr", "‹ 30 ›", "‹ 32 ›", "right", func(h config.Herdr) bool { return h.Columns == 32 }},
+		{"Width on a monitor", "‹ 30 ›", "‹ 28 ›", "left", func(h config.Herdr) bool { return h.ExternalColumns == 28 }},
+		{"Minimum width", "‹ 22 ›", "‹ 24 ›", "right", func(h config.Herdr) bool { return h.MinColumns == 24 }},
+		{"Fit to the screen", "‹ yes ›", "‹ no ›", "right", func(h config.Herdr) bool { return !h.Adapt }},
+		{"Widen in normal mode", "‹ yes ›", "‹ no ›", "right", func(h config.Herdr) bool { return !h.FitNormal }},
+	}
+	for _, r := range rows {
+		e.pickSetting(r.label)
+		e.mustHave(r.before)
+		e.key(r.key)
+		e.mustHave(r.after)
+		cfg, err := config.Load(path, e.home)
+		if err != nil || !r.saved(cfg.Herdr) || !r.saved(e.m.deps.Cfg.Herdr) {
+			t.Fatalf("%s: %v %+v", r.label, err, cfg.Herdr)
+		}
+	}
+	if fits != len(rows) {
+		t.Fatalf("%d fits, want %d", fits, len(rows))
+	}
+	e.pickSetting("Minimum width")
+	for range 200 {
+		e.key("left")
+	}
+	e.mustHave("‹ 22 ›") // never below what still draws
+}

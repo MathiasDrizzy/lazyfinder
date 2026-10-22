@@ -152,13 +152,24 @@ type Search struct {
 type Herdr struct {
 	Dock     string `json:"dock"`      // left or right: the edge of the tab where the sidebar opens
 	AutoOpen bool   `json:"auto_open"` // open it by itself in every new tab; false leaves it to the toggle action
-	Width    int    `json:"width"`     // percent of the tab, 15 to 60
+	// Columns is its width on the computer's screen, and ExternalColumns on a monitor that gives herdr at least
+	// ExternalFrom columns.
+	Columns         int  `json:"columns"`
+	ExternalColumns int  `json:"external_columns"`
+	ExternalFrom    int  `json:"external_from"`
+	Adapt           bool `json:"adapt"`       // go back to that width when the screen changes (another monitor)
+	MinColumns      int  `json:"min_columns"` // it never stays narrower
+	FitNormal       bool `json:"fit_normal"`  // widen it to what the normal mode needs when ctrl+b leaves the sidebar mode
+	// OldWidth is the width in percent of the tab that Columns replaced; read so an old config.json still loads, and
+	// not used.
+	OldWidth int `json:"width,omitempty"`
 }
 
-// Limits of Herdr.Width, in percent of the tab.
+// Limits of the widths of Herdr, in columns of herdr: HerdrMinColumns is the narrowest sidebar that still draws
+// (20 columns, and the border herdr puts around a pane).
 const (
-	HerdrMinWidth = 15
-	HerdrMaxWidth = 60
+	HerdrMinColumns = 22
+	HerdrMaxColumns = 200
 )
 
 // Ops configures file operations.
@@ -251,7 +262,7 @@ func DefaultsFor(goos, home string) Config {
 		Git:              Git{Enabled: true},
 		Search:           Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
 		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: trashDir(goos, home)},
-		Herdr:            Herdr{Dock: "left", AutoOpen: true, Width: 25},
+		Herdr:            Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,
@@ -503,8 +514,13 @@ func validate(cfg *Config, home string) error {
 	if cfg.Herdr.Dock != "left" && cfg.Herdr.Dock != "right" {
 		return i18n.Errorf(`"herdr.dock" debe ser left o right (hay %q)`, `"herdr.dock" must be left or right (got %q)`, cfg.Herdr.Dock)
 	}
-	if cfg.Herdr.Width < HerdrMinWidth || cfg.Herdr.Width > HerdrMaxWidth {
-		return i18n.Errorf(`"herdr.width" debe estar entre %d y %d (hay %d)`, `"herdr.width" must be between %d and %d (got %d)`, HerdrMinWidth, HerdrMaxWidth, cfg.Herdr.Width)
+	for key, v := range map[string]int{"columns": cfg.Herdr.Columns, "external_columns": cfg.Herdr.ExternalColumns, "min_columns": cfg.Herdr.MinColumns} {
+		if v < HerdrMinColumns || v > HerdrMaxColumns {
+			return i18n.Errorf(`"herdr.%s" debe estar entre %d y %d (hay %d)`, `"herdr.%s" must be between %d and %d (got %d)`, key, HerdrMinColumns, HerdrMaxColumns, v)
+		}
+	}
+	if cfg.Herdr.ExternalFrom < 1 {
+		return i18n.Errorf(`"herdr.external_from" debe ser mayor que 0 (hay %d)`, `"herdr.external_from" must be more than 0 (got %d)`, cfg.Herdr.ExternalFrom)
 	}
 	if cfg.Search.Scope != "folder" && cfg.Search.Scope != "subfolders" && cfg.Search.Scope != "system" {
 		return i18n.Errorf(`"search.scope" debe ser folder, subfolders o system (hay %q)`, `"search.scope" must be folder, subfolders or system (got %q)`, cfg.Search.Scope)

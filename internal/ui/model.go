@@ -82,6 +82,10 @@ type Deps struct {
 	// HerdrHide tells herdr the user closed the sidebar of this tab, so its hooks leave the tab without one; nil
 	// outside the plugin.
 	HerdrHide func()
+	// HerdrFit puts the pane of the herdr plugin at the width of its settings for the normal mode (normal) or the
+	// sidebar mode; force applies it now, else only when the screen changed or the pane is below its minimum. nil
+	// outside the plugin.
+	HerdrFit func(s config.Herdr, normal, force bool) error
 }
 
 // ShellSetup is one line to add to a shell's startup file.
@@ -487,9 +491,14 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.w, m.h = msg.Width, msg.Height
 		m.autoMode(prevW)
 		m.ensureVisible()
-		return m, m.refreshPreview()
+		return m, tea.Batch(m.refreshPreview(), m.fitHerdr(false))
 	case herdrDirMsg:
 		return m, m.followHerdr(msg.dir)
+	case herdrFitMsg:
+		if msg.err != nil {
+			m.setError(msg.err)
+		}
+		return m, nil
 	case SignalMsg:
 		if m.op.busy && m.op.quit {
 			return m, nil // already stopping the copy; it quits when that is done
@@ -560,6 +569,8 @@ func (m *Model) autoMode(prevW int) {
 		if !m.projectMode() && m.w < autoSidebarW {
 			m.toggleProject()
 		}
+	case m.deps.HerdrFit != nil:
+		// the pane of the herdr plugin: herdr changes its width with the screen, and ctrl+b changes its mode
 	case !m.projectMode() && prevW >= autoSidebarW && m.w < autoSidebarW:
 		m.toggleProject()
 	case m.projectMode() && prevW < autoWindowW && m.w >= autoWindowW:
