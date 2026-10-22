@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-22
+
 ### Security
 
 - Looking at a folder no longer runs commands from the config of a git submodule inside it (core.fsmonitor and
