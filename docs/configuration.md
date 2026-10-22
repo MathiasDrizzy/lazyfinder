@@ -86,6 +86,9 @@ stays readable.
   defining them. The menu lists only the ones that are installed: the applications `textedit`, `preview`, `vscode`,
   `zed`, `sublime` and `cursor`, and the terminal editors `vim`, `nvim`, `micro`, `nano`, `helix` (`hx`) and `emacs`.
   An opener of yours with the same name replaces the built-in one.
+- In Open With (`O`) the last row names the application the system opens the file with, ✓ marks the program `Enter`
+  uses, and `d` makes the selected program the one for that file type (`open_with`); `d` on the system row removes
+  the entry, so the system opens the type again.
 - Settings → Programs does the same without editing the file. `a` adds a program: the name of an application
   (`Sublime Text`) opens in its own window, a command on `PATH` (`micro`, `code --wait`) in the terminal. `Enter`
   types the file types it opens (`md, txt`), `m` switches it between window and terminal and `d` removes it. Each

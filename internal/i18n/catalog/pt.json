@@ -497,5 +497,8 @@
  "Program added: %s": "Programa adicionado: %s",
  "Program removed: %s": "Programa removido: %s",
  "Programs": "Programas",
- "window": "janela"
+ "window": "janela",
+ ".%s files open with %s": "Arquivos .%s abrem com %s",
+ "System default": "Padrão do sistema",
+ "Enter open · d default for .%s": "Enter abrir · d padrão para .%s"
 }

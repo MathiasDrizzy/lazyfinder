@@ -72,6 +72,8 @@ All notable changes to this project are documented here. The format follows
 
 - Open With lists the editors that are installed: micro, nano, Neovim, Vim, Helix and Emacs in the terminal, and VS
   Code, Zed, Sublime Text and Cursor in their own window.
+- Open With names the application the system opens the file with instead of "default", marks with ✓ the program
+  Enter uses, and `d` makes the selected program the one for that file type (on the system row, gives it back).
 - Settings → Programs adds a program to Open With, sets the file types it opens, switches it between window and
   terminal and removes it, without editing `config.json`.
 - `y` copies the path of the selection, or of the marked rows one per line, to the clipboard.

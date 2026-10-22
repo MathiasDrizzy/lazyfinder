@@ -497,5 +497,8 @@
  "Program added: %s": "Programme ajouté : %s",
  "Program removed: %s": "Programme retiré : %s",
  "Programs": "Programmes",
- "window": "fenêtre"
+ "window": "fenêtre",
+ ".%s files open with %s": "Les fichiers .%s s'ouvrent avec %s",
+ "System default": "Par défaut du système",
+ "Enter open · d default for .%s": "Entrée ouvrir · d par défaut pour .%s"
 }

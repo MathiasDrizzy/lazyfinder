@@ -13,6 +13,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
+	"github.com/MathiasDrizzy/lazyfinder/internal/opener"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -34,6 +35,9 @@ const goldenCfg = `{
 func goldenEnv(t *testing.T, w, h int) *env {
 	t.Helper()
 	onlyGitOnPath(t)
+	oldApp := opener.DefaultApp
+	t.Cleanup(func() { opener.DefaultApp = oldApp })
+	opener.DefaultApp = func(string) string { return "TextEdit" }
 	home := t.TempDir()
 	root := filepath.Join(home, "proj")
 	mtime := time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC)

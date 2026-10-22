@@ -497,5 +497,8 @@
  "Program added: %s": "已添加程序：%s",
  "Program removed: %s": "已移除程序：%s",
  "Programs": "程序",
- "window": "窗口"
+ "window": "窗口",
+ ".%s files open with %s": ".%s 文件用 %s 打开",
+ "System default": "系统默认",
+ "Enter open · d default for .%s": "Enter 打开 · d 设为 .%s 的默认"
 }

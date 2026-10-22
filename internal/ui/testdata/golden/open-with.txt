@@ -15,12 +15,12 @@
                       │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │
-                      │                                                                                                │
-                      │                     ╭─ Open With ──────────────────╮                                           │
-                      │                     │ ▸ edit          myeditor     │                                           │
-                      │                     │   default       open         │                                           │
-                      │                     ╰────────────────────────[Esc]─╯                                           │
-                      │                                                                                                │
+                      │                   ╭─ Open With ─────────────────────╮                                          │
+                      │                   │ ▸ edit ✓           myeditor     │                                          │
+                      │                   │   System: TextEdit open         │                                          │
+                      │                   │                                 │                                          │
+                      │                   │ Enter open · d default for .txt │                                          │
+                      │                   ╰───────────────────────────[Esc]─╯                                          │
                       │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │

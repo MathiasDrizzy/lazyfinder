@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
@@ -29,10 +30,12 @@ type previewState struct {
 }
 
 type menuState struct {
-	open  bool
-	path  string
-	items []opener.Command
-	sel   int
+	open   bool
+	path   string
+	items  []opener.Command
+	sel    int
+	ext    string // the file type d sets the program of, "" for a file without one
+	sysApp string // the application the system opens the file with, "" when it cannot tell
 }
 
 type previewMsg struct {
@@ -310,17 +313,67 @@ func (m *Model) openMenu() tea.Cmd {
 	if !ok || e.IsDir {
 		return nil
 	}
-	m.menu = menuState{open: true, path: e.Path, items: m.resolve.Choices(e.Path)}
+	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(e.Name), "."))
+	m.menu = menuState{open: true, path: e.Path, items: m.resolve.Choices(e.Path), ext: ext, sysApp: opener.DefaultApp(e.Path)}
 	return nil
 }
 
+// menuLabel is the name a row of Open With shows: the system's own application for the default, and ✓ on the
+// program Enter opens the file with.
+func (m *Model) menuLabel(c opener.Command) string {
+	label := c.Name
+	if c.Name == opener.DefaultName {
+		label = i18n.T("Predeterminado del sistema", "System default")
+		if m.menu.sysApp != "" {
+			label = i18n.T("Sistema", "System") + ": " + m.menu.sysApp
+		}
+	}
+	cur := m.deps.Cfg.OpenWith[m.menu.ext]
+	if m.menu.ext != "" && (c.Name == cur || cur == "" && c.Name == opener.DefaultName) {
+		label += " ✓"
+	}
+	return label
+}
+
+// menuHint says what d does, for a file with a type.
+func (m *Model) menuHint() string {
+	if m.menu.ext == "" {
+		return ""
+	}
+	return fmt.Sprintf(i18n.T("Enter abrir · d predeterminado para .%s", "Enter open · d default for .%s"), m.menu.ext)
+}
+
+// setDefaultOpener makes the program of row i the one Enter opens the file type with; the system row gives the type
+// back to the system.
+func (m *Model) setDefaultOpener(i int) {
+	if m.menu.ext == "" {
+		m.setError(i18n.NewError("este archivo no tiene extensión", "this file has no extension"))
+		return
+	}
+	c := m.menu.items[i]
+	openWith := map[string]string{}
+	for ext, n := range m.deps.Cfg.OpenWith {
+		if ext != m.menu.ext {
+			openWith[ext] = n
+		}
+	}
+	if c.Name != opener.DefaultName {
+		openWith[m.menu.ext] = c.Name
+	}
+	m.saveOpeners(m.deps.Cfg.Openers, openWith)
+	m.setStatus(fmt.Sprintf(i18n.T("Los .%s se abren con %s", ".%s files open with %s"), m.menu.ext, strings.TrimSuffix(m.menuLabel(c), " ✓")))
+}
+
 func (m *Model) menuGeom() (x, y, iw int) {
-	iw = 28
+	iw = max(28, ansi.StringWidth(m.menuHint()))
 	for _, c := range m.menu.items {
-		iw = max(iw, ansi.StringWidth(c.Name)+ansi.StringWidth(c.Argv[0])+6)
+		iw = max(iw, 2+ansi.StringWidth(m.menuLabel(c))+1+12) // pointer, name, a space and the program column
 	}
 	iw = min(iw, m.w-8)
 	h := len(m.menu.items) + 2
+	if m.menuHint() != "" {
+		h += 2
+	}
 	return (m.w - iw - 4) / 2, (m.h - h) / 2, iw
 }
 
@@ -332,11 +385,14 @@ func (m *Model) menuBox() (x, y int, lines []string) {
 		if i == m.menu.sel {
 			pointer = "▸ "
 		}
-		line := fit(pointer+c.Name, iw-12) + m.styles.dim(fit(c.Argv[0], 12))
+		line := fit(pointer+m.menuLabel(c), iw-12) + m.styles.dim(fit(c.Argv[0], 12))
 		if i == m.menu.sel {
 			line = m.styles.selected(ansi.Strip(line))
 		}
 		content = append(content, line)
+	}
+	if hint := m.menuHint(); hint != "" {
+		content = append(content, "", m.styles.dim(ansi.Truncate(hint, iw, "…")))
 	}
 	return x, y, m.box(i18n.T("Abrir con", "Open With"), content, iw)
 }
@@ -348,6 +404,8 @@ func (m *Model) menuKey(key string, act keymap.Action) tea.Cmd {
 		return m.quit()
 	case key == "esc" || act == keymap.OpenWith:
 		m.menu = menuState{}
+	case key == "d":
+		m.setDefaultOpener(m.menu.sel)
 	case act == keymap.Up:
 		m.menu.sel = wrap(m.menu.sel-1, n)
 	case act == keymap.Down:

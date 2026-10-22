@@ -38,7 +38,8 @@ the contents of a zip, pictures in terminals that can draw them. `↑` `↓` mov
 ### Open with the program you choose
 
 `Enter` opens a file with its program: your editor for text, Preview for pictures, Excel for a spreadsheet. `O` shows
-every program that can open it, so you can pick another one: the editors you have installed (micro, nano, Neovim,
+every program that can open it, with ✓ on the one `Enter` uses, so you can pick another one or make it the default
+for that file type with `d`: the editors you have installed (micro, nano, Neovim,
 Vim, Helix, Emacs, VS Code, Zed, Sublime Text, Cursor) are there from the start. Settings → Programs (`,`) adds any
 other program and says which file types it opens; in these GIFs text files open in
 [micro](https://micro-editor.github.io).
