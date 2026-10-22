@@ -60,7 +60,7 @@
       "desc": "up on the first Settings row goes to the last",
       "assert_color": {
         "region": {
-          "line_with": "Side mode",
+          "line_with": "Programs",
           "x": 23,
           "w": 30
         },
@@ -93,7 +93,7 @@
       "desc": "End goes to the last row of Settings",
       "assert_color": {
         "region": {
-          "line_with": "Side mode",
+          "line_with": "Programs",
           "x": 23,
           "w": 30
         },
