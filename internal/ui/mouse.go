@@ -194,6 +194,9 @@ func (m *Model) onClick(c tea.MouseClickMsg) tea.Cmd {
 	if m.help.open {
 		return nil // like lazymark: a popup closes only with Esc
 	}
+	if m.progs.open {
+		return m.progsClick(mouse.X, mouse.Y)
+	}
 	if m.set.open {
 		return m.settingsClick(mouse.X, mouse.Y)
 	}

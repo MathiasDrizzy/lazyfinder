@@ -488,5 +488,14 @@
  "\"herdr.width\" must be between %d and %d (got %d)": "„herdr.width“ muss zwischen %d und %d liegen (gefunden: %d)",
  "Sidebar in herdr": "Seitenleiste in herdr",
  "right": "rechts",
- "left": "links"
+ "left": "links",
+ "%s opens: %s": "%s öffnet: %s",
+ "+ Add program": "+ Programm hinzufügen",
+ "Enter file types · a add · m mode · d remove": "Enter Dateitypen · a hinzufügen · m Modus · d entfernen",
+ "File types for %s: ": "Dateitypen für %s: ",
+ "Program (command or application): ": "Programm (Befehl oder App): ",
+ "Program added: %s": "Programm hinzugefügt: %s",
+ "Program removed: %s": "Programm entfernt: %s",
+ "Programs": "Programme",
+ "window": "Fenster"
 }

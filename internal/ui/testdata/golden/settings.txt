@@ -26,10 +26,10 @@
                       │        │   Stay in the folder on exit                   ‹ yes › │                              │
                       │        │   Sidebar in herdr                            ‹ left › │                              │
                       │        │   Side mode (project)                           ‹ no › │                              │
+                      │        │   Programs                                       ‹ 1 › │                              │
                       │        │                                                        │                              │
                       │        │ ←/→ change · click: select, 2nd click: change          │                              │
                       │        ╰──────────────────────────────────────────────────[Esc]─╯                              │
-                      │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │
                       │                                                                                                │

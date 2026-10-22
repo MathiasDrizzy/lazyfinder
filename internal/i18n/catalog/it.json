@@ -488,5 +488,14 @@
  "\"herdr.width\" must be between %d and %d (got %d)": "\"herdr.width\" deve essere tra %d e %d (trovato %d)",
  "Sidebar in herdr": "Barra laterale in herdr",
  "right": "destra",
- "left": "sinistra"
+ "left": "sinistra",
+ "%s opens: %s": "%s apre: %s",
+ "+ Add program": "+ Aggiungi programma",
+ "Enter file types · a add · m mode · d remove": "Invio tipi di file · a aggiungi · m modalità · d rimuovi",
+ "File types for %s: ": "Tipi di file per %s: ",
+ "Program (command or application): ": "Programma (comando o applicazione): ",
+ "Program added: %s": "Programma aggiunto: %s",
+ "Program removed: %s": "Programma rimosso: %s",
+ "Programs": "Programmi",
+ "window": "finestra"
 }

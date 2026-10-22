@@ -488,5 +488,14 @@
  "\"herdr.width\" must be between %d and %d (got %d)": "\"herdr.width\" 必须在 %d 到 %d 之间（当前为 %d）",
  "Sidebar in herdr": "herdr 中的侧栏",
  "right": "右",
- "left": "左"
+ "left": "左",
+ "%s opens: %s": "%s 打开：%s",
+ "+ Add program": "+ 添加程序",
+ "Enter file types · a add · m mode · d remove": "Enter 文件类型 · a 添加 · m 模式 · d 移除",
+ "File types for %s: ": "%s 打开的文件类型：",
+ "Program (command or application): ": "程序（命令或应用）：",
+ "Program added: %s": "已添加程序：%s",
+ "Program removed: %s": "已移除程序：%s",
+ "Programs": "程序",
+ "window": "窗口"
 }

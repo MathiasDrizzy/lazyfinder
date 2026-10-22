@@ -38,8 +38,10 @@ the contents of a zip, pictures in terminals that can draw them. `↑` `↓` mov
 ### Open with the program you choose
 
 `Enter` opens a file with its program: your editor for text, Preview for pictures, Excel for a spreadsheet. `O` shows
-every program that can open it, so you can pick another one. A program runs only if you set it up; in these GIFs text
-files open in [micro](https://micro-editor.github.io).
+every program that can open it, so you can pick another one: the editors you have installed (micro, nano, Neovim,
+Vim, Helix, Emacs, VS Code, Zed, Sublime Text, Cursor) are there from the start. Settings → Programs (`,`) adds any
+other program and says which file types it opens; in these GIFs text files open in
+[micro](https://micro-editor.github.io).
 
 <img src="assets/readme/feature-open-with.gif" alt="Pressing O on a text file, choosing micro in the Open With menu, reading the file and coming back to lazyfinder" width="100%">
 

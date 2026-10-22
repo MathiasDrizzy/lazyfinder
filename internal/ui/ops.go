@@ -23,9 +23,11 @@ const (
 	promptTrash
 	promptFilter
 	promptTag
-	promptPlace   // renaming a favorite of the sidebar
-	promptConfirm // a yes/no question with its own answer (git operations that throw work away)
-	promptChmod   // the permissions of paths, in octal
+	promptPlace        // renaming a favorite of the sidebar
+	promptConfirm      // a yes/no question with its own answer (git operations that throw work away)
+	promptChmod        // the permissions of paths, in octal
+	promptProgram      // a program to add to Open With, in Settings → Programs
+	promptProgramTypes // the file types a program opens
 )
 
 // promptState is the one-line question on the bottom row: a name to type, or a yes/no.
@@ -381,6 +383,18 @@ func (m *Model) promptSubmit() tea.Cmd {
 		return m.renameFavorite(p.target, p.input)
 	case promptChmod:
 		return m.submitChmod(p)
+	case promptProgram, promptProgramTypes:
+		if p.kind == promptProgram {
+			err = m.addProgram(p.input)
+		} else {
+			err = m.setProgramTypes(p.target, p.input)
+		}
+		if err != nil {
+			m.setError(err) // the prompt stays open, so it can be fixed
+			return nil
+		}
+		m.prompt = promptState{}
+		return nil
 	}
 	if err != nil {
 		m.setError(err) // the prompt stays open, so the name can be fixed
@@ -416,6 +430,11 @@ func (m *Model) promptBar() string {
 	case promptChmod:
 		label := fmt.Sprintf(i18n.T("Permisos de %s (octal): ", "Permissions of %s (octal): "), subject(m.prompt.paths))
 		return fit(m.styles.accent(" "+label)+m.prompt.input+"▏", m.w)
+	case promptProgram:
+		return fit(m.styles.accent(" "+i18n.T("Programa (comando o aplicación): ", "Program (command or application): "))+m.prompt.input+"▏", m.w)
+	case promptProgramTypes:
+		label := fmt.Sprintf(i18n.T("Tipos de archivo para %s: ", "File types for %s: "), m.prompt.target)
+		return fit(m.styles.accent(" "+label)+m.promptInput()+"▏", m.w)
 	case promptConfirm:
 		return fit(m.styles.accent(" "+m.prompt.ask+i18n.T(" (s/n)", " (y/n)")), m.w)
 	}

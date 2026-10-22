@@ -102,6 +102,7 @@ type Model struct {
 	keys    keymap.Map
 	mouse   bool
 	set     settingsState
+	progs   progState
 
 	herdrSeen string // the last folder herdr gave for the pane next to the sidebar (herdrfollow.go)
 

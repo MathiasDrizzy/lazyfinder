@@ -488,5 +488,14 @@
  "\"herdr.width\" must be between %d and %d (got %d)": "\"herdr.width\" は %d から %d の間にしてください（現在 %d）",
  "Sidebar in herdr": "herdr のサイドバー",
  "right": "右",
- "left": "左"
+ "left": "左",
+ "%s opens: %s": "%s で開く: %s",
+ "+ Add program": "+ プログラムを追加",
+ "Enter file types · a add · m mode · d remove": "Enter ファイルの種類 · a 追加 · m モード · d 削除",
+ "File types for %s: ": "%s で開くファイルの種類: ",
+ "Program (command or application): ": "プログラム（コマンドまたはアプリ）: ",
+ "Program added: %s": "プログラムを追加しました: %s",
+ "Program removed: %s": "プログラムを削除しました: %s",
+ "Programs": "プログラム",
+ "window": "ウインドウ"
 }

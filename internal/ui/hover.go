@@ -54,6 +54,10 @@ func (m *Model) hoverRect() (hoverRect, bool) {
 	}
 	x, y := m.hover.x, m.hover.y
 	switch {
+	case m.progs.open:
+		mx, my, bx := m.progsBox()
+		_, rows := m.progsView()
+		return popupRow(x, y, mx, my, bx, rows)
 	case m.set.open:
 		mx, my, bx := m.settingsBox()
 		_, rows, _ := m.settingsView()

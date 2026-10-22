@@ -411,6 +411,7 @@ func (m *Model) popupBoxes() []popupBox {
 	add(m.menu.open, m.menuBox)
 	add(m.pv.open, m.previewBox)
 	add(m.set.open, m.settingsBox)
+	add(m.progs.open, m.progsBox)
 	add(m.info.open, m.infoBox)
 	add(m.help.open, m.helpBox)
 	add(m.gm.open, m.gitMenuBox)

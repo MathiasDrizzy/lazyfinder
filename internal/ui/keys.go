@@ -30,6 +30,10 @@ func (m *Model) onKey(k tea.KeyPressMsg) tea.Cmd {
 		return m.gitMenuKey(k)
 	case m.help.open:
 		return m.helpKey(key, act)
+	case m.progs.open && m.prompt.kind != promptNone:
+		return m.promptKey(k)
+	case m.progs.open:
+		return m.progsKey(key, act)
 	case m.set.open:
 		return m.settingsKey(key, act)
 	case m.picker.open && m.picker.filter:

@@ -83,8 +83,13 @@ stays readable.
 - `mode` is `gui` (started in the background) or `terminal` (lazyfinder hands the terminal over until it exits).
 - An extension without an entry opens with `open -- <path>` (`xdg-open <path>` on Linux). Nothing else is ever run.
 - These openers ship built in, so Open With is useful before any configuration, and `open_with` can name them without
-  defining them: `textedit`, `preview`, `vscode` (these three are listed in the menu only when the application is
-  installed) and `vim` (terminal). An opener of yours with the same name replaces the built-in one.
+  defining them. The menu lists only the ones that are installed: the applications `textedit`, `preview`, `vscode`,
+  `zed`, `sublime` and `cursor`, and the terminal editors `vim`, `nvim`, `micro`, `nano`, `helix` (`hx`) and `emacs`.
+  An opener of yours with the same name replaces the built-in one.
+- Settings → Programs does the same without editing the file. `a` adds a program: the name of an application
+  (`Sublime Text`) opens in its own window, a command on `PATH` (`micro`, `code --wait`) in the terminal. `Enter`
+  types the file types it opens (`md, txt`), `m` switches it between window and terminal and `d` removes it. Each
+  change rewrites `openers` and `open_with` in `config.json`.
 
 ## Custom commands
 
@@ -143,7 +148,7 @@ offending entry is ignored and the app still starts. The key bar at the bottom s
 ## Settings popup
 
 `,` (or a click on the gear in the top right corner) opens a popup with the theme, language, image protocol,
-hidden files, folders first, screen background and mouse. A change applies at once and is written to
+hidden files, folders first, screen background, mouse and the programs of Open With (see [Openers](#openers)). A change applies at once and is written to
 `config.json`. Only the changed key is written; everything else in the file (openers, `~` shorthands) is kept, and a
 file that is not valid JSON is never overwritten. Run-only options (`--theme`, `--lang`, `--no-mouse`) are not
 saved unless you change that same setting in the popup.

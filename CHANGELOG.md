@@ -70,6 +70,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Open With lists the editors that are installed: micro, nano, Neovim, Vim, Helix and Emacs in the terminal, and VS
+  Code, Zed, Sublime Text and Cursor in their own window.
+- Settings → Programs adds a program to Open With, sets the file types it opens, switches it between window and
+  terminal and removes it, without editing `config.json`.
 - `y` copies the path of the selection, or of the marked rows one per line, to the clipboard.
 - Get Info shows the owner.
 - A `high-contrast` theme: every text color at 7:1 at least (WCAG AAA).

@@ -41,6 +41,7 @@ const (
 	setCdOnExit
 	setHerdrDock
 	setSidebarMode
+	setPrograms
 	settingCount
 )
 
@@ -52,6 +53,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Tema", "Theme")
 	case setLanguage:
 		return i18n.T("Idioma", "Language")
+	case setPrograms:
+		return i18n.T("Programas", "Programs")
 	case setHidden:
 		return i18n.T("Archivos ocultos", "Hidden files")
 	case setFoldersFirst:
@@ -100,6 +103,8 @@ func (m *Model) settingValue(i int) string {
 	switch i {
 	case setTheme:
 		return c.Theme
+	case setPrograms:
+		return fmt.Sprint(len(m.resolve.Programs()))
 	case setLanguage:
 		if c.Language == "auto" {
 			return "auto · " + i18n.CurrentLanguage().Name() // like lazymark: what "auto" resolved to
@@ -216,6 +221,9 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setSidebarMode:
 		m.toggleProject()
 		return nil // a mode of this run, not a saved setting
+	case setPrograms:
+		m.progs = progState{open: true}
+		return nil // the popup saves each change
 	case setIcons:
 		m.deps.Cfg.Icons = cycle([]string{"nerd", "emoji", "ascii", "off"}, m.deps.Cfg.Icons, dir)
 		key, val = "icons", m.deps.Cfg.Icons
