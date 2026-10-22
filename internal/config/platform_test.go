@@ -8,6 +8,7 @@ import (
 // On Linux the defaults were the macOS ones: the Trash was ~/.Trash, which no Linux desktop shows, and the sidebar
 // offered Applications, Macintosh HD and /Volumes, which do not exist there.
 func TestTheLinuxDefaultsUseTheXDGTrashAndLinuxPlaces(t *testing.T) {
+	t.Setenv("XDG_DATA_HOME", "") // the default without it; xdgdata_test.go covers it set
 	c := DefaultsFor("linux", "/h")
 	if c.Ops.TrashDir != "/h/.local/share/Trash/files" {
 		t.Fatalf("trash_dir = %q", c.Ops.TrashDir)
