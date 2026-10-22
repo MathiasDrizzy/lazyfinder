@@ -127,3 +127,27 @@ func (c Client) LayoutOf(pane string) (Layout, error) {
 	err := c.Call("pane.layout", map[string]string{"pane_id": pane}, &r)
 	return r.Layout, err
 }
+
+// Restored is true when pane runs, in front, the program herdr started in it and that program is not lazyfinder.
+// herdr restores the pane of the plugin after a restart as a shell that keeps its title: that pane is not a sidebar.
+// A program lazyfinder opened in its pane (an editor) is in front of lazyfinder, so that pane is not restored.
+func (c Client) Restored(pane string) (bool, error) {
+	var r struct {
+		Info struct {
+			Root  int `json:"shell_pid"`
+			Front []struct {
+				Name string `json:"name"`
+				PID  int    `json:"pid"`
+			} `json:"foreground_processes"`
+		} `json:"process_info"`
+	}
+	if err := c.Call("pane.process_info", map[string]string{"pane_id": pane}, &r); err != nil {
+		return false, err
+	}
+	for _, p := range r.Info.Front {
+		if p.PID == r.Info.Root {
+			return p.Name != Label, nil
+		}
+	}
+	return false, nil
+}

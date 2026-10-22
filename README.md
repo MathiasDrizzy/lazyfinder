@@ -88,8 +88,9 @@ Every tab then opens with lazyfinder in sidebar mode on one side and your termin
 the folder of the terminal next to it: `cd` there and the tree moves with you. A folder you open by hand in the
 sidebar stays until the terminal changes folder again. "Sidebar in herdr" in Settings puts it on the left or the right
 of new tabs, and the plugin's **Toggle lazyfinder** action (bind it to a key in herdr) opens, focuses or closes it;
-closed with the action, it stays closed in that tab. `herdr.auto_open` and `herdr.width` in `config.json` turn the
-automatic opening off and set its width. To toggle it with `prefix` and `e`, add this to herdr's `config.toml`:
+closed with the action or with q, it stays closed in that tab until the action opens it again, and new tabs still
+get one. After a restart of herdr every tab gets its sidebar back. `herdr.auto_open` and `herdr.width` in
+`config.json` turn the automatic opening off and set its width. To toggle it with `prefix` and `e`, add this to herdr's `config.toml`:
 
 ```toml
 [[keys.command]]

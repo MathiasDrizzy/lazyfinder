@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- herdr plugin: after `herdr server stop` and herdr again, every tab gets its sidebar back. herdr restored the
+  sidebar as a shell that kept the title "lazyfinder", so some tabs got no sidebar and others got a second one; a
+  startup hook and the event hooks now close that shell and open the sidebar in its place.
+- herdr plugin: leaving the sidebar with q keeps it closed in that tab, as the toggle does, instead of opening again
+  when you come back to the tab. A new tab still gets one, and the toggle opens it again.
+
 ## [0.15.0] - 2026-10-22
 
 ### Security

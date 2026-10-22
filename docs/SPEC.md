@@ -193,10 +193,11 @@ Requirement (2026-10-13): the same features as Finder and as the Windows file se
 - **R-55 herdr plugin (2026-10-15).** `herdr-plugin.toml` at the root makes the repository a herdr plugin
   (`herdr plugin install MathiasDrizzy/lazyfinder`). Every tab gets one lazyfinder pane in the sidebar mode at the edge
   of `herdr.dock` (Settings: "Sidebar in herdr"), `herdr.width` percent wide, without taking the focus; the
-  `toggle` action opens, focuses or closes it, and a sidebar closed with it stays closed in that tab. The pane follows
-  the folder of the focused pane of its tab when that folder changes. Outside the plugin nothing changes. AC: unit
-  tests of `internal/herdr` against a fake socket, and an isolated herdr that docks it left and right and follows a
-  `cd` (ADR 0017).
+  `toggle` action opens, focuses or closes it, and a sidebar closed with it or with q stays closed in that tab. After
+  a restart of herdr a `[[startup]]` hook gives every tab its sidebar back. The pane follows the folder of the focused
+  pane of its tab when that folder changes. Outside the plugin nothing changes. AC: unit tests of `internal/herdr`
+  against a fake socket, and an isolated herdr that docks it left and right, follows a `cd` and survives a restart
+  (ADR 0017).
 
 ## Out of scope for M1
 

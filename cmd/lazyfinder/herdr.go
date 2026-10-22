@@ -8,11 +8,15 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/herdr"
 )
 
-// runHerdr runs the step of the herdr plugin that herdr-plugin.toml asks for: ensure from the event hooks, toggle
-// from the action.
+// runHerdr runs the step of the herdr plugin that herdr-plugin.toml asks for: ensure from the event hooks, startup
+// once herdr restored its session, toggle from the action.
 func runHerdr(action string, getenv func(string) string, home string, stderr io.Writer) int {
-	if action != "ensure" && action != "toggle" {
-		fmt.Fprintf(stderr, "lazyfinder: unknown --herdr action %q (use ensure or toggle)\n", action)
+	steps := map[string]func(herdr.Client, herdr.Env, herdr.Settings) error{
+		"ensure": herdr.Ensure, "startup": herdr.Startup, "toggle": herdr.Toggle,
+	}
+	step, ok := steps[action]
+	if !ok {
+		fmt.Fprintf(stderr, "lazyfinder: unknown --herdr action %q (use ensure, startup or toggle)\n", action)
 		return exitUsage
 	}
 	sock := getenv("HERDR_SOCKET_PATH")
@@ -30,13 +34,7 @@ func runHerdr(action string, getenv func(string) string, home string, stderr io.
 		PluginID: getenv("HERDR_PLUGIN_ID"), TabID: getenv("HERDR_TAB_ID"),
 		Event: getenv("HERDR_PLUGIN_EVENT_JSON"), StateDir: getenv("HERDR_PLUGIN_STATE_DIR"),
 	}
-	c := herdr.Client{Socket: sock}
-	if action == "toggle" {
-		err = herdr.Toggle(c, e, s)
-	} else {
-		err = herdr.Ensure(c, e, s)
-	}
-	if err != nil {
+	if err := step(herdr.Client{Socket: sock}, e, s); err != nil {
 		fmt.Fprintln(stderr, "lazyfinder:", err)
 		return exitRuntime
 	}
@@ -57,5 +55,17 @@ func herdrFollower(getenv func(string) string) func() string {
 			return "" // herdr is busy or closing: keep the folder shown
 		}
 		return herdr.FollowDir(panes, pane)
+	}
+}
+
+// herdrHider is set with herdrFollower: it keeps the tab of the pane without a sidebar once the user quits it, so the
+// hooks do not open it again when the user comes back to the tab.
+func herdrHider(getenv func(string) string, stderr io.Writer) func() {
+	c, pane := herdr.Client{Socket: getenv("HERDR_SOCKET_PATH")}, getenv("HERDR_PANE_ID")
+	e := herdr.Env{PluginID: getenv("HERDR_PLUGIN_ID"), StateDir: getenv("HERDR_PLUGIN_STATE_DIR")}
+	return func() {
+		if err := herdr.Hide(c, e, pane); err != nil {
+			fmt.Fprintln(stderr, "lazyfinder:", err)
+		}
 	}
 }

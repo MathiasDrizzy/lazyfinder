@@ -26,6 +26,10 @@ title = "Toggle lazyfinder"
 description = "Open the lazyfinder sidebar at its edge; focus it if it is open; close it if it has the focus."
 command = ["./bin/lazyfinder", "--herdr", "toggle"]
 
+# Once herdr restored its session after a restart, the sidebars it brought back as shells are lazyfinder again.
+[[startup]]
+command = ["./bin/lazyfinder", "--herdr", "startup"]
+
 # Each hook docks a sidebar in its tab when it has none (idempotent, never takes the focus). A sidebar closed with
 # the toggle stays closed in that tab.
 [[events]]

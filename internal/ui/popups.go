@@ -99,6 +99,9 @@ func (m *Model) quit() tea.Cmd {
 		return nil
 	}
 	m.quitting = true
+	if m.deps.HerdrHide != nil {
+		m.deps.HerdrHide()
+	}
 	return tea.Sequence(m.closePreview(), tea.Quit)
 }
 

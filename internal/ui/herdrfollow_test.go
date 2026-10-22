@@ -47,3 +47,16 @@ func TestWithoutHerdrNothingIsPolled(t *testing.T) {
 		t.Fatal("no poll outside herdr")
 	}
 }
+
+// Mathias, 2026-10-22: "si salgo con q me cambio de space y despues vuelvo al mismo space se abre automaticamente,
+// esto no deberia pasar porque me sali". As the pane of the herdr plugin, q tells herdr the sidebar was closed in its
+// tab before it quits.
+func TestQuittingThePluginPaneHidesTheSidebarInItsTab(t *testing.T) {
+	e := newEnv(t)
+	hidden := 0
+	e.m.deps.HerdrHide = func() { hidden++ }
+	e.key("q")
+	if hidden != 1 || !e.m.quitting {
+		t.Fatalf("hidden %d, quitting %v", hidden, e.m.quitting)
+	}
+}

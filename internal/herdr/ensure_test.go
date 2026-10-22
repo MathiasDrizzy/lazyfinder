@@ -2,18 +2,35 @@ package herdr
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
 )
 
-// fakeHerdr is a herdr with one tab: the panes it lists and every call it got, in order.
+// fakeHerdr is a herdr with one tab: the panes it lists, the program each runs (lazyfinder for a pane of the plugin,
+// else a shell, unless roots says otherwise) and every call it got, in order.
 type fakeHerdr struct {
 	mu    sync.Mutex
 	panes []Pane
+	roots map[string]string
 	calls []string
+}
+
+// root is the program pane id runs.
+func (f *fakeHerdr) root(id string) string {
+	if r, ok := f.roots[id]; ok {
+		return r
+	}
+	for _, p := range f.panes {
+		if p.ID == id && p.Label == Label {
+			return "lazyfinder"
+		}
+	}
+	return "zsh"
 }
 
 func (f *fakeHerdr) log() string {
@@ -26,7 +43,7 @@ func (f *fakeHerdr) serve(t *testing.T) Client {
 	return Client{Socket: fakeServer(t, func(method string, params json.RawMessage) string {
 		f.mu.Lock()
 		defer f.mu.Unlock()
-		if method != "pane.list" && method != "pane.layout" {
+		if method != "pane.list" && method != "pane.layout" && method != "pane.process_info" {
 			f.calls = append(f.calls, method+" "+string(params))
 		}
 		switch method {
@@ -34,12 +51,30 @@ func (f *fakeHerdr) serve(t *testing.T) Client {
 			b, _ := json.Marshal(map[string]any{"panes": f.panes})
 			return `"result":` + string(b)
 		case "pane.layout":
-			return `"result":{"layout":{"panes":[{"pane_id":"w1:p1","rect":{"x":0,"y":0,"width":120,"height":40}}]}}`
+			var p struct {
+				Pane string `json:"pane_id"`
+			}
+			_ = json.Unmarshal(params, &p)
+			return fmt.Sprintf(`"result":{"layout":{"panes":[{"pane_id":%q,"rect":{"x":0,"y":0,"width":120,"height":40}}]}}`, p.Pane)
 		case "plugin.pane.open":
 			f.panes = append(f.panes, Pane{ID: "w1:p9", Tab: "w1:t1", Label: Label})
 			return `"result":{"plugin_pane":{"pane":{"pane_id":"w1:p9"}}}`
+		case "pane.process_info":
+			var p struct {
+				Pane string `json:"pane_id"`
+			}
+			_ = json.Unmarshal(params, &p)
+			name, pid := f.root(p.Pane), 7
+			if child, ok := strings.CutPrefix(name, "child:"); ok { // a program the root started is in front
+				name, pid = child, 8
+			}
+			return fmt.Sprintf(`"result":{"process_info":{"shell_pid":7,"foreground_processes":[{"name":%q,"pid":%d}]}}`, name, pid)
 		case "pane.close":
-			f.panes = f.panes[:1]
+			var p struct {
+				Pane string `json:"pane_id"`
+			}
+			_ = json.Unmarshal(params, &p)
+			f.panes = slices.DeleteFunc(f.panes, func(x Pane) bool { return x.ID == p.Pane })
 		}
 		return `"result":{"type":"ok"}`
 	})}
@@ -178,5 +213,102 @@ func TestSnoozeFileNamesAreSafe(t *testing.T) {
 	entries, _ := os.ReadDir(filepath.Join(dir, "snoozed"))
 	if len(entries) != 1 || strings.ContainsAny(entries[0].Name(), "/:") {
 		t.Fatalf("%v", entries)
+	}
+}
+
+// Mathias, 2026-10-22: after "herdr server stop" and herdr again, some tabs had no sidebar and others had two. herdr
+// restores the pane of the plugin as a shell that keeps the title "lazyfinder", which the hooks took for the sidebar.
+// A pane with that title whose program is a shell is closed and a sidebar takes its place.
+func TestEnsureReplacesASidebarThatCameBackAsAShell(t *testing.T) {
+	f := newFake()
+	f.panes = append(f.panes, Pane{ID: "w1:p7", Tab: "w1:t1", Label: Label})
+	f.roots = map[string]string{"w1:p7": "zsh"}
+	if err := Ensure(f.serve(t), envFor(t), left); err != nil {
+		t.Fatal(err)
+	}
+	got := f.log()
+	if !strings.HasPrefix(got, `pane.close {"pane_id":"w1:p7"}`) || strings.Count(got, "plugin.pane.open") != 1 {
+		t.Fatalf("calls:\n%s", got)
+	}
+}
+
+// A pane of the plugin running a program lazyfinder opened in it (an editor) is still the sidebar.
+func TestASidebarRunningAnEditorIsKept(t *testing.T) {
+	f := newFake()
+	f.panes = append(f.panes, Pane{ID: "w1:p9", Tab: "w1:t1", Label: Label})
+	f.roots = map[string]string{"w1:p9": "child:micro"}
+	if err := Ensure(f.serve(t), envFor(t), left); err != nil || f.log() != "" {
+		t.Fatalf("%v calls:\n%s", err, f.log())
+	}
+}
+
+// The startup hook runs once herdr restored the session: every tab whose sidebar came back as a shell gets a sidebar
+// again, without waiting for the user to visit it, and a tab whose sidebar the user closed stays without one.
+func TestStartupRestoresTheSidebarOfEveryTab(t *testing.T) {
+	f := newFake()
+	f.panes = []Pane{
+		{ID: "w1:p1", Tab: "w1:t1", Workspace: "w1", Focused: true, Cwd: "/w/api"},
+		{ID: "w1:p2", Tab: "w1:t1", Workspace: "w1", Label: Label},
+		{ID: "w2:p1", Tab: "w2:t1", Workspace: "w2", Cwd: "/w/web"},
+		{ID: "w2:p2", Tab: "w2:t1", Workspace: "w2", Label: Label},
+		{ID: "w3:p1", Tab: "w3:t1", Workspace: "w3", Cwd: "/w/docs"},
+	}
+	f.roots = map[string]string{"w1:p2": "zsh", "w2:p2": "zsh"}
+	e := envFor(t)
+	e.Event = ""
+	if err := snooze(e.StateDir, "w3:t1", true); err != nil {
+		t.Fatal(err)
+	}
+	if err := Startup(f.serve(t), e, left); err != nil {
+		t.Fatal(err)
+	}
+	got := f.log()
+	for _, want := range []string{`pane.close {"pane_id":"w1:p2"}`, `pane.close {"pane_id":"w2:p2"}`, `"target_pane_id":"w1:p1"`, `"target_pane_id":"w2:p1"`} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("no %s in:\n%s", want, got)
+		}
+	}
+	if strings.Count(got, "plugin.pane.open") != 2 || strings.Contains(got, `"focus":true`) {
+		t.Fatalf("calls:\n%s", got)
+	}
+}
+
+// Mathias, 2026-10-22: "si salgo con q me cambio de space y despues vuelvo al mismo space se abre automaticamente,
+// esto no deberia pasar porque me sali". Leaving the sidebar with q closes it in its tab as the toggle does; a new tab
+// still gets one.
+func TestHideKeepsTheSidebarClosedInItsTabOnly(t *testing.T) {
+	f := newFake()
+	f.panes = append(f.panes, Pane{ID: "w1:p9", Tab: "w1:t1", Label: Label})
+	c, e := f.serve(t), envFor(t)
+	if err := Hide(c, e, "w1:p9"); err != nil {
+		t.Fatal(err)
+	}
+	f.panes = f.panes[:1] // lazyfinder quit and herdr closed its pane
+	back := e
+	back.Event = `{"event":"workspace_focused","data":{"workspace_id":"w1"}}`
+	if err := Ensure(c, back, left); err != nil || strings.Contains(f.log(), "plugin.pane.open") {
+		t.Fatalf("%v calls:\n%s", err, f.log())
+	}
+	f.panes = append(f.panes, Pane{ID: "w1:p5", Tab: "w1:t2", Workspace: "w1", Focused: true, Cwd: "/w/api"})
+	f.panes[0].Focused = false
+	next := e
+	next.TabID, next.Event = "w1:t2", `{"event":"tab_created","data":{"tab":{"tab_id":"w1:t2"}}}`
+	if err := Ensure(c, next, left); err != nil || !strings.Contains(f.log(), "plugin.pane.open") {
+		t.Fatalf("%v calls:\n%s", err, f.log())
+	}
+}
+
+// The mark of a closed tab goes once the tab is gone, so a later tab never inherits it.
+func TestTheMarkOfATabThatIsGoneIsForgotten(t *testing.T) {
+	f := newFake()
+	e := envFor(t)
+	if err := snooze(e.StateDir, "w9:t9", true); err != nil {
+		t.Fatal(err)
+	}
+	if err := Ensure(f.serve(t), e, left); err != nil {
+		t.Fatal(err)
+	}
+	if snoozed(e.StateDir, "w9:t9") {
+		t.Fatal("the mark of a tab that no longer exists stayed")
 	}
 }

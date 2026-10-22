@@ -79,6 +79,9 @@ type Deps struct {
 	// HerdrDir is the folder of the herdr pane next to this one, when lazyfinder is the pane of its herdr plugin
 	// (empty when it has no answer); nil outside herdr.
 	HerdrDir func() string
+	// HerdrHide tells herdr the user closed the sidebar of this tab, so its hooks leave the tab without one; nil
+	// outside the plugin.
+	HerdrHide func()
 }
 
 // ShellSetup is one line to add to a shell's startup file.

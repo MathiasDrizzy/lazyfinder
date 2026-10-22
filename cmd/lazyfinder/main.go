@@ -46,6 +46,8 @@ type Options struct {
 	InTmux     bool          // tmux does not pass the Kitty graphics query on: the image preview says so
 	// HerdrDir is the folder of the pane next to the sidebar, when lazyfinder runs as the pane of its herdr plugin.
 	HerdrDir func() string
+	// HerdrHide keeps the tab of that pane without a sidebar after the user quits it.
+	HerdrHide func()
 }
 
 func main() {
@@ -129,7 +131,7 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer, st
 	opts.ConfigPath = config.ResolvePath(getenv, home)
 	opts.InTmux = getenv("TMUX") != ""
 	if dir := herdrFollower(getenv); dir != nil {
-		opts.Follow, opts.HerdrDir = true, dir
+		opts.Follow, opts.HerdrDir, opts.HerdrHide = true, dir, herdrHider(getenv, stderr)
 	}
 	if *cwdFile == "" {
 		opts.ShellSetup = shellSetup(getenv("SHELL"))
@@ -243,7 +245,7 @@ func launch(o Options) (string, error) {
 		defer func() { _ = fw.Close() }()
 		w = fw
 	}
-	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir}
+	d := ui.Deps{Home: o.Home, Start: o.Start, Cfg: o.Cfg, NoColor: o.NoColor, Warning: o.Warning, ConfigPath: o.ConfigPath, Watcher: w, Follow: o.Follow, ShellSetup: o.ShellSetup, Copy: clipboard.Copy, InTmux: o.InTmux, HerdrDir: o.HerdrDir, HerdrHide: o.HerdrHide}
 	if o.Cfg.Preview.ExternalTools != "off" {
 		d.Probe, d.Raster = preview.SystemProbe, preview.SystemRaster
 	}

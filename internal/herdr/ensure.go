@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"syscall"
 )
@@ -39,15 +40,88 @@ func Ensure(c Client, e Env, s Settings) error {
 	if err != nil {
 		return err
 	}
+	forget(e.StateDir, panes)
 	tab := EventTab(e.Event, panes, e.TabID)
 	if tab == "" || snoozed(e.StateDir, tab) {
 		return nil
 	}
-	if _, ok := Sidebar(panes, tab); ok {
-		return nil
+	if _, ok, err := sidebarOf(c, panes, tab); ok || err != nil {
+		return err
 	}
 	_, err = open(c, e, s, panes, tab, false)
 	return err
+}
+
+// Startup runs once herdr restored its session (the [[startup]] hook): every tab whose sidebar came back as a shell
+// gets a sidebar again, without the focus, unless auto_open is off.
+func Startup(c Client, e Env, s Settings) error {
+	unlock, ok := lock(e.StateDir)
+	if !ok {
+		return nil
+	}
+	defer unlock()
+	panes, err := c.Panes()
+	if err != nil {
+		return err
+	}
+	forget(e.StateDir, panes)
+	var errs []error
+	for _, tab := range restoredTabs(panes) {
+		_, live, err := sidebarOf(c, panes, tab)
+		if err != nil || live || !s.AutoOpen || snoozed(e.StateDir, tab) {
+			errs = append(errs, err)
+			continue
+		}
+		_, err = open(c, e, s, panes, tab, false)
+		errs = append(errs, err)
+	}
+	return errors.Join(errs...)
+}
+
+// restoredTabs are the tabs with a pane titled as the sidebar, in the order of pane.list.
+func restoredTabs(panes []Pane) []string {
+	var tabs []string
+	for _, p := range panes {
+		if p.Label == Label && !slices.Contains(tabs, p.Tab) {
+			tabs = append(tabs, p.Tab)
+		}
+	}
+	return tabs
+}
+
+// Hide keeps the tab of pane without a sidebar until the toggle opens it again: the user left the sidebar pane with q.
+func Hide(c Client, e Env, pane string) error {
+	panes, err := c.Panes()
+	if err != nil {
+		return err
+	}
+	for _, p := range panes {
+		if p.ID == pane {
+			return snooze(e.StateDir, p.Tab, true)
+		}
+	}
+	return fmt.Errorf("herdr: no pane %s", pane)
+}
+
+// sidebarOf is the sidebar of a tab. A pane titled as the sidebar that herdr restored as a shell is closed on the way:
+// it is not a sidebar, and it would keep the tab from getting one.
+func sidebarOf(c Client, panes []Pane, tab string) (Pane, bool, error) {
+	for _, p := range panes {
+		if p.Tab != tab || p.Label != Label {
+			continue
+		}
+		restored, err := c.Restored(p.ID)
+		if err != nil {
+			return Pane{}, false, err
+		}
+		if !restored {
+			return p, true, nil
+		}
+		if err := c.Call("pane.close", map[string]string{"pane_id": p.ID}, nil); err != nil {
+			return Pane{}, false, err
+		}
+	}
+	return Pane{}, false, nil
 }
 
 // Toggle is the action of the plugin on the focused tab: it opens the sidebar (with the focus), focuses it when it
@@ -67,7 +141,10 @@ func Toggle(c Client, e Env, s Settings) error {
 	if tab == "" {
 		return errors.New("herdr: no tab is focused")
 	}
-	side, ok := Sidebar(panes, tab)
+	side, ok, err := sidebarOf(c, panes, tab)
+	if err != nil {
+		return err
+	}
 	switch {
 	case ok && side.Focused:
 		if err := snooze(e.StateDir, tab, true); err != nil {
@@ -159,6 +236,26 @@ func lock(dir string) (unlock func(), ok bool) {
 		return nil, false
 	}
 	return func() { _ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN); _ = f.Close() }, true
+}
+
+// forget drops the marks of tabs that are gone, so a later tab never inherits one.
+func forget(dir string, panes []Pane) {
+	if dir == "" || len(panes) == 0 {
+		return // no list to trust: keep every mark
+	}
+	entries, err := os.ReadDir(filepath.Join(dir, "snoozed"))
+	if err != nil {
+		return
+	}
+	live := map[string]bool{}
+	for _, p := range panes {
+		live[filepath.Base(snoozePath(dir, p.Tab))] = true
+	}
+	for _, en := range entries {
+		if !live[en.Name()] {
+			_ = os.Remove(filepath.Join(dir, "snoozed", en.Name())) // a mark that cannot go only stays
+		}
+	}
 }
 
 // snoozePath is the marker of a tab whose sidebar the user closed; the tab id is made a plain file name.
