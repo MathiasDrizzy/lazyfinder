@@ -39,6 +39,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # a fine-grained token that can write only to MathiasDrizzy/homebrew-tap, for the cask
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+      - name: Cask with postflight_steps instead of postflight
+        # GoReleaser v2.18 writes a postflight block, which Homebrew warns is deprecated; remove this step with
+        # tools/caskfix once GoReleaser writes postflight_steps itself (goreleaser/goreleaser#6873)
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+        run: scripts/cask-postflight-steps.sh
       - name: Build provenance for the archives and the SBOMs
         # also when a later GoReleaser step (the cask in the tap) failed after the archives were published: dist/ holds
         # the same files the release has
