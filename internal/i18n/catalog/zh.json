@@ -496,6 +496,8 @@
  "Widen in normal mode": "普通模式下加宽",
  "Preview in herdr": "herdr 中的预览",
  "Open in herdr": "在 herdr 中打开",
+ "Close button in herdr": "herdr 中的关闭按钮",
+ "Close the sidebar: q": "关闭侧栏：q",
  "new tab": "新标签页",
  "same pane": "同一窗格",
  "Opened with %s in a new tab": "已用 %s 在新标签页中打开",

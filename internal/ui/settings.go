@@ -47,6 +47,7 @@ const (
 	setHerdrFitNormal
 	setHerdrPreview
 	setHerdrOpenIn
+	setHerdrCloseButton
 	setSidebarMode
 	setPrograms
 	settingCount
@@ -93,6 +94,8 @@ func (m *Model) settingLabel(i int) string {
 		return i18n.T("Vista previa en herdr", "Preview in herdr")
 	case setHerdrOpenIn:
 		return i18n.T("Abrir en herdr", "Open in herdr")
+	case setHerdrCloseButton:
+		return i18n.T("Botón de cierre en herdr", "Close button in herdr")
 	case setSidebarMode:
 		return i18n.T("Modo lateral (proyecto)", "Side mode (project)")
 	case setIcons:
@@ -178,6 +181,8 @@ func (m *Model) settingValue(i int) string {
 			return i18n.T("mismo panel", "same pane")
 		}
 		return i18n.T("pestaña nueva", "new tab")
+	case setHerdrCloseButton:
+		return onOff(c.Herdr.CloseButton)
 	case setSidebarMode:
 		return onOff(m.projectMode())
 	case setIcons:
@@ -268,6 +273,9 @@ func (m *Model) change(i, dir int) tea.Cmd {
 	case setHerdrOpenIn:
 		m.deps.Cfg.Herdr.OpenIn = cycle([]string{"tab", "pane"}, m.deps.Cfg.Herdr.OpenIn, dir)
 		key, val = "herdr.open_in", m.deps.Cfg.Herdr.OpenIn
+	case setHerdrCloseButton:
+		m.deps.Cfg.Herdr.CloseButton = !m.deps.Cfg.Herdr.CloseButton
+		key, val = "herdr.close_button", m.deps.Cfg.Herdr.CloseButton
 	case setSidebarMode:
 		return m.switchMode() // a mode of this run, not a saved setting
 	case setPrograms:

@@ -203,6 +203,8 @@ func (m *Model) tooltip() string {
 		return " " + i18n.T("Ajustes: ,", "Settings: ,")
 	case zoneBranch:
 		return " " + i18n.T("Cambiar de rama: B", "Switch branch: B")
+	case zoneClose:
+		return " " + i18n.T("Cerrar la barra: q", "Close the sidebar: q")
 	case zoneScmBtn:
 		return " " + scmLabel(z.act)
 	}

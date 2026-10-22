@@ -496,6 +496,8 @@
  "Widen in normal mode": "通常モードで広げる",
  "Preview in herdr": "herdr でのプレビュー",
  "Open in herdr": "herdr で開く",
+ "Close button in herdr": "herdr の閉じるボタン",
+ "Close the sidebar: q": "サイドバーを閉じる: q",
  "new tab": "新しいタブ",
  "same pane": "同じペイン",
  "Opened with %s in a new tab": "%s で新しいタブに開きました",

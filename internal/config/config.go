@@ -157,11 +157,12 @@ type Herdr struct {
 	Columns         int    `json:"columns"`
 	ExternalColumns int    `json:"external_columns"`
 	ExternalFrom    int    `json:"external_from"`
-	Adapt           bool   `json:"adapt"`       // go back to that width when the screen changes (another monitor)
-	MinColumns      int    `json:"min_columns"` // it never stays narrower
-	FitNormal       bool   `json:"fit_normal"`  // widen it to what the normal mode needs when ctrl+b leaves the sidebar mode
-	Preview         bool   `json:"preview"`     // Space shows the preview in the sidebar of herdr too
-	OpenIn          string `json:"open_in"`     // where a terminal program opens from that sidebar: tab (a new tab of herdr) or pane
+	Adapt           bool   `json:"adapt"`        // go back to that width when the screen changes (another monitor)
+	MinColumns      int    `json:"min_columns"`  // it never stays narrower
+	FitNormal       bool   `json:"fit_normal"`   // widen it to what the normal mode needs when ctrl+b leaves the sidebar mode
+	Preview         bool   `json:"preview"`      // Space shows the preview in the sidebar of herdr too
+	OpenIn          string `json:"open_in"`      // where a terminal program opens from that sidebar: tab (a new tab of herdr) or pane
+	CloseButton     bool   `json:"close_button"` // a « at the bottom of that sidebar closes it, as q does
 	// OldWidth is the width in percent of the tab that Columns replaced; read so an old config.json still loads, and
 	// not used.
 	OldWidth int `json:"width,omitempty"`
@@ -264,7 +265,7 @@ func DefaultsFor(goos, home string) Config {
 		Git:              Git{Enabled: true},
 		Search:           Search{MaxResults: 5000, ContentTool: "auto", Scope: "folder", Kinds: "both", By: "name"},
 		Ops:              Ops{ConfirmTrashAbove: 1, TrashDir: trashDir(goos, home)},
-		Herdr:            Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true, OpenIn: "tab"},
+		Herdr:            Herdr{Dock: "left", AutoOpen: true, Columns: 30, ExternalColumns: 30, ExternalFrom: 200, Adapt: true, MinColumns: HerdrMinColumns, FitNormal: true, OpenIn: "tab", CloseButton: true},
 
 		Language:         "auto",
 		ScreenBackground: ScreenBackgroundTheme,

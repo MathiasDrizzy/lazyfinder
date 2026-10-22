@@ -159,10 +159,35 @@ func (m *Model) projectHeader() string {
 	return name + m.actionsText() + strings.Repeat(" ", edgeW)
 }
 
-// projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream.
+// closeButtonW is the width of the close button of the herdr sidebar: the arrow and a space on each side.
+const closeButtonW = 3
+
+// closeButton is the button at the right end of the branch line of the herdr sidebar that closes it, pointing to
+// the edge it is docked at; ok is false outside the plugin or with herdr.close_button off.
+func (m *Model) closeButton() (string, bool) {
+	if m.deps.HerdrHide == nil || !m.deps.Cfg.Herdr.CloseButton || !m.projectMode() || m.w < 2*closeButtonW {
+		return "", false
+	}
+	if m.deps.Cfg.Herdr.Dock == "right" {
+		return " » ", true
+	}
+	return " « ", true
+}
+
+// projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream, and the
+// close button of the herdr sidebar.
 func (m *Model) projectFooter() string {
+	btn, ok := m.closeButton()
+	if !ok {
+		return m.branchFooter(m.w)
+	}
+	return m.branchFooter(m.w-closeButtonW) + m.styles.accent(btn)
+}
+
+// branchFooter is the branch part of that line, w columns wide.
+func (m *Model) branchFooter(w int) string {
 	if !m.git.ok || m.git.st.Branch == "" {
-		return m.styles.dim(fit(" "+i18n.T("sin git", "no git"), m.w))
+		return m.styles.dim(fit(" "+i18n.T("sin git", "no git"), w))
 	}
 	branch := "⎇"
 	if m.icons.Style == icons.Nerd {
@@ -172,7 +197,7 @@ func (m *Model) projectFooter() string {
 	if n := m.git.st.Changed(); n > 0 {
 		l += fmt.Sprintf("  ● %d", n)
 	}
-	return m.styles.accent(fit(l, m.w))
+	return m.styles.accent(fit(l, w))
 }
 
 // clickProjectTab switches to a tab of the project mode.

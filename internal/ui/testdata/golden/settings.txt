@@ -28,12 +28,12 @@
                       │        │   Widen in normal mode                         ‹ yes › │                              │
                       │        │   Preview in herdr                              ‹ no › │                              │
                       │        │   Open in herdr                            ‹ new tab › │                              │
+                      │        │   Close button in herdr                        ‹ yes › │                              │
                       │        │   Side mode (project)                           ‹ no › │                              │
                       │        │   Programs                                       ‹ 1 › │                              │
                       │        │                                                        │                              │
                       │        │ ←/→ change · click: select, 2nd click: change          │                              │
                       │        ╰──────────────────────────────────────────────────[Esc]─╯                              │
-                      │                                                                                                │
                       │                                                                                                │
                       ╰─────────────────────────────────────────────────────────────────────────────────────── 1 of 5 ─╯
 <breadcrumb>

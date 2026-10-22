@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
@@ -156,5 +157,41 @@ func TestThePluginPaneOpensATerminalProgramInANewTab(t *testing.T) {
 	e.m.deps.Cfg.Herdr.OpenIn = "pane"
 	if _, cmd := e.m.Update(keyMsg("enter")); got != nil || cmd == nil {
 		t.Fatalf("open_in pane: herdr %q, hand over %v", got, cmd != nil)
+	}
+}
+
+// Mathias, 2026-10-22: "abajo ... un >> que sirva para esconder la barra completa". The herdr sidebar has a button at
+// the right end of its branch line that closes it as q does; herdr.close_button takes it away.
+func TestTheCloseButtonOfTheHerdrSidebar(t *testing.T) {
+	e := newEnv(t)
+	hidden := 0
+	e.m.deps.HerdrHide = func() { hidden++ }
+	pluginPane(e)
+	e.send(tea.WindowSizeMsg{Width: 28, Height: 30})
+	line := func() string { return strings.TrimRight(e.screen()[e.m.h-2], " ") }
+	if !strings.HasSuffix(line(), "«") {
+		t.Fatalf("no close button on the branch line: %q", line())
+	}
+	e.m.deps.Cfg.Herdr.Dock = "right"
+	if !strings.HasSuffix(line(), "»") {
+		t.Fatalf("docked on the right, the button points right: %q", line())
+	}
+	e.m.deps.Cfg.Herdr.CloseButton = false
+	if strings.ContainsAny(line(), "«»") {
+		t.Fatalf("herdr.close_button off: %q", line())
+	}
+	e.m.deps.Cfg.Herdr.CloseButton = true
+	e.click(e.m.w-2, e.m.h-2)
+	if hidden != 1 || !e.m.quitting {
+		t.Fatalf("hidden %d, quitting %v", hidden, e.m.quitting)
+	}
+}
+
+func TestOutsideHerdrTheBranchLineHasNoCloseButton(t *testing.T) {
+	e := newEnv(t)
+	pluginPane(e)
+	e.send(tea.WindowSizeMsg{Width: 28, Height: 30})
+	if l := e.screen()[e.m.h-2]; strings.ContainsAny(l, "«»") {
+		t.Fatalf("%q", l)
 	}
 }

@@ -496,6 +496,8 @@
  "Widen in normal mode": "Im Normalmodus verbreitern",
  "Preview in herdr": "Vorschau in herdr",
  "Open in herdr": "In herdr öffnen",
+ "Close button in herdr": "Schließen-Knopf in herdr",
+ "Close the sidebar: q": "Seitenleiste schließen: q",
  "new tab": "neuer Tab",
  "same pane": "gleicher Bereich",
  "Opened with %s in a new tab": "Mit %s in einem neuen Tab geöffnet",

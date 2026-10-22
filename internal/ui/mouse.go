@@ -40,6 +40,7 @@ const (
 	zoneScmRow        // a row of the Git tab
 	zoneScmBtn        // a button on a row of the Git tab
 	zoneBranch        // the branch label: opens the branch menu
+	zoneClose         // the close button of the herdr sidebar
 )
 
 // zone is what lies under a screen cell.
@@ -118,6 +119,8 @@ func (m *Model) hit(x, y int) zone {
 		case x >= m.fieldX() && x < m.fieldX()+m.fieldW():
 			return zone{kind: zoneSearch}
 		}
+	case y == m.h-2 && m.onCloseButton(x):
+		return zone{kind: zoneClose}
 	case y == m.h-2 && m.projectMode() && m.git.ok && x < ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")):
 		return zone{kind: zoneBranch}
 	case y == m.h-1 && m.footerShowsHints():
@@ -260,6 +263,8 @@ func (m *Model) clickZone(z zone) tea.Cmd {
 		return m.runAction(z.idx)
 	case zoneMode:
 		return m.switchMode()
+	case zoneClose:
+		return m.quit()
 	case zoneBranch:
 		return m.openGitMenu()
 	case zoneScmBtn:
@@ -383,4 +388,10 @@ func (m *Model) copyText(text, label string) tea.Cmd {
 	}
 	m.setStatus(fmt.Sprintf(i18n.T("Copiado: %s", "Copied %s"), label))
 	return cmd
+}
+
+// onCloseButton says whether column x of the branch line is on the close button of the herdr sidebar.
+func (m *Model) onCloseButton(x int) bool {
+	_, ok := m.closeButton()
+	return ok && x >= m.w-closeButtonW
 }

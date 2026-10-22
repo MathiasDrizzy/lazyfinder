@@ -407,6 +407,7 @@ func TestTheHerdrWidthsAreRowsOfTheSettings(t *testing.T) {
 		{"Widen in normal mode", "‹ yes ›", "‹ no ›", "right", func(h config.Herdr) bool { return !h.FitNormal }},
 		{"Preview in herdr", "‹ no ›", "‹ yes ›", "right", func(h config.Herdr) bool { return h.Preview }},
 		{"Open in herdr", "‹ new tab ›", "‹ same pane ›", "right", func(h config.Herdr) bool { return h.OpenIn == "pane" }},
+		{"Close button in herdr", "‹ yes ›", "‹ no ›", "right", func(h config.Herdr) bool { return !h.CloseButton }},
 	}
 	for _, r := range rows {
 		e.pickSetting(r.label)

@@ -496,6 +496,8 @@
  "Widen in normal mode": "Élargir en mode normal",
  "Preview in herdr": "Aperçu dans herdr",
  "Open in herdr": "Ouvrir dans herdr",
+ "Close button in herdr": "Bouton de fermeture dans herdr",
+ "Close the sidebar: q": "Fermer la barre latérale : q",
  "new tab": "nouvel onglet",
  "same pane": "même volet",
  "Opened with %s in a new tab": "Ouvert avec %s dans un nouvel onglet",

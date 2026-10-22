@@ -39,7 +39,7 @@
     {
       "desc": "Settings fits the window and says where it is",
       "wait": {
-        "regex": "1/27",
+        "regex": "1/28",
         "timeout_ms": 5000
       }
     },
@@ -51,7 +51,7 @@
     {
       "desc": "scrolling to the end shows the last row and its position",
       "wait": {
-        "regex": "27/27",
+        "regex": "28/28",
         "timeout_ms": 5000
       }
     },

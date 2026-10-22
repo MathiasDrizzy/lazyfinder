@@ -21,6 +21,8 @@ All notable changes to this project are documented here. The format follows
 - herdr plugin: a terminal program (an editor, lazygit) opened from the sidebar runs in a new herdr tab, in the
   folder the sidebar shows, and the tab closes when you quit the program (`herdr.open_in`: `tab`, or `pane` for the
   sidebar pane itself). Apps with a window open as before.
+- herdr plugin: a `«` at the bottom right of the sidebar (`»` when it is docked on the right) closes it as `q` does;
+  the toggle action opens it again (`herdr.close_button`, Settings: "Close button in herdr").
 - herdr plugin: `Space` no longer opens the preview in the sidebar, where it flickered; the status line says how to
   turn it on (`herdr.preview`, Settings: "Preview in herdr").
 

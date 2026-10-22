@@ -48,6 +48,7 @@ errors: the app starts with the defaults and shows the problem in the status bar
 | `herdr.min_columns` | The sidebar never stays narrower: dragged below it, it goes back, 22 to 200 (Settings: "Minimum width") | `22` |
 | `herdr.fit_normal` | `true` widens the sidebar to what the normal mode needs when `ctrl+b` leaves the sidebar mode, and gives it its width back when you return (Settings: "Widen in normal mode") | `true` |
 | `herdr.preview` | `true` lets `Space` show the preview in the herdr sidebar too; `false` leaves the preview to lazyfinder outside herdr (Settings: "Preview in herdr") | `false` |
+| `herdr.close_button` | `true` puts a `«` (`»` docked on the right) at the bottom right of the herdr sidebar; a click closes it as `q` does, and the toggle action opens it again (Settings: "Close button in herdr") | `true` |
 | `herdr.open_in` | Where a terminal program (an editor, lazygit) opens from the herdr sidebar: `tab` opens it in a new herdr tab, which closes when you quit the program; `pane` opens it in the sidebar pane itself. Apps with a window open in their window either way (Settings: "Open in herdr") | `tab` |
 | `language` | `auto` (from `LC_ALL`, `LC_MESSAGES`, `LANG`), `en`, `es`, `pt`, `fr`, `de`, `it`, `ja` or `zh` | `auto` |
 | `mouse` | Handle the mouse; `false` leaves it to the terminal | `true` |

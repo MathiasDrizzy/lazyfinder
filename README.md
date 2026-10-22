@@ -88,7 +88,7 @@ Every tab then opens with lazyfinder in sidebar mode on one side and your termin
 the folder of the terminal next to it: `cd` there and the tree moves with you. A folder you open by hand in the
 sidebar stays until the terminal changes folder again. "Sidebar in herdr" in Settings puts it on the left or the right
 of new tabs, and the plugin's **Toggle lazyfinder** action (bind it to a key in herdr) opens, focuses or closes it;
-closed with the action or with q, it stays closed in that tab until the action opens it again, and new tabs still
+closed with the action, with q or with the `«` at its bottom right, it stays closed in that tab until the action opens it again, and new tabs still
 get one. After a restart of herdr every tab gets its sidebar back. Every tab opens it at the same width in columns,
 one for the computer's screen and one for an external monitor ("Width in herdr" and "Width on a monitor" in
 Settings), and it goes back to that width when you plug in or unplug a monitor; a width you drag by hand stays until
