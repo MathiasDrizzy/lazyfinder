@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-22
+
 ### Changed
 
 - herdr plugin: the width of the sidebar is set in columns, not in percent of the tab, so every tab opens it at the
