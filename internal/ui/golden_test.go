@@ -3,6 +3,7 @@ package ui
 import (
 	"flag"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -32,6 +33,7 @@ const goldenCfg = `{
 // column is left out of the config because the file system sets it at copy time.
 func goldenEnv(t *testing.T, w, h int) *env {
 	t.Helper()
+	onlyGitOnPath(t)
 	home := t.TempDir()
 	root := filepath.Join(home, "proj")
 	mtime := time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC)
@@ -157,4 +159,17 @@ func TestGoldenSpanish(t *testing.T) {
 	t.Cleanup(func() { i18n.SetLanguage("en") })
 	e := goldenEnv(t, 120, 40)
 	e.golden("list-es")
+}
+
+// onlyGitOnPath leaves git alone on PATH: Open With lists the terminal editors that are installed, which differ from
+// one machine to the next.
+func onlyGitOnPath(t *testing.T) {
+	t.Helper()
+	bin := t.TempDir()
+	if git, err := exec.LookPath("git"); err == nil {
+		if err := os.Symlink(git, filepath.Join(bin, "git")); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Setenv("PATH", bin)
 }

@@ -40,18 +40,25 @@ func (r Resolver) Resolve(path string) Command {
 	return systemDefault(path)
 }
 
-// Choices lists every opener that can be chosen for path: the configured ones in name order, then the default.
+// Choices lists every opener that can be chosen for path: the programs, then the default.
 func (r Resolver) Choices(path string) []Command {
 	var out []Command
-	for _, n := range r.cfg.OpenerNames() {
+	for _, n := range r.Programs() {
 		out = append(out, r.named(n, path))
 	}
+	return append(out, systemDefault(path))
+}
+
+// Programs names the openers that can be chosen: the configured ones in name order, then the built-in ones that are
+// installed.
+func (r Resolver) Programs() []string {
+	out := r.cfg.OpenerNames()
 	for _, n := range r.cfg.BuiltinNames() {
-		if c := r.named(n, path); appInstalled(c.Argv) {
-			out = append(out, c)
+		if op, _ := r.cfg.Opener(n); Installed(op.Argv) {
+			out = append(out, n)
 		}
 	}
-	return append(out, systemDefault(path))
+	return out
 }
 
 func (r Resolver) named(name, path string) Command {
@@ -167,10 +174,15 @@ var AppExists = func(name string) bool {
 	return false
 }
 
-// appInstalled is false for an "open -a <App>" command whose application is missing; other commands pass.
-func appInstalled(argv []string) bool {
+// Installed says whether the program of argv is there: the application of an "open -a <App>" command, else a command
+// on PATH.
+func Installed(argv []string) bool {
 	if len(argv) >= 3 && argv[0] == "open" && argv[1] == "-a" {
 		return AppExists(argv[2])
 	}
-	return true
+	if len(argv) == 0 {
+		return false
+	}
+	_, err := exec.LookPath(argv[0])
+	return err == nil
 }

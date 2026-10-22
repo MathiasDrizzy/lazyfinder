@@ -65,6 +65,7 @@ func TestChoicesListsConfiguredOpenersAndDefault(t *testing.T) {
 	old := AppExists
 	t.Cleanup(func() { AppExists = old })
 	AppExists = func(string) bool { return false }
+	t.Setenv("PATH", t.TempDir()) // built-in terminal editors are listed only when installed
 	names := []string{}
 	for _, c := range New(cfg()).Choices("/d/a.txt") {
 		names = append(names, c.Name)
@@ -120,6 +121,7 @@ func TestChoicesAddsInstalledBuiltInsAfterTheConfiguredOnes(t *testing.T) {
 	old := AppExists
 	t.Cleanup(func() { AppExists = old })
 	AppExists = func(app string) bool { return app == "TextEdit" }
+	t.Setenv("PATH", t.TempDir()) // no terminal editor installed
 	var names []string
 	for _, c := range New(cfg()).Choices("/d/a.txt") {
 		names = append(names, c.Name)
