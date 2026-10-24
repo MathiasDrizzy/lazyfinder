@@ -198,3 +198,21 @@ func TestOutsideHerdrTheLastLineHasNoCloseButton(t *testing.T) {
 		t.Fatalf("%q", l)
 	}
 }
+
+// Mathias, 2026-10-24: three dots showed between "Salir: q" and the close button although the hints fit.
+func TestTheCloseButtonLeavesNoEllipsisWhenTheHintsFit(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.HerdrHide = func() {}
+	pluginPane(e)
+	for _, w := range []int{28, 40, 80} {
+		e.send(tea.WindowSizeMsg{Width: w, Height: 30})
+		if l := e.screen()[e.m.h-1]; strings.Contains(l, "…") {
+			t.Fatalf("width %d: %q", w, l)
+		}
+	}
+	e.send(tea.WindowSizeMsg{Width: 28, Height: 30})
+	e.m.status = "a status that is far longer than the sidebar can hold at all"
+	if l := e.screen()[e.m.h-1]; !strings.HasSuffix(strings.TrimRight(l, " "), "«") {
+		t.Fatalf("a long status hides the button: %q", l)
+	}
+}

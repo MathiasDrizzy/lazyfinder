@@ -834,7 +834,7 @@ func (m *Model) footerRow() string {
 	if !ok {
 		return m.footerBar()
 	}
-	return fit(m.footerBar(), m.w-closeButtonW) + m.styles.accent(btn)
+	return ansi.Truncate(m.footerBar(), m.footerW(), "") + m.styles.accent(btn)
 }
 
 // footerW is the width the last line leaves to the footerBar.
@@ -848,33 +848,33 @@ func (m *Model) footerW() int {
 func (m *Model) footerBar() string {
 	if m.prompt.kind != promptNone {
 		if m.status != "" && m.statusErr {
-			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.footerW()))
 		}
 		return m.promptBar()
 	}
 	if m.goto_.open {
 		if m.status != "" && m.statusErr {
-			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.footerW()))
 		}
 		return m.gotoBar()
 	}
 	if m.searchOn() {
 		if m.status != "" && m.statusErr {
-			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.footerW()))
 		}
 		if m.status != "" {
-			return fit(" "+m.status, m.w)
+			return fit(" "+m.status, m.footerW())
 		}
 		return m.searchBar()
 	}
 	if m.status != "" {
 		if m.statusErr {
-			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.w))
+			return m.styles.errText(fit(" "+i18n.T("Error: ", "Error: ")+m.status, m.footerW()))
 		}
-		return fit(" "+m.status, m.w)
+		return fit(" "+m.status, m.footerW())
 	}
 	line, _ := m.footerHints()
-	return fit(line, m.w)
+	return fit(line, m.footerW())
 }
 
 // hintSpan is a key hint of the bottom row and the action a click on it runs.
