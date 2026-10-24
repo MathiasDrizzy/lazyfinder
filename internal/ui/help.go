@@ -71,30 +71,64 @@ func (m *Model) helpRows() []helpRow {
 	}
 }
 
-const helpInner = 96
+const (
+	helpInner  = 96
+	helpKeysW  = 24 // the column of the keys when the popup is wide enough to hold two
+	helpWideAt = 60 // under this inner width the text goes under its keys, as the herdr sidebar is that narrow
+)
 
-func (m *Model) helpRowsShown() int { return max(3, min(len(m.helpRows()), m.h-6)) }
+// helpInnerW is the width of the text of the popup.
+func (m *Model) helpInnerW() int { return min(helpInner, m.w-6) }
 
-func (m *Model) helpBox() (x, y int, lines []string) {
-	rows := m.helpRows()
-	n := m.helpRowsShown()
-	top := max(0, min(m.help.top, len(rows)-n))
-	iw := min(helpInner, m.w-6)
-	content := make([]string, 0, n)
-	for _, r := range rows[top : top+n] {
+// helpLines writes the help to the width of the popup: the keys and the text side by side when they fit, else the text
+// under its keys. Whatever is long wraps, so no line is cut.
+func (m *Model) helpLines() []string {
+	iw := m.helpInnerW()
+	wide := iw >= helpWideAt
+	var out []string
+	for _, r := range m.helpRows() {
 		if r.keys == "" {
-			content = append(content, m.styles.accent(r.what))
+			out = append(out, m.styles.accent(ansi.Truncate(r.what, iw, "…")))
 			continue
 		}
-		keys := ansi.Truncate(r.keys, 22, "…")
-		content = append(content, "  "+keys+spaces(max(1, 24-ansi.StringWidth(keys)))+r.what)
+		if !wide {
+			out = append(out, "  "+ansi.Truncate(r.keys, max(1, iw-2), "…"))
+			for _, l := range wrapText(r.what, max(1, iw-4)) {
+				out = append(out, "    "+l)
+			}
+			continue
+		}
+		keys := ansi.Truncate(r.keys, helpKeysW-2, "…")
+		for i, l := range wrapText(r.what, max(1, iw-helpKeysW)) {
+			if i == 0 {
+				out = append(out, "  "+keys+spaces(max(1, helpKeysW-2-ansi.StringWidth(keys)))+l)
+				continue
+			}
+			out = append(out, spaces(helpKeysW)+l)
+		}
 	}
+	return out
+}
+
+// wrapText breaks s into lines of at most w cells, at spaces.
+func wrapText(s string, w int) []string {
+	return strings.Split(ansi.Wrap(s, w, ""), "\n")
+}
+
+func (m *Model) helpRowsShown() int { return max(3, min(len(m.helpLines()), m.h-6)) }
+
+func (m *Model) helpBox() (x, y int, lines []string) {
+	all := m.helpLines()
+	n := m.helpRowsShown()
+	top := max(0, min(m.help.top, len(all)-n))
+	iw := m.helpInnerW()
+	content := all[top : top+n]
 	x, y = (m.w-iw-4)/2, (m.h-n-2)/2
 	return x, y, m.box(i18n.T("Ayuda", "Help"), content, iw)
 }
 
 func (m *Model) helpKey(key string, act keymap.Action) tea.Cmd {
-	n := len(m.helpRows()) - m.helpRowsShown()
+	n := len(m.helpLines()) - m.helpRowsShown()
 	switch {
 	case act == keymap.Quit:
 		return m.quit()
