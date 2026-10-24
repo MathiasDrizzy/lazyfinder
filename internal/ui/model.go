@@ -143,6 +143,7 @@ type Model struct {
 	treeDirs     []string        // the expanded folders that are on screen now
 	fresh        map[string]bool // names that appeared while we looked at this folder
 	git          gitState
+	gitSig       string // gitDirSignature at the last scan
 	hideIgnored  bool
 	search       searchState
 	goto_        gotoState

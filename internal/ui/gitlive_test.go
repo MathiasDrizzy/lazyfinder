@@ -10,6 +10,7 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/MathiasDrizzy/lazyfinder/internal/git"
 	"github.com/MathiasDrizzy/lazyfinder/internal/watch"
 )
 
@@ -245,4 +246,28 @@ func (e *env) hasRow(name string) bool {
 		}
 	}
 	return false
+}
+
+// A change of the .git folder that left it as it was (git reading its own index, a touch) must not run git again:
+// that loop kept every sidebar at 7-11% CPU. A real change (git add) still refreshes the marks.
+func TestAnUnchangedGitDirDoesNotRunGitAgain(t *testing.T) {
+	e, _ := realEnv(t)
+	repo(t, e)
+	e.send(dirChangedMsg{dir: e.root})
+	reads := 0
+	prev := readGit
+	readGit = func(dir string) (git.Status, bool, error) { reads++; return prev(dir) }
+	t.Cleanup(func() { readGit = prev })
+	gitDir := e.m.gitDir() // the repository is found through its real path
+	for range 3 {
+		e.send(dirChangedMsg{dir: gitDir})
+	}
+	if reads != 0 {
+		t.Fatalf("git ran %d times for a .git folder that did not change", reads)
+	}
+	e.git("add", "loose.txt")
+	e.send(dirChangedMsg{dir: gitDir})
+	if reads == 0 || !e.rowHas("loose.txt", "A")() {
+		t.Fatalf("git add must refresh the marks (reads %d):\n%s", reads, e.text())
+	}
 }

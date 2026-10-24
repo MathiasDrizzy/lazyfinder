@@ -1,8 +1,10 @@
 package ui
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
@@ -67,6 +69,9 @@ func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 		return next
 	}
 	if msg.dir != "" && msg.dir == m.gitDir() { // git itself changed: the letters and the branch, not the list
+		if sig := gitDirSignature(msg.dir); sig == m.gitSig {
+			return next // git only read its files: scanning again would read them again
+		}
 		return tea.Batch(next, m.reload()) // reading the list again scans git again
 	}
 	if _, err := os.Stat(msg.dir); err != nil {
@@ -115,13 +120,32 @@ func (m *Model) leaveVanished() tea.Cmd {
 
 func (m *Model) isFresh(path string) bool { return m.fresh[path] }
 
+// readGit reads a repository; a test swaps it to count the reads.
+var readGit = git.Read
+
+// gitDirSignature fingerprints the files of the .git folder (names, sizes, modification times): the watcher fires for
+// the folder when git only reads its index, and the marks do not change then.
+func gitDirSignature(dir string) string {
+	es, err := os.ReadDir(dir)
+	if err != nil {
+		return ""
+	}
+	var b strings.Builder
+	for _, e := range es {
+		if fi, err := e.Info(); err == nil && !fi.IsDir() {
+			fmt.Fprintf(&b, "%s|%d|%d;", e.Name(), fi.Size(), fi.ModTime().UnixNano())
+		}
+	}
+	return b.String()
+}
+
 // scanGit refreshes the repository status for dir; outside a repository, or with git turned off, ok stays false.
 func (m *Model) scanGit(dir string) {
 	m.git = gitState{}
 	if !m.deps.Cfg.Git.Enabled {
 		return
 	}
-	st, ok, err := git.Read(dir)
+	st, ok, err := readGit(dir)
 	if err != nil { // the repository is not read at all (an old git, a timeout): say why the marks are gone
 		m.setError(err)
 		return
@@ -131,6 +155,7 @@ func (m *Model) scanGit(dir string) {
 		if m.projectMode() && m.projTab == tabGit {
 			m.git.stashes, _ = git.Stashes(st.Root)
 		}
+		m.gitSig = gitDirSignature(m.gitDir())
 	}
 }
 
