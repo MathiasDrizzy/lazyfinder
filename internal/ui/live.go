@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/fsmodel"
@@ -70,8 +71,17 @@ func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 	}
 	if msg.dir != "" && msg.dir == m.gitDir() { // git itself changed: the letters and the branch, not the list
 		if sig := gitDirSignature(msg.dir); sig == m.gitSig {
-			return next // git only read its files: scanning again would read them again
+			m.gitRescan = false // a read that was waiting has nothing left to read
+			return next         // git only read its files: scanning again would read them again
 		}
+		if wait := m.deps.GitMinGap - m.deps.Now().Sub(m.gitScanAt); wait > 0 {
+			if m.gitRescan {
+				return next // the read that waits will see this change too
+			}
+			m.gitRescan = true
+			return tea.Batch(next, tea.Tick(wait, func(time.Time) tea.Msg { return dirChangedMsg{dir: msg.dir} }))
+		}
+		m.gitRescan = false
 		return tea.Batch(next, m.reload()) // reading the list again scans git again
 	}
 	if _, err := os.Stat(msg.dir); err != nil {
@@ -156,6 +166,7 @@ func (m *Model) scanGit(dir string) {
 			m.git.stashes, _ = git.Stashes(st.Root)
 		}
 		m.gitSig = gitDirSignature(m.gitDir())
+		m.gitScanAt = m.deps.Now()
 	}
 }
 

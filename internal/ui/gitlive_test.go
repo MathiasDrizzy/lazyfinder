@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -269,5 +270,35 @@ func TestAnUnchangedGitDirDoesNotRunGitAgain(t *testing.T) {
 	e.send(dirChangedMsg{dir: gitDir})
 	if reads == 0 || !e.rowHas("loose.txt", "A")() {
 		t.Fatalf("git add must refresh the marks (reads %d):\n%s", reads, e.text())
+	}
+}
+
+// Whatever wakes the watcher, git is read at most once per Deps.GitMinGap; the changes that arrive meanwhile are read
+// once, when it ends, so nothing is lost and a loop like the one of .git/index cannot take the CPU again.
+func TestGitIsReadAtMostOncePerMinGap(t *testing.T) {
+	e, _ := realEnv(t)
+	e.m.deps.GitMinGap = time.Second
+	repo(t, e)
+	e.send(dirChangedMsg{dir: e.root})
+	reads := 0
+	prev := readGit
+	readGit = func(dir string) (git.Status, bool, error) { reads++; return prev(dir) }
+	t.Cleanup(func() { readGit = prev })
+	gitDir := e.m.gitDir()
+	burst := func() {
+		for i := range 20 {
+			e.touch(filepath.Join(".git", "probe"+strconv.Itoa(i)), "x") // each one changes the folder for real
+			e.m.Update(dirChangedMsg{dir: gitDir})
+		}
+	}
+	e.now = e.now.Add(2 * time.Second) // the last scan is old: the first change reads at once
+	burst()
+	if reads != 1 {
+		t.Fatalf("a burst of 20 changes read git %d times, want 1", reads)
+	}
+	e.now = e.now.Add(2 * time.Second)
+	e.m.Update(dirChangedMsg{dir: gitDir}) // the trailing read, when the gap is over
+	if reads != 2 {
+		t.Fatalf("the changes of the burst were not read once the gap ended (reads %d)", reads)
 	}
 }

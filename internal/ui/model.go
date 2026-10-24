@@ -37,14 +37,16 @@ const (
 
 // Deps are the collaborators of the model; tests replace them.
 type Deps struct {
-	Home    string
-	Start   string
-	Cfg     config.Config
-	Runner  opener.Runner
-	Now     func() time.Time
-	Wake    func(d time.Duration) tea.Cmd // sends actionsFadeMsg after d; nil uses a real timer (tests pass their own)
-	NoColor bool
-	Watcher watch.Watcher // nil: nothing is followed
+	Home   string
+	Start  string
+	Cfg    config.Config
+	Runner opener.Runner
+	Now    func() time.Time
+	// GitMinGap is the least time between two reads of git caused by a change of the .git folder; zero reads at once.
+	GitMinGap time.Duration
+	Wake      func(d time.Duration) tea.Cmd // sends actionsFadeMsg after d; nil uses a real timer (tests pass their own)
+	NoColor   bool
+	Watcher   watch.Watcher // nil: nothing is followed
 
 	// Probe and Raster are the external tools previews may use for media facts and PDF pages (nil: none).
 	// ContentFind lists files containing a text for the in: search filter (ripgrep); nil uses the native scan.
@@ -144,6 +146,8 @@ type Model struct {
 	fresh        map[string]bool // names that appeared while we looked at this folder
 	git          gitState
 	gitSig       string // gitDirSignature at the last scan
+	gitScanAt    time.Time
+	gitRescan    bool // a read of git is waiting for GitMinGap to end
 	hideIgnored  bool
 	search       searchState
 	goto_        gotoState
