@@ -152,7 +152,7 @@ func (w *FS) readLoop() {
 			if !ok {
 				return
 			}
-			if noise(filepath.Base(ev.Name)) {
+			if noise(filepath.Base(ev.Name)) || readOnlyTouch(ev) {
 				continue
 			}
 			w.mark(filepath.Dir(ev.Name))
@@ -246,6 +246,13 @@ func (w *FS) flush() {
 }
 
 // noise reports names that editors and the system churn and that never matter to a listing.
+// readOnlyTouch says whether ev is only an attribute change of a file in a .git folder. Reading .git/index, as every
+// git status does, updates its access time and kqueue reports that as a Chmod: reloading the folder for it ran git
+// again, which read the index again, without end. What git really changes arrives as a write, a create or a rename.
+func readOnlyTouch(ev fsnotify.Event) bool {
+	return ev.Op == fsnotify.Chmod && filepath.Base(filepath.Dir(ev.Name)) == ".git"
+}
+
 func noise(name string) bool {
 	switch {
 	case name == ".DS_Store":

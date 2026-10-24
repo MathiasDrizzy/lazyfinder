@@ -202,3 +202,39 @@ func TestCloseWhileAnEventIsBeingFlushedIsRaceFree(t *testing.T) {
 		_ = w.Close()
 	}
 }
+
+// Reading .git/index (what `git status` does) makes kqueue report an attribute change of it, which reloaded the
+// folder and ran git again, forever: 130 events in 12 s, all of them Chmod on .git/index.
+func TestAttributeChangesInTheGitDirAreNotEvents(t *testing.T) {
+	gitDir := filepath.Join(t.TempDir(), ".git")
+	if err := os.Mkdir(gitDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write(t, filepath.Join(gitDir, "index"))
+	w := newFS(t, fastOptions())
+	if err := w.Watch(gitDir); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(filepath.Join(gitDir, "index"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.ReadFile(filepath.Join(gitDir, "index")); err != nil {
+		t.Fatal(err)
+	}
+	expectQuiet(t, w, 300*time.Millisecond)
+	write(t, filepath.Join(gitDir, "HEAD")) // what git really changes still wakes the watcher
+	expectEvent(t, w, gitDir)
+}
+
+func TestAttributeChangesOutsideTheGitDirAreEvents(t *testing.T) {
+	dir := t.TempDir()
+	write(t, filepath.Join(dir, "a.txt"))
+	w := newFS(t, fastOptions())
+	if err := w.Watch(dir); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(filepath.Join(dir, "a.txt"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	expectEvent(t, w, dir)
+}
