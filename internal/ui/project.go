@@ -162,7 +162,7 @@ func (m *Model) projectHeader() string {
 // closeButtonW is the width of the close button of the herdr sidebar: the arrow and a space on each side.
 const closeButtonW = 3
 
-// closeButton is the button at the right end of the branch line of the herdr sidebar that closes it, pointing to
+// closeButton is the button at the right end of the last line of the herdr sidebar that closes it, pointing to
 // the edge it is docked at; ok is false outside the plugin or with herdr.close_button off.
 func (m *Model) closeButton() (string, bool) {
 	if m.deps.HerdrHide == nil || !m.deps.Cfg.Herdr.CloseButton || !m.projectMode() || m.w < 2*closeButtonW {
@@ -174,14 +174,9 @@ func (m *Model) closeButton() (string, bool) {
 	return " « ", true
 }
 
-// projectFooter is the bottom line of the project mode: the branch, and how far it is from its upstream, and the
-// close button of the herdr sidebar.
+// projectFooter is the line above the key hints in the project mode: the branch, and how far it is from its upstream.
 func (m *Model) projectFooter() string {
-	btn, ok := m.closeButton()
-	if !ok {
-		return m.branchFooter(m.w)
-	}
-	return m.branchFooter(m.w-closeButtonW) + m.styles.accent(btn)
+	return m.branchFooter(m.w)
 }
 
 // branchFooter is the branch part of that line, w columns wide.

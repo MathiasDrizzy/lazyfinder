@@ -162,7 +162,7 @@ type Herdr struct {
 	FitNormal       bool   `json:"fit_normal"`   // widen it to what the normal mode needs when ctrl+b leaves the sidebar mode
 	Preview         bool   `json:"preview"`      // Space shows the preview in the sidebar of herdr too
 	OpenIn          string `json:"open_in"`      // where a terminal program opens from that sidebar: tab (a new tab of herdr) or pane
-	CloseButton     bool   `json:"close_button"` // a « at the bottom of that sidebar closes it, as q does
+	CloseButton     bool   `json:"close_button"` // a « at the right end of its last line closes it, as q does
 	// OldWidth is the width in percent of the tab that Columns replaced; read so an old config.json still loads, and
 	// not used.
 	OldWidth int `json:"width,omitempty"`

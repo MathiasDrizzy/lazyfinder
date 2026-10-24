@@ -451,7 +451,7 @@ func (m *Model) baseScreen() ([]string, func([]string, []string, int, int) []str
 	if m.searchOn() {
 		lines[m.h-2], _ = m.filterBar()
 	}
-	lines[m.h-1] = m.footerBar()
+	lines[m.h-1] = m.footerRow()
 	if m.popupsKeepTerminalBackground() {
 		lines = strings.Split(m.paint(strings.Join(lines, "\n")), "\n")
 		after := theme.BackgroundSeq(m.styles.bg)
@@ -828,6 +828,23 @@ func keyLabel(k string) string {
 	return k
 }
 
+// footerRow is the last line: the footerBar, and at its right end the close button of the herdr sidebar.
+func (m *Model) footerRow() string {
+	btn, ok := m.closeButton()
+	if !ok {
+		return m.footerBar()
+	}
+	return fit(m.footerBar(), m.w-closeButtonW) + m.styles.accent(btn)
+}
+
+// footerW is the width the last line leaves to the footerBar.
+func (m *Model) footerW() int {
+	if _, ok := m.closeButton(); ok {
+		return m.w - closeButtonW
+	}
+	return m.w
+}
+
 func (m *Model) footerBar() string {
 	if m.prompt.kind != promptNone {
 		if m.status != "" && m.statusErr {
@@ -896,7 +913,7 @@ func (m *Model) footerHints() (string, []hintSpan) {
 		return line, ansi.StringWidth(line), spans
 	}
 	for skip := 0; skip < len(items); skip++ {
-		if line, w, spans := build(skip); w <= m.w {
+		if line, w, spans := build(skip); w <= m.footerW() {
 			return line, spans
 		}
 	}

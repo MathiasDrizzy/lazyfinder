@@ -119,7 +119,7 @@ func (m *Model) hit(x, y int) zone {
 		case x >= m.fieldX() && x < m.fieldX()+m.fieldW():
 			return zone{kind: zoneSearch}
 		}
-	case y == m.h-2 && m.onCloseButton(x):
+	case y == m.h-1 && m.onCloseButton(x):
 		return zone{kind: zoneClose}
 	case y == m.h-2 && m.projectMode() && m.git.ok && x < ansi.StringWidth(strings.TrimRight(ansi.Strip(m.projectFooter()), " ")):
 		return zone{kind: zoneBranch}
@@ -390,7 +390,7 @@ func (m *Model) copyText(text, label string) tea.Cmd {
 	return cmd
 }
 
-// onCloseButton says whether column x of the branch line is on the close button of the herdr sidebar.
+// onCloseButton says whether column x of the last line is on the close button of the herdr sidebar.
 func (m *Model) onCloseButton(x int) bool {
 	_, ok := m.closeButton()
 	return ok && x >= m.w-closeButtonW
