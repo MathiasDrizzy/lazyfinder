@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.3] - 2026-10-24
+
+### Changed
+
+- herdr plugin: while the close button `«` shows, the key hints no longer list `Quit`, since the button does the same.
+
+### Fixed
+
+- herdr plugin: the tooltip of the close button no longer covers the button.
+
 ## [0.16.2] - 2026-10-24
 
 ### Fixed
