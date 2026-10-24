@@ -888,6 +888,15 @@ func (m *Model) footerHints() (string, []hintSpan) {
 	items := footerItems
 	if m.projectMode() {
 		items = projectFooterItems
+		if _, ok := m.closeButton(); ok {
+			// The close button does what Quit does, so the hints leave it out.
+			items = slices.DeleteFunc(slices.Clone(items), func(it struct {
+				action keymap.Action
+				label  func() string
+			}) bool {
+				return it.action == keymap.Quit
+			})
+		}
 	}
 	build := func(skip int) (string, int, []hintSpan) {
 		var parts []string

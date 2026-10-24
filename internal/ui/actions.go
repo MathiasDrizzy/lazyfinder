@@ -224,7 +224,11 @@ func projectTabLabel(t projectTab) string {
 
 func (m *Model) withTooltip(lines []string) []string {
 	if t := m.tooltip(); t != "" && len(lines) > 0 {
-		lines[len(lines)-1] = m.styles.accent(fit(t, m.w))
+		last := m.styles.accent(fit(t, m.footerW()))
+		if btn, ok := m.closeButton(); ok {
+			last += m.styles.accent(btn) // the tooltip says what the button does, so it must not cover it
+		}
+		lines[len(lines)-1] = last
 	}
 	return lines
 }

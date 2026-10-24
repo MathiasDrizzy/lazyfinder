@@ -216,3 +216,26 @@ func TestTheCloseButtonLeavesNoEllipsisWhenTheHintsFit(t *testing.T) {
 		t.Fatalf("a long status hides the button: %q", l)
 	}
 }
+
+// Mathias, 2026-10-24: "dos botones redundantes ... Salir: q y « ... que no lo tapen". The button is the way to close
+// the sidebar, so the hints no longer list Quit while it shows, and the tooltip of the button leaves it in view.
+func TestTheCloseButtonReplacesTheQuitHintAndStaysUnderItsTooltip(t *testing.T) {
+	e := newEnv(t)
+	e.m.deps.HerdrHide = func() {}
+	pluginPane(e)
+	e.send(tea.WindowSizeMsg{Width: 40, Height: 30})
+	last := func() string { return strings.TrimRight(e.screen()[e.m.h-1], " ") }
+	if strings.Contains(last(), "Quit") {
+		t.Fatalf("the hints still list Quit beside the button: %q", last())
+	}
+	e.move(e.m.w-2, e.m.h-1)
+	if l := last(); !strings.Contains(l, "Close the sidebar: q") || !strings.HasSuffix(l, "«") {
+		t.Fatalf("the tooltip hides the button: %q", l)
+	}
+	e.move(0, 0)
+	e.m.deps.Cfg.Herdr.CloseButton = false
+	e.send(tea.WindowSizeMsg{Width: 40, Height: 30})
+	if !strings.Contains(last(), "Quit: q") {
+		t.Fatalf("without the button the hints keep Quit: %q", last())
+	}
+}
