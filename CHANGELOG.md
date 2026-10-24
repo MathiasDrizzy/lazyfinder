@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.5] - 2026-10-24
+
+### Fixed
+
+- An idle sidebar in a git repository used 7-11% CPU: reading `.git/index` made the file watcher fire, which ran
+  `git status`, which read the index again. Attribute-only events of the files in `.git` are ignored, a `.git` folder
+  that did not change is not read again, and git is read at most once per second when `.git` changes (ADR 0021).
+
 ## [0.16.4] - 2026-10-24
 
 ### Fixed
