@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.4] - 2026-10-24
+
+### Fixed
+
+- The help (`?`) in a narrow window, such as the herdr sidebar, showed only the keys and an ellipsis where the text goes.
+  The text now goes under its keys and wraps; in a wide window a long text wraps instead of being cut.
+
 ## [0.16.3] - 2026-10-24
 
 ### Changed
