@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-10-24
+
+### Changed
+
+- herdr plugin: the close button `«` (`»` when docked on the right) moved to the right end of the last line of the
+  sidebar, beside the key hints, instead of the branch line.
+
 ## [0.16.0] - 2026-10-22
 
 ### Changed
