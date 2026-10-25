@@ -19,14 +19,15 @@ poll, used 0.1%.
   (`gitDirSignature`).
 * Whatever the cause, git is read at most once per `Deps.GitMinGap` (one second) when `.git` changes; the changes that
   arrive in between are read once, when the gap ends.
-* Not done, on purpose:
-  * Caching the settings that `readOnly` reads (`internal/git/trust.go`) between reads. A read is three git processes
-    (`rev-parse`, `config`, `status`); with the three changes above it happens only when something changed. Keying a
-    cache on `.git/config` would miss included files, a worktree config and a changed global config, and that check is
-    what keeps a hostile repository from running its own filters (ADR 0019); one process less is not worth that risk.
-  * A slower herdr poll. It is one call over a unix socket every 500 ms; measured, it costs nothing in lazyfinder and about
-    1% of one core in the herdr server for eight sidebars. A slower poll would delay the sidebar following a `cd` for
-    that saving; the focus of a pane in a tab you are not looking at is not known to the sidebar.
+* The herdr poll asks every 500 ms while the folder of the other pane changes or the user is in the sidebar, and every
+  second once 20 answers in a row did not change (`herdrDelay`). It is one call over a unix socket; measured, it costs
+  nothing in lazyfinder and about 1% of one core in the herdr server for eight sidebars, so the backoff only halves
+  that. A slower fixed poll was rejected: it would delay the sidebar following a `cd` all the time.
+* Not done, on purpose: caching the settings that `readOnly` reads (`internal/git/trust.go`) between reads. A read is three
+  git processes (`rev-parse`, `config`, `status`) and, with the changes above, happens only when something changed. A
+  cache keyed on `.git/config` would miss an include that did not exist yet, a worktree config and a changed global
+  config, and that check is what keeps a hostile repository from running its own filters (ADR 0019); one process less
+  is not worth that risk.
 
 ## Consequences
 
