@@ -239,3 +239,34 @@ func TestTheCloseButtonReplacesTheQuitHintAndStaysUnderItsTooltip(t *testing.T) 
 		t.Fatalf("without the button the hints keep Quit: %q", last())
 	}
 }
+
+// ADR 0021: eight sidebars asked herdr twice a second for ever. The poll slows down while the answer does not change,
+// and is quick again when it does, or when the user touches the sidebar.
+func TestTheHerdrPollSlowsDownWhileNothingChanges(t *testing.T) {
+	e := newEnv(t)
+	other := filepath.Join(e.root, "sub")
+	if err := os.MkdirAll(other, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	e.m.deps.HerdrDir = func() string { return e.root }
+	if d := e.m.herdrDelay(); d != herdrPoll {
+		t.Fatalf("a new sidebar polls every %v, want %v", d, herdrPoll)
+	}
+	for range herdrQuietPolls + 1 {
+		e.m.Update(herdrDirMsg{dir: e.root})
+	}
+	if d := e.m.herdrDelay(); d != herdrSlowPoll {
+		t.Fatalf("after %d answers that did not change: %v, want %v", herdrQuietPolls+1, d, herdrSlowPoll)
+	}
+	e.m.Update(herdrDirMsg{dir: other}) // the pane next to it went to another folder
+	if d := e.m.herdrDelay(); d != herdrPoll {
+		t.Fatalf("a folder that changed: %v, want %v", d, herdrPoll)
+	}
+	for range herdrQuietPolls + 1 {
+		e.m.Update(herdrDirMsg{dir: other})
+	}
+	e.m.Update(tea.KeyPressMsg{Code: tea.KeyDown}) // the user is here
+	if d := e.m.herdrDelay(); d != herdrPoll {
+		t.Fatalf("a key press: %v, want %v", d, herdrPoll)
+	}
+}

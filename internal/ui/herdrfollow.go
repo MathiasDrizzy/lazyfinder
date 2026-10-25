@@ -10,6 +10,21 @@ import (
 // herdrPoll is how often the pane of the herdr plugin asks herdr for the folder of the pane next to it.
 const herdrPoll = 500 * time.Millisecond
 
+const (
+	// herdrSlowPoll is how often it asks once herdrQuietPolls answers in a row did not change.
+	herdrSlowPoll   = time.Second
+	herdrQuietPolls = 20
+)
+
+// herdrDelay is the time to the next question to herdr: quick while the folder of the other pane changes or the user
+// is here, slower when nothing has changed for a while (eight sidebars, one per tab, ask all day).
+func (m *Model) herdrDelay() time.Duration {
+	if m.herdrQuiet >= herdrQuietPolls {
+		return herdrSlowPoll
+	}
+	return herdrPoll
+}
+
 // herdrDirMsg carries the folder of the herdr pane next to the sidebar.
 type herdrDirMsg struct{ dir string }
 
@@ -28,10 +43,12 @@ func (m *Model) pollHerdr(d time.Duration) tea.Cmd {
 // followHerdr goes to the folder of the pane next to the sidebar when it changed since the last answer, so a folder
 // picked by hand stays until that pane changes folder.
 func (m *Model) followHerdr(dir string) tea.Cmd {
-	next := m.pollHerdr(herdrPoll)
 	if dir == "" || dir == m.herdrSeen {
-		return next
+		m.herdrQuiet++
+		return m.pollHerdr(m.herdrDelay())
 	}
+	m.herdrQuiet = 0
+	next := m.pollHerdr(herdrPoll)
 	if fi, err := os.Stat(dir); err != nil || !fi.IsDir() {
 		return next
 	}

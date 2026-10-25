@@ -146,6 +146,7 @@ type Model struct {
 	fresh        map[string]bool // names that appeared while we looked at this folder
 	git          gitState
 	gitSig       string // gitDirSignature at the last scan
+	herdrQuiet   int    // answers of herdr in a row that did not change the folder
 	gitScanAt    time.Time
 	gitRescan    bool // a read of git is waiting for GitMinGap to end
 	hideIgnored  bool
@@ -527,9 +528,11 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case actionsFadeMsg:
 		return m, m.fadeActions()
 	case tea.KeyPressMsg:
+		m.herdrQuiet = 0
 		m.hover.on = false // the keyboard takes over from the pointer
 		return m, m.onKey(msg)
 	case tea.MouseClickMsg:
+		m.herdrQuiet = 0
 		return m, m.onClick(msg)
 	case tea.MouseWheelMsg:
 		return m, m.onWheel(msg)
