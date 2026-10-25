@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.6] - 2026-10-25
+
+### Changed
+
+- herdr plugin: the sidebar asks herdr for the folder of the pane next to it every second, not every 500 ms, once 20
+  answers in a row did not change; it goes back to 500 ms when the folder changes or you press a key or click (ADR 0021).
+
 ## [0.16.5] - 2026-10-24
 
 ### Fixed
