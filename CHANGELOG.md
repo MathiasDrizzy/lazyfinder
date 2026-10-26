@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- herdr plugin: an agent pane (Claude, for one) can carry the title `lazyfinder` when a plugin names panes after their
+  folder. The plugin took it for the sidebar, so the toggle closed it and no sidebar was docked in that tab. A pane that
+  runs an agent is never the sidebar now.
+
 ## [0.16.6] - 2026-10-25
 
 ### Changed

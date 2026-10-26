@@ -89,7 +89,7 @@ func Startup(c Client, e Env, s Settings) error {
 func restoredTabs(panes []Pane) []string {
 	var tabs []string
 	for _, p := range panes {
-		if p.Label == Label && !slices.Contains(tabs, p.Tab) {
+		if p.titled() && !slices.Contains(tabs, p.Tab) {
 			tabs = append(tabs, p.Tab)
 		}
 	}
@@ -114,7 +114,7 @@ func Hide(c Client, e Env, pane string) error {
 // it is not a sidebar, and it would keep the tab from getting one.
 func sidebarOf(c Client, panes []Pane, tab string) (Pane, bool, error) {
 	for _, p := range panes {
-		if p.Tab != tab || p.Label != Label {
+		if p.Tab != tab || !p.titled() {
 			continue
 		}
 		restored, err := c.Restored(p.ID)

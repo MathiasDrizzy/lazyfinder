@@ -68,7 +68,7 @@ func tabOfWorkspace(panes []Pane, ws string) string {
 // Sidebar is the lazyfinder pane of a tab.
 func Sidebar(panes []Pane, tab string) (Pane, bool) {
 	for _, p := range panes {
-		if p.Tab == tab && p.Label == Label {
+		if p.Tab == tab && p.titled() {
 			return p, true
 		}
 	}
@@ -80,7 +80,7 @@ func Sidebar(panes []Pane, tab string) (Pane, bool) {
 func Anchor(panes []Pane, tab string) (Pane, bool) {
 	var first *Pane
 	for i, p := range panes {
-		if p.Tab != tab || p.Label == Label {
+		if p.Tab != tab || p.titled() {
 			continue
 		}
 		if p.Focused {

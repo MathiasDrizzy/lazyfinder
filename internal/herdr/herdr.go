@@ -35,7 +35,12 @@ type Pane struct {
 	Cwd           string `json:"cwd"`
 	ForegroundCwd string `json:"foreground_cwd"`
 	Label         string `json:"label"`
+	Agent         string `json:"agent"` // the coding agent running in the pane, if herdr detected one
 }
+
+// titled is true when p carries the title of the sidebar and can be it. A pane that runs an agent never is: plugins
+// that name panes after their folder give the pane of the agent working in the lazyfinder folder that same title.
+func (p Pane) titled() bool { return p.Label == Label && p.Agent == "" }
 
 // Dir is the folder the pane is in: the one of the program in front (a shell after cd), else the pane's own.
 func (p Pane) Dir() string {

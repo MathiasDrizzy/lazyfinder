@@ -322,3 +322,46 @@ func TestTheMarkOfATabThatIsGoneIsForgotten(t *testing.T) {
 		t.Fatal("the mark of a tab that no longer exists stayed")
 	}
 }
+
+// An agent pane is named after its folder by some plugins, so it can carry the title of the sidebar. It is not the
+// sidebar: the toggle must never close it, and the tab still needs a sidebar of its own.
+func agentTitledLikeTheSidebar() *fakeHerdr {
+	f := newFake()
+	f.panes[0].Label, f.panes[0].Agent = Label, "claude"
+	return f
+}
+
+func TestToggleNeverClosesAnAgentPaneTitledLikeTheSidebar(t *testing.T) {
+	f := agentTitledLikeTheSidebar()
+	if err := Toggle(f.serve(t), envFor(t), left); err != nil {
+		t.Fatal(err)
+	}
+	got := f.log()
+	if strings.Contains(got, "pane.close") || strings.Contains(got, "tab.close") {
+		t.Fatalf("closed the agent pane:\n%s", got)
+	}
+	if !strings.Contains(got, "plugin.pane.open") {
+		t.Fatalf("no sidebar was opened:\n%s", got)
+	}
+}
+
+func TestEnsureStillDocksASidebarNextToAnAgentPaneTitledLikeIt(t *testing.T) {
+	f := agentTitledLikeTheSidebar()
+	if err := Ensure(f.serve(t), envFor(t), left); err != nil {
+		t.Fatal(err)
+	}
+	got := f.log()
+	if strings.Contains(got, "pane.close") || !strings.Contains(got, "plugin.pane.open") {
+		t.Fatalf("calls:\n%s", got)
+	}
+}
+
+func TestTheAnchorOfASidebarMayBeAnAgentPaneTitledLikeIt(t *testing.T) {
+	panes := []Pane{{ID: "w1:p1", Tab: "w1:t1", Focused: true, Label: Label, Agent: "claude"}}
+	if _, ok := Sidebar(panes, "w1:t1"); ok {
+		t.Fatal("an agent pane was taken for the sidebar")
+	}
+	if a, ok := Anchor(panes, "w1:t1"); !ok || a.ID != "w1:p1" {
+		t.Fatalf("anchor = %v, %v", a, ok)
+	}
+}
