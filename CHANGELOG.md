@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.9] - 2026-10-26
+
 ### Fixed
 
 - The three new texts of 0.16.8 had no translation in pt, fr, de, it, ja and zh, which failed the catalog test of the CI.
