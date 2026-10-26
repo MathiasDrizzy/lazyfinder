@@ -515,5 +515,8 @@
  "window": "ウインドウ",
  ".%s files open with %s": ".%s ファイルは %s で開きます",
  "System default": "システムの既定",
- "Enter open · d default for .%s": "Enter 開く · d .%s の既定にする"
+ "Enter open · d default for .%s": "Enter 開く · d .%s の既定にする",
+ " and %d more": " 他%d件",
+ "Unsaved changes in %s: commit or stash before merging": "%s に未保存の変更があります: マージ前にコミットまたはスタッシュしてください",
+ "Unsaved changes in %s: commit or stash before switching branches": "%s に未保存の変更があります: ブランチを切り替える前にコミットまたはスタッシュしてください"
 }

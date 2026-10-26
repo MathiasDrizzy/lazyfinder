@@ -515,5 +515,8 @@
  "window": "fenêtre",
  ".%s files open with %s": "Les fichiers .%s s'ouvrent avec %s",
  "System default": "Par défaut du système",
- "Enter open · d default for .%s": "Entrée ouvrir · d par défaut pour .%s"
+ "Enter open · d default for .%s": "Entrée ouvrir · d par défaut pour .%s",
+ " and %d more": " et %d autre(s)",
+ "Unsaved changes in %s: commit or stash before merging": "Modifications non enregistrées dans %s : faites un commit ou un stash avant de fusionner",
+ "Unsaved changes in %s: commit or stash before switching branches": "Modifications non enregistrées dans %s : faites un commit ou un stash avant de changer de branche"
 }

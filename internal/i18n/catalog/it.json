@@ -515,5 +515,8 @@
  "window": "finestra",
  ".%s files open with %s": "I file .%s si aprono con %s",
  "System default": "Predefinito di sistema",
- "Enter open · d default for .%s": "Invio apri · d predefinito per .%s"
+ "Enter open · d default for .%s": "Invio apri · d predefinito per .%s",
+ " and %d more": " e altri %d",
+ "Unsaved changes in %s: commit or stash before merging": "Modifiche non salvate in %s: fai commit o stash prima di unire",
+ "Unsaved changes in %s: commit or stash before switching branches": "Modifiche non salvate in %s: fai commit o stash prima di cambiare ramo"
 }

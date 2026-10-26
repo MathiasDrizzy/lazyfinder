@@ -515,5 +515,8 @@
  "window": "窗口",
  ".%s files open with %s": ".%s 文件用 %s 打开",
  "System default": "系统默认",
- "Enter open · d default for .%s": "Enter 打开 · d 设为 .%s 的默认"
+ "Enter open · d default for .%s": "Enter 打开 · d 设为 .%s 的默认",
+ " and %d more": " 等另外 %d 个",
+ "Unsaved changes in %s: commit or stash before merging": "%s 中有未保存的更改:合并前请先提交或 stash",
+ "Unsaved changes in %s: commit or stash before switching branches": "%s 中有未保存的更改:切换分支前请先提交或 stash"
 }

@@ -515,5 +515,8 @@
  "window": "janela",
  ".%s files open with %s": "Arquivos .%s abrem com %s",
  "System default": "Padrão do sistema",
- "Enter open · d default for .%s": "Enter abrir · d padrão para .%s"
+ "Enter open · d default for .%s": "Enter abrir · d padrão para .%s",
+ " and %d more": " e mais %d",
+ "Unsaved changes in %s: commit or stash before merging": "Alterações não salvas em %s: faça commit ou stash antes de mesclar",
+ "Unsaved changes in %s: commit or stash before switching branches": "Alterações não salvas em %s: faça commit ou stash antes de trocar de branch"
 }

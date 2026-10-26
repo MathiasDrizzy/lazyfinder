@@ -515,5 +515,8 @@
  "window": "Fenster",
  ".%s files open with %s": ".%s-Dateien öffnen mit %s",
  "System default": "Systemstandard",
- "Enter open · d default for .%s": "Enter öffnen · d Standard für .%s"
+ "Enter open · d default for .%s": "Enter öffnen · d Standard für .%s",
+ " and %d more": " und %d weitere",
+ "Unsaved changes in %s: commit or stash before merging": "Nicht gespeicherte Änderungen in %s: erst committen oder stashen, dann zusammenführen",
+ "Unsaved changes in %s: commit or stash before switching branches": "Nicht gespeicherte Änderungen in %s: erst committen oder stashen, dann den Branch wechseln"
 }
