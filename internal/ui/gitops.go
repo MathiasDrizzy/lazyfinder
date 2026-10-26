@@ -1,7 +1,11 @@
 package ui
 
 import (
+	"errors"
+	"fmt"
 	"os/exec"
+	"path/filepath"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
@@ -15,7 +19,7 @@ type gitDoneMsg struct {
 }
 
 // gitRun starts op on the repository root. busy is shown while it runs and done when it worked; an error is shown as
-// git said it, because that is the only text that names the file or the branch that is in the way.
+// git said it (explainGit), because that is the only text that names the file or the branch that is in the way.
 func (m *Model) gitRun(busy, done string, op func(root string) error) tea.Cmd {
 	if !m.git.ok {
 		m.setStatus(i18n.T("No es un repositorio git", "Not a git repository"))
@@ -28,7 +32,7 @@ func (m *Model) gitRun(busy, done string, op func(root string) error) tea.Cmd {
 
 func (m *Model) onGitDone(msg gitDoneMsg) tea.Cmd {
 	if msg.err != nil {
-		m.setError(msg.err)
+		m.setError(errors.New(explainGit(msg.err.Error())))
 	} else {
 		m.setStatus(msg.done)
 	}
@@ -67,4 +71,47 @@ func (m *Model) openLazygit() tea.Cmd {
 	cmd := exec.Command(p)
 	cmd.Dir = m.git.st.Root
 	return m.handOver(cmd)
+}
+
+// explainGit is what git said as one short sentence for the bottom row. The refusal to overwrite changes is the one
+// worth rewriting: git spends three lines on it and a narrow window cuts off the file that is in the way, so the
+// sentence names the file first. Any other message is kept as git said it, without its error: or fatal: prefix, which
+// the row already says.
+func explainGit(msg string) string {
+	parts := strings.Split(msg, " · ")
+	head := strings.TrimSpace(parts[0])
+	if !strings.Contains(head, "would be overwritten by") {
+		return stripGitPrefix(msg)
+	}
+	var files []string
+	for _, p := range parts[1:] {
+		p = strings.TrimSpace(p)
+		if p == "" || strings.HasPrefix(p, "Please ") || strings.HasPrefix(p, "Aborting") {
+			continue
+		}
+		files = append(files, filepath.Base(p))
+	}
+	if len(files) == 0 {
+		return stripGitPrefix(msg)
+	}
+	what := files[0]
+	if n := len(files) - 1; n > 0 {
+		what += fmt.Sprintf(i18n.T(" y %d más", " and %d more"), n)
+	}
+	if strings.HasSuffix(head, "by merge:") {
+		return fmt.Sprintf(i18n.T("Cambios sin guardar en %s: haz commit o stash antes de fusionar",
+			"Unsaved changes in %s: commit or stash before merging"), what)
+	}
+	return fmt.Sprintf(i18n.T("Cambios sin guardar en %s: haz commit o stash antes de cambiar de rama",
+		"Unsaved changes in %s: commit or stash before switching branches"), what)
+}
+
+// stripGitPrefix drops the error: or fatal: that begins what git said.
+func stripGitPrefix(msg string) string {
+	for _, p := range []string{"error: ", "fatal: "} {
+		if rest, ok := strings.CutPrefix(msg, p); ok {
+			return rest
+		}
+	}
+	return msg
 }

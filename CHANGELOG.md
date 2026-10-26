@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- A git operation that fails says it in one sentence and without the doubled `Error: error:`. When changes of yours
+  would be overwritten (switching branch, merging), the row names the file first, so a narrow window does not cut it
+  off: `Unsaved changes in config.toml: commit or stash before switching branches`. Any other message is kept as git
+  said it, without its `error:` or `fatal:`.
+
 ## [0.16.7] - 2026-10-26
 
 ### Fixed

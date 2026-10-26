@@ -161,6 +161,9 @@ func TestTheBranchMenuRefusesToLoseWorkAndSaysWhy(t *testing.T) {
 	if !e.m.statusErr || !strings.Contains(e.m.status, "notes.txt") {
 		t.Fatalf("the status line should say which file blocks the switch, got %q", e.m.status)
 	}
+	if low := strings.ToLower(e.m.status); strings.HasPrefix(low, "error") || !strings.Contains(low, "stash") {
+		t.Fatalf("the status line should explain it in one short sentence, got %q", e.m.status)
+	}
 }
 
 func TestConflictsAreMarked(t *testing.T) {
