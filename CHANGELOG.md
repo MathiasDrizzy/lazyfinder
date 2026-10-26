@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.8] - 2026-10-26
+
 ### Changed
 
 - A git operation that fails says it in one sentence and without the doubled `Error: error:`. When changes of yours
