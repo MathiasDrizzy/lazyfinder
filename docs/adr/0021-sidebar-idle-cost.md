@@ -19,6 +19,12 @@ poll, used 0.1%.
   (`gitDirSignature`).
 * Whatever the cause, git is read at most once per `Deps.GitMinGap` (one second) when `.git` changes; the changes that
   arrive in between are read once, when the gap ends.
+* The same limit holds for a change of the folder itself (2026-10-26). A burst of changes (an agent writing twenty files a
+  second) used to run a `git status` for each reload, about 56 git processes a second, 10% of the sidebar and more of
+  git. The rows still follow the folder at once; the marks are read at most once per `Deps.GitMinGap`, and once more
+  when it ends (`gitLateMsg`). Measured with a pty and a `git` that counts calls: 56.1 to 3.0 processes a second at
+  twenty files a second, 11.6 to 3.0 at four edits of a tracked file, and a lone new file still shows, marked, in 0.1 s.
+  A refresh the user asks for and entering a folder read git at once.
 * The herdr poll asks every 500 ms while the folder of the other pane changes or the user is in the sidebar, and every
   second once 20 answers in a row did not change (`herdrDelay`). It is one call over a unix socket; measured, it costs
   nothing in lazyfinder and about 1% of one core in the herdr server for eight sidebars, so the backoff only halves
@@ -32,5 +38,6 @@ poll, used 0.1%.
 ## Consequences
 
 * An idle sidebar in a repository stays at about 0% CPU, and several sidebars in one repository no longer wake each other.
-* A change of git state shows up at most one second late when another change came just before it.
+* A change of git state shows up at most one second late when another change came just before it; a new file in a burst
+  has no mark for up to a second.
 * Sidebars started before the update keep the old binary until their pane is restarted.

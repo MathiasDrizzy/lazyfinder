@@ -94,7 +94,13 @@ func (m *Model) onDirChanged(msg dirChangedMsg) tea.Cmd {
 	for _, e := range m.entries() {
 		before[e.Path] = true
 	}
+	m.fromWatcher, m.gitHeld = true, 0
 	cmd := m.reload()
+	m.fromWatcher = false
+	if wait := m.gitHeld; wait > 0 && !m.gitLate {
+		m.gitLate = true
+		cmd = tea.Batch(cmd, tea.Tick(wait, func(time.Time) tea.Msg { return gitLateMsg{} }))
+	}
 	opened := false
 	for _, e := range m.entries() {
 		if before[e.Path] {
@@ -151,6 +157,10 @@ func gitDirSignature(dir string) string {
 
 // scanGit refreshes the repository status for dir; outside a repository, or with git turned off, ok stays false.
 func (m *Model) scanGit(dir string) {
+	if wait := m.deps.GitMinGap - m.deps.Now().Sub(m.gitScanAt); m.fromWatcher && m.git.ok && dir == m.listing.Dir && wait > 0 {
+		m.gitHeld = wait // the folder changed again inside the gap: the marks stay as they are until it ends
+		return
+	}
 	m.git = gitState{}
 	if !m.deps.Cfg.Git.Enabled {
 		return
@@ -300,4 +310,16 @@ func (m *Model) relist() {
 		m.setError(err)
 	}
 	m.follow()
+}
+
+// gitLateMsg asks for the read of git that a burst of changes in the folder held back.
+type gitLateMsg struct{}
+
+// onGitLate reads git once the gap that held back the reads caused by a burst of changes in the folder is over.
+func (m *Model) onGitLate() tea.Cmd {
+	m.gitLate = false
+	if m.search.mode != searchOff {
+		return nil
+	}
+	return m.reload()
 }

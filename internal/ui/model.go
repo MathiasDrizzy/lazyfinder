@@ -148,7 +148,10 @@ type Model struct {
 	gitSig       string // gitDirSignature at the last scan
 	herdrQuiet   int    // answers of herdr in a row that did not change the folder
 	gitScanAt    time.Time
-	gitRescan    bool // a read of git is waiting for GitMinGap to end
+	gitRescan    bool          // a read of git is waiting for GitMinGap to end
+	fromWatcher  bool          // the reload under way was asked by a change of the folder, not by the user
+	gitHeld      time.Duration // set by scanGit when it held its read back: how long until the gap ends
+	gitLate      bool          // a gitLateMsg is on its way, so a burst does not start a second one
 	hideIgnored  bool
 	search       searchState
 	goto_        gotoState
@@ -548,6 +551,8 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.onSearch(msg)
 	case dirChangedMsg:
 		return m, m.onDirChanged(msg)
+	case gitLateMsg:
+		return m, m.onGitLate()
 	case previewMsg:
 		return m, m.onPreview(msg)
 	case imageMsg:

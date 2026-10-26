@@ -302,3 +302,79 @@ func TestGitIsReadAtMostOncePerMinGap(t *testing.T) {
 		t.Fatalf("the changes of the burst were not read once the gap ended (reads %d)", reads)
 	}
 }
+
+// The folder changing is not a reason to run git for every change either: an agent that writes twenty files a second
+// used to start about fifty git processes a second. The rows follow at once; the marks are read once per
+// Deps.GitMinGap, and once more when it ends so the last change is not left unmarked.
+func TestAFolderBurstReadsGitAtMostOncePerMinGap(t *testing.T) {
+	e, _ := realEnv(t)
+	e.m.deps.GitMinGap = time.Second
+	repo(t, e)
+	e.send(dirChangedMsg{dir: e.root})
+	reads := 0
+	prev := readGit
+	readGit = func(dir string) (git.Status, bool, error) { reads++; return prev(dir) }
+	t.Cleanup(func() { readGit = prev })
+	e.now = e.now.Add(2 * time.Second) // the last scan is old: the first change reads at once
+	for i := range 20 {
+		e.touch("burst"+strconv.Itoa(i)+".txt", "x")
+		e.m.Update(dirChangedMsg{dir: e.root})
+	}
+	if reads != 1 {
+		t.Fatalf("a burst of 20 changes in the folder read git %d times, want 1", reads)
+	}
+	if !strings.Contains(e.text(), "burst19.txt") {
+		t.Fatalf("the rows must follow the folder at once:\n%s", e.text())
+	}
+	e.now = e.now.Add(2 * time.Second)
+	e.m.Update(gitLateMsg{}) // the trailing read, when the gap is over
+	if reads != 2 {
+		t.Fatalf("the changes of the burst were not read once the gap ended (reads %d)", reads)
+	}
+}
+
+// Anything that is not the watcher (a key, a git command, entering a folder) reads git at once, however recent the last
+// read: only the burst of events is held back.
+func TestEnteringAFolderReadsGitEvenInsideTheGap(t *testing.T) {
+	e, _ := realEnv(t)
+	e.m.deps.GitMinGap = time.Minute
+	repo(t, e)
+	e.send(dirChangedMsg{dir: e.root})
+	reads := 0
+	prev := readGit
+	readGit = func(dir string) (git.Status, bool, error) { reads++; return prev(dir) }
+	t.Cleanup(func() { readGit = prev })
+	e.key("r") // refresh
+	if reads != 1 {
+		t.Fatalf("a refresh asked by the user read git %d times, want 1", reads)
+	}
+}
+
+// A read that waits for a change of .git must not stop the one that a change of the folder asks for: the first finds
+// the .git folder unchanged and reads nothing, so the marks of a new file would stay missing.
+func TestAWaitingGitDirReadDoesNotSwallowTheFolderOne(t *testing.T) {
+	e, _ := realEnv(t)
+	e.m.deps.GitMinGap = time.Second
+	repo(t, e)
+	e.send(dirChangedMsg{dir: e.root})
+	e.m.gitRescan = true // a read of .git is already waiting
+	e.touch("late.txt", "x")
+	e.m.Update(dirChangedMsg{dir: e.root})
+	if !e.m.gitLate {
+		t.Fatal("no late read was scheduled for the change of the folder")
+	}
+	e.now = e.now.Add(2 * time.Second)
+	e.m.Update(gitLateMsg{})
+	if e.m.gitLate {
+		t.Fatal("the late read must clear its flag")
+	}
+	for _, en := range e.m.entries() {
+		if en.Name == "late.txt" {
+			if e.m.gitCode(en) == git.None {
+				t.Fatalf("late.txt has no mark after the late read:\n%s", e.text())
+			}
+			return
+		}
+	}
+	t.Fatalf("late.txt is not listed:\n%s", e.text())
+}

@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The three new texts of 0.16.8 had no translation in pt, fr, de, it, ja and zh, which failed the catalog test of the CI.
+
+### Changed
+
+- A burst of changes in the folder (an agent writing many files) no longer runs `git status` for each one: the rows
+  follow at once and the marks are read at most once a second (ADR 0021). At twenty files a second the sidebar went
+  from about 56 git processes a second to 3.
+
 ## [0.16.8] - 2026-10-26
 
 ### Changed
