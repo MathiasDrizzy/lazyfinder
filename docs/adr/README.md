@@ -25,3 +25,4 @@ MADR format, numbered, amended when a decision changes (ED-26).
 | 0019 | [Git operations you ask for run the repository's config](0019-git-writes-trust-the-repository.md) | accepted |
 | 0020 | [Markdown renders in a child process](0020-markdown-in-a-child-process.md) | accepted |
 | 0021 | [What the sidebar does while it is idle](0021-sidebar-idle-cost.md) | accepted |
+| 0022 | [How the herdr plugin tells its sidebar from other panes](0022-the-sidebar-is-told-by-its-title.md) | accepted |
