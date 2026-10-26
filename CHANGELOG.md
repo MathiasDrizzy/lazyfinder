@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.7] - 2026-10-26
+
 ### Fixed
 
 - herdr plugin: an agent pane (Claude, for one) can carry the title `lazyfinder` when a plugin names panes after their
