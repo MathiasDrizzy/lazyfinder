@@ -10,7 +10,7 @@ import (
 type tabsHerdr struct{ fakeHerdr }
 
 func (f *tabsHerdr) serve(t *testing.T) Client {
-	return Client{Socket: fakeServer(t, func(method string, params json.RawMessage) string {
+	return Client{RootName: f.rootName, Socket: fakeServer(t, func(method string, params json.RawMessage) string {
 		f.mu.Lock()
 		defer f.mu.Unlock()
 		if method != "pane.list" && method != "pane.process_info" {
@@ -25,7 +25,7 @@ func (f *tabsHerdr) serve(t *testing.T) Client {
 				Pane string `json:"pane_id"`
 			}
 			_ = json.Unmarshal(params, &p)
-			return `"result":{"process_info":{"shell_pid":7,"foreground_processes":[{"name":"` + f.root(p.Pane) + `","pid":7}]}}`
+			return f.processInfo(p.Pane)
 		case "tab.create":
 			f.panes = append(f.panes, Pane{ID: "w1:p5", Tab: "w1:t2", Workspace: "w1"})
 			return `"result":{"type":"tab_created","tab":{"tab_id":"w1:t2"},"root_pane":{"pane_id":"w1:p5","tab_id":"w1:t2"}}`

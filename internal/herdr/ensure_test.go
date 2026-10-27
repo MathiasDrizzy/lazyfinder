@@ -22,7 +22,9 @@ type fakeHerdr struct {
 	swapped bool
 }
 
-// root is the program pane id runs.
+// root is what pane id runs, as a spec: "lazyfinder" or "zsh" (that program alone), "child:micro" (lazyfinder with an
+// editor in front) or "zsh+vim" (a shell with a program in front). A pane titled as the sidebar runs lazyfinder unless
+// roots says otherwise.
 func (f *fakeHerdr) root(id string) string {
 	if r, ok := f.roots[id]; ok {
 		return r
@@ -35,6 +37,46 @@ func (f *fakeHerdr) root(id string) string {
 	return "zsh"
 }
 
+// pid is the root process of pane id; the program in front of it, when it is not the root, has the next one.
+func (f *fakeHerdr) pid(id string) int {
+	for i, p := range f.panes {
+		if p.ID == id {
+			return 100 + 10*i
+		}
+	}
+	return 1
+}
+
+// rootName is the program the process pid is: the root program of its pane.
+func (f *fakeHerdr) rootName(pid int) string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	for _, p := range f.panes {
+		if f.pid(p.ID) != pid {
+			continue
+		}
+		spec := f.root(p.ID)
+		if _, ok := strings.CutPrefix(spec, "child:"); ok {
+			return "lazyfinder"
+		}
+		name, _, _ := strings.Cut(spec, "+")
+		return name
+	}
+	return ""
+}
+
+// processInfo is the pane.process_info result of pane id.
+func (f *fakeHerdr) processInfo(id string) string {
+	spec, root := f.root(id), f.pid(id)
+	name, pid := spec, root
+	if child, ok := strings.CutPrefix(spec, "child:"); ok {
+		name, pid = child, root+1
+	} else if _, front, ok := strings.Cut(spec, "+"); ok {
+		name, pid = front, root+1
+	}
+	return fmt.Sprintf(`"result":{"process_info":{"shell_pid":%d,"foreground_processes":[{"name":%q,"pid":%d}]}}`, root, name, pid)
+}
+
 func (f *fakeHerdr) log() string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -42,7 +84,7 @@ func (f *fakeHerdr) log() string {
 }
 
 func (f *fakeHerdr) serve(t *testing.T) Client {
-	return Client{Socket: fakeServer(t, func(method string, params json.RawMessage) string {
+	return Client{RootName: f.rootName, Socket: fakeServer(t, func(method string, params json.RawMessage) string {
 		f.mu.Lock()
 		defer f.mu.Unlock()
 		if method != "pane.list" && method != "pane.layout" && method != "pane.process_info" && method != "layout.export" {
@@ -66,11 +108,7 @@ func (f *fakeHerdr) serve(t *testing.T) Client {
 				Pane string `json:"pane_id"`
 			}
 			_ = json.Unmarshal(params, &p)
-			name, pid := f.root(p.Pane), 7
-			if child, ok := strings.CutPrefix(name, "child:"); ok { // a program the root started is in front
-				name, pid = child, 8
-			}
-			return fmt.Sprintf(`"result":{"process_info":{"shell_pid":7,"foreground_processes":[{"name":%q,"pid":%d}]}}`, name, pid)
+			return f.processInfo(p.Pane)
 		case "pane.swap":
 			f.swapped = true
 		case "layout.export":
@@ -363,5 +401,46 @@ func TestTheAnchorOfASidebarMayBeAnAgentPaneTitledLikeIt(t *testing.T) {
 	}
 	if a, ok := Anchor(panes, "w1:t1"); !ok || a.ID != "w1:p1" {
 		t.Fatalf("anchor = %v, %v", a, ok)
+	}
+}
+
+// The sidebar is told by the program it runs, not by its title: a plugin that renames panes (herdr.auto-title once
+// gave a sidebar the title "lazymark › lazyfinder") must not make the tab dock a second one.
+func TestASidebarWithAnotherTitleIsStillTheSidebar(t *testing.T) {
+	f := newFake()
+	f.panes = append(f.panes, Pane{ID: "w1:p9", Tab: "w1:t1", Label: "lazymark › lazyfinder"})
+	f.roots = map[string]string{"w1:p9": "lazyfinder"}
+	if err := Ensure(f.serve(t), envFor(t), left); err != nil || f.log() != "" {
+		t.Fatalf("%v calls:\n%s", err, f.log())
+	}
+}
+
+// A pane of the user's that runs something else is never closed, whatever its title: the toggle opens the sidebar next
+// to it instead. Only an idle shell with the title is taken for a sidebar herdr restored (the test above this one).
+func TestToggleNeverClosesAFocusedPaneThatDoesNotRunLazyfinder(t *testing.T) {
+	f := newFake()
+	f.panes[0].Label = Label
+	f.roots = map[string]string{"w1:p1": "zsh+vim"}
+	if err := Toggle(f.serve(t), envFor(t), left); err != nil {
+		t.Fatal(err)
+	}
+	got := f.log()
+	if strings.Contains(got, "pane.close") || strings.Contains(got, "tab.close") || !strings.Contains(got, "plugin.pane.open") {
+		t.Fatalf("calls:\n%s", got)
+	}
+}
+
+// With the process as the proof, a pane that runs lazyfinder is closed by the toggle when it has the focus, even
+// with another title.
+func TestToggleClosesAFocusedSidebarWhateverItsTitle(t *testing.T) {
+	f := newFake()
+	f.panes[0].Focused = false
+	f.panes = append(f.panes, Pane{ID: "w1:p9", Tab: "w1:t1", Label: "renamed", Focused: true})
+	f.roots = map[string]string{"w1:p9": "lazyfinder"}
+	if err := Toggle(f.serve(t), envFor(t), left); err != nil {
+		t.Fatal(err)
+	}
+	if got := f.log(); !strings.HasPrefix(got, `pane.close {"pane_id":"w1:p9"}`) {
+		t.Fatalf("calls:\n%s", got)
 	}
 }

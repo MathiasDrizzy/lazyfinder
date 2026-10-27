@@ -45,7 +45,7 @@ func closeFinished(c Client, e Env, panes []Pane) error {
 	count, sidebar := map[string]int{}, map[string]bool{}
 	for _, p := range panes {
 		count[p.Tab]++
-		if p.titled() {
+		if p.Sidebar {
 			sidebar[p.Tab] = true
 		}
 	}

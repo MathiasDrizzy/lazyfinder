@@ -8,9 +8,14 @@ package herdr
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -19,8 +24,8 @@ const (
 	PluginID = "lazyfinder"
 	// Entrypoint is the id of the [[panes]] entry that runs the sidebar.
 	Entrypoint = "sidebar"
-	// Label is the title of that entry: herdr names the pane with it, and pane.list has no other way to tell a pane
-	// of the plugin from the rest.
+	// Label is the title of that entry. It only marks a pane herdr restored after a restart as a shell: the sidebar is
+	// told by the program it runs (Pane.Sidebar), since plugins that name panes after their folder reuse the title.
 	Label = "lazyfinder"
 
 	callTimeout = 2 * time.Second
@@ -36,11 +41,16 @@ type Pane struct {
 	ForegroundCwd string `json:"foreground_cwd"`
 	Label         string `json:"label"`
 	Agent         string `json:"agent"` // the coding agent running in the pane, if herdr detected one
+	Sidebar       bool   `json:"-"`
+	Stale         bool   `json:"-"`
 }
 
-// titled is true when p carries the title of the sidebar and can be it. A pane that runs an agent never is: plugins
-// that name panes after their folder give the pane of the agent working in the lazyfinder folder that same title.
-func (p Pane) titled() bool { return p.Label == Label && p.Agent == "" }
+// Sidebar is true when the pane runs lazyfinder as its own program (the root process of the pane), whatever title the
+// pane has: plugins that name panes after their folder rename them. Stale is true for a pane herdr restored after a
+// restart as an idle shell that kept the title of the sidebar. Both come from Client.Panes, not from pane.list.
+//
+// A pane that runs an agent is neither: the pane of the agent working in the lazyfinder folder can carry that same
+// title, and the toggle must never close it.
 
 // Dir is the folder the pane is in: the one of the program in front (a shell after cd), else the pane's own.
 func (p Pane) Dir() string {
@@ -72,6 +82,8 @@ type Layout struct {
 // Client calls herdr over its socket (HERDR_SOCKET_PATH).
 type Client struct {
 	Socket string
+	// RootName tells which program a process runs; nil asks ps. A test sets it.
+	RootName func(pid int) string
 }
 
 // Call sends one request and decodes its result into result (nil ignores it).
@@ -115,28 +127,27 @@ func (c Client) Call(method string, params, result any) error {
 	return nil
 }
 
-// Panes lists every pane of the server.
+// Panes lists every pane of the server and says which of them are the sidebar, by the program they run.
 func (c Client) Panes() ([]Pane, error) {
 	var r struct {
 		Panes []Pane `json:"panes"`
 	}
-	err := c.Call("pane.list", map[string]any{}, &r)
-	return r.Panes, err
-}
-
-// LayoutOf is the layout of the tab of a pane.
-func (c Client) LayoutOf(pane string) (Layout, error) {
-	var r struct {
-		Layout Layout `json:"layout"`
+	if err := c.Call("pane.list", map[string]any{}, &r); err != nil {
+		return nil, err
 	}
-	err := c.Call("pane.layout", map[string]string{"pane_id": pane}, &r)
-	return r.Layout, err
+	for i, p := range r.Panes {
+		if p.Agent == "" {
+			r.Panes[i].Sidebar, r.Panes[i].Stale = c.probe(p)
+		}
+	}
+	return r.Panes, nil
 }
 
-// Restored is true when pane runs, in front, the program herdr started in it and that program is not lazyfinder.
-// herdr restores the pane of the plugin after a restart as a shell that keeps its title: that pane is not a sidebar.
-// A program lazyfinder opened in its pane (an editor) is in front of lazyfinder, so that pane is not restored.
-func (c Client) Restored(pane string) (bool, error) {
+// probe says whether p runs lazyfinder as its own program, and whether it is a sidebar herdr restored as an idle shell
+// that kept the title. herdr restores the pane of the plugin after a restart as a shell with its title: that pane is not
+// a sidebar, and only that one (an idle shell with the title) is closed. A pane that cannot be read is neither, so
+// nothing is closed on a guess.
+func (c Client) probe(p Pane) (sidebar, stale bool) {
 	var r struct {
 		Info struct {
 			Root  int `json:"shell_pid"`
@@ -146,13 +157,39 @@ func (c Client) Restored(pane string) (bool, error) {
 			} `json:"foreground_processes"`
 		} `json:"process_info"`
 	}
-	if err := c.Call("pane.process_info", map[string]string{"pane_id": pane}, &r); err != nil {
-		return false, err
+	if err := c.Call("pane.process_info", map[string]string{"pane_id": p.ID}, &r); err != nil || r.Info.Root == 0 {
+		return false, false
 	}
-	for _, p := range r.Info.Front {
-		if p.PID == r.Info.Root {
-			return p.Name != Label, nil
+	for _, f := range r.Info.Front {
+		if f.PID == r.Info.Root { // the root process is in front: it is the program of the pane
+			isMe := filepath.Base(f.Name) == Label
+			return isMe, !isMe && p.Label == Label
 		}
 	}
-	return false, nil
+	// Something the root started is in front (an editor opened from the sidebar, a command of the user): the root
+	// process says what the pane is.
+	return filepath.Base(c.rootName(r.Info.Root)) == Label, false
+}
+
+// rootName is the program the process pid runs.
+func (c Client) rootName(pid int) string {
+	if c.RootName != nil {
+		return c.RootName(pid)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), callTimeout)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "ps", "-o", "comm=", "-p", strconv.Itoa(pid)).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}
+
+// LayoutOf is the layout of the tab of a pane.
+func (c Client) LayoutOf(pane string) (Layout, error) {
+	var r struct {
+		Layout Layout `json:"layout"`
+	}
+	err := c.Call("pane.layout", map[string]string{"pane_id": pane}, &r)
+	return r.Layout, err
 }

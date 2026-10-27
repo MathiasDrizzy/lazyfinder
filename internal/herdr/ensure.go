@@ -89,7 +89,7 @@ func Startup(c Client, e Env, s Settings) error {
 func restoredTabs(panes []Pane) []string {
 	var tabs []string
 	for _, p := range panes {
-		if p.titled() && !slices.Contains(tabs, p.Tab) {
+		if (p.Sidebar || p.Stale) && !slices.Contains(tabs, p.Tab) {
 			tabs = append(tabs, p.Tab)
 		}
 	}
@@ -110,25 +110,23 @@ func Hide(c Client, e Env, pane string) error {
 	return fmt.Errorf("herdr: no pane %s", pane)
 }
 
-// sidebarOf is the sidebar of a tab. A pane titled as the sidebar that herdr restored as a shell is closed on the way:
-// it is not a sidebar, and it would keep the tab from getting one.
+// sidebarOf is the sidebar of a tab: the pane that runs lazyfinder. A pane herdr restored as an idle shell with the
+// title of the sidebar is closed on the way: it is not a sidebar, and it would keep the tab from getting one.
 func sidebarOf(c Client, panes []Pane, tab string) (Pane, bool, error) {
+	var side Pane
+	var found bool
 	for _, p := range panes {
-		if p.Tab != tab || !p.titled() {
-			continue
-		}
-		restored, err := c.Restored(p.ID)
-		if err != nil {
-			return Pane{}, false, err
-		}
-		if !restored {
-			return p, true, nil
-		}
-		if err := c.Call("pane.close", map[string]string{"pane_id": p.ID}, nil); err != nil {
-			return Pane{}, false, err
+		switch {
+		case p.Tab != tab:
+		case p.Sidebar && !found:
+			side, found = p, true
+		case p.Stale:
+			if err := c.Call("pane.close", map[string]string{"pane_id": p.ID}, nil); err != nil {
+				return Pane{}, false, err
+			}
 		}
 	}
-	return Pane{}, false, nil
+	return side, found, nil
 }
 
 // Toggle is the action of the plugin on the focused tab: it opens the sidebar (with the focus), focuses it when it

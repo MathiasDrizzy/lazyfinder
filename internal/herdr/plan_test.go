@@ -26,8 +26,8 @@ func TestEventTabComesFromTheEventFirst(t *testing.T) {
 	}
 }
 
-func TestTheSidebarIsThePaneWithTheLabel(t *testing.T) {
-	panes := append([]Pane{{ID: "w1:p3", Tab: "w1:t1", Label: Label}}, tabPanes...)
+func TestTheSidebarIsThePaneThatRunsLazyfinder(t *testing.T) {
+	panes := append([]Pane{{ID: "w1:p3", Tab: "w1:t1", Sidebar: true}}, tabPanes...)
 	if s, ok := Sidebar(panes, "w1:t1"); !ok || s.ID != "w1:p3" {
 		t.Fatalf("sidebar %+v %v", s, ok)
 	}
@@ -43,7 +43,7 @@ func TestTheAnchorIsTheFocusedPaneOfTheTabAndNeverTheSidebar(t *testing.T) {
 	if a, ok := Anchor(tabPanes, "w2:t1"); !ok || a.ID != "w2:p1" {
 		t.Fatalf("no focused pane in the tab: the first one, got %+v", a)
 	}
-	side := []Pane{{ID: "w1:p3", Tab: "w1:t1", Label: Label, Focused: true}, {ID: "w1:p1", Tab: "w1:t1"}}
+	side := []Pane{{ID: "w1:p3", Tab: "w1:t1", Sidebar: true, Focused: true}, {ID: "w1:p1", Tab: "w1:t1"}}
 	if a, ok := Anchor(side, "w1:t1"); !ok || a.ID != "w1:p1" {
 		t.Fatalf("anchor %+v", a)
 	}
@@ -73,7 +73,7 @@ func TestTheEdgePaneIsTheTopmostOneOnTheDockSide(t *testing.T) {
 }
 
 func TestTheSidebarFollowsTheFocusedPaneOfItsTab(t *testing.T) {
-	panes := append([]Pane{{ID: "w1:p3", Tab: "w1:t1", Label: Label}}, tabPanes...)
+	panes := append([]Pane{{ID: "w1:p3", Tab: "w1:t1", Sidebar: true}}, tabPanes...)
 	if d := FollowDir(panes, "w1:p3"); d != "/w/api/cmd" {
 		t.Fatalf("follow %q", d)
 	}

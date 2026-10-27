@@ -1,6 +1,6 @@
 # How the herdr plugin tells its sidebar from other panes
 
-* Status: accepted
+* Status: superseded by [0023](0023-the-sidebar-is-told-by-its-process.md)
 * Date: 2026-10-26
 
 ## Context and problem statement

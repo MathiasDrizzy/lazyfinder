@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- herdr plugin: the sidebar is the pane that runs lazyfinder, not the pane with the title `lazyfinder` (ADR 0023). A
+  sidebar that a plugin renamed is still the sidebar, and no pane that runs something else is closed because of its
+  title. Only an idle shell that kept the title after a herdr restart is closed, as before.
+
 ## [0.16.9] - 2026-10-26
 
 ### Fixed
