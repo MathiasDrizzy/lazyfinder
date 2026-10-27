@@ -17,7 +17,9 @@ type fakeHerdr struct {
 	mu    sync.Mutex
 	panes []Pane
 	roots map[string]string
-	calls []string
+	// unreadable lists the panes whose pane.process_info fails
+	unreadable map[string]bool
+	calls      []string
 	// swapped is set once the sidebar took the place of the pane it split: the layout lists it first
 	swapped bool
 }
@@ -67,6 +69,9 @@ func (f *fakeHerdr) rootName(pid int) string {
 
 // processInfo is the pane.process_info result of pane id.
 func (f *fakeHerdr) processInfo(id string) string {
+	if f.unreadable[id] {
+		return `"error":{"code":"pane_not_found","message":"gone"}`
+	}
 	spec, root := f.root(id), f.pid(id)
 	name, pid := spec, root
 	if child, ok := strings.CutPrefix(spec, "child:"); ok {
@@ -442,5 +447,33 @@ func TestToggleClosesAFocusedSidebarWhateverItsTitle(t *testing.T) {
 	}
 	if got := f.log(); !strings.HasPrefix(got, `pane.close {"pane_id":"w1:p9"}`) {
 		t.Fatalf("calls:\n%s", got)
+	}
+}
+
+// A pane that cannot be read is neither the sidebar nor a restored one: nothing is closed on a guess, and the tab still
+// gets its sidebar.
+func TestAPaneThatCannotBeReadIsNeverClosed(t *testing.T) {
+	f := newFake()
+	f.panes = append(f.panes, Pane{ID: "w1:p7", Tab: "w1:t1", Label: Label})
+	f.roots = map[string]string{"w1:p7": "zsh"} // an idle shell with the title: closed when it can be read
+	f.unreadable = map[string]bool{"w1:p7": true}
+	if err := Ensure(f.serve(t), envFor(t), left); err != nil {
+		t.Fatal(err)
+	}
+	got := f.log()
+	if strings.Contains(got, "pane.close") || strings.Count(got, "plugin.pane.open") != 1 {
+		t.Fatalf("calls:\n%s", got)
+	}
+}
+
+// Something the root started is in front (an editor): the root process says what the pane is, from ps when herdr does not
+// list it. The default lookup must give the name of a real process.
+func TestTheDefaultRootNameIsTheProgramOfAProcess(t *testing.T) {
+	name := Client{}.rootName(os.Getpid())
+	if name == "" || filepath.Base(name) != filepath.Base(os.Args[0]) {
+		t.Fatalf("rootName(self) = %q, want the name of %q", name, os.Args[0])
+	}
+	if got := (Client{}).rootName(0); got != "" {
+		t.Fatalf("rootName(0) = %q, want empty", got)
 	}
 }
