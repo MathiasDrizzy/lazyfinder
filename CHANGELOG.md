@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.11] - 2026-10-27
+
 ### Changed
 
 - herdr plugin: a terminal program (the editor of a file, for one) opens in its new tab as the command of the pane, not
