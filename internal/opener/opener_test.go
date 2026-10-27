@@ -172,3 +172,17 @@ func TestOpenRunsACommandInItsFolderWhenTheRunnerCan(t *testing.T) {
 		t.Fatalf("dir = %q argv = %v", r.dir, r.argv)
 	}
 }
+
+// A terminal program is titled with the file it opens, so a command says which file that is.
+func TestACommandKnowsTheFileItOpens(t *testing.T) {
+	cfg := config.Defaults("/h")
+	cfg.Openers = map[string]config.Opener{"micro": {Argv: []string{"micro", config.FilePlaceholder}, Mode: config.ModeTerminal}}
+	cfg.OpenWith = map[string]string{"md": "micro"}
+	c := New(cfg).Resolve("/w/notes.md")
+	if c.File != "/w/notes.md" || c.Name != "micro" {
+		t.Fatalf("%+v", c)
+	}
+	if got := Custom("lint", cfg.Openers["micro"], "/w/a.go", "/w"); got.File != "/w/a.go" {
+		t.Fatalf("custom: %+v", got)
+	}
+}

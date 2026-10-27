@@ -7,7 +7,10 @@ import (
 )
 
 // tabsHerdr is a herdr that creates tabs: each new tab gets one shell pane, and closing a tab drops its panes.
-type tabsHerdr struct{ fakeHerdr }
+type tabsHerdr struct {
+	fakeHerdr
+	noLayout bool // layout.apply is not known to this herdr
+}
 
 func (f *tabsHerdr) serve(t *testing.T) Client {
 	return Client{RootName: f.rootName, Socket: fakeServer(t, func(method string, params json.RawMessage) string {
@@ -26,6 +29,12 @@ func (f *tabsHerdr) serve(t *testing.T) Client {
 			}
 			_ = json.Unmarshal(params, &p)
 			return f.processInfo(p.Pane)
+		case "layout.apply":
+			if f.noLayout {
+				return `"error":{"code":"unknown_method","message":"layout.apply"}`
+			}
+			f.panes = append(f.panes, Pane{ID: "w1:p5", Tab: "w1:t2", Workspace: "w1"})
+			return `"result":{"type":"layout_apply","layout":{"workspace_id":"w1","tab_id":"w1:t2","root":{"type":"pane","pane_id":"w1:p5"}}}`
 		case "tab.create":
 			f.panes = append(f.panes, Pane{ID: "w1:p5", Tab: "w1:t2", Workspace: "w1"})
 			return `"result":{"type":"tab_created","tab":{"tab_id":"w1:t2"},"root_pane":{"pane_id":"w1:p5","tab_id":"w1:t2"}}`
@@ -49,13 +58,33 @@ func (f *tabsHerdr) serve(t *testing.T) Client {
 // Mathias, 2026-10-22: "click y saltar a otra pestaña de herdr con el programa configurado". A terminal program opens
 // in a new tab of herdr, in the folder of the file, and takes the place of its shell, so quitting it ends the pane.
 func TestOpenRunsTheProgramInANewTab(t *testing.T) {
-	f := &tabsHerdr{*newFake()}
+	f := &tabsHerdr{fakeHerdr: *newFake()}
 	e := envFor(t)
-	if err := Open(f.serve(t), e, "/w/my notes", []string{"micro", "/w/my notes/it's.md"}, "micro"); err != nil {
+	e.WorkspaceID = "w1"
+	if err := Open(f.serve(t), e, "/w/my notes", []string{"micro", "/w/my notes/it's.md"}, "it's.md"); err != nil {
+		t.Fatal(err)
+	}
+	// One call, and the program is the command of the pane: no shell starts, nothing is typed into one, and the tab
+	// has its title from the first moment.
+	want := `layout.apply {"focus":true,"root":{"command":["micro","/w/my notes/it's.md"],"cwd":"/w/my notes","label":"it's.md","type":"pane"},"tab_label":"it's.md","workspace_id":"w1"}`
+	if got := f.log(); got != want {
+		t.Fatalf("calls:\n%s\nwant:\n%s", got, want)
+	}
+	if !marked(e.StateDir, opened, "w1:t2") {
+		t.Fatal("the tab is not marked as opened by lazyfinder")
+	}
+}
+
+// A herdr without layout.apply still gets the program: the old way, a shell that hands itself over.
+func TestOpenFallsBackToTheShellWhenHerdrHasNoLayoutApply(t *testing.T) {
+	f := &tabsHerdr{fakeHerdr: *newFake(), noLayout: true}
+	e := envFor(t)
+	if err := Open(f.serve(t), e, "/w/my notes", []string{"micro", "/w/my notes/it's.md"}, "it's.md"); err != nil {
 		t.Fatal(err)
 	}
 	want := strings.Join([]string{
-		`tab.create {"cwd":"/w/my notes","focus":true,"label":"micro"}`,
+		`layout.apply {"focus":true,"root":{"command":["micro","/w/my notes/it's.md"],"cwd":"/w/my notes","label":"it's.md","type":"pane"},"tab_label":"it's.md"}`,
+		`tab.create {"cwd":"/w/my notes","focus":true,"label":"it's.md"}`,
 		`pane.send_text {"pane_id":"w1:p5","text":"exec 'micro' '/w/my notes/it'\\''s.md'\n"}`,
 	}, "\n")
 	if got := f.log(); got != want {
@@ -69,7 +98,7 @@ func TestOpenRunsTheProgramInANewTab(t *testing.T) {
 // When the program quits, its tab is left with the sidebar the hooks docked there: that tab closes. A tab of the user
 // keeps its sidebar even when it is the only pane.
 func TestATabOpenedForAProgramClosesWithIt(t *testing.T) {
-	f := &tabsHerdr{*newFake()}
+	f := &tabsHerdr{fakeHerdr: *newFake()}
 	f.panes = []Pane{
 		{ID: "w1:p1", Tab: "w1:t1", Label: Label},
 		{ID: "w1:p6", Tab: "w1:t2", Label: Label},

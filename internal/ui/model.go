@@ -462,7 +462,11 @@ func (m *Model) run(c opener.Command) tea.Cmd {
 		if dir == "" {
 			dir = m.dir() // the tab opens in the folder lazyfinder shows, not in the one it was started in
 		}
-		if err := m.deps.HerdrOpen(dir, c.Argv, c.Name); err != nil {
+		label := c.Name
+		if c.File != "" {
+			label = filepath.Base(c.File) // the tab is titled with the file, not with the program that opens it
+		}
+		if err := m.deps.HerdrOpen(dir, c.Argv, label); err != nil {
 			m.setError(err)
 			return nil
 		}

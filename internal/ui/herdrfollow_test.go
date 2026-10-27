@@ -146,7 +146,7 @@ func TestThePluginPaneOpensATerminalProgramInANewTab(t *testing.T) {
 	e.pick("notes.txt")
 	file := filepath.Join(e.root, "notes.txt")
 	_, cmd := e.m.Update(keyMsg("enter"))
-	want := []string{e.root, "micro", "micro", file}
+	want := []string{e.root, "notes.txt", "micro", file} // the tab is titled with the file
 	if !slices.Equal(got, want) {
 		t.Fatalf("opened %q, want %q", got, want)
 	}

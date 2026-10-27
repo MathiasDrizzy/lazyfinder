@@ -86,6 +86,13 @@ type Client struct {
 	RootName func(pid int) string
 }
 
+// CallError is the error herdr answered a request with: it understood nothing of it, so nothing was done.
+type CallError struct{ Method, Message, Code string }
+
+func (e *CallError) Error() string {
+	return fmt.Sprintf("herdr %s: %s (%s)", e.Method, e.Message, e.Code)
+}
+
 // Call sends one request and decodes its result into result (nil ignores it).
 func (c Client) Call(method string, params, result any) error {
 	conn, err := net.DialTimeout("unix", c.Socket, callTimeout)
@@ -116,7 +123,7 @@ func (c Client) Call(method string, params, result any) error {
 		return fmt.Errorf("herdr %s: %w", method, err)
 	}
 	if resp.Error != nil {
-		return fmt.Errorf("herdr %s: %s (%s)", method, resp.Error.Message, resp.Error.Code)
+		return &CallError{Method: method, Message: resp.Error.Message, Code: resp.Error.Code}
 	}
 	if result == nil {
 		return nil

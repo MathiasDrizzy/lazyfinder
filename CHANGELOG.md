@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- herdr plugin: a terminal program (the editor of a file, for one) opens in its new tab as the command of the pane, not
+  typed into the shell of the tab. The shell read its startup files first, which took about 300 ms on a 110 line
+  `.zshrc`, and its `exec ...` line showed as the title of the tab. Measured in an isolated herdr: the program runs after
+  9 ms instead of 296-380 ms, and the tab is titled with the file name from the first moment. A herdr that refuses
+  `layout.apply` gets the old way.
+
 ## [0.16.10] - 2026-10-27
 
 ### Changed

@@ -12,10 +12,11 @@ import (
 
 // Env is what herdr gives a hook or an action of the plugin.
 type Env struct {
-	PluginID string // HERDR_PLUGIN_ID; PluginID when empty
-	TabID    string // HERDR_TAB_ID
-	Event    string // HERDR_PLUGIN_EVENT_JSON; empty for an action
-	StateDir string // HERDR_PLUGIN_STATE_DIR: the lock and the tabs whose sidebar the user closed
+	PluginID    string // HERDR_PLUGIN_ID; PluginID when empty
+	TabID       string // HERDR_TAB_ID
+	WorkspaceID string // HERDR_WORKSPACE_ID: where a new tab opens
+	Event       string // HERDR_PLUGIN_EVENT_JSON; empty for an action
+	StateDir    string // HERDR_PLUGIN_STATE_DIR: the lock and the tabs whose sidebar the user closed
 }
 
 // Settings are the herdr section of config.json.

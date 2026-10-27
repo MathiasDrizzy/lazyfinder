@@ -23,6 +23,7 @@ type Command struct {
 	Mode string
 	Argv []string
 	Dir  string // the folder to run in; empty means the current one
+	File string // the file it opens, when it opens one: a terminal program is titled with its name
 }
 
 // Resolver maps files to commands using the user's configuration.
@@ -71,7 +72,7 @@ func (r Resolver) named(name, path string) Command {
 		}
 		argv[i] = a
 	}
-	return Command{Name: name, Mode: op.Mode, Argv: argv}
+	return Command{Name: name, Mode: op.Mode, Argv: argv, File: path}
 }
 
 // goos is the system the commands are for; a variable so the tests can ask for the other one.
@@ -107,7 +108,7 @@ func Custom(name string, c config.Opener, file, dir string) Command {
 			argv[i] = a
 		}
 	}
-	return Command{Name: name, Mode: c.Mode, Argv: argv, Dir: dir}
+	return Command{Name: name, Mode: c.Mode, Argv: argv, Dir: dir, File: file}
 }
 
 // DirRunner is a Runner that can also start a process in a given folder.

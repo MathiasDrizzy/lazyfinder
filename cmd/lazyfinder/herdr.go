@@ -86,7 +86,7 @@ func herdrFitter(getenv func(string) string) func(config.Herdr, bool, bool) erro
 // herdrOpener runs a terminal program in a new tab of herdr.
 func herdrOpener(getenv func(string) string) func(string, []string, string) error {
 	c := herdr.Client{Socket: getenv("HERDR_SOCKET_PATH")}
-	e := herdr.Env{PluginID: getenv("HERDR_PLUGIN_ID"), StateDir: getenv("HERDR_PLUGIN_STATE_DIR")}
+	e := herdr.Env{PluginID: getenv("HERDR_PLUGIN_ID"), StateDir: getenv("HERDR_PLUGIN_STATE_DIR"), WorkspaceID: getenv("HERDR_WORKSPACE_ID")}
 	return func(dir string, argv []string, label string) error { return herdr.Open(c, e, dir, argv, label) }
 }
 

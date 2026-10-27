@@ -5,13 +5,45 @@ import (
 	"strings"
 )
 
-// Open runs a terminal program in a new tab of herdr, in dir and with the focus: the shell of the tab hands itself
-// over to the program (exec), so quitting the program ends the pane, and the tab is marked so the hooks close it
-// when only its sidebar is left.
+// Open runs a terminal program in a new tab of herdr, in dir and with the focus, titled label from the first moment.
+// The program is the command of the pane (layout.apply takes an argv), so no shell starts: the shell of the user reads
+// its startup files first, which took a quarter of a second, and typing "exec ..." into it showed that line as the title
+// of the tab. Quitting the program ends the pane, and the tab is marked so the hooks close it when only its sidebar is
+// left. A herdr that answers layout.apply with an error gets the old way: a shell that hands itself over (exec).
 func Open(c Client, e Env, dir string, argv []string, label string) error {
 	if len(argv) == 0 {
 		return errors.New("herdr: no program to open")
 	}
+	params := map[string]any{
+		"focus":     true,
+		"tab_label": label,
+		"root":      map[string]any{"type": "pane", "label": label, "cwd": dir, "command": argv},
+	}
+	if e.WorkspaceID != "" {
+		params["workspace_id"] = e.WorkspaceID
+	}
+	var r struct {
+		Layout struct {
+			Tab string `json:"tab_id"`
+		} `json:"layout"`
+	}
+	err := c.Call("layout.apply", params, &r)
+	var refused *CallError
+	if errors.As(err, &refused) {
+		return openInShell(c, e, dir, argv, label)
+	}
+	if err != nil {
+		return err
+	}
+	if r.Layout.Tab == "" {
+		return errors.New("herdr: the new tab has no pane")
+	}
+	return mark(e.StateDir, opened, r.Layout.Tab, true)
+}
+
+// openInShell is Open for a herdr without layout.apply: a tab with the shell of the user, which hands itself over to
+// the program.
+func openInShell(c Client, e Env, dir string, argv []string, label string) error {
 	var r struct {
 		Root struct {
 			ID  string `json:"pane_id"`
