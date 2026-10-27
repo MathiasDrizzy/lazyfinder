@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.12] - 2026-10-27
+
 ### Changed
 
 - The herdr sidebar draws at most 15 times a second instead of 60. Bubble Tea's renderer ticker woke every idle sidebar
