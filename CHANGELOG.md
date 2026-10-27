@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.13] - 2026-10-27
+
 ### Fixed
 
 - herdr plugin: ending a sidebar with a signal (herdr hanging up its panes when it stops, a reload with SIGTERM) no
