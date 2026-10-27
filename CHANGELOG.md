@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.10] - 2026-10-27
+
 ### Changed
 
 - herdr plugin: the sidebar is the pane that runs lazyfinder, not the pane with the title `lazyfinder` (ADR 0023). A
