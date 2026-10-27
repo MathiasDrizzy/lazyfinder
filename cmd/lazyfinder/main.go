@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	tea "charm.land/bubbletea/v2"
 	"github.com/MathiasDrizzy/lazyfinder/internal/clipboard"
 	"github.com/MathiasDrizzy/lazyfinder/internal/config"
 	"github.com/MathiasDrizzy/lazyfinder/internal/i18n"
@@ -259,7 +260,11 @@ func launch(o Options) (string, error) {
 	}
 	d.Index = search.Spotlight
 	m := ui.New(d)
-	p, stop := newProgram(m, ui.QuitFilter, signalGrace)
+	var popts []tea.ProgramOption
+	if fps := programFPS(o.Follow); fps > 0 {
+		popts = append(popts, tea.WithFPS(fps))
+	}
+	p, stop := newProgram(m, ui.QuitFilter, signalGrace, popts...)
 	_, err := p.Run()
 	stop()
 	clearImages(os.Stdout, m.ImageShown())

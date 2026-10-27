@@ -51,7 +51,7 @@ func herdrFollower(getenv func(string) string) func() string {
 	}
 	c := herdr.Client{Socket: sock}
 	return func() string {
-		panes, err := c.Panes()
+		panes, err := c.List() // the folder of the pane next to it needs no word on which panes are sidebars
 		if err != nil {
 			return "" // herdr is busy or closing: keep the folder shown
 		}

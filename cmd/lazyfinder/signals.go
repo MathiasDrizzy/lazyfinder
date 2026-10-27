@@ -14,6 +14,19 @@ import (
 	"github.com/MathiasDrizzy/lazyfinder/internal/ui"
 )
 
+// sidebarFPS is how many times a second the pane of the herdr plugin may draw. Bubble Tea runs its renderer on a ticker
+// of this rate for as long as the program lives, 60 by default, so an idle sidebar woke 60 times a second; at 15 a key
+// or a click shows within 70 ms.
+const sidebarFPS = 15
+
+// programFPS is the rate the program draws at: low for the sidebar, 0 (Bubble Tea's default) for the window.
+func programFPS(follow bool) int {
+	if follow {
+		return sidebarFPS
+	}
+	return 0
+}
+
 // signalGrace is how long a hangup or a kill waits for the program to end the way q does before it is killed.
 const signalGrace = 10 * time.Second
 

@@ -195,3 +195,15 @@ func TestAnImageLeftOnScreenIsDeletedAfterTheProgram(t *testing.T) {
 		t.Fatalf("wrote %q without an image", out.String())
 	}
 }
+
+// Bubble Tea draws on a ticker of 60 beats a second even when nothing changes, which woke every idle sidebar 60 times
+// a second. The pane of the herdr plugin sits beside another program all day and changes at the pace of a person: it
+// beats less often (a key or a click shows within 70 ms). The window of the normal mode keeps the default.
+func TestTheSidebarBeatsLessOftenThanTheWindow(t *testing.T) {
+	if got := programFPS(true); got < 10 || got > 20 {
+		t.Fatalf("the sidebar draws at %d frames a second, want 10 to 20", got)
+	}
+	if got := programFPS(false); got != 0 {
+		t.Fatalf("the window draws at %d frames a second, want Bubble Tea's default (0)", got)
+	}
+}

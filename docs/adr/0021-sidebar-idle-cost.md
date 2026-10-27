@@ -25,6 +25,15 @@ poll, used 0.1%.
   when it ends (`gitLateMsg`). Measured with a pty and a `git` that counts calls: 56.1 to 3.0 processes a second at
   twenty files a second, 11.6 to 3.0 at four edits of a tracked file, and a lone new file still shows, marked, in 0.1 s.
   A refresh the user asks for and entering a folder read git at once.
+* The sidebar draws at most 15 times a second (`programFPS`, 2026-10-27). Bubble Tea runs its renderer on a ticker of 60
+  beats a second for as long as the program lives, so an idle sidebar woke 60 times a second whatever it showed. A key
+  shows within 50 ms instead of 15 (measured with a pty: median 46 ms against 13). Idle CPU of a sidebar, six at a time,
+  with the plugin environment: 0.70% to 0.31%; without herdr: 0.38% to 0.13%. The window of the normal mode keeps 60.
+* The poll of the folder of the other pane is one `pane.list` (`Client.List`). Since 0.16.10 it also asked
+  `pane.process_info` for every pane that runs no agent, to tell the sidebars; only the hooks need that (`Client.Panes`).
+* Not done, on purpose: following the other pane by herdr events instead of polling. herdr emits focus, title and
+  layout events but none for a change of folder (`cd`), so a slower safety poll would remain, and a long-lived socket
+  reader with its `events_lost` recovery would add more than the roughly 0.15% it would save.
 * The herdr poll asks every 500 ms while the folder of the other pane changes or the user is in the sidebar, and every
   second once 20 answers in a row did not change (`herdrDelay`). It is one call over a unix socket; measured, it costs
   nothing in lazyfinder and about 1% of one core in the herdr server for eight sidebars, so the backoff only halves

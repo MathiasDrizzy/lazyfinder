@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The herdr sidebar draws at most 15 times a second instead of 60. Bubble Tea's renderer ticker woke every idle sidebar
+  60 times a second. Idle CPU of a sidebar went from 0.70% to 0.31% (0.38% to 0.13% outside herdr); a key shows in about
+  46 ms instead of 13 (ADR 0021).
+- The sidebar polling the folder of the pane next to it asks herdr for the pane list only; telling which panes are
+  sidebars (a `pane.process_info` for each) is left to the hooks that need it. This also stops probing panes that died
+  between the list and the probe.
+
 ## [0.16.11] - 2026-10-27
 
 ### Changed

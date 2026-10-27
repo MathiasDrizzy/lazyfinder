@@ -29,7 +29,7 @@ func (s Settings) WidthFor(screen int) int {
 
 // tabOf is the tab of a pane.
 func tabOf(c Client, pane string) (string, error) {
-	panes, err := c.Panes()
+	panes, err := c.List()
 	if err != nil {
 		return "", err
 	}

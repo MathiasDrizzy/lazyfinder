@@ -99,7 +99,7 @@ func restoredTabs(panes []Pane) []string {
 
 // Hide keeps the tab of pane without a sidebar until the toggle opens it again: the user left the sidebar pane with q.
 func Hide(c Client, e Env, pane string) error {
-	panes, err := c.Panes()
+	panes, err := c.List()
 	if err != nil {
 		return err
 	}

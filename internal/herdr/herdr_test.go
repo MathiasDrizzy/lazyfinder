@@ -6,6 +6,7 @@ import (
 	"net"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -60,5 +61,44 @@ func TestClientDecodesTheResultAndTheError(t *testing.T) {
 	err = c.Call("pane.close", map[string]string{"pane_id": "w9:p9"}, nil)
 	if err == nil || !strings.Contains(err.Error(), "pane not found") {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+// The sidebar asks herdr for the folder of the pane next to it every half second, in every tab. That is one pane.list
+// and nothing else: telling which panes are sidebars takes a pane.process_info for each of them, and only the hooks need
+// that.
+func TestFollowingAFolderAsksHerdrForTheListOnly(t *testing.T) {
+	var mu sync.Mutex
+	var methods []string
+	c := Client{Socket: fakeServer(t, func(method string, _ json.RawMessage) string {
+		mu.Lock()
+		defer mu.Unlock()
+		methods = append(methods, method)
+		return `"result":{"panes":[{"pane_id":"w1:p1","tab_id":"w1:t1","focused":true,"cwd":"/w/api"},{"pane_id":"w1:p2","tab_id":"w1:t1","label":"lazyfinder"}]}`
+	})}
+	panes, err := c.List()
+	if err != nil || len(panes) != 2 {
+		t.Fatalf("%v %v", panes, err)
+	}
+	if dir := FollowDir(panes, "w1:p2"); dir != "/w/api" {
+		t.Fatalf("dir %q", dir)
+	}
+	if _, err := tabOf(c, "w1:p2"); err != nil {
+		t.Fatal(err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if got := strings.Join(methods, ","); got != "pane.list,pane.list" {
+		t.Fatalf("calls: %s, want only pane.list twice", got)
+	}
+}
+
+// The hooks do need to know the sidebars, and Panes says it.
+func TestPanesStillSaysWhichAreSidebars(t *testing.T) {
+	f := newFake()
+	f.panes = append(f.panes, Pane{ID: "w1:p9", Tab: "w1:t1", Label: Label})
+	panes, err := f.serve(t).Panes()
+	if err != nil || len(panes) != 2 || panes[0].Sidebar || !panes[1].Sidebar {
+		t.Fatalf("%+v %v", panes, err)
 	}
 }

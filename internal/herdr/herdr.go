@@ -134,14 +134,24 @@ func (c Client) Call(method string, params, result any) error {
 	return nil
 }
 
-// Panes lists every pane of the server and says which of them are the sidebar, by the program they run.
-func (c Client) Panes() ([]Pane, error) {
+// List lists every pane of the server, as herdr says it. The sidebar asks this every half second to follow the folder
+// of the pane next to it, so it is one call and nothing more.
+func (c Client) List() ([]Pane, error) {
 	var r struct {
 		Panes []Pane `json:"panes"`
 	}
-	if err := c.Call("pane.list", map[string]any{}, &r); err != nil {
+	err := c.Call("pane.list", map[string]any{}, &r)
+	return r.Panes, err
+}
+
+// Panes is List that also says which panes are the sidebar, by the program they run: one pane.process_info for each
+// pane that runs no agent. The hooks need it; the sidebar polling the folder does not.
+func (c Client) Panes() ([]Pane, error) {
+	panes, err := c.List()
+	if err != nil {
 		return nil, err
 	}
+	r := struct{ Panes []Pane }{panes}
 	for i, p := range r.Panes {
 		if p.Agent == "" {
 			r.Panes[i].Sidebar, r.Panes[i].Stale = c.probe(p)
