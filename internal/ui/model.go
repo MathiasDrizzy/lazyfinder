@@ -146,6 +146,7 @@ type Model struct {
 	fresh        map[string]bool // names that appeared while we looked at this folder
 	git          gitState
 	gitSig       string // gitDirSignature at the last scan
+	signalled    bool   // the program is ending because of a signal, not because the user quit
 	herdrQuiet   int    // answers of herdr in a row that did not change the folder
 	gitScanAt    time.Time
 	gitRescan    bool          // a read of git is waiting for GitMinGap to end
@@ -528,6 +529,7 @@ func (m *Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	case SignalMsg:
+		m.signalled = true // a signal is not the user closing the sidebar: the tab keeps its place for one
 		if m.op.busy && m.op.quit {
 			return m, nil // already stopping the copy; it quits when that is done
 		}

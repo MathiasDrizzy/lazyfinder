@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- herdr plugin: ending a sidebar with a signal (herdr hanging up its panes when it stops, a reload with SIGTERM) no
+  longer tells herdr the user closed it. It was handled like `q`, which leaves the tab without a sidebar: after herdr
+  restarted, tabs could stay without one.
+
 ## [0.16.12] - 2026-10-27
 
 ### Changed

@@ -270,3 +270,19 @@ func TestTheHerdrPollSlowsDownWhileNothingChanges(t *testing.T) {
 		t.Fatalf("a key press: %v, want %v", d, herdrPoll)
 	}
 }
+
+// A signal is not the user closing the sidebar: herdr hangs up its panes when it stops, and a reload ends the sidebar
+// with a SIGTERM. Both quit like q, but only q tells herdr to leave the tab without a sidebar, or every tab would stay
+// without one after herdr restarts.
+func TestASignalDoesNotHideTheSidebarInItsTab(t *testing.T) {
+	e := newEnv(t)
+	hidden := 0
+	e.m.deps.HerdrHide = func() { hidden++ }
+	_, cmd := e.m.Update(SignalMsg{})
+	if cmd == nil || !e.m.quitting {
+		t.Fatalf("the signal did not quit: cmd %v, quitting %v", cmd != nil, e.m.quitting)
+	}
+	if hidden != 0 {
+		t.Fatalf("a signal hid the sidebar of its tab (%d times)", hidden)
+	}
+}
